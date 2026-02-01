@@ -1,6 +1,10 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const FAQ = () => {
+  const { ref: headerRef, isVisible: headerVisible } = useScrollAnimation();
+  const { ref: accordionRef, isVisible: accordionVisible } = useScrollAnimation();
+
   const faqs = [
     {
       question: "How long does it take to set up my portal?",
@@ -39,7 +43,10 @@ const FAQ = () => {
   return (
     <section id="faq" className="py-20 bg-muted/30">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
+        <div
+          ref={headerRef}
+          className={`text-center mb-16 opacity-0 ${headerVisible ? "animate-fade-in" : ""}`}
+        >
           <span className="text-primary font-semibold text-sm uppercase tracking-wider">
             FAQ
           </span>
@@ -51,7 +58,11 @@ const FAQ = () => {
           </p>
         </div>
 
-        <div className="max-w-3xl mx-auto">
+        <div
+          ref={accordionRef}
+          className={`max-w-3xl mx-auto opacity-0 ${accordionVisible ? "animate-fade-in" : ""}`}
+          style={{ animationDelay: "0.1s" }}
+        >
           <Accordion type="single" collapsible className="space-y-4">
             {faqs.map((faq, index) => (
               <AccordionItem

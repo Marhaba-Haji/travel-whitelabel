@@ -5,8 +5,12 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { Phone, Mail, MapPin, MessageCircle } from "lucide-react";
 import { useState } from "react";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const Footer = () => {
+  const { ref: formRef, isVisible: formVisible } = useScrollAnimation();
+  const { ref: infoRef, isVisible: infoVisible } = useScrollAnimation();
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -46,7 +50,10 @@ const Footer = () => {
       <div className="container mx-auto px-4 py-16">
         <div className="grid lg:grid-cols-2 gap-12">
           {/* Contact Form */}
-          <div>
+          <div
+            ref={formRef}
+            className={`opacity-0 ${formVisible ? "animate-fade-in-left" : ""}`}
+          >
             <h3 className="text-2xl font-bold mb-2">Get in Touch</h3>
             <p className="text-background/70 mb-6">
               Have questions? Fill out the form and our team will get back to you within 24 hours.
@@ -110,7 +117,10 @@ const Footer = () => {
           </div>
 
           {/* Contact Info & Links */}
-          <div className="lg:pl-8">
+          <div
+            ref={infoRef}
+            className={`lg:pl-8 opacity-0 ${infoVisible ? "animate-fade-in-right" : ""}`}
+          >
             <div className="mb-8">
               <h3 className="text-2xl font-bold mb-4">Facelyft</h3>
               <p className="text-background/70 mb-6">

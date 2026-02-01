@@ -1,6 +1,10 @@
 import { CheckCircle } from "lucide-react";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const HowItWorks = () => {
+  const { ref: headerRef, isVisible: headerVisible } = useScrollAnimation();
+  const { ref: stepsRef, isVisible: stepsVisible } = useScrollAnimation();
+
   const steps = [
     {
       step: "01",
@@ -27,7 +31,10 @@ const HowItWorks = () => {
   return (
     <section className="py-20 bg-background">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
+        <div
+          ref={headerRef}
+          className={`text-center mb-16 opacity-0 ${headerVisible ? "animate-fade-in" : ""}`}
+        >
           <span className="text-primary font-semibold text-sm uppercase tracking-wider">
             Quick Setup
           </span>
@@ -39,7 +46,7 @@ const HowItWorks = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div ref={stepsRef} className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {steps.map((item, index) => (
             <div key={item.step} className="relative">
               {/* Connector Line */}
@@ -47,7 +54,10 @@ const HowItWorks = () => {
                 <div className="hidden lg:block absolute top-8 left-[60%] w-[80%] h-0.5 bg-border" />
               )}
               
-              <div className="relative bg-card rounded-xl p-6 border border-border hover:border-primary/30 hover:shadow-lg transition-all duration-300">
+              <div
+                className={`relative bg-card rounded-xl p-6 border border-border hover:border-primary/30 hover:shadow-lg transition-all duration-300 opacity-0 ${stepsVisible ? "animate-fade-in" : ""}`}
+                style={{ animationDelay: `${index * 0.15}s` }}
+              >
                 <div className="flex items-center gap-4 mb-4">
                   <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center text-2xl font-bold text-primary-foreground">
                     {item.step}
