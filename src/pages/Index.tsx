@@ -10,6 +10,7 @@ import Testimonials from "@/components/landing/Testimonials";
 import FAQ from "@/components/landing/FAQ";
 import Footer from "@/components/landing/Footer";
 import FloatingWhatsApp from "@/components/landing/FloatingWhatsApp";
+import StickyCTA from "@/components/landing/StickyCTA";
 
 const Index = () => {
   return (
@@ -28,6 +29,7 @@ const Index = () => {
       </main>
       <Footer />
       <FloatingWhatsApp />
+      <StickyCTA />
     </div>
   );
 };
