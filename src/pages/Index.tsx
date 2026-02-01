@@ -1,5 +1,6 @@
 import Header from "@/components/landing/Header";
 import Hero from "@/components/landing/Hero";
+import TrustedBy from "@/components/landing/TrustedBy";
 import Stats from "@/components/landing/Stats";
 import Features from "@/components/landing/Features";
 import Portals from "@/components/landing/Portals";
@@ -16,6 +17,7 @@ const Index = () => {
       <Header />
       <main>
         <Hero />
+        <TrustedBy />
         <Stats />
         <Features />
         <Portals />

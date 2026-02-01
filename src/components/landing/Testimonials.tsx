@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Star } from "lucide-react";
+import { Star, TrendingUp } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const Testimonials = () => {
@@ -10,31 +10,47 @@ const Testimonials = () => {
     {
       name: "Rajesh Kumar",
       role: "CEO, TravelMax Tours",
+      avatar: "RK",
+      avatarColor: "from-primary to-primary/70",
       content: "Facelyft transformed our business. We launched our own branded portal in just 2 days and saw a 40% increase in B2B bookings within the first month.",
       rating: 5,
+      metric: { value: "40%", label: "Increase in bookings" },
+      company: "TravelMax",
     },
     {
       name: "Priya Sharma",
       role: "Director, Wanderlust Holidays",
+      avatar: "PS",
+      avatarColor: "from-primary/90 to-primary/60",
       content: "The multi-portal system is a game-changer. Our suppliers love the dedicated access, and our agents appreciate the professional booking interface.",
       rating: 5,
+      metric: { value: "3x", label: "Faster onboarding" },
+      company: "Wanderlust",
     },
     {
       name: "Mohammed Al-Rashid",
       role: "Founder, Hajj Travels International",
+      avatar: "MA",
+      avatarColor: "from-primary/80 to-primary/50",
       content: "The Hajj and Umrah package management is exactly what we needed. The platform handles everything from group bookings to visa processing seamlessly.",
       rating: 5,
+      metric: { value: "500+", label: "Groups managed" },
+      company: "Hajj Travels",
     },
   ];
 
   return (
-    <section className="py-20 bg-background">
-      <div className="container mx-auto px-4">
+    <section className="py-20 bg-muted/20 relative overflow-hidden">
+      {/* Decorative Background */}
+      <div className="absolute top-0 left-0 w-72 h-72 bg-primary/5 rounded-full blur-3xl" />
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/3 rounded-full blur-3xl" />
+      
+      <div className="container mx-auto px-4 relative">
         <div
           ref={headerRef}
           className={`text-center mb-16 opacity-0 ${headerVisible ? "animate-fade-in" : ""}`}
         >
-          <span className="text-primary font-semibold text-sm uppercase tracking-wider">
+          <span className="inline-block text-primary font-semibold text-sm uppercase tracking-wider bg-primary/10 px-4 py-1 rounded-full mb-4">
             Testimonials
           </span>
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-2 mb-4">
@@ -49,15 +65,27 @@ const Testimonials = () => {
           {testimonials.map((testimonial, index) => (
             <Card
               key={testimonial.name}
-              className={`hover:shadow-lg transition-all duration-300 opacity-0 ${gridVisible ? "animate-fade-in" : ""}`}
+              className={`hover:shadow-xl transition-all duration-300 opacity-0 border-border hover:border-primary/20 ${gridVisible ? "animate-fade-in" : ""}`}
               style={{ animationDelay: `${index * 0.15}s` }}
             >
               <CardContent className="pt-6">
-                {/* Rating */}
-                <div className="flex gap-1 mb-4">
-                  {Array.from({ length: testimonial.rating }).map((_, i) => (
-                    <Star key={i} className="h-5 w-5 fill-primary text-primary" />
-                  ))}
+                {/* Rating & Metric */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex gap-1">
+                    {Array.from({ length: testimonial.rating }).map((_, i) => (
+                      <Star key={i} className="h-5 w-5 fill-primary text-primary" />
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-1 bg-primary/10 text-primary px-2 py-1 rounded-full text-xs font-semibold">
+                    <TrendingUp className="h-3 w-3" />
+                    {testimonial.metric.value}
+                  </div>
+                </div>
+
+                {/* Metric Highlight */}
+                <div className="bg-accent/50 rounded-lg px-3 py-2 mb-4 text-center">
+                  <span className="text-lg font-bold text-primary">{testimonial.metric.value}</span>
+                  <span className="text-sm text-muted-foreground ml-1">{testimonial.metric.label}</span>
                 </div>
 
                 {/* Content */}
@@ -65,14 +93,17 @@ const Testimonials = () => {
                   "{testimonial.content}"
                 </p>
 
-                {/* Author */}
+                {/* Author with Avatar */}
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
-                    {testimonial.name.charAt(0)}
+                  <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${testimonial.avatarColor} flex items-center justify-center text-primary-foreground font-bold shadow-lg`}>
+                    {testimonial.avatar}
                   </div>
-                  <div>
+                  <div className="flex-1">
                     <p className="font-semibold text-foreground">{testimonial.name}</p>
                     <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+                  </div>
+                  <div className="bg-muted/50 px-2 py-1 rounded text-xs font-medium text-muted-foreground">
+                    {testimonial.company}
                   </div>
                 </div>
               </CardContent>
