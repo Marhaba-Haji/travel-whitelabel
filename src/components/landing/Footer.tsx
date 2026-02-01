@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { Phone, Mail, MapPin, MessageCircle } from "lucide-react";
+import { Phone, Mail, MapPin, MessageCircle, Shield, Lock, CreditCard, Facebook, Twitter, Instagram, Linkedin, ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
@@ -18,6 +18,8 @@ const Footer = () => {
     message: "",
   });
 
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     toast({
@@ -25,6 +27,23 @@ const Footer = () => {
       description: "Thank you for contacting us. We'll get back to you within 24 hours.",
     });
     setFormData({ name: "", email: "", phone: "", message: "" });
+  };
+
+  const handleNewsletterSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newsletterEmail.trim() || !newsletterEmail.includes("@")) {
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+    toast({
+      title: "Subscribed!",
+      description: "Thank you for subscribing to our newsletter.",
+    });
+    setNewsletterEmail("");
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -36,6 +55,13 @@ const Footer = () => {
     { name: "Portals", href: "#portals" },
     { name: "Pricing", href: "#pricing" },
     { name: "FAQ", href: "#faq" },
+  ];
+
+  const socialLinks = [
+    { icon: Facebook, href: "https://facebook.com/facelyft", label: "Facebook" },
+    { icon: Twitter, href: "https://twitter.com/facelyft", label: "Twitter" },
+    { icon: Instagram, href: "https://instagram.com/facelyft", label: "Instagram" },
+    { icon: Linkedin, href: "https://linkedin.com/company/facelyft", label: "LinkedIn" },
   ];
 
   const scrollToSection = (href: string) => {
@@ -69,6 +95,7 @@ const Footer = () => {
                     onChange={handleChange}
                     placeholder="Your name"
                     required
+                    maxLength={100}
                     className="bg-background/10 border-background/20 text-background placeholder:text-background/50"
                   />
                 </div>
@@ -82,6 +109,7 @@ const Footer = () => {
                     onChange={handleChange}
                     placeholder="your@email.com"
                     required
+                    maxLength={255}
                     className="bg-background/10 border-background/20 text-background placeholder:text-background/50"
                   />
                 </div>
@@ -94,6 +122,7 @@ const Footer = () => {
                   value={formData.phone}
                   onChange={handleChange}
                   placeholder="+91 XXXXX XXXXX"
+                  maxLength={20}
                   className="bg-background/10 border-background/20 text-background placeholder:text-background/50"
                 />
               </div>
@@ -107,6 +136,7 @@ const Footer = () => {
                   placeholder="Tell us about your requirements..."
                   rows={4}
                   required
+                  maxLength={1000}
                   className="bg-background/10 border-background/20 text-background placeholder:text-background/50"
                 />
               </div>
@@ -126,6 +156,25 @@ const Footer = () => {
               <p className="text-background/70 mb-6">
                 Technology and Marketing Solutions — Empowering travel agencies with world-class B2B portal solutions.
               </p>
+
+              {/* Newsletter Signup */}
+              <div className="bg-background/5 rounded-lg p-4 border border-background/10">
+                <h4 className="font-semibold mb-2">Subscribe to Our Newsletter</h4>
+                <p className="text-background/60 text-sm mb-3">Get the latest updates, tips, and industry insights.</p>
+                <form onSubmit={handleNewsletterSubmit} className="flex gap-2">
+                  <Input
+                    type="email"
+                    value={newsletterEmail}
+                    onChange={(e) => setNewsletterEmail(e.target.value)}
+                    placeholder="your@email.com"
+                    maxLength={255}
+                    className="bg-background/10 border-background/20 text-background placeholder:text-background/50 flex-1"
+                  />
+                  <Button type="submit" variant="secondary" size="icon" className="shrink-0">
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </form>
+              </div>
             </div>
 
             {/* Contact Details */}
@@ -159,27 +208,90 @@ const Footer = () => {
               </div>
             </div>
 
-            {/* Quick Links */}
-            <div>
-              <h4 className="font-semibold mb-4">Quick Links</h4>
-              <div className="flex flex-wrap gap-4">
-                {quickLinks.map((link) => (
-                  <button
-                    key={link.name}
-                    onClick={() => scrollToSection(link.href)}
-                    className="text-background/70 hover:text-background transition-colors"
-                  >
-                    {link.name}
-                  </button>
-                ))}
+            {/* Quick Links & Social */}
+            <div className="flex flex-wrap items-start justify-between gap-8">
+              <div>
+                <h4 className="font-semibold mb-4">Quick Links</h4>
+                <div className="flex flex-wrap gap-4">
+                  {quickLinks.map((link) => (
+                    <button
+                      key={link.name}
+                      onClick={() => scrollToSection(link.href)}
+                      className="text-background/70 hover:text-background transition-colors"
+                    >
+                      {link.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Social Links */}
+              <div>
+                <h4 className="font-semibold mb-4">Follow Us</h4>
+                <div className="flex gap-3">
+                  {socialLinks.map((social) => (
+                    <a
+                      key={social.label}
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-10 h-10 rounded-full bg-background/10 flex items-center justify-center text-background/70 hover:bg-background/20 hover:text-background transition-all"
+                      aria-label={social.label}
+                    >
+                      <social.icon className="h-5 w-5" />
+                    </a>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="border-t border-background/10 mt-12 pt-8 text-center text-background/50 text-sm">
-          <p>© {new Date().getFullYear()} Facelyft Technology and Marketing Solutions. All rights reserved.</p>
+        {/* Trust Badges Section */}
+        <div className="border-t border-background/10 mt-12 pt-8">
+          <div className="flex flex-wrap items-center justify-center gap-6 mb-6">
+            {/* Security Badges */}
+            <div className="flex items-center gap-2 text-background/60">
+              <Shield className="w-5 h-5" />
+              <span className="text-sm">SSL Secured</span>
+            </div>
+            <div className="flex items-center gap-2 text-background/60">
+              <Lock className="w-5 h-5" />
+              <span className="text-sm">256-bit Encryption</span>
+            </div>
+            <div className="flex items-center gap-2 text-background/60">
+              <CreditCard className="w-5 h-5" />
+              <span className="text-sm">Secure Payments</span>
+            </div>
+            
+            {/* Divider */}
+            <div className="hidden sm:block h-6 w-px bg-background/20" />
+            
+            {/* Payment Icons */}
+            <div className="flex items-center gap-2">
+              <div className="bg-background/10 border border-background/20 rounded px-2 py-1">
+                <span className="text-[10px] font-bold text-background/80 tracking-wider">VISA</span>
+              </div>
+              <div className="bg-background/10 border border-background/20 rounded px-2 py-1 flex items-center gap-0.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-destructive/60" />
+                <div className="w-2.5 h-2.5 rounded-full bg-background/40 -ml-1" />
+              </div>
+              <div className="bg-background/10 border border-background/20 rounded px-2 py-1">
+                <span className="text-[10px] font-bold text-background/80">UPI</span>
+              </div>
+              <div className="bg-background/10 border border-background/20 rounded px-2 py-1">
+                <span className="text-[10px] font-bold text-background/60">RuPay</span>
+              </div>
+              <div className="bg-background/10 border border-background/20 rounded px-2 py-1">
+                <span className="text-[10px] font-bold text-background/60">NetBanking</span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Copyright */}
+          <div className="text-center text-background/50 text-sm">
+            <p>© {new Date().getFullYear()} Facelyft Technology and Marketing Solutions. All rights reserved.</p>
+          </div>
         </div>
       </div>
     </footer>
