@@ -8,6 +8,7 @@ import Pricing from "@/components/landing/Pricing";
 import Testimonials from "@/components/landing/Testimonials";
 import FAQ from "@/components/landing/FAQ";
 import Footer from "@/components/landing/Footer";
+import FloatingWhatsApp from "@/components/landing/FloatingWhatsApp";
 
 const Index = () => {
   return (
@@ -24,6 +25,7 @@ const Index = () => {
         <FAQ />
       </main>
       <Footer />
+      <FloatingWhatsApp />
     </div>
   );
 };
