@@ -1,8 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Plane, Hotel, FileText, MapPin } from "lucide-react";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const Hero = () => {
+  const { ref: leftRef, isVisible: leftVisible } = useScrollAnimation();
+  const { ref: rightRef, isVisible: rightVisible } = useScrollAnimation();
+
   const scrollToSection = (href: string) => {
     const element = document.querySelector(href);
     if (element) {
@@ -19,7 +23,10 @@ const Hero = () => {
       <div className="container mx-auto px-4 relative">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left Content */}
-          <div className="text-center lg:text-left">
+          <div
+            ref={leftRef}
+            className={`text-center lg:text-left opacity-0 ${leftVisible ? "animate-fade-in" : ""}`}
+          >
             <Badge className="mb-4 bg-primary/10 text-primary hover:bg-primary/20 border-0">
               Complete Travel Tech Solution
             </Badge>
@@ -56,7 +63,11 @@ const Hero = () => {
           </div>
 
           {/* Right Content - Visual */}
-          <div className="relative hidden lg:block">
+          <div
+            ref={rightRef}
+            className={`relative hidden lg:block opacity-0 ${rightVisible ? "animate-fade-in-right" : ""}`}
+            style={{ animationDelay: "0.2s" }}
+          >
             <div className="relative bg-card rounded-2xl shadow-2xl border border-border p-6">
               {/* Mock Dashboard */}
               <div className="bg-primary/5 rounded-lg p-4 mb-4">

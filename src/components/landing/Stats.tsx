@@ -1,6 +1,9 @@
 import { Users, Globe, Briefcase, Clock } from "lucide-react";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const Stats = () => {
+  const { ref, isVisible } = useScrollAnimation();
+
   const stats = [
     {
       icon: Users,
@@ -30,10 +33,14 @@ const Stats = () => {
 
   return (
     <section className="py-12 bg-primary">
-      <div className="container mx-auto px-4">
+      <div ref={ref} className="container mx-auto px-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-          {stats.map((stat) => (
-            <div key={stat.label} className="text-center">
+          {stats.map((stat, index) => (
+            <div
+              key={stat.label}
+              className={`text-center opacity-0 ${isVisible ? "animate-fade-in" : ""}`}
+              style={{ animationDelay: `${index * 0.1}s` }}
+            >
               <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary-foreground/10 mb-4">
                 <stat.icon className="h-6 w-6 text-primary-foreground" />
               </div>

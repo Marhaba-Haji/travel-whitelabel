@@ -1,7 +1,11 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plane, Hotel, FileText, MapPin, Globe, Palette } from "lucide-react";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const Features = () => {
+  const { ref: headerRef, isVisible: headerVisible } = useScrollAnimation();
+  const { ref: gridRef, isVisible: gridVisible } = useScrollAnimation();
+
   const features = [
     {
       icon: Plane,
@@ -38,7 +42,10 @@ const Features = () => {
   return (
     <section id="features" className="py-20 bg-background">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
+        <div
+          ref={headerRef}
+          className={`text-center mb-16 opacity-0 ${headerVisible ? "animate-fade-in" : ""}`}
+        >
           <span className="text-primary font-semibold text-sm uppercase tracking-wider">
             Complete API Suite
           </span>
@@ -50,9 +57,13 @@ const Features = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {features.map((feature) => (
-            <Card key={feature.title} className="group hover:shadow-lg transition-all duration-300 border-border hover:border-primary/30">
+        <div ref={gridRef} className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {features.map((feature, index) => (
+            <Card
+              key={feature.title}
+              className={`group hover:shadow-lg transition-all duration-300 border-border hover:border-primary/30 opacity-0 ${gridVisible ? "animate-scale-in" : ""}`}
+              style={{ animationDelay: `${index * 0.1}s` }}
+            >
               <CardHeader>
                 <div className="w-12 h-12 rounded-lg bg-accent flex items-center justify-center mb-4 group-hover:bg-primary/10 transition-colors">
                   <feature.icon className="h-6 w-6 text-primary" />

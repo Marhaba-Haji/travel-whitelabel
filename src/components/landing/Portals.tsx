@@ -1,8 +1,12 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Settings, PackageOpen, Users, ShoppingCart } from "lucide-react";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const Portals = () => {
+  const { ref: headerRef, isVisible: headerVisible } = useScrollAnimation();
+  const { ref: gridRef, isVisible: gridVisible } = useScrollAnimation();
+
   const portals = [
     {
       icon: Settings,
@@ -65,7 +69,10 @@ const Portals = () => {
   return (
     <section id="portals" className="py-20 bg-muted/30">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
+        <div
+          ref={headerRef}
+          className={`text-center mb-16 opacity-0 ${headerVisible ? "animate-fade-in" : ""}`}
+        >
           <span className="text-primary font-semibold text-sm uppercase tracking-wider">
             Multi-Portal System
           </span>
@@ -77,9 +84,13 @@ const Portals = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6">
-          {portals.map((portal) => (
-            <Card key={portal.title} className="hover:shadow-lg transition-all duration-300">
+        <div ref={gridRef} className="grid md:grid-cols-2 gap-6">
+          {portals.map((portal, index) => (
+            <Card
+              key={portal.title}
+              className={`hover:shadow-lg transition-all duration-300 opacity-0 ${gridVisible ? "animate-fade-in" : ""}`}
+              style={{ animationDelay: `${index * 0.15}s` }}
+            >
               <CardHeader>
                 <div className="flex items-start justify-between mb-2">
                   <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">

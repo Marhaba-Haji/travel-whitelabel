@@ -2,8 +2,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Check, ArrowRight } from "lucide-react";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const Pricing = () => {
+  const { ref, isVisible } = useScrollAnimation();
+
   const features = [
     "Flight API Integration",
     "Hotel API Integration",
@@ -31,7 +34,10 @@ const Pricing = () => {
   return (
     <section id="pricing" className="py-20 bg-muted/30">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
+        <div
+          ref={ref}
+          className={`text-center mb-16 opacity-0 ${isVisible ? "animate-fade-in" : ""}`}
+        >
           <span className="text-primary font-semibold text-sm uppercase tracking-wider">
             Simple Pricing
           </span>
@@ -43,7 +49,10 @@ const Pricing = () => {
           </p>
         </div>
 
-        <div className="max-w-lg mx-auto">
+        <div
+          className={`max-w-lg mx-auto opacity-0 ${isVisible ? "animate-scale-in" : ""}`}
+          style={{ animationDelay: "0.2s" }}
+        >
           <Card className="relative border-2 border-primary shadow-xl">
             {/* Popular Badge */}
             <div className="absolute -top-4 left-1/2 -translate-x-1/2">
