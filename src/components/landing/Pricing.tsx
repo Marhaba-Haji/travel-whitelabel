@@ -1,27 +1,86 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, ArrowRight, Shield, CreditCard, Sparkles } from "lucide-react";
+import { 
+  Check, 
+  ArrowRight, 
+  Shield, 
+  CreditCard, 
+  Sparkles, 
+  Flame,
+  Coffee,
+  TrendingUp,
+  Users,
+  Star,
+  Rocket,
+  GraduationCap,
+  Headphones,
+  BadgeCheck,
+  Clock,
+  Zap
+} from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import AnimatedCounter from "@/components/AnimatedCounter";
+import CountdownTimer from "@/components/CountdownTimer";
 
 const Pricing = () => {
   const { ref, isVisible } = useScrollAnimation();
 
-  const features = [
+  // Set countdown to 3 days from now
+  const countdownDate = new Date();
+  countdownDate.setDate(countdownDate.getDate() + 3);
+
+  const techStackFeatures = [
     "Flight API Integration",
-    "Hotel API Integration",
+    "Hotel API Integration", 
     "Visa API Integration",
     "Activities API Integration",
-    "Custom Domain Setup",
-    "White-Label Branding",
-    "Admin Portal Access",
-    "Supplier Portal Access",
-    "B2B Agent Portal",
-    "B2C Customer Portal",
-    "Hajj & Umrah Packages",
-    "Holiday Package Builder",
+    "4 White-label Portals",
+    "Custom Domain & Branding",
+  ];
+
+  const trainingFeatures = [
+    "Travel Industry Masterclass",
+    "Platform Training Videos",
+    "Sales & Marketing Training",
+    "Weekly Live Q&A Sessions",
+  ];
+
+  const supportFeatures = [
     "24/7 Technical Support",
-    "Regular Updates & Maintenance",
+    "Private Community Access",
+    "Monthly Success Calls",
+    "Top Performer Rewards",
+  ];
+
+  const earningTiers = [
+    { level: "Beginner (Part-time)", amount: "₹20,000", highlight: false },
+    { level: "Active Agent", amount: "₹50,000", highlight: true },
+    { level: "Power Seller", amount: "₹2,00,000", highlight: false },
+  ];
+
+  const testimonials = [
+    {
+      name: "Amit Sharma",
+      city: "Jaipur",
+      earnings: "₹1.5L in 2 months",
+      quote: "Best investment I ever made. The training alone is worth 10x the price!",
+      avatar: "AS",
+    },
+    {
+      name: "Priya Patel",
+      city: "Ahmedabad", 
+      earnings: "₹80K/month",
+      quote: "Started part-time, now it's my full-time business. Life-changing!",
+      avatar: "PP",
+    },
+    {
+      name: "Rahul Verma",
+      city: "Delhi",
+      earnings: "₹2L+ monthly",
+      quote: "The support team is incredible. They helped me close my first 50 bookings.",
+      avatar: "RV",
+    },
   ];
 
   const scrollToContact = () => {
@@ -34,122 +93,287 @@ const Pricing = () => {
   return (
     <section id="pricing" className="py-20 bg-muted/30 relative overflow-hidden">
       {/* Background decoration */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl" />
       
       <div className="container mx-auto px-4 relative">
+        {/* Header */}
         <div
           ref={ref}
-          className={`text-center mb-16 opacity-0 ${isVisible ? "animate-fade-in" : ""}`}
+          className={`text-center mb-12 opacity-0 ${isVisible ? "animate-fade-in" : ""}`}
         >
-          <span className="inline-block text-primary font-semibold text-sm uppercase tracking-wider bg-primary/10 px-4 py-1 rounded-full mb-4">
-            Simple Pricing
-          </span>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-2 mb-4">
-            One Plan, Everything Included
+          <Badge className="mb-4 bg-primary/10 text-primary hover:bg-primary/20 border-0">
+            Your Investment
+          </Badge>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mt-2 mb-4">
+            Less Than a Cup of{" "}
+            <span className="text-primary">Coffee Per Day</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            No hidden fees, no complicated tiers. Get access to all features at one transparent price.
+            One small investment. Unlimited earning potential. Your future starts here.
           </p>
         </div>
 
-        <div
-          className={`max-w-lg mx-auto opacity-0 ${isVisible ? "animate-scale-in" : ""}`}
-          style={{ animationDelay: "0.2s" }}
-        >
-          <Card className="relative border-2 border-primary shadow-2xl">
-            {/* Animated Popular Badge */}
-            <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-              <Badge className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-4 py-1.5 text-sm shadow-lg animate-pulse-soft">
-                <Sparkles className="w-3 h-3 mr-1" />
-                Most Popular
-              </Badge>
+        {/* Countdown Timer */}
+        <div className={`flex justify-center mb-8 opacity-0 ${isVisible ? "animate-fade-in" : ""}`} style={{ animationDelay: "0.1s" }}>
+          <div className="bg-destructive/10 border border-destructive/20 rounded-full px-6 py-3 flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Clock className="w-5 h-5 text-destructive animate-pulse" />
+              <span className="text-sm font-medium text-destructive">Special pricing ends in:</span>
             </div>
+            <CountdownTimer targetDate={countdownDate} />
+          </div>
+        </div>
 
-            <CardHeader className="text-center pt-10">
-              <CardTitle className="text-2xl">Complete Travel Portal</CardTitle>
-              <CardDescription className="text-base">
-                Everything you need to run your travel business
-              </CardDescription>
-              <div className="mt-6">
-                <div className="flex items-baseline justify-center gap-1">
-                  <span className="text-2xl font-medium text-muted-foreground">₹</span>
-                  <span className="text-6xl font-bold text-foreground">18,799</span>
+        <div className="grid lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          {/* Left Column - Value Stack */}
+          <div className={`space-y-6 opacity-0 ${isVisible ? "animate-fade-in" : ""}`} style={{ animationDelay: "0.2s" }}>
+            {/* Tech Stack */}
+            <div className="bg-card border border-border rounded-2xl p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Rocket className="w-5 h-5 text-primary" />
                 </div>
-                <p className="text-muted-foreground mt-2">per year</p>
-                <p className="text-sm text-primary font-medium mt-1">
-                  That's just ₹1,567/month!
-                </p>
+                <div>
+                  <h3 className="font-bold text-foreground">Your Tech Stack</h3>
+                  <p className="text-xs text-muted-foreground">Worth ₹2,00,000+</p>
+                </div>
               </div>
-            </CardHeader>
-
-            <CardContent className="pt-6">
-              <ul className="space-y-3">
-                {features.map((feature) => (
-                  <li key={feature} className="flex items-center gap-3">
-                    <div className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
-                      <Check className="h-3 w-3 text-primary" />
-                    </div>
-                    <span className="text-foreground">{feature}</span>
+              <ul className="space-y-2">
+                {techStackFeatures.map((feature) => (
+                  <li key={feature} className="flex items-center gap-2 text-sm">
+                    <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                    <span className="text-muted-foreground">{feature}</span>
                   </li>
                 ))}
               </ul>
+            </div>
 
-              {/* Money-Back Guarantee Badge */}
-              <div className="mt-6 p-4 bg-accent/50 rounded-lg border border-primary/20">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Shield className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-foreground text-sm">30-Day Money-Back Guarantee</p>
-                    <p className="text-xs text-muted-foreground">Not satisfied? Get a full refund, no questions asked.</p>
-                  </div>
+            {/* Training Academy */}
+            <div className="bg-card border border-border rounded-2xl p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <GraduationCap className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-foreground">Training Academy</h3>
+                  <p className="text-xs text-muted-foreground">Worth ₹50,000+</p>
                 </div>
               </div>
-            </CardContent>
+              <ul className="space-y-2">
+                {trainingFeatures.map((feature) => (
+                  <li key={feature} className="flex items-center gap-2 text-sm">
+                    <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                    <span className="text-muted-foreground">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-            <CardFooter className="flex flex-col gap-4 pt-6">
-              <Button size="lg" className="w-full text-lg group" onClick={scrollToContact}>
-                Get Started Now <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-              <p className="text-sm text-muted-foreground text-center">
-                No credit card required • 14-day free trial
-              </p>
-
-              {/* Payment Method Icons */}
-              <div className="flex items-center justify-center gap-3 pt-2">
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <CreditCard className="w-4 h-4" />
-                  <span>Secure Payment</span>
+            {/* Support System */}
+            <div className="bg-card border border-border rounded-2xl p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Headphones className="w-5 h-5 text-primary" />
                 </div>
-                <div className="h-4 w-px bg-border" />
+                <div>
+                  <h3 className="font-bold text-foreground">Support System</h3>
+                  <p className="text-xs text-muted-foreground">Priceless</p>
+                </div>
+              </div>
+              <ul className="space-y-2">
+                {supportFeatures.map((feature) => (
+                  <li key={feature} className="flex items-center gap-2 text-sm">
+                    <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                    <span className="text-muted-foreground">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* Center Column - Main Pricing Card */}
+          <div
+            className={`opacity-0 ${isVisible ? "animate-scale-in" : ""}`}
+            style={{ animationDelay: "0.3s" }}
+          >
+            <Card className="relative border-2 border-primary shadow-2xl animate-glow-pulse h-full">
+              {/* Hot Badge */}
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                <Badge className="bg-gradient-to-r from-destructive to-destructive/80 text-destructive-foreground px-4 py-1.5 text-sm shadow-lg">
+                  <Flame className="w-3 h-3 mr-1" />
+                  Early Bird Offer
+                </Badge>
+              </div>
+
+              {/* Spots Remaining */}
+              <div className="absolute -top-3 -right-3">
+                <div className="bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full animate-bounce-subtle">
+                  Only 23 spots left!
+                </div>
+              </div>
+
+              <CardHeader className="text-center pt-10 pb-4">
+                <div className="mb-4">
+                  {/* Strikethrough Original Price */}
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <span className="text-lg text-muted-foreground line-through">₹49,999</span>
+                    <Badge variant="secondary" className="bg-primary/10 text-primary">
+                      62% OFF
+                    </Badge>
+                  </div>
+                  
+                  {/* Main Price */}
+                  <div className="flex items-baseline justify-center gap-1">
+                    <span className="text-2xl font-medium text-muted-foreground">₹</span>
+                    <span className="text-6xl font-bold text-foreground">18,799</span>
+                  </div>
+                  <p className="text-muted-foreground mt-1">per year</p>
+                </div>
+
+                {/* Daily Breakdown */}
+                <div className="bg-accent/50 rounded-xl p-4 border border-primary/20">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <Coffee className="w-5 h-5 text-primary" />
+                    <span className="text-2xl font-bold text-primary">Just ₹51/day</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Less than your daily coffee • Less than a movie ticket
+                  </p>
+                </div>
+              </CardHeader>
+
+              <CardContent className="pt-4">
+                {/* ROI Highlight */}
+                <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 mb-6">
+                  <div className="flex items-center gap-2 mb-2">
+                    <TrendingUp className="w-5 h-5 text-primary" />
+                    <span className="font-semibold text-foreground">Your investment pays for itself</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    in just <span className="text-primary font-bold">2-3 bookings!</span>
+                  </p>
+                </div>
+
+                {/* Money-Back Guarantee */}
+                <div className="bg-accent/50 rounded-xl p-4 border border-primary/20">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <Shield className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-foreground">30-Day Money-Back Guarantee</p>
+                      <p className="text-xs text-muted-foreground">Try risk-free. Not satisfied? Full refund.</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+
+              <CardFooter className="flex flex-col gap-4 pt-4">
+                <Button size="lg" className="w-full text-lg group relative overflow-hidden" onClick={scrollToContact}>
+                  <Zap className="mr-2 h-5 w-5" />
+                  Start My Journey
+                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                </Button>
+                <p className="text-xs text-muted-foreground text-center">
+                  Setup takes 10 minutes. Start earning tomorrow.
+                </p>
+
                 {/* Payment Icons */}
-                <div className="flex items-center gap-2">
-                  {/* Visa */}
-                  <div className="bg-card border border-border rounded px-2 py-1">
-                    <span className="text-[10px] font-bold text-primary tracking-wider">VISA</span>
+                <div className="flex items-center justify-center gap-3 pt-2">
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <CreditCard className="w-4 h-4" />
+                    <span>Secure</span>
                   </div>
-                  {/* Mastercard */}
-                  <div className="bg-card border border-border rounded px-2 py-1 flex items-center gap-0.5">
-                    <div className="w-2.5 h-2.5 rounded-full bg-destructive/80" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-primary/60 -ml-1" />
-                  </div>
-                  {/* UPI */}
-                  <div className="bg-card border border-border rounded px-2 py-1">
-                    <span className="text-[10px] font-bold text-foreground">UPI</span>
-                  </div>
-                  {/* RuPay */}
-                  <div className="bg-card border border-border rounded px-2 py-1">
-                    <span className="text-[10px] font-bold text-muted-foreground">RuPay</span>
+                  <div className="h-4 w-px bg-border" />
+                  <div className="flex items-center gap-2">
+                    <div className="bg-card border border-border rounded px-2 py-1">
+                      <span className="text-[10px] font-bold text-primary tracking-wider">VISA</span>
+                    </div>
+                    <div className="bg-card border border-border rounded px-2 py-1 flex items-center gap-0.5">
+                      <div className="w-2.5 h-2.5 rounded-full bg-destructive/80" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-primary/60 -ml-1" />
+                    </div>
+                    <div className="bg-card border border-border rounded px-2 py-1">
+                      <span className="text-[10px] font-bold text-foreground">UPI</span>
+                    </div>
                   </div>
                 </div>
+              </CardFooter>
+            </Card>
+          </div>
+
+          {/* Right Column - Earnings & Social Proof */}
+          <div className={`space-y-6 opacity-0 ${isVisible ? "animate-fade-in" : ""}`} style={{ animationDelay: "0.4s" }}>
+            {/* Earnings Potential Widget */}
+            <div className="bg-card border-2 border-primary/30 rounded-2xl p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <Sparkles className="w-5 h-5 text-primary" />
+                <h3 className="font-bold text-foreground">What Successful Agents Earn</h3>
               </div>
-            </CardFooter>
-          </Card>
+              <div className="space-y-3">
+                {earningTiers.map((tier) => (
+                  <div 
+                    key={tier.level}
+                    className={`flex items-center justify-between p-3 rounded-lg ${
+                      tier.highlight 
+                        ? "bg-primary/10 border border-primary/30" 
+                        : "bg-muted/50"
+                    }`}
+                  >
+                    <span className={`text-sm ${tier.highlight ? "font-semibold text-foreground" : "text-muted-foreground"}`}>
+                      {tier.level}
+                    </span>
+                    <span className={`font-bold ${tier.highlight ? "text-primary text-lg" : "text-foreground"}`}>
+                      {tier.amount}/mo
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 pt-4 border-t border-border text-center">
+                <p className="text-sm text-muted-foreground">
+                  <span className="font-semibold text-primary">92%</span> of active users earn within 30 days
+                </p>
+              </div>
+            </div>
+
+            {/* Mini Testimonials */}
+            <div className="space-y-4">
+              {testimonials.map((testimonial) => (
+                <div key={testimonial.name} className="bg-card border border-border rounded-xl p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary flex-shrink-0">
+                      {testimonial.avatar}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-semibold text-foreground text-sm">{testimonial.name}</span>
+                        <BadgeCheck className="w-4 h-4 text-primary" />
+                      </div>
+                      <p className="text-xs text-muted-foreground mb-2">{testimonial.city} • {testimonial.earnings}</p>
+                      <p className="text-sm text-muted-foreground italic">"{testimonial.quote}"</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Join Community */}
+            <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 text-center">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <Users className="w-5 h-5 text-primary" />
+                <span className="font-semibold text-foreground">Join <AnimatedCounter end={500} className="text-primary" />+ Entrepreneurs</span>
+              </div>
+              <div className="flex items-center justify-center gap-1">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <Star key={i} className="w-4 h-4 text-primary fill-primary" />
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Trust Elements */}
-        <div className="mt-12 text-center space-y-4">
+        {/* Bottom Trust Elements */}
+        <div className="mt-12 text-center">
           <div className="flex items-center justify-center gap-6 flex-wrap">
             <div className="flex items-center gap-2 text-muted-foreground">
               <Shield className="w-4 h-4 text-primary" />
@@ -164,8 +388,8 @@ const Pricing = () => {
               <span className="text-sm">Secure Payments</span>
             </div>
           </div>
-          <p className="text-muted-foreground text-sm">
-            Trusted by <span className="font-semibold text-primary">500+</span> travel agencies worldwide
+          <p className="text-muted-foreground text-sm mt-4">
+            Have questions? <a href="https://wa.me/919999999999" className="text-primary font-medium hover:underline">Talk to a success coach</a>
           </p>
         </div>
       </div>
