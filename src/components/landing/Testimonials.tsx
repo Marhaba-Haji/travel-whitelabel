@@ -12,7 +12,7 @@ const Testimonials = () => {
       role: "CEO, TravelMax Tours",
       avatar: "RK",
       avatarColor: "from-primary to-primary/70",
-      content: "Facelyft transformed our business. We launched our own branded portal in just 2 days and saw a 40% increase in B2B bookings within the first month.",
+      content: "NOMADORE transformed our business. We launched our own branded portal in just 2 days and saw a 40% increase in B2B bookings within the first month.",
       rating: 5,
       metric: { value: "40%", label: "Increase in bookings" },
       company: "TravelMax",

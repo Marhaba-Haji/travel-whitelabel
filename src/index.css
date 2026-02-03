@@ -37,6 +37,10 @@ All colors MUST be HSL.
     --ring: 221 83% 53%;
 
     --radius: 0.5rem;
+    
+    /* Premium accent color for success/earnings */
+    --gold: 45 93% 47%;
+    --gold-foreground: 0 0% 100%;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5% 26%;
@@ -84,6 +88,10 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    
+    /* Premium accent for dark mode */
+    --gold: 45 93% 47%;
+    --gold-foreground: 0 0% 100%;
   }
 }
 

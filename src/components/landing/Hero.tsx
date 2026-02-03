@@ -119,7 +119,7 @@ const Hero = () => {
             {/* Main Headline */}
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4 leading-tight">
               Start Your Own
-              <span className="block text-primary bg-gradient-to-r from-primary to-primary/70 bg-clip-text"> Travel Agency </span>
+              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary to-gold animate-gradient-shift bg-[length:200%_auto]"> Travel Agency </span>
               in 24 Hours
             </h1>
 
