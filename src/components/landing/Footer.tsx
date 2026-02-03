@@ -58,10 +58,10 @@ const Footer = () => {
   ];
 
   const socialLinks = [
-    { icon: Facebook, href: "https://facebook.com/facelyft", label: "Facebook" },
-    { icon: Twitter, href: "https://twitter.com/facelyft", label: "Twitter" },
-    { icon: Instagram, href: "https://instagram.com/facelyft", label: "Instagram" },
-    { icon: Linkedin, href: "https://linkedin.com/company/facelyft", label: "LinkedIn" },
+    { icon: Facebook, href: "https://facebook.com/nomadore", label: "Facebook" },
+    { icon: Twitter, href: "https://twitter.com/nomadore", label: "Twitter" },
+    { icon: Instagram, href: "https://instagram.com/nomadore", label: "Instagram" },
+    { icon: Linkedin, href: "https://linkedin.com/company/nomadore", label: "LinkedIn" },
   ];
 
   const scrollToSection = (href: string) => {
@@ -152,9 +152,14 @@ const Footer = () => {
             className={`lg:pl-8 opacity-0 ${infoVisible ? "animate-fade-in-right" : ""}`}
           >
             <div className="mb-8">
-              <h3 className="text-2xl font-bold mb-4">Facelyft</h3>
+              <div className="flex items-center gap-1.5 mb-4">
+                <span className="text-2xl font-bold">
+                  <span className="text-background">NOMAD</span>
+                  <span className="text-primary">ORE</span>
+                </span>
+              </div>
               <p className="text-background/70 mb-6">
-                Technology and Marketing Solutions — Empowering travel agencies with world-class B2B portal solutions.
+                Travel Entrepreneurs Start Here — Launch your own travel business with complete training and support.
               </p>
 
               {/* Newsletter Signup */}
@@ -196,11 +201,11 @@ const Footer = () => {
                 <span>+91 99999 99999</span>
               </a>
               <a
-                href="mailto:info@facelyft.com"
+                href="mailto:hello@nomadore.com"
                 className="flex items-center gap-3 text-background/70 hover:text-background transition-colors"
               >
                 <Mail className="h-5 w-5" />
-                <span>info@facelyft.com</span>
+                <span>hello@nomadore.com</span>
               </a>
               <div className="flex items-center gap-3 text-background/70">
                 <MapPin className="h-5 w-5 flex-shrink-0" />
@@ -290,7 +295,7 @@ const Footer = () => {
           
           {/* Copyright */}
           <div className="text-center text-background/50 text-sm">
-            <p>© {new Date().getFullYear()} Facelyft Technology and Marketing Solutions. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} NOMADORE. All rights reserved.</p>
           </div>
         </div>
       </div>

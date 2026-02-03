@@ -22,6 +22,7 @@ import {
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import AnimatedCounter from "@/components/AnimatedCounter";
 import CountdownTimer from "@/components/CountdownTimer";
+import InvestmentCalculator from "@/components/InvestmentCalculator";
 
 const Pricing = () => {
   const { ref, isVisible } = useScrollAnimation();
@@ -56,7 +57,7 @@ const Pricing = () => {
   const earningTiers = [
     { level: "Beginner (Part-time)", amount: "₹20,000", highlight: false },
     { level: "Active Agent", amount: "₹50,000", highlight: true },
-    { level: "Power Seller", amount: "₹2,00,000", highlight: false },
+    { level: "Power Seller", amount: "₹2,00,000", highlight: false, badge: "Top Earner" },
   ];
 
   const testimonials = [
@@ -302,46 +303,17 @@ const Pricing = () => {
             </Card>
           </div>
 
-          {/* Right Column - Earnings & Social Proof */}
+          {/* Right Column - Calculator & Social Proof */}
           <div className={`space-y-6 opacity-0 ${isVisible ? "animate-fade-in" : ""}`} style={{ animationDelay: "0.4s" }}>
-            {/* Earnings Potential Widget */}
-            <div className="bg-card border-2 border-primary/30 rounded-2xl p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <Sparkles className="w-5 h-5 text-primary" />
-                <h3 className="font-bold text-foreground">What Successful Agents Earn</h3>
-              </div>
-              <div className="space-y-3">
-                {earningTiers.map((tier) => (
-                  <div 
-                    key={tier.level}
-                    className={`flex items-center justify-between p-3 rounded-lg ${
-                      tier.highlight 
-                        ? "bg-primary/10 border border-primary/30" 
-                        : "bg-muted/50"
-                    }`}
-                  >
-                    <span className={`text-sm ${tier.highlight ? "font-semibold text-foreground" : "text-muted-foreground"}`}>
-                      {tier.level}
-                    </span>
-                    <span className={`font-bold ${tier.highlight ? "text-primary text-lg" : "text-foreground"}`}>
-                      {tier.amount}/mo
-                    </span>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-4 pt-4 border-t border-border text-center">
-                <p className="text-sm text-muted-foreground">
-                  <span className="font-semibold text-primary">92%</span> of active users earn within 30 days
-                </p>
-              </div>
-            </div>
+            {/* Investment Calculator Widget */}
+            <InvestmentCalculator />
 
             {/* Mini Testimonials */}
             <div className="space-y-4">
               {testimonials.map((testimonial) => (
                 <div key={testimonial.name} className="bg-card border border-border rounded-xl p-4">
                   <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary flex-shrink-0">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-gold flex items-center justify-center text-sm font-bold text-primary-foreground flex-shrink-0">
                       {testimonial.avatar}
                     </div>
                     <div className="flex-1">
@@ -349,7 +321,7 @@ const Pricing = () => {
                         <span className="font-semibold text-foreground text-sm">{testimonial.name}</span>
                         <BadgeCheck className="w-4 h-4 text-primary" />
                       </div>
-                      <p className="text-xs text-muted-foreground mb-2">{testimonial.city} • {testimonial.earnings}</p>
+                      <p className="text-xs text-muted-foreground mb-2">{testimonial.city} • <span className="text-gold font-semibold">{testimonial.earnings}</span></p>
                       <p className="text-sm text-muted-foreground italic">"{testimonial.quote}"</p>
                     </div>
                   </div>
@@ -358,14 +330,14 @@ const Pricing = () => {
             </div>
 
             {/* Join Community */}
-            <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 text-center">
+            <div className="bg-gradient-to-br from-primary/10 to-gold/10 border border-primary/20 rounded-xl p-4 text-center">
               <div className="flex items-center justify-center gap-2 mb-2">
                 <Users className="w-5 h-5 text-primary" />
                 <span className="font-semibold text-foreground">Join <AnimatedCounter end={500} className="text-primary" />+ Entrepreneurs</span>
               </div>
               <div className="flex items-center justify-center gap-1">
                 {[1, 2, 3, 4, 5].map((i) => (
-                  <Star key={i} className="w-4 h-4 text-primary fill-primary" />
+                  <Star key={i} className="w-4 h-4 text-gold fill-gold" />
                 ))}
               </div>
             </div>
