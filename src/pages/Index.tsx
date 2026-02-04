@@ -3,6 +3,7 @@ import Hero from "@/components/landing/Hero";
 import TrustedBy from "@/components/landing/TrustedBy";
 import Stats from "@/components/landing/Stats";
 import Features from "@/components/landing/Features";
+import CompetitiveEdge from "@/components/landing/CompetitiveEdge";
 import ProductShowcase from "@/components/landing/ProductShowcase";
 import Portals from "@/components/landing/Portals";
 import HowItWorks from "@/components/landing/HowItWorks";
@@ -22,6 +23,7 @@ const Index = () => {
         <TrustedBy />
         <Stats />
         <Features />
+        <CompetitiveEdge />
         <ProductShowcase />
         <Portals />
         <HowItWorks />
