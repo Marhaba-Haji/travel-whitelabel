@@ -319,6 +319,27 @@ const Pricing = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* Trust Elements */}
+                <div className="pt-6 border-t border-border">
+                  <div className="flex items-center justify-center gap-6 flex-wrap mb-4">
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Shield className="w-4 h-4 text-primary" />
+                      <span className="text-sm">SSL Secured</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Check className="w-4 h-4 text-primary" />
+                      <span className="text-sm">No Hidden Fees</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <CreditCard className="w-4 h-4 text-primary" />
+                      <span className="text-sm">Secure Payments</span>
+                    </div>
+                  </div>
+                  <p className="text-muted-foreground text-sm text-center">
+                    Have questions? <a href="https://wa.me/919008447887" className="text-primary font-medium hover:underline">Talk to a success coach</a>
+                  </p>
+                </div>
               </CardFooter>
             </Card>
           </div>
@@ -350,27 +371,6 @@ const Pricing = () => {
             </div>
 
           </div>
-        </div>
-
-        {/* Bottom Trust Elements */}
-        <div className="mt-12 text-center">
-          <div className="flex items-center justify-center gap-6 flex-wrap">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Shield className="w-4 h-4 text-primary" />
-              <span className="text-sm">SSL Secured</span>
-            </div>
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Check className="w-4 h-4 text-primary" />
-              <span className="text-sm">No Hidden Fees</span>
-            </div>
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <CreditCard className="w-4 h-4 text-primary" />
-              <span className="text-sm">Secure Payments</span>
-            </div>
-          </div>
-          <p className="text-muted-foreground text-sm mt-4">
-            Have questions? <a href="https://wa.me/919008447887" className="text-primary font-medium hover:underline">Talk to a success coach</a>
-          </p>
         </div>
       </div>
     </section>

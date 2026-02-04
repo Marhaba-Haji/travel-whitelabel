@@ -23,10 +23,12 @@ const Hero = () => {
   const [currentActivityIndex, setCurrentActivityIndex] = useState(0);
 
   const rotatingBenefits = [
-    "Earn Money",
-    "Travel Free", 
+    "Earn ₹50,000+ Monthly",
+    "Travel the World for Free", 
     "Be Your Own Boss",
-    "Work From Anywhere"
+    "Work From Anywhere",
+    "Start Earning in 24 Hours",
+    "Build Your Dream Business"
   ];
 
   const recentActivities = [
@@ -117,12 +119,12 @@ const Hero = () => {
             </h1>
 
             {/* Animated Typewriter Subtext */}
-            <div className="text-xl md:text-2xl text-muted-foreground mb-6 h-8">
+            <div className="text-xl md:text-2xl text-muted-foreground mb-6 min-h-[2rem] flex items-center">
               <TypewriterText 
                 words={rotatingBenefits}
                 className="text-primary font-semibold"
                 typingSpeed={80}
-                pauseDuration={2500}
+                pauseDuration={3000}
               />
             </div>
             
@@ -141,7 +143,7 @@ const Hero = () => {
               <div className="flex items-center gap-2 bg-card border border-border px-3 py-2 rounded-lg">
                 <TrendingUp className="w-4 h-4 text-primary" />
                 <span className="text-sm font-medium">
-                  ₹<AnimatedCounter end={5} className="text-primary font-bold" />Cr+ Booked
+                  ₹<AnimatedCounter end={5} className="text-primary font-bold" /><span className="text-primary font-bold">Cr+</span> Booked
                 </span>
               </div>
               <div className="flex items-center gap-2 bg-card border border-border px-3 py-2 rounded-lg">
@@ -230,7 +232,7 @@ const Hero = () => {
             </div>
 
             {/* Floating Success Metric Card */}
-            <div className="absolute -bottom-6 -right-6 lg:right-0 bg-card border border-primary/30 rounded-xl p-4 shadow-xl animate-float hidden lg:block">
+            <div className="absolute -top-6 -right-6 lg:right-0 bg-card border border-primary/30 rounded-xl p-4 shadow-xl animate-float hidden lg:block">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                   <CheckCircle className="w-5 h-5 text-primary" />
