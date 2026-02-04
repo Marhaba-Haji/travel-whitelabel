@@ -62,25 +62,25 @@ const Pricing = () => {
 
   const testimonials = [
     {
-      name: "Amit Sharma",
+      name: "Ahmed Siddiqui",
       city: "Jaipur",
       earnings: "₹1.5L in 2 months",
       quote: "Best investment I ever made. The training alone is worth 10x the price!",
       avatar: "AS",
     },
     {
-      name: "Priya Patel",
+      name: "Ayesha Khan",
       city: "Ahmedabad", 
       earnings: "₹80K/month",
       quote: "Started part-time, now it's my full-time business. Life-changing!",
-      avatar: "PP",
+      avatar: "AK",
     },
     {
-      name: "Rahul Verma",
+      name: "Mohammed Ali",
       city: "Delhi",
       earnings: "₹2L+ monthly",
       quote: "The support team is incredible. They helped me close my first 50 bookings.",
-      avatar: "RV",
+      avatar: "MA",
     },
   ];
 
@@ -255,25 +255,15 @@ const Pricing = () => {
                   </p>
                 </div>
 
-                {/* Money-Back Guarantee */}
-                <div className="bg-accent/50 rounded-xl p-4 border border-primary/20">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <Shield className="h-6 w-6 text-primary" />
-                    </div>
-                    <div>
-                      <p className="font-bold text-foreground">30-Day Money-Back Guarantee</p>
-                      <p className="text-xs text-muted-foreground">Try risk-free. Not satisfied? Full refund.</p>
-                    </div>
-                  </div>
-                </div>
               </CardContent>
 
               <CardFooter className="flex flex-col gap-4 pt-4">
-                <Button size="lg" className="w-full text-lg group relative overflow-hidden" onClick={scrollToContact}>
-                  <Zap className="mr-2 h-5 w-5" />
-                  Start My Journey
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                <Button size="lg" className="w-full text-lg group relative overflow-hidden" asChild>
+                  <a href="/signup">
+                    <Zap className="mr-2 h-5 w-5" />
+                    Start My Journey
+                    <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  </a>
                 </Button>
                 <p className="text-xs text-muted-foreground text-center">
                   Setup takes 10 minutes. Start earning tomorrow.
@@ -329,18 +319,6 @@ const Pricing = () => {
               ))}
             </div>
 
-            {/* Join Community */}
-            <div className="bg-gradient-to-br from-primary/10 to-gold/10 border border-primary/20 rounded-xl p-4 text-center">
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <Users className="w-5 h-5 text-primary" />
-                <span className="font-semibold text-foreground">Join <AnimatedCounter end={500} className="text-primary" />+ Entrepreneurs</span>
-              </div>
-              <div className="flex items-center justify-center gap-1">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <Star key={i} className="w-4 h-4 text-gold fill-gold" />
-                ))}
-              </div>
-            </div>
           </div>
         </div>
 
@@ -361,7 +339,7 @@ const Pricing = () => {
             </div>
           </div>
           <p className="text-muted-foreground text-sm mt-4">
-            Have questions? <a href="https://wa.me/919999999999" className="text-primary font-medium hover:underline">Talk to a success coach</a>
+            Have questions? <a href="https://wa.me/919008447887" className="text-primary font-medium hover:underline">Talk to a success coach</a>
           </p>
         </div>
       </div>

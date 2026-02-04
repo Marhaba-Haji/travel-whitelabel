@@ -1,12 +1,19 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Settings, PackageOpen, Users, ShoppingCart, BarChart3, Calendar, CreditCard, Search, ExternalLink } from "lucide-react";
+import { Settings, PackageOpen, Users, ShoppingCart, BarChart3, Calendar, CreditCard, Search } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const Portals = () => {
   const { ref: headerRef, isVisible: headerVisible } = useScrollAnimation();
   const { ref: gridRef, isVisible: gridVisible } = useScrollAnimation();
+
+  const scrollToContact = () => {
+    const element = document.querySelector("#contact");
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   const portals = [
     {
@@ -192,10 +199,10 @@ const Portals = () => {
                   ))}
                 </ul>
 
-                {/* Preview Button */}
-                <Button variant="outline" size="sm" className="w-full mt-2 group">
-                  Preview Portal
-                  <ExternalLink className="ml-2 h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
+                {/* Request Demo Button */}
+                <Button variant="outline" size="sm" className="w-full mt-2 group" onClick={scrollToContact}>
+                  Request Demo
+                  <Calendar className="ml-2 h-3 w-3 group-hover:scale-110 transition-transform" />
                 </Button>
               </CardContent>
             </Card>

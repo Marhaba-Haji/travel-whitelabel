@@ -185,20 +185,20 @@ const Footer = () => {
             {/* Contact Details */}
             <div className="space-y-4 mb-8">
               <a
-                href="https://wa.me/919999999999"
+                href="https://wa.me/919008447887"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 text-background/70 hover:text-background transition-colors"
               >
                 <MessageCircle className="h-5 w-5" />
-                <span>WhatsApp: +91 99999 99999</span>
+                <span>WhatsApp: +91 90084 47887</span>
               </a>
               <a
-                href="tel:+919999999999"
+                href="tel:+919008447887"
                 className="flex items-center gap-3 text-background/70 hover:text-background transition-colors"
               >
                 <Phone className="h-5 w-5" />
-                <span>+91 99999 99999</span>
+                <span>+91 90084 47887</span>
               </a>
               <a
                 href="mailto:hello@nomadore.com"

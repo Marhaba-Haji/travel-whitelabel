@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogIn } from "lucide-react";
 import { useState } from "react";
 import LogoAnimated from "./LogoAnimated";
 
@@ -46,11 +46,15 @@ const Header = () => {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-3">
-            <Button variant="ghost" onClick={() => scrollToSection("#contact")}>
-              Contact Sales
-            </Button>
-            <Button onClick={() => scrollToSection("#pricing")}>
-              Get Started
+            <a
+              href="/login"
+              className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
+            >
+              <LogIn className="h-4 w-4" />
+              Agent Login
+            </a>
+            <Button asChild>
+              <a href="/signup">Get Started</a>
             </Button>
           </div>
 
@@ -77,11 +81,15 @@ const Header = () => {
                 </button>
               ))}
               <div className="flex flex-col gap-2 pt-4 border-t border-border">
-                <Button variant="ghost" onClick={() => scrollToSection("#contact")}>
-                  Contact Sales
-                </Button>
-                <Button onClick={() => scrollToSection("#pricing")}>
-                  Get Started
+                <a
+                  href="/login"
+                  className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors text-left py-2"
+                >
+                  <LogIn className="h-4 w-4" />
+                  Agent Login
+                </a>
+                <Button asChild>
+                  <a href="/signup">Get Started</a>
                 </Button>
               </div>
             </nav>

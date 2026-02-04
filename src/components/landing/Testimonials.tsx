@@ -8,9 +8,9 @@ const Testimonials = () => {
 
   const testimonials = [
     {
-      name: "Rajesh Kumar",
+      name: "Ahmed Siddiqui",
       role: "CEO, TravelMax Tours",
-      avatar: "RK",
+      avatar: "AS",
       avatarColor: "from-primary to-primary/70",
       content: "NOMADORE transformed our business. We launched our own branded portal in just 2 days and saw a 40% increase in B2B bookings within the first month.",
       rating: 5,
@@ -18,9 +18,9 @@ const Testimonials = () => {
       company: "TravelMax",
     },
     {
-      name: "Priya Sharma",
+      name: "Fatima Sheikh",
       role: "Director, Wanderlust Holidays",
-      avatar: "PS",
+      avatar: "FS",
       avatarColor: "from-primary/90 to-primary/60",
       content: "The multi-portal system is a game-changer. Our suppliers love the dedicated access, and our agents appreciate the professional booking interface.",
       rating: 5,

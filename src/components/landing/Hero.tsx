@@ -1,8 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { 
   ArrowRight, 
-  Play, 
   GraduationCap, 
   Rocket, 
   Globe, 
@@ -11,7 +9,6 @@ import {
   TrendingUp,
   Users,
   CheckCircle,
-  Sparkles,
   MessageCircle
 } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
@@ -33,11 +30,13 @@ const Hero = () => {
   ];
 
   const recentActivities = [
-    { name: "Priya", city: "Delhi", action: "started her agency" },
-    { name: "Rahul", city: "Mumbai", action: "earned ₹2L this month" },
-    { name: "Amit", city: "Bangalore", action: "booked 15 trips today" },
-    { name: "Sneha", city: "Pune", action: "just went live" },
-    { name: "Vikram", city: "Chennai", action: "completed training" },
+    { name: "Amjad", city: "Bangalore", action: "is looking for Turkey Visa" },
+    { name: "Fathima", city: "Pune", action: "wants Umrah Package" },
+    { name: "Riyaz", city: "Lucknow", action: "is planning a Halal Thailand trip" },
+    { name: "Zainab", city: "Hyderabad", action: "is searching for Dubai Holiday Package" },
+    { name: "Mohammed", city: "Mumbai", action: "needs Malaysia Visa assistance" },
+    { name: "Ayesha", city: "Delhi", action: "wants to book Umrah Group Tour" },
+    { name: "Hassan", city: "Chennai", action: "is looking for Singapore Family Package" },
   ];
 
   const benefitCards = [
@@ -109,12 +108,6 @@ const Hero = () => {
                 <span className="font-semibold text-primary">{recentActivities[currentActivityIndex].name}</span> from {recentActivities[currentActivityIndex].city} {recentActivities[currentActivityIndex].action}
               </span>
             </div>
-
-            {/* Urgency Badge */}
-            <Badge className="mb-4 bg-destructive/10 text-destructive hover:bg-destructive/20 border-destructive/20 animate-pulse-soft">
-              <Sparkles className="w-3 h-3 mr-1" />
-              Limited spots for February training batch!
-            </Badge>
             
             {/* Main Headline */}
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4 leading-tight">
@@ -142,19 +135,19 @@ const Hero = () => {
               <div className="flex items-center gap-2 bg-card border border-border px-3 py-2 rounded-lg">
                 <Users className="w-4 h-4 text-primary" />
                 <span className="text-sm font-medium">
-                  <AnimatedCounter end={500} suffix="+" className="text-primary font-bold" /> Entrepreneurs
+                  <AnimatedCounter end={2000} suffix="+" className="text-primary font-bold" /> Customers
                 </span>
               </div>
               <div className="flex items-center gap-2 bg-card border border-border px-3 py-2 rounded-lg">
                 <TrendingUp className="w-4 h-4 text-primary" />
                 <span className="text-sm font-medium">
-                  ₹<AnimatedCounter end={50} className="text-primary font-bold" />Cr+ Booked
+                  ₹<AnimatedCounter end={5} className="text-primary font-bold" />Cr+ Booked
                 </span>
               </div>
               <div className="flex items-center gap-2 bg-card border border-border px-3 py-2 rounded-lg">
                 <Star className="w-4 h-4 text-primary fill-primary" />
                 <span className="text-sm font-medium">
-                  <span className="text-primary font-bold">4.9</span> Rating
+                  <span className="text-primary font-bold">4.7</span> Rating
                 </span>
               </div>
             </div>
@@ -176,7 +169,7 @@ const Hero = () => {
                 </div>
               </div>
               <div className="text-sm text-muted-foreground">
-                <AnimatedCounter end={127} className="font-bold text-primary" /> agencies launched this week
+                <AnimatedCounter end={5000} suffix="+" className="font-bold text-primary" /> travelers are looking for travel agents online
               </div>
             </div>
 
@@ -184,37 +177,32 @@ const Hero = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-6">
               <Button 
                 size="lg" 
-                onClick={() => scrollToSection("#pricing")} 
+                asChild
                 className="shadow-lg group text-lg px-8 animate-glow-pulse relative overflow-hidden"
               >
-                <span className="relative z-10 flex items-center">
-                  Start My Travel Business 
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </span>
-              </Button>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                onClick={() => scrollToSection("#testimonials")}
-                className="group"
-              >
-                <Play className="mr-2 h-4 w-4 group-hover:scale-110 transition-transform" />
-                Watch Success Stories
+                <a href="/signup">
+                  <span className="relative z-10 flex items-center">
+                    Start My Travel Business 
+                    <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  </span>
+                </a>
               </Button>
             </div>
 
             {/* WhatsApp CTA */}
-            <div className="flex items-center justify-center lg:justify-start gap-2 text-sm text-muted-foreground">
-              <MessageCircle className="w-4 h-4 text-primary" />
-              <span>Have questions?</span>
-              <a 
-                href="https://wa.me/919999999999" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-primary font-medium hover:underline"
-              >
-                Talk to a Success Coach
-              </a>
+            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 text-sm">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <MessageCircle className="w-4 h-4 text-primary" />
+                <span>Have questions?</span>
+                <a 
+                  href="https://wa.me/919008447887" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary font-medium hover:underline"
+                >
+                  Talk to a Success Coach
+                </a>
+              </div>
             </div>
           </div>
 

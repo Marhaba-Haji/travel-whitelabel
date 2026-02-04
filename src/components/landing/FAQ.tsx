@@ -112,7 +112,7 @@ const FAQ = () => {
               <div className="grid sm:grid-cols-3 gap-4 mb-6">
                 {/* WhatsApp */}
                 <a
-                  href="https://wa.me/919999999999?text=Hi,%20I'm%20interested%20in%20the%20NOMADORE%20travel%20portal"
+                  href="https://wa.me/919008447887?text=Hi,%20I'm%20interested%20in%20the%20NOMADORE%20travel%20portal"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex flex-col items-center gap-2 p-4 bg-card rounded-lg border border-border hover:border-primary/30 hover:shadow-md transition-all group"
@@ -138,21 +138,23 @@ const FAQ = () => {
 
                 {/* Phone */}
                 <a
-                  href="tel:+919999999999"
+                  href="tel:+919008447887"
                   className="flex flex-col items-center gap-2 p-4 bg-card rounded-lg border border-border hover:border-primary/30 hover:shadow-md transition-all group"
                 >
                   <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                     <Phone className="h-6 w-6 text-primary" />
                   </div>
                   <span className="font-medium text-foreground">Call Us</span>
-                  <span className="text-xs text-muted-foreground">+91 99999 99999</span>
+                  <span className="text-xs text-muted-foreground">+91 90084 47887</span>
                 </a>
               </div>
 
               <div className="text-center">
-                <Button size="lg" onClick={() => scrollToSection("#pricing")} className="group">
-                  Get Started Today
-                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                <Button size="lg" asChild className="group">
+                  <a href="/signup">
+                    Get Started Today
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </a>
                 </Button>
               </div>
             </CardContent>

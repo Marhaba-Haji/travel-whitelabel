@@ -20,12 +20,12 @@ const Stats = () => {
     {
       icon: Briefcase,
       value: "1M+",
-      label: "Bookings",
-      description: "Processed annually",
+      label: "Hotels",
+      description: "Available",
     },
     {
       icon: Clock,
-      value: "24/7",
+      value: "7 days",
       label: "Support",
       description: "Always available",
     },

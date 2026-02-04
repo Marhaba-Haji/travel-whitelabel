@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Settings, PackageOpen, Users, ShoppingCart, BarChart3, Calendar, Wallet, Search, ArrowRight, Play } from "lucide-react";
+import { Settings, PackageOpen, Users, ShoppingCart, BarChart3, Calendar, Wallet, Search, ArrowRight } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const ProductShowcase = () => {
@@ -164,13 +164,11 @@ const ProductShowcase = () => {
                     </ul>
 
                     <div className="flex flex-wrap gap-3">
-                      <Button onClick={() => scrollToSection("#pricing")} className="group">
-                        Get Started
-                        <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                      </Button>
-                      <Button variant="outline" className="gap-2">
-                        <Play className="h-4 w-4" />
-                        Watch Demo
+                      <Button asChild className="group">
+                        <a href="/signup">
+                          Get Started
+                          <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                        </a>
                       </Button>
                     </div>
                   </div>

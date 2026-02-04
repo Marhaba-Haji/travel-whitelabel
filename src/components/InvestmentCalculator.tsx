@@ -6,12 +6,12 @@ const InvestmentCalculator = () => {
   const [bookingsPerMonth, setBookingsPerMonth] = useState([10]);
   
   // Average commission per booking
-  const avgCommissionPerBooking = 2000;
+  const avgCommissionPerBooking = 4000;
   const investmentAmount = 18799;
   
   const monthlyEarnings = bookingsPerMonth[0] * avgCommissionPerBooking;
   const yearlyEarnings = monthlyEarnings * 12;
-  const roi = Math.round((yearlyEarnings / investmentAmount) * 100);
+  const roi = Math.round((yearlyEarnings / investmentAmount) * 10) / 10; // ROI as multiplier (e.g., 25.5x)
   const paybackMonths = Math.ceil(investmentAmount / monthlyEarnings);
 
   return (
