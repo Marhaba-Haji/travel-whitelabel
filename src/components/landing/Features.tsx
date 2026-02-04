@@ -1,5 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plane, Hotel, FileText, MapPin, Globe, Palette } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Plane, Hotel, FileText, MapPin, Globe, Palette, BadgeCheck, Bot } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const Features = () => {
@@ -13,6 +14,7 @@ const Features = () => {
       description: "Access real-time flight inventory from global GDS systems. Book domestic and international flights with instant confirmation.",
       gradient: "from-primary to-primary/60",
       highlight: true,
+      badge: "Popular",
     },
     {
       icon: Hotel,
@@ -20,6 +22,23 @@ const Features = () => {
       description: "Connect to 1M+ hotels worldwide. From budget stays to luxury resorts, offer your customers the best rates.",
       gradient: "from-primary/90 to-primary/50",
       highlight: true,
+      badge: "Popular",
+    },
+    {
+      icon: BadgeCheck,
+      title: "Contracted Rates",
+      description: "Access pre-negotiated hotel and flight inventory at special rates. Better prices for customers, higher margins for you.",
+      gradient: "from-gold to-gold/60",
+      highlight: true,
+      badge: "Exclusive",
+    },
+    {
+      icon: Bot,
+      title: "AI Sales Assistant",
+      description: "Multilingual chatbot and voicebot that converts visitors 24/7. Like a sales team that never sleeps - at a fraction of the cost.",
+      gradient: "from-primary to-primary/60",
+      highlight: true,
+      badge: "Add-on",
     },
     {
       icon: FileText,
@@ -38,7 +57,7 @@ const Features = () => {
     {
       icon: Globe,
       title: "Own Domain",
-      description: "Use your own custom domain. Your brand, your identity. No Facelyft branding visible to your customers.",
+      description: "Use your own custom domain. Your brand, your identity. No NOMADORE branding visible to your customers.",
       gradient: "from-primary/70 to-primary/30",
       highlight: false,
     },
@@ -72,7 +91,7 @@ const Features = () => {
           </p>
         </div>
 
-        <div ref={gridRef} className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div ref={gridRef} className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {features.map((feature, index) => (
             <Card
               key={feature.title}
@@ -85,10 +104,19 @@ const Features = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <CardTitle className="text-xl">{feature.title}</CardTitle>
-                  {feature.highlight && (
-                    <span className="text-xs font-medium bg-primary/10 text-primary px-2 py-0.5 rounded-full">
-                      Popular
-                    </span>
+                  {feature.badge && (
+                    <Badge 
+                      variant="secondary" 
+                      className={`text-xs ${
+                        feature.badge === "Exclusive" 
+                          ? "bg-gold/10 text-gold border-gold/20" 
+                          : feature.badge === "Add-on"
+                          ? "bg-primary/10 text-primary border-primary/20"
+                          : "bg-primary/10 text-primary"
+                      }`}
+                    >
+                      {feature.badge}
+                    </Badge>
                   )}
                 </div>
               </CardHeader>

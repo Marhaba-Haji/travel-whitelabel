@@ -19,6 +19,14 @@ const FAQ = () => {
       answer: "Absolutely! You can use your own custom domain (e.g., book.youragency.com). We'll help you set up the DNS and SSL certificate at no extra cost. Your customers will never see the NOMADORE brand.",
     },
     {
+      question: "What are contracted rates and how do they help me?",
+      answer: "Contracted rates are special prices we've pre-negotiated with hotels and airlines. You get access to inventory at 10-20% lower than market rates, which means better prices for your customers and higher profit margins for you. This is a major competitive advantage that helps you win more deals.",
+    },
+    {
+      question: "How does the AI Sales Assistant work?",
+      answer: "The AI Sales Assistant is a multilingual chatbot and voicebot that handles customer inquiries 24/7. It speaks Hindi, English, Arabic, and more, answering questions and helping convert visitors into buyers even when you're asleep. It's billed on consumption basis (per conversation), so you only pay when it's actually helping customers — much cheaper than hiring a sales executive.",
+    },
+    {
       question: "What APIs are included in the platform?",
       answer: "The platform includes Flight API (GDS integration), Hotel API (1M+ properties), Visa Processing API (100+ countries), and Activities API (tours & experiences). All APIs are included in the annual subscription with no extra charges.",
     },

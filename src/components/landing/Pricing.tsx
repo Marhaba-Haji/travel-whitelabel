@@ -34,6 +34,8 @@ const Pricing = () => {
   const techStackFeatures = [
     "Flight API Integration",
     "Hotel API Integration", 
+    "Exclusive Contracted Hotel Rates",
+    "Special Flight Inventory Access",
     "Visa API Integration",
     "Activities API Integration",
     "4 White-label Portals",
@@ -189,6 +191,34 @@ const Pricing = () => {
                   </li>
                 ))}
               </ul>
+            </div>
+
+            {/* Optional Add-ons Card */}
+            <div className="bg-gradient-to-br from-primary/5 to-accent/30 border border-primary/20 rounded-2xl p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Sparkles className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-foreground">Power-Up Add-ons</h3>
+                  <p className="text-xs text-muted-foreground">Supercharge your sales</p>
+                </div>
+              </div>
+              <div className="bg-card rounded-xl p-4 border border-border">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Users className="w-4 h-4 text-primary" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-foreground text-sm">AI Sales Assistant</h4>
+                    <p className="text-xs text-muted-foreground mb-2">24/7 multilingual chatbot that converts visitors while you sleep</p>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">From ₹2/chat</Badge>
+                      <span className="text-xs text-muted-foreground">Pay per use</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
