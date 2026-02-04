@@ -293,6 +293,30 @@ const Footer = () => {
             </div>
           </div>
           
+          {/* Legal Links */}
+          <div className="flex flex-wrap items-center justify-center gap-4 mb-4">
+            <a
+              href="/terms-of-service"
+              className="text-background/60 hover:text-background transition-colors text-sm"
+            >
+              Terms of Service
+            </a>
+            <span className="text-background/40">•</span>
+            <a
+              href="/privacy-policy"
+              className="text-background/60 hover:text-background transition-colors text-sm"
+            >
+              Privacy Policy
+            </a>
+            <span className="text-background/40">•</span>
+            <a
+              href="/refund-policy"
+              className="text-background/60 hover:text-background transition-colors text-sm"
+            >
+              Refund Policy
+            </a>
+          </div>
+
           {/* Copyright */}
           <div className="text-center text-background/50 text-sm">
             <p>© {new Date().getFullYear()} NOMADORE. All rights reserved.</p>
