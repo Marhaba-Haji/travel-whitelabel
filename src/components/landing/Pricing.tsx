@@ -50,7 +50,7 @@ const Pricing = () => {
   ];
 
   const supportFeatures = [
-    "24/7 Technical Support",
+    "6 days Technical Support",
     "Private Community Access",
     "Monthly Success Calls",
     "Top Performer Rewards",
@@ -213,7 +213,7 @@ const Pricing = () => {
                     <h4 className="font-semibold text-foreground text-sm">AI Sales Assistant</h4>
                     <p className="text-xs text-muted-foreground mb-2">24/7 multilingual chatbot that converts visitors while you sleep</p>
                     <div className="flex items-center gap-2">
-                      <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">From ₹2/chat</Badge>
+                      <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">From ₹6/min</Badge>
                       <span className="text-xs text-muted-foreground">Pay per use</span>
                     </div>
                   </div>
@@ -281,7 +281,7 @@ const Pricing = () => {
                     <span className="font-semibold text-foreground">Your investment pays for itself</span>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    in just <span className="text-primary font-bold">2-3 bookings!</span>
+                    in just <span className="text-primary font-bold">4-5 holiday bookings!</span>
                   </p>
                 </div>
 

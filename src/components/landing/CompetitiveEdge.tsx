@@ -19,7 +19,7 @@ const CompetitiveEdge = () => {
   const contractedRateBenefits = [
     "Pre-negotiated hotel deals",
     "Exclusive flight inventory access",
-    "10-20% better margins",
+    "5-10% better margins",
     "Easier sales conversions",
   ];
 
@@ -183,7 +183,7 @@ const CompetitiveEdge = () => {
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="font-medium text-foreground">AI Assistant:</span>
-                    <span className="font-bold text-primary">From ₹2/conversation</span>
+                    <span className="font-bold text-primary">From ₹6/minute</span>
                   </div>
                 </div>
               </div>

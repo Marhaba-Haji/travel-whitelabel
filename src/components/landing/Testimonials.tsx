@@ -12,9 +12,9 @@ const Testimonials = () => {
       role: "CEO, TravelMax Tours",
       avatar: "AS",
       avatarColor: "from-primary to-primary/70",
-      content: "NOMADORE transformed our business. We launched our own branded portal in just 2 days and saw a 40% increase in B2B bookings within the first month.",
+      content: "NOMADORE transformed our business. We launched our own branded portal in just 2 days and saw a 27% increase in B2B bookings within the first 3 months.",
       rating: 5,
-      metric: { value: "40%", label: "Increase in bookings" },
+      metric: { value: "27%", label: "Increase in bookings" },
       company: "TravelMax",
     },
     {
@@ -34,7 +34,7 @@ const Testimonials = () => {
       avatarColor: "from-primary/80 to-primary/50",
       content: "The Hajj and Umrah package management is exactly what we needed. The platform handles everything from group bookings to visa processing seamlessly.",
       rating: 5,
-      metric: { value: "500+", label: "Groups managed" },
+      metric: { value: "100+", label: "Groups managed" },
       company: "Hajj Travels",
     },
   ];
@@ -57,7 +57,7 @@ const Testimonials = () => {
             Loved by Travel Professionals
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            See what our customers have to say about their experience with Facelyft.
+            See what our customers have to say about their experience with Nomadore.
           </p>
         </div>
 
@@ -92,20 +92,6 @@ const Testimonials = () => {
                 <p className="text-muted-foreground mb-6 leading-relaxed">
                   "{testimonial.content}"
                 </p>
-
-                {/* Author with Avatar */}
-                <div className="flex items-center gap-3">
-                  <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${testimonial.avatarColor} flex items-center justify-center text-primary-foreground font-bold shadow-lg`}>
-                    {testimonial.avatar}
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-semibold text-foreground">{testimonial.name}</p>
-                    <p className="text-sm text-muted-foreground">{testimonial.role}</p>
-                  </div>
-                  <div className="bg-muted/50 px-2 py-1 rounded text-xs font-medium text-muted-foreground">
-                    {testimonial.company}
-                  </div>
-                </div>
               </CardContent>
             </Card>
           ))}

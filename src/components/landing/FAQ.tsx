@@ -20,15 +20,15 @@ const FAQ = () => {
     },
     {
       question: "What are contracted rates and how do they help me?",
-      answer: "Contracted rates are special prices we've pre-negotiated with hotels and airlines. You get access to inventory at 10-20% lower than market rates, which means better prices for your customers and higher profit margins for you. This is a major competitive advantage that helps you win more deals.",
+      answer: "Contracted rates are special prices we've pre-negotiated with hotels and airlines. You get access to inventory at 5-10% lower than market rates, which means better prices for your customers and higher profit margins for you. This is a major competitive advantage that helps you win more deals.",
     },
     {
       question: "How does the AI Sales Assistant work?",
-      answer: "The AI Sales Assistant is a multilingual chatbot and voicebot that handles customer inquiries 24/7. It speaks Hindi, English, Arabic, and more, answering questions and helping convert visitors into buyers even when you're asleep. It's billed on consumption basis (per conversation), so you only pay when it's actually helping customers — much cheaper than hiring a sales executive.",
+      answer: "The AI Sales Assistant is a multilingual chatbot and voicebot that handles customer inquiries 24/7. It speaks Hindi, English and more, answering questions and helping convert visitors into buyers even when you're asleep. It's billed on consumption basis (per conversation), so you only pay when it's actually helping customers — much cheaper than hiring a sales executive.",
     },
     {
       question: "What APIs are included in the platform?",
-      answer: "The platform includes Flight API (GDS integration), Hotel API (1M+ properties), Visa Processing API (100+ countries), and Activities API (tours & experiences). All APIs are included in the annual subscription with no extra charges.",
+      answer: "The platform includes Flight API (Aggregators integration), Hotel API (1M+ properties), Visa Processing API (50+ countries), and Activities API (tours & experiences). All APIs are included in the annual subscription with no extra charges.",
     },
     {
       question: "How does the supplier portal work?",
@@ -40,7 +40,7 @@ const FAQ = () => {
     },
     {
       question: "What kind of support do you provide?",
-      answer: "We offer 24/7 technical support via email, phone, and WhatsApp. You'll also have a dedicated account manager for the first 30 days to ensure smooth onboarding. Regular training sessions are included.",
+      answer: "We offer 6 working days technical support via email, phone, and WhatsApp. You'll also have a dedicated account manager for the first 30 days to ensure smooth onboarding. Regular training sessions are included.",
     },
     {
       question: "Can I customize the Hajj and Umrah package modules?",

@@ -159,7 +159,7 @@ const Signup = () => {
                         { icon: Rocket, text: "Complete White-Label Portal", value: "₹50,000" },
                         { icon: Users, text: "Full Training & Support", value: "₹25,000" },
                         { icon: TrendingUp, text: "Marketing Tools & Templates", value: "₹30,000" },
-                        { icon: CheckCircle, text: "24/7 Technical Support", value: "₹15,000" },
+                        { icon: CheckCircle, text: "6 days Technical Support", value: "₹15,000" },
                         { icon: DollarSign, text: "Payment Gateway Setup", value: "₹10,000" },
                       ].map((item, index) => (
                         <div

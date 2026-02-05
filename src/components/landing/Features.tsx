@@ -64,7 +64,7 @@ const Features = () => {
     {
       icon: Palette,
       title: "White-Label Branding",
-      description: "Complete customization with your logo, colors, and design. Make it truly yours with full branding control.",
+      description: "Complete customization with your logo, and available design themes. Make it truly yours with essential branding control.",
       gradient: "from-primary/70 to-primary/30",
       highlight: false,
     },
