@@ -33,23 +33,23 @@ const Signup = () => {
   ];
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-background">
+    <div className="min-h-screen flex items-center justify-center relative overflow-x-hidden bg-background">
       {/* Animated Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-accent via-background to-background" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent" />
 
       {/* Floating decorative elements */}
-      <div className="absolute top-20 right-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse-soft" />
-      <div className="absolute bottom-20 left-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse-soft" style={{ animationDelay: "1s" }} />
-      <div className="absolute top-1/2 right-1/4 w-48 h-48 bg-primary/5 rounded-full blur-2xl animate-float-slow" />
+      <div className="absolute top-20 right-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse-soft pointer-events-none" />
+      <div className="absolute bottom-20 left-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse-soft pointer-events-none" style={{ animationDelay: "1s" }} />
+      <div className="absolute top-1/2 right-1/4 w-48 h-48 bg-primary/5 rounded-full blur-2xl animate-float-slow pointer-events-none" />
 
-      <div className="container mx-auto px-4 py-12 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center max-w-6xl mx-auto justify-items-center lg:justify-items-stretch">
+      <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center min-w-0">
           {/* Left Side - Signup Form */}
           <div
             ref={formRef}
-            className={`w-full max-w-md lg:max-w-none opacity-0 ${formVisible ? "animate-fade-in" : ""}`}
+            className={`w-full max-w-md mx-auto lg:mx-0 lg:max-w-none min-w-0 opacity-0 ${formVisible ? "animate-fade-in" : ""}`}
           >
             {/* Back to Home Link */}
             <Link
@@ -98,16 +98,16 @@ const Signup = () => {
           {/* Right Side - Pricing Section */}
           <div
             ref={visualRef}
-            className={`w-full max-w-md lg:max-w-none opacity-0 ${visualVisible ? "animate-fade-in-right" : ""}`}
+            className={`w-full max-w-md mx-auto lg:mx-0 lg:max-w-none min-w-0 opacity-0 ${visualVisible ? "animate-fade-in-right" : ""}`}
             style={{ animationDelay: "0.2s" }}
           >
-            <div className="relative">
+            <div className="relative w-full max-w-full">
               {/* Pricing Card */}
-              <div className="bg-gradient-to-br from-primary/20 via-primary/10 to-gold/10 rounded-3xl p-8 lg:p-12 border-2 border-primary/30 backdrop-blur-sm shadow-2xl relative overflow-hidden">
+              <div className="bg-gradient-to-br from-primary/20 via-primary/10 to-gold/10 rounded-3xl p-6 sm:p-8 lg:p-12 border-2 border-primary/30 backdrop-blur-sm shadow-2xl relative overflow-hidden w-full">
                 {/* Animated Background Glow */}
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-gold/5 animate-pulse-soft" />
-                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-                <div className="absolute bottom-0 left-0 w-48 h-48 bg-gold/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" />
+                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+                <div className="absolute bottom-0 left-0 w-48 h-48 bg-gold/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2 pointer-events-none" />
                 
                 <div className="relative z-10 space-y-8">
                   {/* Header */}
@@ -125,16 +125,16 @@ const Signup = () => {
                   </div>
 
                   {/* Main Price Display */}
-                  <div className="bg-card/80 backdrop-blur-sm border-2 border-primary/20 rounded-2xl p-8 text-center relative overflow-hidden">
+                  <div className="bg-card/80 backdrop-blur-sm border-2 border-primary/20 rounded-2xl p-4 sm:p-8 text-center relative overflow-hidden">
                     <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-gold to-primary animate-gradient-shift bg-[length:200%_auto]" />
                     
                     <div className="space-y-4">
-                      <div className="flex items-baseline justify-center gap-2">
-                        <span className="text-3xl lg:text-4xl font-bold text-foreground">₹</span>
-                        <span className="text-6xl lg:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary via-gold to-primary animate-gradient-shift bg-[length:200%_auto]">
+                      <div className="flex flex-wrap items-baseline justify-center gap-1 sm:gap-2">
+                        <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground">₹</span>
+                        <span className="text-4xl sm:text-6xl lg:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary via-gold to-primary animate-gradient-shift bg-[length:200%_auto]">
                           18,799
                         </span>
-                        <span className="text-xl lg:text-2xl text-muted-foreground">/year</span>
+                        <span className="text-lg sm:text-xl lg:text-2xl text-muted-foreground">/year</span>
                       </div>
                       
                       <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
@@ -143,9 +143,9 @@ const Signup = () => {
                       </div>
                       
                       <div className="pt-4 border-t border-border">
-                        <div className="inline-flex items-center gap-2 bg-gold/20 border border-gold/30 px-4 py-2 rounded-full">
-                          <Zap className="h-4 w-4 text-gold" />
-                          <span className="text-sm font-semibold text-gold">Save ₹2,00,000+ vs Building Your Own</span>
+                        <div className="inline-flex flex-wrap items-center justify-center gap-2 bg-gold/20 border border-gold/30 px-3 sm:px-4 py-2 rounded-full max-w-full">
+                          <Zap className="h-4 w-4 text-gold flex-shrink-0" />
+                          <span className="text-xs sm:text-sm font-semibold text-gold text-center">Save ₹2,00,000+ vs Building Your Own</span>
                         </div>
                       </div>
                     </div>
@@ -208,8 +208,8 @@ const Signup = () => {
               </div>
 
               {/* Floating decorative elements */}
-              <div className="absolute -top-8 -right-8 w-32 h-32 bg-primary/10 rounded-full blur-2xl animate-float hidden lg:block" />
-              <div className="absolute -bottom-8 -left-8 w-40 h-40 bg-gold/5 rounded-full blur-3xl animate-float-slow hidden lg:block" />
+              <div className="absolute -top-8 -right-8 w-32 h-32 bg-primary/10 rounded-full blur-2xl animate-float hidden lg:block pointer-events-none" />
+              <div className="absolute -bottom-8 -left-8 w-40 h-40 bg-gold/5 rounded-full blur-3xl animate-float-slow hidden lg:block pointer-events-none" />
             </div>
           </div>
         </div>
