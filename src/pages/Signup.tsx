@@ -45,11 +45,11 @@ const Signup = () => {
       <div className="absolute top-1/2 right-1/4 w-48 h-48 bg-primary/5 rounded-full blur-2xl animate-float-slow" />
 
       <div className="container mx-auto px-4 py-12 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center max-w-6xl mx-auto">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center max-w-6xl mx-auto justify-items-center lg:justify-items-stretch">
           {/* Left Side - Signup Form */}
           <div
             ref={formRef}
-            className={`w-full opacity-0 ${formVisible ? "animate-fade-in" : ""}`}
+            className={`w-full max-w-md lg:max-w-none opacity-0 ${formVisible ? "animate-fade-in" : ""}`}
           >
             {/* Back to Home Link */}
             <Link
@@ -98,7 +98,7 @@ const Signup = () => {
           {/* Right Side - Pricing Section */}
           <div
             ref={visualRef}
-            className={`w-full lg:block opacity-0 ${visualVisible ? "animate-fade-in-right" : ""}`}
+            className={`w-full max-w-md lg:max-w-none opacity-0 ${visualVisible ? "animate-fade-in-right" : ""}`}
             style={{ animationDelay: "0.2s" }}
           >
             <div className="relative">
