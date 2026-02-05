@@ -45,7 +45,7 @@ const Signup = () => {
       <div className="absolute top-1/2 right-1/4 w-48 h-48 bg-primary/5 rounded-full blur-2xl animate-float-slow pointer-events-none" />
 
       <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center min-w-0">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center lg:items-start min-w-0">
           {/* Left Side - Signup Form */}
           <div
             ref={formRef}
@@ -54,14 +54,14 @@ const Signup = () => {
             {/* Back to Home Link */}
             <Link
               to="/"
-              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors mb-8"
+              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors mb-8 lg:mb-4"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to home
             </Link>
 
             {/* Logo */}
-            <div className="mb-8">
+            <div className="mb-8 lg:mb-4">
               <LogoAnimated size="lg" />
             </div>
 
@@ -145,7 +145,7 @@ const Signup = () => {
                       <div className="pt-4 border-t border-border">
                         <div className="inline-flex flex-wrap items-center justify-center gap-2 bg-gold/20 border border-gold/30 px-3 sm:px-4 py-2 rounded-full max-w-full">
                           <Zap className="h-4 w-4 text-gold flex-shrink-0" />
-                          <span className="text-xs sm:text-sm font-semibold text-gold text-center">Save ₹2,00,000+ vs Building Your Own</span>
+                          <span className="text-xs sm:text-sm font-semibold text-gold text-center">Save ₹25,00,000+ vs Building Your Own</span>
                         </div>
                       </div>
                     </div>
