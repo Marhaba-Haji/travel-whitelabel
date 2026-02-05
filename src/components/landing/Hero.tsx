@@ -14,13 +14,14 @@ import {
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import TypewriterText from "@/components/TypewriterText";
 import AnimatedCounter from "@/components/AnimatedCounter";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const Hero = () => {
   const { ref: leftRef, isVisible: leftVisible } = useScrollAnimation();
   const { ref: rightRef, isVisible: rightVisible } = useScrollAnimation();
 
   const [currentActivityIndex, setCurrentActivityIndex] = useState(0);
+  const remainingIndicesRef = useRef<number[]>([]);
 
   const rotatingBenefits = [
     "Earn ₹50,000+ Monthly",
@@ -33,12 +34,37 @@ const Hero = () => {
 
   const recentActivities = [
     { name: "Amjad", city: "Bangalore", action: "is looking for Turkey Visa" },
-    { name: "Fathima", city: "Pune", action: "wants Umrah Package" },
+    { name: "Rashid", city: "Mumbai", action: "needs Malaysia Visa assistance" },
+    { name: "Fatima", city: "Delhi", action: "wants Egypt Tour Package" },
     { name: "Riyaz", city: "Lucknow", action: "is planning a Halal Thailand trip" },
-    { name: "Zainab", city: "Hyderabad", action: "is searching for Dubai Holiday Package" },
-    { name: "Mohammed", city: "Mumbai", action: "needs Malaysia Visa assistance" },
-    { name: "Ayesha", city: "Delhi", action: "wants to book Umrah Group Tour" },
-    { name: "Hassan", city: "Chennai", action: "is looking for Singapore Family Package" },
+    { name: "Zainab", city: "Hyderabad", action: "is searching for Singapore Family Package" },
+    { name: "Hassan", city: "Chennai", action: "is looking for Indonesia Holiday Package" },
+    { name: "Ayesha", city: "Pune", action: "wants Morocco Travel Package" },
+    { name: "Mohammed", city: "Kolkata", action: "is planning a Jordan trip" },
+    { name: "Sara", city: "Ahmedabad", action: "needs Palestine Visa support" },
+    { name: "Ali", city: "Jaipur", action: "is searching for Uzbekistan Tour" },
+    { name: "Layla", city: "Surat", action: "wants Russia Travel Package" },
+    { name: "Omar", city: "Kanpur", action: "is looking for China Visa" },
+    { name: "Noor", city: "Nagpur", action: "needs Azerbaijan Holiday Package" },
+    { name: "Yusuf", city: "Indore", action: "is planning a Maldives Honeymoon" },
+    { name: "Mariam", city: "Bhopal", action: "wants Iran Travel Package" },
+    { name: "Khalid", city: "Visakhapatnam", action: "is searching for Afghanistan Visa" },
+    { name: "Amina", city: "Patna", action: "needs Saudi Arabia Umrah Package" },
+    { name: "Ibrahim", city: "Vadodara", action: "is looking for Iraq Travel Package" },
+    { name: "Hafsa", city: "Coimbatore", action: "wants UAE Holiday Package" },
+    { name: "Bilal", city: "Agra", action: "is planning a Qatar Business Trip" },
+    { name: "Zara", city: "Madurai", action: "needs Oman Travel Package" },
+    { name: "Tariq", city: "Nashik", action: "is searching for Bahrain Visa" },
+    { name: "Aisha", city: "Faridabad", action: "wants Kuwait Travel Package" },
+    { name: "Hamza", city: "Meerut", action: "is looking for Mauritius Honeymoon Package" },
+    { name: "Sana", city: "Rajkot", action: "needs Sri Lanka Holiday Package" },
+    { name: "Usman", city: "Varanasi", action: "is planning a USA Trip" },
+    { name: "Hiba", city: "Srinagar", action: "wants UK Visa assistance" },
+    { name: "Zain", city: "Amritsar", action: "is searching for Germany Travel Package" },
+    { name: "Maryam", city: "Allahabad", action: "needs France Holiday Package" },
+    { name: "Anas", city: "Ranchi", action: "is looking for Italy Tour Package" },
+    { name: "Dua", city: "Gwalior", action: "wants Georgia Travel Package" },
+    { name: "Saad", city: "Chandigarh", action: "is planning a South Africa Safari" },
   ];
 
   const benefitCards = [
@@ -68,9 +94,39 @@ const Hero = () => {
     },
   ];
 
+  // Helper function to shuffle array
+  const shuffleArray = <T,>(array: T[]): T[] => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
+
+  // Initialize remaining indices on mount
+  useEffect(() => {
+    const allIndices = recentActivities
+      .map((_, idx) => idx)
+      .filter((idx) => idx !== currentActivityIndex);
+    remainingIndicesRef.current = shuffleArray(allIndices);
+  }, []);
+
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentActivityIndex((prev) => (prev + 1) % recentActivities.length);
+      setCurrentActivityIndex((prev) => {
+        // If no remaining indices, reshuffle all except current
+        if (remainingIndicesRef.current.length === 0) {
+          const allIndices = recentActivities
+            .map((_, idx) => idx)
+            .filter((idx) => idx !== prev);
+          remainingIndicesRef.current = shuffleArray(allIndices);
+        }
+        
+        // Get next index from remaining (always different from current)
+        const nextIndex = remainingIndicesRef.current.shift()!;
+        return nextIndex;
+      });
     }, 3000);
     return () => clearInterval(interval);
   }, []);
@@ -119,7 +175,7 @@ const Hero = () => {
             </h1>
 
             {/* Animated Typewriter Subtext */}
-            <div className="text-xl md:text-2xl text-muted-foreground mb-6 min-h-[2rem] flex items-center">
+            <div className="text-xl md:text-2xl text-muted-foreground mb-6 min-h-[2rem] flex items-center justify-center lg:justify-start">
               <TypewriterText 
                 words={rotatingBenefits}
                 className="text-primary font-semibold"
@@ -129,7 +185,7 @@ const Hero = () => {
             </div>
             
             <p className="text-lg text-muted-foreground mb-6 max-w-xl mx-auto lg:mx-0">
-              Complete training, ready-to-use portal, and ongoing support. Become a travel entrepreneur and build your dream business today.
+              Become a travel entrepreneur and build your dream business today.
             </p>
 
             {/* Trust Stats Row */}
