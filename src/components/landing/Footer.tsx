@@ -153,10 +153,13 @@ const Footer = () => {
           >
             <div className="mb-8">
               <div className="flex items-center gap-1.5 mb-4">
-                <span className="text-2xl font-bold">
-                  <span className="text-background">NOMAD</span>
-                  <span className="text-primary">ORE</span>
-                </span>
+                <a href="/" className="flex items-center">
+                  <img 
+                    src="/assets/nomadore-logo-white.png" 
+                    alt="Nomadore" 
+                    className="h-8 w-auto"
+                  />
+                </a>
               </div>
               <p className="text-background/70 mb-6">
                 Travel Entrepreneurs Start Here — Launch your own travel business with complete training and support.
@@ -209,7 +212,7 @@ const Footer = () => {
               </a>
               <div className="flex items-center gap-3 text-background/70">
                 <MapPin className="h-5 w-5 flex-shrink-0" />
-                <span>New Delhi, India</span>
+                <span>Bangalore, India</span>
               </div>
             </div>
 

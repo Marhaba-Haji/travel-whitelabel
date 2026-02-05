@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Menu, X, LogIn } from "lucide-react";
 import { useState } from "react";
-import LogoAnimated from "./LogoAnimated";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -28,7 +27,13 @@ const Header = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center">
-            <LogoAnimated size="md" />
+            <a href="/" className="flex items-center">
+              <img 
+                src="/assets/nomadore-logo.png" 
+                alt="Nomadore" 
+                className="h-8 w-auto"
+              />
+            </a>
           </div>
 
           {/* Desktop Navigation */}
