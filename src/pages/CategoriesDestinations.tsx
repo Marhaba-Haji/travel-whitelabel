@@ -5,23 +5,29 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import AnimatedCounter from "@/components/AnimatedCounter";
 import { 
   MapPin, 
   Plane, 
-  Building2, 
   Heart, 
   Briefcase,
   ArrowRight,
   Globe,
-  Mosque,
+  Landmark,
   Camera,
-  Users
+  Users,
+  CheckCircle,
+  Star,
+  Sparkles
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import Flag from "react-world-flags";
 
 interface Destination {
   name: string;
   useCases?: string[];
+  featured?: boolean;
 }
 
 interface Category {
@@ -33,6 +39,43 @@ interface Category {
   color: string;
 }
 
+// Country name to ISO 3166-1 alpha-2 code mapping
+const countryCodes: Record<string, string> = {
+  "Saudi Arabia": "SA",
+  "Iraq": "IQ",
+  "Iran": "IR",
+  "Palestine": "PS",
+  "Jordan": "JO",
+  "Egypt": "EG",
+  "Uzbekistan": "UZ",
+  "Afghanistan": "AF",
+  "Turkey": "TR",
+  "Malaysia": "MY",
+  "Indonesia": "ID",
+  "Morocco": "MA",
+  "Maldives": "MV",
+  "Singapore": "SG",
+  "Mauritius": "MU",
+  "India": "IN",
+  "Azerbaijan": "AZ",
+  "Russia": "RU",
+  "Spain": "ES",
+  "Georgia": "GE",
+  "Vietnam": "VN",
+  "Thailand": "TH",
+  "Oman": "OM",
+  "Qatar": "QA",
+  "United Arab Emirates": "AE",
+  "Bahrain": "BH",
+  "China": "CN",
+  "Japan": "JP"
+};
+
+// Helper function to get country ISO code
+const getCountryCode = (countryName: string): string => {
+  return countryCodes[countryName] || "UN";
+};
+
 const CategoriesDestinations = () => {
   const { ref: heroRef, isVisible: heroVisible } = useScrollAnimation();
   const { ref: frameworkRef, isVisible: frameworkVisible } = useScrollAnimation();
@@ -41,18 +84,20 @@ const CategoriesDestinations = () => {
   const { ref: leisureRef, isVisible: leisureVisible } = useScrollAnimation();
   const { ref: businessRef, isVisible: businessVisible } = useScrollAnimation();
   const { ref: ctaRef, isVisible: ctaVisible } = useScrollAnimation();
+  const [activeCategoryTab, setActiveCategoryTab] = useState("religious");
 
   const categories: Category[] = [
     {
       id: "religious",
       name: "Religious Travel",
       description: "Destinations where travel intent is purely faith-centric, focusing on spiritual journeys, religious obligations, and structured pilgrimage experiences.",
-      icon: Mosque,
+      icon: Landmark,
       color: "from-primary to-primary/70",
       destinations: [
         {
           name: "Saudi Arabia",
-          useCases: ["Umrah", "Ziyarat"]
+          useCases: ["Umrah", "Hajj", "Ziyarat"],
+          featured: true
         }
       ]
     },
@@ -63,12 +108,12 @@ const CategoriesDestinations = () => {
       icon: Heart,
       color: "from-primary/90 to-primary/60",
       destinations: [
-        { name: "Saudi Arabia" },
+        { name: "Saudi Arabia", featured: true },
         { name: "Iraq" },
         { name: "Iran" },
         { name: "Palestine" },
         { name: "Jordan" },
-        { name: "Egypt" },
+        { name: "Egypt", featured: true },
         { name: "Uzbekistan" },
         { name: "Afghanistan" }
       ]
@@ -80,14 +125,14 @@ const CategoriesDestinations = () => {
       icon: Camera,
       color: "from-primary/80 to-primary/50",
       destinations: [
-        { name: "Turkey" },
-        { name: "Malaysia" },
-        { name: "Indonesia" },
+        { name: "Turkey", featured: true },
+        { name: "Malaysia", featured: true },
+        { name: "Indonesia", featured: true },
         { name: "Morocco" },
-        { name: "Maldives" },
-        { name: "Singapore" },
+        { name: "Maldives", featured: true },
+        { name: "Singapore", featured: true },
         { name: "Mauritius" },
-        { name: "India" },
+        { name: "India", featured: true },
         { name: "Azerbaijan" },
         { name: "Russia" },
         { name: "Spain" },
@@ -96,7 +141,7 @@ const CategoriesDestinations = () => {
         { name: "Thailand" },
         { name: "Oman" },
         { name: "Qatar" },
-        { name: "United Arab Emirates" },
+        { name: "United Arab Emirates", featured: true },
         { name: "Bahrain" }
       ]
     },
@@ -107,50 +152,94 @@ const CategoriesDestinations = () => {
       icon: Briefcase,
       color: "from-primary/70 to-primary/40",
       destinations: [
-        { name: "China" },
-        { name: "Japan" },
+        { name: "China", featured: true },
+        { name: "Japan", featured: true },
         { name: "Malaysia" },
-        { name: "United Arab Emirates" },
-        { name: "Saudi Arabia" },
-        { name: "Qatar" },
+        { name: "United Arab Emirates", featured: true },
+        { name: "Saudi Arabia", featured: true },
+        { name: "Qatar", featured: true },
         { name: "Bahrain" },
         { name: "Oman" }
       ]
     }
   ];
 
+  // Calculate total destinations (removing duplicates)
+  const allDestinations = new Set<string>();
+  categories.forEach(cat => {
+    cat.destinations.forEach(dest => allDestinations.add(dest.name));
+  });
+  const totalDestinations = allDestinations.size;
+  const totalCountries = allDestinations.size;
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <main>
-        {/* Hero/Intro Section */}
+        {/* Enhanced Hero/Intro Section */}
         <section className="pt-24 pb-16 md:pt-32 md:pb-24 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-accent via-background to-background" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
           <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse-soft" />
           <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse-soft" style={{ animationDelay: "1s" }} />
+          <div className="absolute top-1/2 left-1/4 w-48 h-48 bg-primary/5 rounded-full blur-2xl animate-float-slow" />
           
           <div className="container mx-auto px-4 relative">
             <div
               ref={heroRef}
               className={`text-center max-w-4xl mx-auto opacity-0 ${heroVisible ? "animate-fade-in" : ""}`}
             >
-              <Badge className="mb-4 bg-primary/10 text-primary hover:bg-primary/20 border-primary/20">
+              <Badge className="mb-4 bg-primary/10 text-primary hover:bg-primary/20 border-primary/20 animate-bounce-subtle">
+                <Sparkles className="h-3 w-3 mr-1.5" />
                 Destination Coverage
               </Badge>
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mt-2 mb-6">
-                Halal Tourism Destinations Organized by Travel Intent
+              
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mt-2 mb-6 leading-tight">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary to-gold animate-gradient-shift bg-[length:200%_auto]">
+                  Halal Tourism
+                </span>{" "}
+                Destinations Organized by{" "}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary to-gold animate-gradient-shift bg-[length:200%_auto]">
+                  Travel Intent
+                </span>
               </h1>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8">
                 Nomadore's destination coverage is structured by travel purpose, not just geography. 
                 This intent-driven approach helps agents understand where and how they can sell using 
                 Nomadore's ecosystem, enabling more effective travel planning and sales conversations.
               </p>
+
+              {/* Quick Stats Row */}
+              <div className="flex flex-wrap items-center justify-center gap-4 mb-6">
+                <div className="flex items-center gap-2 bg-card border border-border px-4 py-2 rounded-lg shadow-sm">
+                  <Globe className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-medium">
+                    <AnimatedCounter end={totalDestinations} suffix="+" className="text-primary font-bold" /> Destinations
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 bg-card border border-border px-4 py-2 rounded-lg shadow-sm">
+                  <MapPin className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-medium">
+                    <AnimatedCounter end={totalCountries} suffix="+" className="text-primary font-bold" /> Countries
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 bg-card border border-border px-4 py-2 rounded-lg shadow-sm">
+                  <Star className="w-4 h-4 text-gold fill-gold" />
+                  <span className="text-sm font-medium">
+                    <span className="text-gold font-bold">4</span> Categories
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 bg-card border border-border px-4 py-2 rounded-lg shadow-sm">
+                  <CheckCircle className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-medium">Global Coverage</span>
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* Category Framework Explanation */}
+        {/* Enhanced Category Framework Explanation */}
         <section className="py-20 bg-background relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-accent/30 via-transparent to-transparent" />
           
@@ -159,8 +248,11 @@ const CategoriesDestinations = () => {
               ref={frameworkRef}
               className={`text-center mb-12 opacity-0 ${frameworkVisible ? "animate-fade-in" : ""}`}
             >
+              <Badge className="mb-4 bg-primary/10 text-primary hover:bg-primary/20 border-primary/20">
+                Our Framework
+              </Badge>
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-                Our Categorization Framework
+                Categorization by Travel Intent
               </h2>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
                 Destinations are organized by travel intent to help you match customer needs with the right offerings.
@@ -168,30 +260,41 @@ const CategoriesDestinations = () => {
             </div>
 
             <div className="max-w-5xl mx-auto">
-              <Tabs defaultValue="religious" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 mb-8">
+              <Tabs value={activeCategoryTab} onValueChange={setActiveCategoryTab} className="w-full">
+                <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 mb-8 bg-muted/50 p-1.5 rounded-lg">
                   {categories.map((category) => (
                     <TabsTrigger 
                       key={category.id} 
                       value={category.id}
-                      className="flex items-center gap-2"
+                      className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all group"
                     >
-                      <category.icon className="h-4 w-4" />
+                      <category.icon className="h-4 w-4 group-hover:scale-110 transition-transform" />
                       <span className="hidden sm:inline">{category.name}</span>
                       <span className="sm:hidden">{category.name.split(" ")[0]}</span>
+                      <Badge variant="secondary" className="ml-1 bg-primary/10 text-primary border-primary/20 text-xs">
+                        {category.destinations.length}
+                      </Badge>
                     </TabsTrigger>
                   ))}
                 </TabsList>
 
                 {categories.map((category) => (
                   <TabsContent key={category.id} value={category.id} className="mt-8">
-                    <Card className="border-2 border-border hover:border-primary/30 transition-all">
+                    <Card className="border-2 border-border hover:border-primary/30 transition-all group overflow-hidden relative">
+                      <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                       <CardHeader>
                         <div className="flex items-center gap-4 mb-4">
-                          <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${category.color} flex items-center justify-center shadow-lg`}>
-                            <category.icon className="h-7 w-7 text-primary-foreground" />
+                          <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${category.color} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                            <category.icon className="h-8 w-8 text-primary-foreground" />
                           </div>
-                          <CardTitle className="text-2xl">{category.name}</CardTitle>
+                          <div className="flex-1">
+                            <CardTitle className="text-2xl mb-1">{category.name}</CardTitle>
+                            <div className="flex items-center gap-2">
+                              <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
+                                {category.destinations.length} {category.destinations.length === 1 ? "Destination" : "Destinations"}
+                              </Badge>
+                            </div>
+                          </div>
                         </div>
                         <CardDescription className="text-base text-muted-foreground leading-relaxed">
                           {category.description}
@@ -205,7 +308,7 @@ const CategoriesDestinations = () => {
           </div>
         </section>
 
-        {/* Religious Travel Section */}
+        {/* Enhanced Religious Travel Section */}
         <section id="religious-travel" className="py-20 bg-gradient-to-b from-background via-accent/20 to-background relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gold/5 via-transparent to-transparent" />
           <div className="absolute top-1/2 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl -translate-y-1/2" />
@@ -217,7 +320,9 @@ const CategoriesDestinations = () => {
             >
               <div className="text-center mb-12">
                 <div className="flex items-center justify-center gap-3 mb-4">
-                  <Mosque className="h-8 w-8 text-primary" />
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg">
+                    <Landmark className="h-6 w-6 text-primary-foreground" />
+                  </div>
                   <h2 className="text-3xl md:text-4xl font-bold text-foreground">
                     Religious Travel Destinations
                   </h2>
@@ -232,17 +337,29 @@ const CategoriesDestinations = () => {
                 {categories[0].destinations.map((destination, index) => (
                   <Card
                     key={destination.name}
-                    className="group hover:shadow-xl transition-all duration-300 border-border hover:border-primary/30 opacity-0"
+                    className="group hover:shadow-xl hover:scale-105 hover:-translate-y-2 transition-all duration-300 border-border hover:border-primary/50 opacity-0 relative overflow-hidden"
                     style={{ 
                       animationDelay: `${index * 0.1}s`,
                       ...(religiousVisible ? { animation: "fade-in 0.6s ease-out forwards" } : {})
                     }}
                   >
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    {destination.featured && (
+                      <div className="absolute top-2 right-2">
+                        <Badge className="bg-gold/10 text-gold border-gold/20">
+                          <Star className="h-3 w-3 mr-1 fill-gold" />
+                          Featured
+                        </Badge>
+                      </div>
+                    )}
                     <CardHeader>
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                          <MapPin className="h-5 w-5 text-primary" />
-                        </div>
+                        <Flag
+                          code={getCountryCode(destination.name)}
+                          className="w-7 h-5 rounded-sm shadow-sm group-hover:scale-110 transition-transform duration-300 border border-border/20"
+                          style={{ objectFit: "cover" }}
+                          aria-label={`${destination.name} flag`}
+                        />
                         <CardTitle className="text-xl">{destination.name}</CardTitle>
                       </div>
                     </CardHeader>
@@ -267,7 +384,7 @@ const CategoriesDestinations = () => {
           </div>
         </section>
 
-        {/* Leisure + Religious Section */}
+        {/* Enhanced Leisure + Religious Section */}
         <section id="leisure-religious" className="py-20 bg-background relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-accent/30 via-transparent to-transparent" />
           
@@ -278,7 +395,9 @@ const CategoriesDestinations = () => {
             >
               <div className="text-center mb-12">
                 <div className="flex items-center justify-center gap-3 mb-4">
-                  <Heart className="h-8 w-8 text-primary" />
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/90 to-primary/60 flex items-center justify-center shadow-lg">
+                    <Heart className="h-6 w-6 text-primary-foreground" />
+                  </div>
                   <h2 className="text-3xl md:text-4xl font-bold text-foreground">
                     Leisure + Religious Destinations
                   </h2>
@@ -294,17 +413,29 @@ const CategoriesDestinations = () => {
                 {categories[1].destinations.map((destination, index) => (
                   <Card
                     key={destination.name}
-                    className="group hover:shadow-lg transition-all duration-300 border-border hover:border-primary/30 opacity-0"
+                    className="group hover:shadow-xl hover:scale-105 hover:-translate-y-2 transition-all duration-300 border-border hover:border-primary/50 opacity-0 relative overflow-hidden"
                     style={{ 
                       animationDelay: `${index * 0.05}s`,
                       ...(leisureReligiousVisible ? { animation: "fade-in 0.6s ease-out forwards" } : {})
                     }}
                   >
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    {destination.featured && (
+                      <div className="absolute top-2 right-2">
+                        <Badge className="bg-gold/10 text-gold border-gold/20">
+                          <Star className="h-3 w-3 mr-1 fill-gold" />
+                          Popular
+                        </Badge>
+                      </div>
+                    )}
                     <CardContent className="p-6">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                          <MapPin className="h-4 w-4 text-primary" />
-                        </div>
+                        <Flag
+                          code={getCountryCode(destination.name)}
+                          className="w-6 h-4 rounded-sm shadow-sm group-hover:scale-110 transition-transform duration-300 border border-border/20"
+                          style={{ objectFit: "cover" }}
+                          aria-label={`${destination.name} flag`}
+                        />
                         <CardTitle className="text-lg">{destination.name}</CardTitle>
                       </div>
                     </CardContent>
@@ -315,7 +446,7 @@ const CategoriesDestinations = () => {
           </div>
         </section>
 
-        {/* Leisure Travel Section */}
+        {/* Enhanced Leisure Travel Section */}
         <section id="leisure" className="py-20 bg-gradient-to-b from-background via-accent/20 to-background relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent" />
           
@@ -326,7 +457,9 @@ const CategoriesDestinations = () => {
             >
               <div className="text-center mb-12">
                 <div className="flex items-center justify-center gap-3 mb-4">
-                  <Camera className="h-8 w-8 text-primary" />
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/80 to-primary/50 flex items-center justify-center shadow-lg">
+                    <Camera className="h-6 w-6 text-primary-foreground" />
+                  </div>
                   <h2 className="text-3xl md:text-4xl font-bold text-foreground">
                     Leisure Travel Destinations
                   </h2>
@@ -342,17 +475,29 @@ const CategoriesDestinations = () => {
                 {categories[2].destinations.map((destination, index) => (
                   <Card
                     key={destination.name}
-                    className="group hover:shadow-lg transition-all duration-300 border-border hover:border-primary/30 opacity-0"
+                    className="group hover:shadow-xl hover:scale-105 hover:-translate-y-2 transition-all duration-300 border-border hover:border-primary/50 opacity-0 relative overflow-hidden"
                     style={{ 
                       animationDelay: `${index * 0.03}s`,
                       ...(leisureVisible ? { animation: "fade-in 0.6s ease-out forwards" } : {})
                     }}
                   >
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    {destination.featured && (
+                      <div className="absolute top-2 right-2">
+                        <Badge className="bg-gold/10 text-gold border-gold/20">
+                          <Star className="h-3 w-3 mr-1 fill-gold" />
+                          Popular
+                        </Badge>
+                      </div>
+                    )}
                     <CardContent className="p-5">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                          <MapPin className="h-4 w-4 text-primary" />
-                        </div>
+                        <Flag
+                          code={getCountryCode(destination.name)}
+                          className="w-6 h-4 rounded-sm shadow-sm group-hover:scale-110 transition-transform duration-300 border border-border/20"
+                          style={{ objectFit: "cover" }}
+                          aria-label={`${destination.name} flag`}
+                        />
                         <CardTitle className="text-base">{destination.name}</CardTitle>
                       </div>
                     </CardContent>
@@ -363,7 +508,7 @@ const CategoriesDestinations = () => {
           </div>
         </section>
 
-        {/* Business Travel Section */}
+        {/* Enhanced Business Travel Section */}
         <section id="business" className="py-20 bg-background relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-accent/20 via-transparent to-transparent" />
           
@@ -374,7 +519,9 @@ const CategoriesDestinations = () => {
             >
               <div className="text-center mb-12">
                 <div className="flex items-center justify-center gap-3 mb-4">
-                  <Briefcase className="h-8 w-8 text-primary" />
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/70 to-primary/40 flex items-center justify-center shadow-lg">
+                    <Briefcase className="h-6 w-6 text-primary-foreground" />
+                  </div>
                   <h2 className="text-3xl md:text-4xl font-bold text-foreground">
                     Business Travel Destinations
                   </h2>
@@ -390,17 +537,29 @@ const CategoriesDestinations = () => {
                 {categories[3].destinations.map((destination, index) => (
                   <Card
                     key={destination.name}
-                    className="group hover:shadow-lg transition-all duration-300 border-border hover:border-primary/30 bg-card/50 opacity-0"
+                    className="group hover:shadow-xl hover:scale-105 hover:-translate-y-2 transition-all duration-300 border-border hover:border-primary/50 bg-card/50 opacity-0 relative overflow-hidden"
                     style={{ 
                       animationDelay: `${index * 0.05}s`,
                       ...(businessVisible ? { animation: "fade-in 0.6s ease-out forwards" } : {})
                     }}
                   >
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    {destination.featured && (
+                      <div className="absolute top-2 right-2">
+                        <Badge className="bg-gold/10 text-gold border-gold/20">
+                          <Star className="h-3 w-3 mr-1 fill-gold" />
+                          Featured
+                        </Badge>
+                      </div>
+                    )}
                     <CardContent className="p-6">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                          <Building2 className="h-4 w-4 text-primary" />
-                        </div>
+                        <Flag
+                          code={getCountryCode(destination.name)}
+                          className="w-6 h-4 rounded-sm shadow-sm group-hover:scale-110 transition-transform duration-300 border border-border/20"
+                          style={{ objectFit: "cover" }}
+                          aria-label={`${destination.name} flag`}
+                        />
                         <CardTitle className="text-lg">{destination.name}</CardTitle>
                       </div>
                     </CardContent>
@@ -409,58 +568,80 @@ const CategoriesDestinations = () => {
               </div>
 
               <div className="mt-12 text-center">
-                <p className="text-muted-foreground mb-4">Typical use cases:</p>
+                <p className="text-muted-foreground mb-4 font-medium">Typical use cases:</p>
                 <div className="flex flex-wrap justify-center gap-3">
-                  <Badge variant="secondary" className="bg-muted text-foreground">
-                    Corporate Delegations
-                  </Badge>
-                  <Badge variant="secondary" className="bg-muted text-foreground">
-                    Trade Exhibitions
-                  </Badge>
-                  <Badge variant="secondary" className="bg-muted text-foreground">
-                    Business Conferences
-                  </Badge>
-                  <Badge variant="secondary" className="bg-muted text-foreground">
-                    Corporate Travel
-                  </Badge>
+                  {["Corporate Delegations", "Trade Exhibitions", "Business Conferences", "Corporate Travel"].map((useCase) => (
+                    <Badge key={useCase} variant="secondary" className="bg-muted text-foreground hover:bg-primary/10 hover:text-primary transition-colors">
+                      {useCase}
+                    </Badge>
+                  ))}
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* CTA Section */}
+        {/* Enhanced CTA Section */}
         <section className="py-20 bg-gradient-to-b from-background via-accent/20 to-background relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent" />
+          <div className="absolute top-1/4 left-0 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse-soft" />
+          <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-gold/5 rounded-full blur-3xl animate-pulse-soft" style={{ animationDelay: "1s" }} />
           
           <div className="container mx-auto px-4 relative">
             <div
               ref={ctaRef}
               className={`text-center max-w-3xl mx-auto opacity-0 ${ctaVisible ? "animate-fade-in" : ""}`}
             >
-              <div className="bg-card border-2 border-border rounded-2xl p-8 md:p-12 shadow-xl">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center mx-auto mb-6 shadow-lg">
-                  <Globe className="h-8 w-8 text-primary-foreground" />
-                </div>
-                <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-                  Ready to Access These Destinations?
-                </h2>
-                <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-                  Join Nomadore's partner network to access comprehensive destination coverage, 
-                  inventory, and tools to serve your halal-conscious travelers effectively.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Button size="lg" asChild className="shadow-lg group">
-                    <Link to="/signup">
-                      Explore Partner Access
-                      <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                    </Link>
-                  </Button>
-                  <Button size="lg" variant="outline" asChild>
-                    <a href="#contact">
-                      Request Coverage Details
-                    </a>
-                  </Button>
+              <div className="bg-card border-2 border-border rounded-2xl p-8 md:p-12 shadow-xl relative overflow-hidden group">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-gold/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="relative">
+                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                    <Globe className="h-10 w-10 text-primary-foreground animate-float" />
+                  </div>
+                  
+                  <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+                    Ready to Access These{" "}
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-gold">
+                      Destinations?
+                    </span>
+                  </h2>
+                  
+                  <p className="text-lg text-muted-foreground mb-6 max-w-2xl mx-auto">
+                    Join Nomadore's partner network to access comprehensive destination coverage, 
+                    inventory, and tools to serve your halal-conscious travelers effectively.
+                  </p>
+
+                  {/* Trust Indicators */}
+                  <div className="flex flex-wrap items-center justify-center gap-4 mb-8">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Users className="h-4 w-4 text-primary" />
+                      <span>Join <span className="font-semibold text-foreground">500+</span> Agents</span>
+                    </div>
+                    <div className="w-1 h-1 rounded-full bg-muted-foreground/30" />
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <CheckCircle className="h-4 w-4 text-primary" />
+                      <span>Trusted Platform</span>
+                    </div>
+                    <div className="w-1 h-1 rounded-full bg-muted-foreground/30" />
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Star className="h-4 w-4 text-gold fill-gold" />
+                      <span>6 Days Support</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <Button size="lg" asChild className="shadow-lg group/btn hover:shadow-xl transition-all bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary">
+                      <Link to="/signup">
+                        Explore Partner Access
+                        <ArrowRight className="ml-2 h-5 w-5 group-hover/btn:translate-x-1 transition-transform" />
+                      </Link>
+                    </Button>
+                    <Button size="lg" variant="outline" asChild className="hover:bg-primary/10 hover:border-primary/50 transition-all">
+                      <a href="#contact">
+                        Request Coverage Details
+                      </a>
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
