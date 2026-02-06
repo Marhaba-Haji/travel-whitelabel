@@ -1,7 +1,7 @@
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Package, Settings, Users, Globe, Shield, Zap, Server, ArrowRight, Lock } from "lucide-react";
+import { Package, Settings, Users, Globe, ArrowRight } from "lucide-react";
 import AnimatedCounter from "@/components/AnimatedCounter";
 
 const TechPlatform = () => {
@@ -35,12 +35,6 @@ const TechPlatform = () => {
     },
   ];
 
-  const platformFeatures = [
-    { icon: Shield, text: "Enterprise Security" },
-    { icon: Zap, text: "99.9% Uptime" },
-    { icon: Server, text: "Scalable Infrastructure" },
-    { icon: Lock, text: "Data Encryption" },
-  ];
 
   return (
     <section className="py-20 bg-muted/30 relative overflow-hidden">
@@ -85,7 +79,7 @@ const TechPlatform = () => {
             </div>
             <div className="bg-card border border-border rounded-xl p-4 text-center">
               <div className="text-2xl font-bold text-primary mb-1">
-                24/7
+                6 Days
               </div>
               <div className="text-sm text-muted-foreground">Support</div>
             </div>
@@ -101,13 +95,13 @@ const TechPlatform = () => {
             {portals.map((portal, index) => (
               <Card
                 key={portal.title}
-                className={`border border-border hover:shadow-xl hover:-translate-y-2 transition-all duration-300 overflow-hidden opacity-0 ${
+                className={`border border-border hover:shadow-xl hover:-translate-y-2 transition-all duration-300 overflow-hidden opacity-0 flex flex-col ${
                   isVisible ? "animate-fade-in" : ""
                 }`}
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <CardContent className={`p-0 bg-gradient-to-br ${portal.color} rounded-lg`}>
-                  <div className="p-6">
+                <CardContent className={`p-0 bg-gradient-to-br ${portal.color} rounded-lg flex-1 flex flex-col`}>
+                  <div className="p-6 flex-1">
                     <div className="w-12 h-12 rounded-lg bg-card/80 backdrop-blur-sm flex items-center justify-center mb-4">
                       <portal.icon className="w-6 h-6 text-primary" />
                     </div>
@@ -121,19 +115,6 @@ const TechPlatform = () => {
                 </CardContent>
               </Card>
             ))}
-          </div>
-
-          {/* Platform Features */}
-          <div className="bg-card border border-border rounded-2xl p-8 mb-8">
-            <h3 className="text-xl font-bold text-foreground mb-6 text-center">Platform Capabilities</h3>
-            <div className="grid md:grid-cols-4 gap-4">
-              {platformFeatures.map((feature, index) => (
-                <div key={index} className="flex flex-col items-center gap-2 p-4 bg-muted/50 rounded-lg">
-                  <feature.icon className="w-6 h-6 text-primary" />
-                  <span className="text-sm text-muted-foreground text-center">{feature.text}</span>
-                </div>
-              ))}
-            </div>
           </div>
 
           {/* Bottom Highlight */}
