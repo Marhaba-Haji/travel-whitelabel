@@ -51,6 +51,7 @@ const Footer = () => {
   };
 
   const quickLinks = [
+    { name: "About", href: "/about", isPage: true },
     { name: "Features", href: "#features" },
     { name: "Portals", href: "#portals" },
     { name: "Pricing", href: "#pricing" },
@@ -222,13 +223,23 @@ const Footer = () => {
                 <h4 className="font-semibold mb-4">Quick Links</h4>
                 <div className="flex flex-wrap gap-4">
                   {quickLinks.map((link) => (
-                    <button
-                      key={link.name}
-                      onClick={() => scrollToSection(link.href)}
-                      className="text-background/70 hover:text-background transition-colors"
-                    >
-                      {link.name}
-                    </button>
+                    link.isPage ? (
+                      <a
+                        key={link.name}
+                        href={link.href}
+                        className="text-background/70 hover:text-background transition-colors"
+                      >
+                        {link.name}
+                      </a>
+                    ) : (
+                      <button
+                        key={link.name}
+                        onClick={() => scrollToSection(link.href)}
+                        className="text-background/70 hover:text-background transition-colors"
+                      >
+                        {link.name}
+                      </button>
+                    )
                   ))}
                 </div>
               </div>
