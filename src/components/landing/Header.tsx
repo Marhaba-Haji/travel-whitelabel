@@ -8,6 +8,7 @@ const Header = () => {
   const navLinks = [
     { name: "Features", href: "#features" },
     { name: "Portals", href: "#portals" },
+    { name: "About", href: "/about", isPage: true },
     { name: "Pricing", href: "#pricing" },
     { name: "FAQ", href: "#faq" },
     { name: "Contact", href: "#contact" },
@@ -39,13 +40,23 @@ const Header = () => {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
-              <button
-                key={link.name}
-                onClick={() => scrollToSection(link.href)}
-                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-              >
-                {link.name}
-              </button>
+              link.isPage ? (
+                <a
+                  key={link.name}
+                  href={link.href}
+                  className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+                >
+                  {link.name}
+                </a>
+              ) : (
+                <button
+                  key={link.name}
+                  onClick={() => scrollToSection(link.href)}
+                  className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+                >
+                  {link.name}
+                </button>
+              )
             ))}
           </nav>
 
@@ -77,13 +88,23 @@ const Header = () => {
           <div className="md:hidden py-4 border-t border-border">
             <nav className="flex flex-col gap-4">
               {navLinks.map((link) => (
-                <button
-                  key={link.name}
-                  onClick={() => scrollToSection(link.href)}
-                  className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors text-left"
-                >
-                  {link.name}
-                </button>
+                link.isPage ? (
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors text-left"
+                  >
+                    {link.name}
+                  </a>
+                ) : (
+                  <button
+                    key={link.name}
+                    onClick={() => scrollToSection(link.href)}
+                    className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors text-left"
+                  >
+                    {link.name}
+                  </button>
+                )
               ))}
               <div className="flex flex-col gap-2 pt-4 border-t border-border">
                 <a
