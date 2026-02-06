@@ -1,10 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Menu, X, LogIn } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const navLinks = [
     { name: "Features", href: "#features" },
@@ -17,11 +19,25 @@ const Header = () => {
   ];
 
   const scrollToSection = (href: string) => {
-    const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
+    // If we're not on the home page, navigate to home page with hash
+    // The Index page's useEffect will handle scrolling after navigation
+    if (location.pathname !== "/") {
+      navigate(`/${href}`);
+    } else {
+      // We're on the home page, scroll immediately
+      const element = document.querySelector(href);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
     }
     setIsMenuOpen(false);
+  };
+
+  const handlePageNavigation = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // Close mobile menu if open
+    setIsMenuOpen(false);
+    // Scroll to top of the page when navigating
+    window.scrollTo({ top: 0, behavior: "instant" });
   };
 
   return (
@@ -46,6 +62,7 @@ const Header = () => {
                 <Link
                   key={link.name}
                   to={link.href}
+                  onClick={handlePageNavigation}
                   className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
                 >
                   {link.name}
@@ -94,7 +111,7 @@ const Header = () => {
                   <Link
                     key={link.name}
                     to={link.href}
-                    onClick={() => setIsMenuOpen(false)}
+                    onClick={handlePageNavigation}
                     className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors text-left"
                   >
                     {link.name}

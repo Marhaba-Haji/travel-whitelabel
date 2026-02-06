@@ -3,10 +3,16 @@ import { ArrowLeft, Rocket, Users, TrendingUp, CheckCircle, Zap, DollarSign, Cal
 import LogoAnimated from "@/components/landing/LogoAnimated";
 import SignupForm from "@/components/auth/SignupForm";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { useEffect } from "react";
 
 const Signup = () => {
   const { ref: formRef, isVisible: formVisible } = useScrollAnimation();
   const { ref: visualRef, isVisible: visualVisible } = useScrollAnimation();
+
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, []);
 
   const benefits = [
     { icon: Rocket, text: "Launch in 24 Hours", color: "text-primary" },

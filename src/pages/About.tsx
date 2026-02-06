@@ -13,8 +13,14 @@ import TrainingSupport from "@/components/about/TrainingSupport";
 import HospitalityTech from "@/components/about/HospitalityTech";
 import Philosophy from "@/components/about/Philosophy";
 import WorkWithUs from "@/components/about/WorkWithUs";
+import { useEffect } from "react";
 
 const About = () => {
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       <Header />

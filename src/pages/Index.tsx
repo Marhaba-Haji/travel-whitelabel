@@ -13,8 +13,25 @@ import FAQ from "@/components/landing/FAQ";
 import Footer from "@/components/landing/Footer";
 import FloatingWhatsApp from "@/components/landing/FloatingWhatsApp";
 import StickyCTA from "@/components/landing/StickyCTA";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 const Index = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    // Handle hash scrolling when navigating to home page with hash
+    if (location.hash) {
+      const element = document.querySelector(location.hash);
+      if (element) {
+        // Small delay to ensure page is rendered
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: "smooth" });
+        }, 100);
+      }
+    }
+  }, [location.hash]);
+
   return (
     <div className="min-h-screen bg-background">
       <Header />

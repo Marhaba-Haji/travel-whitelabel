@@ -1,16 +1,29 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { ArrowLeft, Shield, Users, TrendingUp } from "lucide-react";
 import LogoAnimated from "@/components/landing/LogoAnimated";
 import LoginForm from "@/components/auth/LoginForm";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { useEffect } from "react";
 
 const Login = () => {
   const { ref: formRef, isVisible: formVisible } = useScrollAnimation();
   const { ref: visualRef, isVisible: visualVisible } = useScrollAnimation();
+  const location = useLocation();
+
+  // Scroll to top when component mounts or route changes
+  useEffect(() => {
+    // Use requestAnimationFrame to ensure DOM is ready
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: "instant" });
+      // Also scroll documentElement and body for cross-browser compatibility
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    });
+  }, [location.pathname]);
 
   const trustIndicators = [
-    { icon: Users, text: "500+ Active Agents", color: "text-primary" },
-    { icon: TrendingUp, text: "₹50Cr+ Booked", color: "text-gold" },
+    { icon: Users, text: "5000+ travelers looking for travel agents online every hour", color: "text-primary" },
+    { icon: TrendingUp, text: "Earn 50,000 per month on average", color: "text-gold" },
     { icon: Shield, text: "Secure & Trusted", color: "text-primary" },
   ];
 

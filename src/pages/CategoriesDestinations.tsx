@@ -21,7 +21,7 @@ import {
   Sparkles
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Flag from "react-world-flags";
 
 interface Destination {
@@ -85,6 +85,11 @@ const CategoriesDestinations = () => {
   const { ref: businessRef, isVisible: businessVisible } = useScrollAnimation();
   const { ref: ctaRef, isVisible: ctaVisible } = useScrollAnimation();
   const [activeCategoryTab, setActiveCategoryTab] = useState("religious");
+
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, []);
 
   const categories: Category[] = [
     {
@@ -215,13 +220,13 @@ const CategoriesDestinations = () => {
                 <div className="flex items-center gap-2 bg-card border border-border px-4 py-2 rounded-lg shadow-sm">
                   <Globe className="w-4 h-4 text-primary" />
                   <span className="text-sm font-medium">
-                    <AnimatedCounter end={totalDestinations} suffix="+" className="text-primary font-bold" /> Destinations
+                    <AnimatedCounter end={200} suffix="+" className="text-primary font-bold" /> Destinations
                   </span>
                 </div>
                 <div className="flex items-center gap-2 bg-card border border-border px-4 py-2 rounded-lg shadow-sm">
                   <MapPin className="w-4 h-4 text-primary" />
                   <span className="text-sm font-medium">
-                    <AnimatedCounter end={totalCountries} suffix="+" className="text-primary font-bold" /> Countries
+                    <AnimatedCounter end={30} suffix="+" className="text-primary font-bold" /> Countries
                   </span>
                 </div>
                 <div className="flex items-center gap-2 bg-card border border-border px-4 py-2 rounded-lg shadow-sm">
