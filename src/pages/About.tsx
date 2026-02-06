@@ -2,10 +2,10 @@ import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
 import FloatingWhatsApp from "@/components/landing/FloatingWhatsApp";
 import AboutHero from "@/components/about/AboutHero";
+import AboutStats from "@/components/about/AboutStats";
 import WhoWeAre from "@/components/about/WhoWeAre";
+import AboutTestimonials from "@/components/about/AboutTestimonials";
 import HalalFocus from "@/components/about/HalalFocus";
-import Itineraries from "@/components/about/Itineraries";
-import ContentSupplier from "@/components/about/ContentSupplier";
 import TechPlatform from "@/components/about/TechPlatform";
 import ContractedInventory from "@/components/about/ContractedInventory";
 import AIPowered from "@/components/about/AIPowered";
@@ -20,10 +20,10 @@ const About = () => {
       <Header />
       <main>
         <AboutHero />
+        <AboutStats />
         <WhoWeAre />
+        <AboutTestimonials />
         <HalalFocus />
-        <Itineraries />
-        <ContentSupplier />
         <TechPlatform />
         <ContractedInventory />
         <AIPowered />
