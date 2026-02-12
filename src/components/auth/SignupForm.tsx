@@ -144,6 +144,7 @@ const SignupForm = ({ amount = SIGNUP_AMOUNT }: SignupFormProps) => {
           phone: data.phone,
           city: data.city,
           password: data.password,
+          termsAccepted: data.termsAccepted,
         }),
       });
 

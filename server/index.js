@@ -5,22 +5,36 @@ import { config } from "dotenv";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 config({ path: join(__dirname, ".env"), silent: true, override: true });
+
 import express from "express";
 import cors from "cors";
 import crypto from "crypto";
+import bcrypt from "bcrypt";
+import { createClient } from "@supabase/supabase-js";
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 const PORT = process.env.PORT || 3001;
 
-// PayU credentials - NEVER expose these to the frontend
+// Supabase
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabase = SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY
+  ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+  : null;
+
+// PayU
 const PAYU_KEY = process.env.PAYU_KEY;
-const PAYU_SALT = process.env.PAYU_SALT_32 || process.env.PAYU_SALT; // Use 32-bit salt; set PAYU_SALT_256 if your account uses 256-bit
+const PAYU_SALT_32 = process.env.PAYU_SALT_32;
 const PAYU_SALT_256 = process.env.PAYU_SALT_256;
-// Production key 5iAP6W requires production URL - using secure.payu.in
-const PAYU_ACTION = "https://secure.payu.in/_payment";
+const PAYU_ACTION = process.env.PAYU_ACTION_URL || "https://secure.payu.in/_payment";
+
+// URLs: BACKEND_URL = where PayU posts callbacks; BASE_URL = frontend redirect
+const BACKEND_URL = process.env.BACKEND_URL || `http://localhost:${PORT}`;
+const FRONTEND_URL = process.env.BASE_URL || process.env.FRONTEND_URL || "http://localhost:8080";
 
 function generatePayUHash(params, salt) {
   const hashString = [
@@ -45,51 +59,156 @@ function generatePayUHash(params, salt) {
   return crypto.createHash("sha512").update(hashString).digest("hex");
 }
 
-app.post("/api/create-payment", (req, res) => {
+// ----- Contact form -----
+app.post("/api/contact", async (req, res) => {
   try {
-    const salt = PAYU_SALT_256 || PAYU_SALT;
-    if (!PAYU_KEY || !salt) {
+    const { name, email, phone, message } = req.body || {};
+    if (!name?.trim() || !email?.trim() || !message?.trim()) {
+      return res.status(400).json({ error: "Name, email and message are required" });
+    }
+
+    if (!supabase) {
+      console.warn("Supabase not configured; contact form data not stored");
+      return res.status(200).json({ success: true, message: "Thank you for contacting us." });
+    }
+
+    const { error } = await supabase.from("contact_enquiries").insert({
+      name: String(name).trim().slice(0, 100),
+      email: String(email).trim().slice(0, 255),
+      phone: phone ? String(phone).trim().slice(0, 20) : null,
+      message: String(message).trim().slice(0, 1000),
+    });
+
+    if (error) {
+      console.error("Contact insert error:", error);
+      return res.status(500).json({ error: "Failed to save your message. Please try again." });
+    }
+
+    res.status(200).json({ success: true, message: "Thank you for contacting us. We'll get back to you within 24 hours." });
+  } catch (err) {
+    console.error("Contact API error:", err);
+    res.status(500).json({ error: "Server error. Please try again." });
+  }
+});
+
+// ----- Newsletter -----
+app.post("/api/newsletter", async (req, res) => {
+  try {
+    const { email } = req.body || {};
+    const trimmed = email?.trim();
+    if (!trimmed || !trimmed.includes("@")) {
+      return res.status(400).json({ error: "Please enter a valid email address" });
+    }
+
+    if (!supabase) {
+      console.warn("Supabase not configured; newsletter data not stored");
+      return res.status(200).json({ success: true, message: "Thank you for subscribing!" });
+    }
+
+    const { error } = await supabase.from("newsletter_subscriptions").insert({
+      email: trimmed.slice(0, 255),
+    });
+
+    if (error) {
+      if (error.code === "23505") {
+        return res.status(200).json({ success: true, message: "You're already subscribed. Thank you!" });
+      }
+      console.error("Newsletter insert error:", error);
+      return res.status(500).json({ error: "Failed to subscribe. Please try again." });
+    }
+
+    res.status(200).json({ success: true, message: "Thank you for subscribing to our newsletter!" });
+  } catch (err) {
+    console.error("Newsletter API error:", err);
+    res.status(500).json({ error: "Server error. Please try again." });
+  }
+});
+
+// ----- Create payment (signup + PayU params) -----
+app.post("/api/create-payment", async (req, res) => {
+  try {
+    const salt = PAYU_SALT_256 || PAYU_SALT_32;
+    const isDemo = !PAYU_KEY || !salt;
+
+    const body = req.body || {};
+    const { fullName, email, phone, city, password, termsAccepted } = body;
+
+    if (!email || !fullName || !phone) {
+      return res.status(400).json({ error: "Missing required fields: fullName, email, phone" });
+    }
+
+    let registrationId = null;
+
+    if (supabase) {
+      const passwordHash = password ? await bcrypt.hash(String(password), 10) : null;
+      const { data: reg, error: regErr } = await supabase
+        .from("registrations")
+        .insert({
+          full_name: String(fullName).trim().slice(0, 100),
+          email: String(email).trim().slice(0, 255),
+          phone: String(phone).replace(/\D/g, "").slice(-10) || String(phone).trim(),
+          city: city ? String(city).trim().slice(0, 100) : null,
+          password_hash: passwordHash,
+          terms_accepted: Boolean(termsAccepted),
+        })
+        .select("id")
+        .single();
+
+      if (regErr) {
+        console.error("Registration insert error:", regErr);
+        return res.status(500).json({ error: "Registration failed. Please try again.", message: regErr.message });
+      }
+      registrationId = reg?.id;
+    }
+
+    if (isDemo) {
       return res.status(200).json({
         demo: true,
         redirect: "/signup-success",
       });
     }
 
-    const body = req.body || {};
-    const { fullName, email, phone, city } = body;
+    const amount = "18799.00";
+    const txnid = `TXN${Date.now()}${Math.random().toString(36).slice(2, 8)}`;
+    const productinfo = "Travel Agency White-Label Platform - Annual Subscription";
+    const firstname = (fullName || "").split(" ")[0] || fullName;
 
-    if (!email || !fullName || !phone) {
-      return res.status(400).json({ error: "Missing required fields: fullName, email, phone" });
+    const surl = `${BACKEND_URL.replace(/\/$/, "")}/api/payu-success`;
+    const furl = `${BACKEND_URL.replace(/\/$/, "")}/api/payu-failure`;
+
+    const params = {
+      key: PAYU_KEY,
+      txnid,
+      amount,
+      productinfo,
+      firstname,
+      email: String(email).trim(),
+      phone: (phone || "").replace(/\D/g, "").slice(-10),
+      surl,
+      furl,
+      udf1: city || "",
+      udf2: fullName || "",
+      udf3: registrationId || "",
+      udf4: "",
+      udf5: "",
+    };
+
+    const hash = generatePayUHash(params, salt);
+    params.hash = hash;
+
+    if (supabase && registrationId) {
+      const { error: payErr } = await supabase.from("payments").insert({
+        registration_id: registrationId,
+        txn_id: txnid,
+        amount: parseFloat(amount),
+        currency: "INR",
+        product_info: productinfo,
+        status: "initiated",
+        success_url: surl,
+        failure_url: furl,
+      });
+      if (payErr) console.error("Payment init insert error:", payErr);
     }
-
-    const amount = "18799.00"; // ₹18,799 - PayU expects amount in INR
-  const txnid = `TXN${Date.now()}${Math.random().toString(36).slice(2, 8)}`;
-  const productinfo = "Travel Agency White-Label Platform - Annual Subscription";
-  const firstname = fullName.split(" ")[0] || fullName;
-
-  const baseUrl = process.env.BASE_URL || "http://localhost:8080";
-  const surl = `${baseUrl}/signup-success`;
-  const furl = `${baseUrl}/signup?payment=failed`;
-
-  const params = {
-    key: PAYU_KEY,
-    txnid,
-    amount,
-    productinfo,
-    firstname,
-    email,
-    phone: (phone || "").replace(/\D/g, "").slice(-10),
-    surl,
-    furl,
-    udf1: city || "",
-    udf2: fullName,
-    udf3: "",
-    udf4: "",
-    udf5: "",
-  };
-
-  const hash = generatePayUHash(params, salt);
-  params.hash = hash;
 
     res.json({
       action: PAYU_ACTION,
@@ -104,7 +223,105 @@ app.post("/api/create-payment", (req, res) => {
   }
 });
 
+// ----- PayU success callback (PayU POSTs form data here) -----
+app.post("/api/payu-success", async (req, res) => {
+  const data = { ...req.body };
+  const txnid = data.txnid || data.txnId;
+
+  if (supabase && txnid) {
+    try {
+      const { data: payment } = await supabase
+        .from("payments")
+        .select("id, registration_id")
+        .eq("txn_id", txnid)
+        .single();
+
+      if (payment) {
+        await supabase.from("payments").update({
+          status: data.status || "success",
+          payu_mihpayid: data.mihpayid || data.payu_mihpayid || null,
+          bank_ref_num: data.bank_ref_num || null,
+          payment_mode: data.mode || null,
+          error_code: data.error_code || null,
+          error_message: data.error_Message || data.error_message || null,
+          updated_at: new Date().toISOString(),
+        }).eq("id", payment.id);
+
+        await supabase.from("payment_gateway_responses").insert({
+          payment_id: payment.id,
+          txn_id: txnid,
+          gateway: "payu",
+          response_type: "success_callback",
+          raw_response: data,
+          status: data.status || "success",
+        });
+
+        if (payment.registration_id) {
+          await supabase.from("registrations").update({
+            status: "payment_completed",
+            updated_at: new Date().toISOString(),
+          }).eq("id", payment.registration_id);
+        }
+      } else {
+        await supabase.from("payment_gateway_responses").insert({
+          txn_id: txnid,
+          gateway: "payu",
+          response_type: "success_callback",
+          raw_response: data,
+          status: data.status || "success",
+        });
+      }
+    } catch (e) {
+      console.error("PayU success callback error:", e);
+    }
+  }
+
+  res.redirect(302, `${FRONTEND_URL.replace(/\/$/, "")}/signup-success`);
+});
+
+// ----- PayU failure callback -----
+app.post("/api/payu-failure", async (req, res) => {
+  const data = { ...req.body };
+  const txnid = data.txnid || data.txnId;
+
+  if (supabase && txnid) {
+    try {
+      const { data: payment } = await supabase
+        .from("payments")
+        .select("id")
+        .eq("txn_id", txnid)
+        .single();
+
+      if (payment) {
+        await supabase.from("payments").update({
+          status: data.status || "failed",
+          payu_mihpayid: data.mihpayid || data.payu_mihpayid || null,
+          bank_ref_num: data.bank_ref_num || null,
+          payment_mode: data.mode || null,
+          error_code: data.error_code || null,
+          error_message: data.error_Message || data.error_message || null,
+          updated_at: new Date().toISOString(),
+        }).eq("id", payment.id);
+      }
+
+      await supabase.from("payment_gateway_responses").insert({
+        payment_id: payment?.id || null,
+        txn_id: txnid,
+        gateway: "payu",
+        response_type: "failure_callback",
+        raw_response: data,
+        status: data.status || "failed",
+      });
+    } catch (e) {
+      console.error("PayU failure callback error:", e);
+    }
+  }
+
+  res.redirect(302, `${FRONTEND_URL.replace(/\/$/, "")}/signup?payment=failed`);
+});
+
 app.listen(PORT, () => {
-  console.log(`PayU API server running on http://localhost:${PORT}`);
+  console.log(`API server running on http://localhost:${PORT}`);
   console.log(`PayU: ${PAYU_ACTION}`);
+  console.log(`Supabase: ${supabase ? "connected" : "not configured"}`);
 });

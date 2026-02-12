@@ -20,16 +20,46 @@ const Footer = () => {
 
   const [newsletterEmail, setNewsletterEmail] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [contactLoading, setContactLoading] = useState(false);
+  const [newsletterLoading, setNewsletterLoading] = useState(false);
+
+  const apiBase = import.meta.env.VITE_API_URL ?? "";
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Message Sent!",
-      description: "Thank you for contacting us. We'll get back to you within 24 hours.",
-    });
-    setFormData({ name: "", email: "", phone: "", message: "" });
+    setContactLoading(true);
+    try {
+      const res = await fetch(`${apiBase}/api/contact`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        toast({
+          variant: "destructive",
+          title: json.error || "Failed to send",
+          description: json.message || "Please try again.",
+        });
+        return;
+      }
+      toast({
+        title: "Message Sent!",
+        description: json.message || "Thank you for contacting us. We'll get back to you within 24 hours.",
+      });
+      setFormData({ name: "", email: "", phone: "", message: "" });
+    } catch {
+      toast({
+        variant: "destructive",
+        title: "Failed to send",
+        description: "Please try again or contact us directly.",
+      });
+    } finally {
+      setContactLoading(false);
+    }
   };
 
-  const handleNewsletterSubmit = (e: React.FormEvent) => {
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newsletterEmail.trim() || !newsletterEmail.includes("@")) {
       toast({
@@ -39,11 +69,36 @@ const Footer = () => {
       });
       return;
     }
-    toast({
-      title: "Subscribed!",
-      description: "Thank you for subscribing to our newsletter.",
-    });
-    setNewsletterEmail("");
+    setNewsletterLoading(true);
+    try {
+      const res = await fetch(`${apiBase}/api/newsletter`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: newsletterEmail.trim() }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        toast({
+          variant: "destructive",
+          title: json.error || "Failed to subscribe",
+          description: json.message || "Please try again.",
+        });
+        return;
+      }
+      toast({
+        title: "Subscribed!",
+        description: json.message || "Thank you for subscribing to our newsletter.",
+      });
+      setNewsletterEmail("");
+    } catch {
+      toast({
+        variant: "destructive",
+        title: "Failed to subscribe",
+        description: "Please try again later.",
+      });
+    } finally {
+      setNewsletterLoading(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -141,8 +196,8 @@ const Footer = () => {
                   className="bg-background/10 border-background/20 text-background placeholder:text-background/50"
                 />
               </div>
-              <Button type="submit" size="lg" variant="secondary" className="w-full sm:w-auto">
-                Send Message
+              <Button type="submit" size="lg" variant="secondary" className="w-full sm:w-auto" disabled={contactLoading}>
+                {contactLoading ? "Sending..." : "Send Message"}
               </Button>
             </form>
           </div>
@@ -183,7 +238,7 @@ const Footer = () => {
                     maxLength={255}
                     className="bg-background/10 border-background/20 text-background placeholder:text-background/50 flex-1"
                   />
-                  <Button type="submit" variant="secondary" size="icon" className="shrink-0">
+                  <Button type="submit" variant="secondary" size="icon" className="shrink-0" disabled={newsletterLoading}>
                     <ArrowRight className="h-4 w-4" />
                   </Button>
                 </form>

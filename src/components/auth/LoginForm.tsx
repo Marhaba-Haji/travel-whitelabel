@@ -2,6 +2,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -26,6 +27,7 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 const LoginForm = () => {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -45,19 +47,14 @@ const LoginForm = () => {
     await new Promise((resolve) => setTimeout(resolve, 1500));
     
     setIsLoading(false);
-    
-    // For UI-only implementation, show success toast
+
     toast({
-      title: "Login successful!",
-      description: "Welcome back! Redirecting to your dashboard...",
+      title: "Sign in successful!",
+      description: "Redirecting...",
     });
-    
-    // In a real implementation, you would:
-    // - Call your authentication API
-    // - Handle the response
-    // - Store tokens/session
-    // - Redirect to dashboard
-    console.log("Login data:", data);
+
+    // Redirect to pending activation page (account requires admin verification)
+    navigate("/account-pending");
   };
 
   return (
