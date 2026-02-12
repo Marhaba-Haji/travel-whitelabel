@@ -14,7 +14,205 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      contact_enquiries: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+          phone: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+          phone?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          phone?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      newsletter_subscriptions: {
+        Row: {
+          email: string
+          id: string
+          subscribed_at: string
+          unsubscribed_at: string | null
+        }
+        Insert: {
+          email: string
+          id?: string
+          subscribed_at?: string
+          unsubscribed_at?: string | null
+        }
+        Update: {
+          email?: string
+          id?: string
+          subscribed_at?: string
+          unsubscribed_at?: string | null
+        }
+        Relationships: []
+      }
+      payment_gateway_responses: {
+        Row: {
+          gateway: string
+          id: string
+          payment_id: string | null
+          raw_response: Json
+          received_at: string
+          response_type: string
+          status: string | null
+          txn_id: string | null
+        }
+        Insert: {
+          gateway?: string
+          id?: string
+          payment_id?: string | null
+          raw_response: Json
+          received_at?: string
+          response_type?: string
+          status?: string | null
+          txn_id?: string | null
+        }
+        Update: {
+          gateway?: string
+          id?: string
+          payment_id?: string | null
+          raw_response?: Json
+          received_at?: string
+          response_type?: string
+          status?: string | null
+          txn_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_gateway_responses_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payments: {
+        Row: {
+          amount: number
+          bank_ref_num: string | null
+          created_at: string
+          currency: string
+          error_code: string | null
+          error_message: string | null
+          failure_url: string | null
+          id: string
+          payment_mode: string | null
+          payu_mihpayid: string | null
+          product_info: string | null
+          registration_id: string | null
+          status: string
+          success_url: string | null
+          txn_id: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          bank_ref_num?: string | null
+          created_at?: string
+          currency?: string
+          error_code?: string | null
+          error_message?: string | null
+          failure_url?: string | null
+          id?: string
+          payment_mode?: string | null
+          payu_mihpayid?: string | null
+          product_info?: string | null
+          registration_id?: string | null
+          status?: string
+          success_url?: string | null
+          txn_id: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          bank_ref_num?: string | null
+          created_at?: string
+          currency?: string
+          error_code?: string | null
+          error_message?: string | null
+          failure_url?: string | null
+          id?: string
+          payment_mode?: string | null
+          payu_mihpayid?: string | null
+          product_info?: string | null
+          registration_id?: string | null
+          status?: string
+          success_url?: string | null
+          txn_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_registration_id_fkey"
+            columns: ["registration_id"]
+            isOneToOne: false
+            referencedRelation: "registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      registrations: {
+        Row: {
+          city: string | null
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          password_hash: string | null
+          phone: string
+          status: string
+          terms_accepted: boolean
+          updated_at: string
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          password_hash?: string | null
+          phone: string
+          status?: string
+          terms_accepted?: boolean
+          updated_at?: string
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          password_hash?: string | null
+          phone?: string
+          status?: string
+          terms_accepted?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
