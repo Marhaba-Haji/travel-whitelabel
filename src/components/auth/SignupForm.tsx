@@ -14,7 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { toast } from "@/hooks/use-toast";
-import { Eye, EyeOff, Loader2, CheckCircle2 } from "lucide-react";
+import { Eye, EyeOff, Loader2, CheckCircle2, CreditCard } from "lucide-react";
 import { Link } from "react-router-dom";
 
 // Phone validation for Indian format: +91XXXXXXXXXX or 10 digits
@@ -64,7 +64,14 @@ const signupSchema = z
 
 type SignupFormValues = z.infer<typeof signupSchema>;
 
-const SignupForm = () => {
+const SIGNUP_AMOUNT = "₹18,799";
+const PAYMENT_LINK_KEY = "signup_payment_pending";
+
+interface SignupFormProps {
+  amount?: string;
+}
+
+const SignupForm = ({ amount = SIGNUP_AMOUNT }: SignupFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -126,23 +133,82 @@ const SignupForm = () => {
   const onSubmit = async (data: SignupFormValues) => {
     setIsLoading(true);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    try {
+      const apiBase = import.meta.env.VITE_API_URL ?? "";
+      const res = await fetch(`${apiBase}/api/create-payment`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName: data.fullName,
+          email: data.email,
+          phone: data.phone,
+          city: data.city,
+          password: data.password,
+        }),
+      });
 
-    setIsLoading(false);
+      let json: { action?: string; params?: Record<string, string>; demo?: boolean; redirect?: string; error?: string; message?: string };
+      try {
+        json = await res.json();
+      } catch {
+        json = {};
+      }
 
-    // For UI-only implementation, show success toast
-    toast({
-      title: "Account created successfully!",
-      description: "Welcome to Nomadore! Please check your email to verify your account.",
-    });
+      // Demo mode when PayU not configured
+      if (json.demo && json.redirect) {
+        sessionStorage.setItem(PAYMENT_LINK_KEY, JSON.stringify(data));
+        window.location.href = json.redirect;
+        return;
+      }
 
-    // In a real implementation, you would:
-    // - Call your signup API
-    // - Handle the response
-    // - Store tokens/session
-    // - Redirect to verification page or dashboard
-    console.log("Signup data:", data);
+      if (!res.ok) {
+        // Fallback to demo when server unreachable or returns 5xx (e.g. PayU not configured)
+        if (res.status >= 500 || res.status === 0) {
+          sessionStorage.setItem(PAYMENT_LINK_KEY, JSON.stringify(data));
+          window.location.href = "/signup-success";
+          return;
+        }
+        toast({
+          variant: "destructive",
+          title: json.error || "Payment setup failed",
+          description: json.message || "Please try again or contact support.",
+        });
+        return;
+      }
+
+      sessionStorage.setItem(PAYMENT_LINK_KEY, JSON.stringify(data));
+
+      if (!json.action || !json.params) {
+        toast({
+          variant: "destructive",
+          title: "Invalid response",
+          description: "Please try again or contact support.",
+        });
+        return;
+      }
+
+      // Submit form to PayU gateway
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = json.action;
+      Object.entries(json.params).forEach(([key, value]) => {
+        if (value != null && value !== "") {
+          const input = document.createElement("input");
+          input.type = "hidden";
+          input.name = key;
+          input.value = String(value);
+          form.appendChild(input);
+        }
+      });
+      document.body.appendChild(form);
+      form.submit();
+    } catch {
+      // API unreachable (server not running) - demo redirect
+      sessionStorage.setItem(PAYMENT_LINK_KEY, JSON.stringify(data));
+      window.location.href = "/signup-success";
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -327,7 +393,7 @@ const SignupForm = () => {
                 <FormLabel className="cursor-pointer font-normal text-sm">
                   I agree to the{" "}
                   <Link
-                    to="/terms"
+                    to="/terms-of-service"
                     className="text-primary hover:underline font-medium"
                     onClick={(e) => e.stopPropagation()}
                   >
@@ -335,7 +401,7 @@ const SignupForm = () => {
                   </Link>{" "}
                   and{" "}
                   <Link
-                    to="/privacy"
+                    to="/privacy-policy"
                     className="text-primary hover:underline font-medium"
                     onClick={(e) => e.stopPropagation()}
                   >
@@ -349,16 +415,19 @@ const SignupForm = () => {
 
         <Button
           type="submit"
-          className="w-full h-11 text-base font-semibold"
+          className="w-full h-11 text-base font-semibold bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg"
           disabled={isLoading}
         >
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Creating account...
+              Processing to payment...
             </>
           ) : (
-            "Create Account"
+            <>
+              <CreditCard className="mr-2 h-4 w-4" />
+              Register & Pay {amount}
+            </>
           )}
         </Button>
 

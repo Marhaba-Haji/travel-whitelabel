@@ -12,7 +12,7 @@ const Testimonials = () => {
       role: "CEO, TravelMax Tours",
       avatar: "AS",
       avatarColor: "from-primary to-primary/70",
-      content: "NOMADORE transformed our business. We launched our own branded portal in just 2 days and saw a 27% increase in B2B bookings within the first 3 months.",
+      content: "marhabaDMC transformed our business. We launched our own branded portal in just 2 days and saw a 27% increase in B2B bookings within the first 3 months.",
       rating: 5,
       metric: { value: "27%", label: "Increase in bookings" },
       company: "TravelMax",
@@ -57,7 +57,7 @@ const Testimonials = () => {
             Loved by Travel Professionals
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            See what our customers have to say about their experience with Nomadore.
+            See what our customers have to say about their experience with marhabaDMC.
           </p>
         </div>
 

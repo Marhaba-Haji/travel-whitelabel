@@ -3,7 +3,7 @@
 
 ## Overview
 
-Create a comprehensive About page (`/about`) that tells the complete NOMADORE story as a halal tourism enablement company. This will be a long-form landing page with multiple sections, following the existing design patterns established in the landing page components.
+Create a comprehensive About page (`/about`) that tells the complete marhabaDMC story as a halal tourism enablement company. This will be a long-form landing page with multiple sections, following the existing design patterns established in the landing page components.
 
 ---
 
@@ -11,7 +11,7 @@ Create a comprehensive About page (`/about`) that tells the complete NOMADORE st
 
 The content will be organized into **12 distinct sections**, each with its own visual treatment:
 
-### Section 1: Hero - "About Nomadore"
+### Section 1: Hero - "About marhabaDMC"
 - Large hero with gradient background
 - Tagline: "Halal Tourism Enablement Company"
 - Subtle decorative floating elements
@@ -201,7 +201,7 @@ About | Features | Portals | Pricing | FAQ
 
 This plan creates a comprehensive About page that:
 
-1. **Tells the complete NOMADORE story** across 12 well-structured sections
+1. **Tells the complete marhabaDMC story** across 12 well-structured sections
 2. **Maintains design consistency** with existing landing page components
 3. **Uses modular components** for easy future updates
 4. **Integrates seamlessly** into existing navigation

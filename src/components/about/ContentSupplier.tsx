@@ -57,7 +57,7 @@ const ContentSupplier = () => {
               A Global Halal Tourism Content Supplier
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-              Nomadore operates as a central content engine for halal tourism professionals.
+              marhabaDMC operates as a central content engine for halal tourism professionals.
             </p>
           </div>
 

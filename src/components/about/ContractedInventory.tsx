@@ -58,7 +58,7 @@ const ContractedInventory = () => {
               Contracted Global Inventory Access
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-              Nomadore works to secure contracted and negotiated rates across key halal tourism destinations.
+              marhabaDMC works to secure contracted and negotiated rates across key halal tourism destinations.
             </p>
           </div>
 

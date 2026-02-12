@@ -59,10 +59,10 @@ const Footer = () => {
   ];
 
   const socialLinks = [
-    { icon: Facebook, href: "https://facebook.com/nomadore", label: "Facebook" },
-    { icon: Twitter, href: "https://twitter.com/nomadore", label: "Twitter" },
-    { icon: Instagram, href: "https://instagram.com/nomadore", label: "Instagram" },
-    { icon: Linkedin, href: "https://linkedin.com/company/nomadore", label: "LinkedIn" },
+    { icon: Facebook, href: "https://facebook.com/marhabaDMC", label: "Facebook" },
+    { icon: Twitter, href: "https://twitter.com/marhabaDMC", label: "Twitter" },
+    { icon: Instagram, href: "https://instagram.com/marhabaDMC", label: "Instagram" },
+    { icon: Linkedin, href: "https://linkedin.com/company/marhabaDMC", label: "LinkedIn" },
   ];
 
   const scrollToSection = (href: string) => {
@@ -153,13 +153,17 @@ const Footer = () => {
             className={`lg:pl-8 opacity-0 ${infoVisible ? "animate-fade-in-right" : ""}`}
           >
             <div className="mb-8">
-              <div className="flex items-center gap-1.5 mb-4">
-                <a href="/" className="flex items-center">
-                  <img 
-                    src="/assets/nomadore-logo-white.png" 
-                    alt="Nomadore" 
-                    className="h-8 w-auto"
+              <div className="flex items-center gap-2.5 mb-4">
+                <a href="/" className="flex items-center gap-2.5">
+                  <img
+                    src="/assets/marhaba-dmc-logo-white.png"
+                    alt="marhabaDMC"
+                    className="h-7 w-auto object-contain flex-shrink-0"
                   />
+                  <span className="text-[1.1rem] leading-none text-background">
+                    <span className="font-marhaba">marhaba</span>
+                    <span className="font-dmc font-semibold text-primary">DMC</span>
+                  </span>
                 </a>
               </div>
               <p className="text-background/70 mb-6">
@@ -205,11 +209,11 @@ const Footer = () => {
                 <span>+91 90084 47887</span>
               </a>
               <a
-                href="mailto:hello@nomadore.com"
+                href="mailto:hello@marhabaDMC.com"
                 className="flex items-center gap-3 text-background/70 hover:text-background transition-colors"
               >
                 <Mail className="h-5 w-5" />
-                <span>hello@nomadore.com</span>
+                <span>hello@marhabaDMC.com</span>
               </a>
               <div className="flex items-center gap-3 text-background/70">
                 <MapPin className="h-5 w-5 flex-shrink-0" />
@@ -333,7 +337,7 @@ const Footer = () => {
 
           {/* Copyright */}
           <div className="text-center text-background/50 text-sm">
-            <p>© {new Date().getFullYear()} NOMADORE. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} marhabaDMC. All rights reserved.</p>
           </div>
         </div>
       </div>

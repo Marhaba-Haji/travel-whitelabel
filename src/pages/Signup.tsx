@@ -82,7 +82,7 @@ const Signup = () => {
                 </p>
               </div>
 
-              <SignupForm />
+              <SignupForm amount="₹18,799" />
             </div>
 
             {/* Benefits - Mobile */}

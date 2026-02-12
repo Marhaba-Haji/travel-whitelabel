@@ -60,7 +60,7 @@ const Philosophy = () => {
               Our Philosophy
             </h2>
             <p className="text-background/70 max-w-xl mx-auto text-lg">
-              Nomadore is built on a simple philosophy that guides everything we do
+              marhabaDMC is built on a simple philosophy that guides everything we do
             </p>
           </div>
 

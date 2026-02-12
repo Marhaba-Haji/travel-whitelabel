@@ -49,7 +49,7 @@ const AIPowered = () => {
               AI-Powered Sales & Support Intelligence
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-              Nomadore integrates AI-driven chat and voice technology to support agent sales and customer engagement.
+              marhabaDMC integrates AI-driven chat and voice technology to support agent sales and customer engagement.
             </p>
           </div>
 

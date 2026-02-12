@@ -108,4 +108,14 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground;
   }
+
+  /* marhabaDMC brand fonts: marhaba = Georgia Pro Light (Cormorant fallback), DMC = Fredoka */
+  .font-marhaba {
+    font-family: "Georgia Pro", "Cormorant", Georgia, "Times New Roman", serif;
+    font-weight: 300;
+  }
+
+  .font-dmc {
+    font-family: "Fredoka", sans-serif;
+  }
 }

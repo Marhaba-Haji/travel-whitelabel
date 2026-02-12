@@ -27,7 +27,7 @@ const WhoWeAre = () => {
               Who We Are
             </h2>
             <p className="text-muted-foreground mb-6 leading-relaxed text-lg">
-              Nomadore is a halal tourism enablement company focused on building infrastructure, 
+              marhabaDMC is a halal tourism enablement company focused on building infrastructure, 
               content, technology, and operational systems for travel agents, tour operators, 
               and hospitality partners.
             </p>
@@ -44,7 +44,7 @@ const WhoWeAre = () => {
                 <div>
                   <h4 className="font-semibold text-foreground mb-2">Our Journey</h4>
                   <p className="text-muted-foreground text-sm leading-relaxed">
-                    Founded with a vision to transform halal tourism, Nomadore emerged from recognizing 
+                    Founded with a vision to transform halal tourism, marhabaDMC emerged from recognizing 
                     the gap between travel businesses' ambitions and their operational capabilities. 
                     We've built a comprehensive ecosystem that empowers partners to succeed.
                   </p>
@@ -57,7 +57,7 @@ const WhoWeAre = () => {
               <div className="flex items-start gap-3">
                 <Heart className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
                 <p className="text-foreground font-medium italic text-lg">
-                  "Nomadore is not a destination seller. We are the systems, intelligence, and 
+                  "marhabaDMC is not a destination seller. We are the systems, intelligence, and 
                   backbone that make halal tourism businesses stronger."
                 </p>
               </div>
@@ -96,14 +96,14 @@ const WhoWeAre = () => {
           </div>
         </div>
 
-        {/* Why Nomadore */}
+        {/* Why marhabaDMC */}
         <div
           ref={whyRef}
           className={`opacity-0 ${whyVisible ? "animate-fade-in" : ""}`}
         >
           <div className="text-center mb-8">
             <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
-              Why Nomadore?
+              Why marhabaDMC?
             </h3>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Four key differentiators that set us apart in the halal tourism enablement space

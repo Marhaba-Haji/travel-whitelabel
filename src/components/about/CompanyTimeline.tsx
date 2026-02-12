@@ -8,7 +8,7 @@ const CompanyTimeline = () => {
     {
       year: "2020",
       title: "Company Founded",
-      description: "Nomadore was established with a vision to transform halal tourism",
+      description: "marhabaDMC was established with a vision to transform halal tourism",
       icon: Rocket,
     },
     {
@@ -63,7 +63,7 @@ const CompanyTimeline = () => {
               Company Timeline & Milestones
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-              Key moments in Nomadore's growth and evolution
+              Key moments in marhabaDMC's growth and evolution
             </p>
           </div>
 

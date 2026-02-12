@@ -59,7 +59,7 @@ const Itineraries = () => {
               Curated Itineraries, Built for Scale
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-              Nomadore curates structured travel itineraries that agents can confidently sell and scale.
+              marhabaDMC curates structured travel itineraries that agents can confidently sell and scale.
             </p>
           </div>
 

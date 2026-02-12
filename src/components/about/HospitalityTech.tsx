@@ -52,7 +52,7 @@ const HospitalityTech = () => {
                 Hospitality Technology
               </h2>
               <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-                Nomadore is expanding into hospitality operations with a dedicated room 
+                marhabaDMC is expanding into hospitality operations with a dedicated room 
                 and lodge management SaaS platform.
               </p>
             </div>

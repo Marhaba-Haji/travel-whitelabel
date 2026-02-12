@@ -47,7 +47,7 @@ const CompetitiveEdge = () => {
             ★ Your Unfair Advantage
           </Badge>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mt-2 mb-4">
-            What Sets <span className="text-primary">NOMADORE</span> Apart
+            What Sets <span className="text-primary">marhabaDMC</span> Apart
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             These aren't just features — they're your competitive weapons that help you win more deals and earn higher profits.

@@ -56,7 +56,7 @@ const TechPlatform = () => {
               WhiteLabel Technology Built for Agencies
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-              At the core of Nomadore is a WhiteLabel technology platform designed specifically for travel agencies.
+              At the core of marhabaDMC is a WhiteLabel technology platform designed specifically for travel agencies.
             </p>
           </div>
 
@@ -121,7 +121,7 @@ const TechPlatform = () => {
           <div className="bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 border border-primary/20 rounded-2xl p-8 text-center mb-8">
             <p className="text-foreground text-lg max-w-3xl mx-auto">
               Each agency operates on its own <span className="font-semibold text-primary">branded ecosystem</span> while 
-              Nomadore powers the backend infrastructure.
+              marhabaDMC powers the backend infrastructure.
             </p>
           </div>
 

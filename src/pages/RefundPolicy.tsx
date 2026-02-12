@@ -14,7 +14,7 @@ const RefundPolicy = () => {
             <section>
               <h2 className="text-2xl font-semibold mb-4">1. Overview</h2>
               <p className="text-muted-foreground leading-relaxed">
-                At Nomadore, we strive to provide excellent service and customer satisfaction. This Refund Policy outlines the terms and conditions under which refunds may be issued for our services and subscriptions. Please read this policy carefully before making a purchase.
+                At marhabaDMC, we strive to provide excellent service and customer satisfaction. This Refund Policy outlines the terms and conditions under which refunds may be issued for our services and subscriptions. Please read this policy carefully before making a purchase.
               </p>
             </section>
 
@@ -41,14 +41,14 @@ const RefundPolicy = () => {
             <section>
               <h2 className="text-2xl font-semibold mb-4">3. Travel Bookings and Reservations</h2>
               <p className="text-muted-foreground leading-relaxed mb-4">
-                Refunds for travel bookings made through our platform are subject to the cancellation and refund policies of the respective travel service providers (airlines, hotels, tour operators, etc.). Nomadore acts as an intermediary and:
+                Refunds for travel bookings made through our platform are subject to the cancellation and refund policies of the respective travel service providers (airlines, hotels, tour operators, etc.). marhabaDMC acts as an intermediary and:
               </p>
               <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
                 <li>We will process refund requests according to the provider's terms</li>
                 <li>Cancellation fees and charges may apply as per the provider's policy</li>
                 <li>Refund processing times vary by provider (typically 7-30 business days)</li>
                 <li>We are not responsible for provider-specific refund policies or delays</li>
-                <li>Service fees charged by Nomadore are non-refundable unless the booking is cancelled due to our error</li>
+                <li>Service fees charged by marhabaDMC are non-refundable unless the booking is cancelled due to our error</li>
               </ul>
             </section>
 
@@ -58,7 +58,7 @@ const RefundPolicy = () => {
                 To request a refund:
               </p>
               <ol className="list-decimal pl-6 space-y-2 text-muted-foreground">
-                <li>Contact our support team at hello@nomadore.com or +91 90084 47887</li>
+                <li>Contact our support team at hello@marhabaDMC.com or +91 90084 47887</li>
                 <li>Provide your account information and order/reference number</li>
                 <li>Clearly state the reason for your refund request</li>
                 <li>Include any relevant documentation or evidence</li>
@@ -149,7 +149,7 @@ const RefundPolicy = () => {
               </p>
               <div className="mt-4 p-4 bg-muted rounded-lg">
                 <p className="text-muted-foreground">
-                  <strong>Email:</strong> hello@nomadore.com<br />
+                  <strong>Email:</strong> hello@marhabaDMC.com<br />
                   <strong>Phone:</strong> +91 90084 47887<br />
                   <strong>Address:</strong> New Delhi, India<br />
                   <strong>Business Hours:</strong> Monday - Friday, 9:00 AM - 6:00 PM IST

@@ -26,9 +26,9 @@ const LogoAnimated = ({ className = "", showIcon = true, size = "md" }: LogoAnim
           <Compass className={`${iconSizes[size]} text-primary animate-pulse-soft`} />
         </div>
       )}
-      <span className={`font-bold ${sizeClasses[size]}`}>
-        <span className="text-foreground">NOMAD</span>
-        <span className="text-primary">ORE</span>
+      <span className={`${sizeClasses[size]}`}>
+        <span className="font-marhaba text-foreground">marhaba</span>
+        <span className="font-dmc font-semibold text-primary">DMC</span>
       </span>
     </div>
   );

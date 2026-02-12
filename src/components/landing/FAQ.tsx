@@ -16,7 +16,7 @@ const FAQ = () => {
     },
     {
       question: "Can I use my own domain name?",
-      answer: "Absolutely! You can use your own custom domain (e.g., book.youragency.com). We'll help you set up the DNS and SSL certificate at no extra cost. Your customers will never see the NOMADORE brand.",
+      answer: "Absolutely! You can use your own custom domain (e.g., book.youragency.com). We'll help you set up the DNS and SSL certificate at no extra cost. Your customers will never see the marhabaDMC brand.",
     },
     {
       question: "What are contracted rates and how do they help me?",
@@ -120,7 +120,7 @@ const FAQ = () => {
               <div className="grid sm:grid-cols-3 gap-4 mb-6">
                 {/* WhatsApp */}
                 <a
-                  href="https://wa.me/919008447887?text=Hi,%20I'm%20interested%20in%20the%20NOMADORE%20travel%20portal"
+                  href="https://wa.me/919008447887?text=Hi,%20I'm%20interested%20in%20the%20marhabaDMC%20travel%20portal"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex flex-col items-center gap-2 p-4 bg-card rounded-lg border border-border hover:border-primary/30 hover:shadow-md transition-all group"
@@ -134,14 +134,14 @@ const FAQ = () => {
 
                 {/* Email */}
                 <a
-                  href="mailto:hello@nomadore.com"
+                  href="mailto:hello@marhabaDMC.com"
                   className="flex flex-col items-center gap-2 p-4 bg-card rounded-lg border border-border hover:border-primary/30 hover:shadow-md transition-all group"
                 >
                   <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                     <Mail className="h-6 w-6 text-primary" />
                   </div>
                   <span className="font-medium text-foreground">Email</span>
-                  <span className="text-xs text-muted-foreground">hello@nomadore.com</span>
+                  <span className="text-xs text-muted-foreground">hello@marhabaDMC.com</span>
                 </a>
 
                 {/* Phone */}

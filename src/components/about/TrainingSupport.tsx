@@ -58,7 +58,7 @@ const TrainingSupport = () => {
               Training, Enablement & Growth Support
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-              Nomadore believes technology alone does not build successful businesses. 
+              marhabaDMC believes technology alone does not build successful businesses. 
               We support our partners through comprehensive training.
             </p>
           </div>
@@ -105,7 +105,7 @@ const TrainingSupport = () => {
               <h3 className="text-xl font-bold text-foreground">Certification Program</h3>
             </div>
             <p className="text-muted-foreground text-center mb-6 max-w-2xl mx-auto">
-              Complete our comprehensive training program and receive a Nomadore Certified Partner badge, 
+              Complete our comprehensive training program and receive a marhabaDMC Certified Partner badge, 
               demonstrating your expertise in halal tourism operations.
             </p>
             <div className="grid md:grid-cols-3 gap-4">

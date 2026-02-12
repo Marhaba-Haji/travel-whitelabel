@@ -57,7 +57,7 @@ const Features = () => {
     {
       icon: Globe,
       title: "Own Domain",
-      description: "Use your own custom domain. Your brand, your identity. No NOMADORE branding visible to your customers.",
+      description: "Use your own custom domain. Your brand, your identity. No marhabaDMC branding visible to your customers.",
       gradient: "from-primary/70 to-primary/30",
       highlight: false,
     },

@@ -68,7 +68,7 @@ const GlobalPresence = () => {
               Worldwide Presence
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-              Nomadore's global network spans continents, connecting travel businesses with halal tourism opportunities worldwide
+              marhabaDMC's global network spans continents, connecting travel businesses with halal tourism opportunities worldwide
             </p>
           </div>
 

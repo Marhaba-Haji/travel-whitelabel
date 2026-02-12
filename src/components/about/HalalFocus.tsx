@@ -129,7 +129,7 @@ const HalalFocus = () => {
               of Muslim travelers worldwide, halal compliance ensures peace of mind and authentic experiences.
             </p>
             <p className="text-muted-foreground leading-relaxed">
-              Nomadore ensures every destination, itinerary, and service provider meets rigorous halal 
+              marhabaDMC ensures every destination, itinerary, and service provider meets rigorous halal 
               standards, giving travel agents confidence to sell and travelers confidence to book.
             </p>
           </div>

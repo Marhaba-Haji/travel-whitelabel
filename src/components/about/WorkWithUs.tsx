@@ -73,7 +73,7 @@ const WorkWithUs = () => {
           >
             <h3 className="text-2xl font-bold text-foreground mb-6 text-center flex items-center justify-center gap-2">
               <Star className="w-6 h-6 text-gold" />
-              Why Partner With Nomadore?
+              Why Partner With marhabaDMC?
             </h3>
             <div className="grid md:grid-cols-2 gap-4">
               {partnershipBenefits.map((benefit, index) => (
@@ -93,7 +93,7 @@ const WorkWithUs = () => {
               </span>
             </h3>
             <p className="text-muted-foreground text-center max-w-2xl mx-auto mb-8 text-lg">
-              Nomadore is building the foundational operating layer for halal tourism across:
+              marhabaDMC is building the foundational operating layer for halal tourism across:
             </p>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
               {visionAreas.map((area, index) => (
@@ -130,11 +130,11 @@ const WorkWithUs = () => {
           {/* CTAs */}
           <div className="max-w-2xl mx-auto text-center">
             <h3 className="text-xl md:text-2xl font-bold text-foreground mb-4">
-              Work With Nomadore
+              Work With marhabaDMC
             </h3>
             <p className="text-muted-foreground mb-8 text-lg">
               If you are building a halal travel business and want access to structured itineraries, 
-              global inventory, intelligent technology, and long-term support, Nomadore is designed for you.
+              global inventory, intelligent technology, and long-term support, marhabaDMC is designed for you.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" asChild className="shadow-lg">
@@ -151,7 +151,7 @@ const WorkWithUs = () => {
               </Button>
             </div>
             <p className="text-sm text-muted-foreground mt-6">
-              Join <span className="font-semibold text-primary">100+</span> travel professionals already partnering with Nomadore
+              Join <span className="font-semibold text-primary">100+</span> travel professionals already partnering with marhabaDMC
             </p>
           </div>
         </div>

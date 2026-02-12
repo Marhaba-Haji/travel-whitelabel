@@ -210,9 +210,9 @@ const CategoriesDestinations = () => {
               </h1>
               
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8">
-                Nomadore's destination coverage is structured by travel purpose, not just geography. 
+                marhabaDMC's destination coverage is structured by travel purpose, not just geography. 
                 This intent-driven approach helps agents understand where and how they can sell using 
-                Nomadore's ecosystem, enabling more effective travel planning and sales conversations.
+                marhabaDMC's ecosystem, enabling more effective travel planning and sales conversations.
               </p>
 
               {/* Quick Stats Row */}
@@ -612,7 +612,7 @@ const CategoriesDestinations = () => {
                   </h2>
                   
                   <p className="text-lg text-muted-foreground mb-6 max-w-2xl mx-auto">
-                    Join Nomadore's partner network to access comprehensive destination coverage, 
+                    Join marhabaDMC's partner network to access comprehensive destination coverage, 
                     inventory, and tools to serve your halal-conscious travelers effectively.
                   </p>
 

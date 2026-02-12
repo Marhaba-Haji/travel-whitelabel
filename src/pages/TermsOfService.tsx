@@ -14,14 +14,14 @@ const TermsOfService = () => {
             <section>
               <h2 className="text-2xl font-semibold mb-4">1. Acceptance of Terms</h2>
               <p className="text-muted-foreground leading-relaxed">
-                By accessing and using Nomadore's travel whitelabel platform ("Service"), you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.
+                By accessing and using marhabaDMC's travel whitelabel platform ("Service"), you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.
               </p>
             </section>
 
             <section>
               <h2 className="text-2xl font-semibold mb-4">2. Description of Service</h2>
               <p className="text-muted-foreground leading-relaxed">
-                Nomadore provides a comprehensive B2B travel whitelabel platform that enables travel entrepreneurs and businesses to launch their own travel booking portals. Our service includes access to booking systems, training, support, and various travel-related tools and resources.
+                marhabaDMC provides a comprehensive B2B travel whitelabel platform that enables travel entrepreneurs and businesses to launch their own travel booking portals. Our service includes access to booking systems, training, support, and various travel-related tools and resources.
               </p>
             </section>
 
@@ -49,7 +49,7 @@ const TermsOfService = () => {
                 <li>Transmit any malicious code, viruses, or harmful data</li>
                 <li>Attempt to gain unauthorized access to any portion of the Service</li>
                 <li>Interfere with or disrupt the Service or servers connected to the Service</li>
-                <li>Use the Service to compete with Nomadore or resell the Service without authorization</li>
+                <li>Use the Service to compete with marhabaDMC or resell the Service without authorization</li>
                 <li>Reproduce, duplicate, copy, sell, or exploit any portion of the Service without express written permission</li>
               </ul>
             </section>
@@ -57,7 +57,7 @@ const TermsOfService = () => {
             <section>
               <h2 className="text-2xl font-semibold mb-4">5. Intellectual Property</h2>
               <p className="text-muted-foreground leading-relaxed">
-                The Service and its original content, features, and functionality are owned by Nomadore and are protected by international copyright, trademark, patent, trade secret, and other intellectual property laws. You may not modify, reproduce, distribute, create derivative works, publicly display, or in any way exploit any of the content available on the Service.
+                The Service and its original content, features, and functionality are owned by marhabaDMC and are protected by international copyright, trademark, patent, trade secret, and other intellectual property laws. You may not modify, reproduce, distribute, create derivative works, publicly display, or in any way exploit any of the content available on the Service.
               </p>
             </section>
 
@@ -77,14 +77,14 @@ const TermsOfService = () => {
             <section>
               <h2 className="text-2xl font-semibold mb-4">7. Booking and Travel Services</h2>
               <p className="text-muted-foreground leading-relaxed">
-                Nomadore acts as an intermediary platform. We are not responsible for the actual travel services provided by third-party suppliers. All bookings are subject to the terms and conditions of the respective travel service providers. You acknowledge that Nomadore is not liable for any issues, cancellations, or problems arising from third-party travel services.
+                marhabaDMC acts as an intermediary platform. We are not responsible for the actual travel services provided by third-party suppliers. All bookings are subject to the terms and conditions of the respective travel service providers. You acknowledge that marhabaDMC is not liable for any issues, cancellations, or problems arising from third-party travel services.
               </p>
             </section>
 
             <section>
               <h2 className="text-2xl font-semibold mb-4">8. Limitation of Liability</h2>
               <p className="text-muted-foreground leading-relaxed">
-                To the maximum extent permitted by law, Nomadore shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits or revenues, whether incurred directly or indirectly, or any loss of data, use, goodwill, or other intangible losses resulting from your use of the Service.
+                To the maximum extent permitted by law, marhabaDMC shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits or revenues, whether incurred directly or indirectly, or any loss of data, use, goodwill, or other intangible losses resulting from your use of the Service.
               </p>
             </section>
 
@@ -116,7 +116,7 @@ const TermsOfService = () => {
               </p>
               <div className="mt-4 p-4 bg-muted rounded-lg">
                 <p className="text-muted-foreground">
-                  <strong>Email:</strong> hello@nomadore.com<br />
+                  <strong>Email:</strong> hello@marhabaDMC.com<br />
                   <strong>Phone:</strong> +91 90084 47887<br />
                   <strong>Address:</strong> New Delhi, India
                 </p>

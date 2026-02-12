@@ -30,7 +30,7 @@ const AboutHero = () => {
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
             About{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary to-gold animate-gradient-shift bg-[length:200%_auto]">
-              Nomadore
+              marhabaDMC
             </span>
           </h1>
           

@@ -14,7 +14,7 @@ const PrivacyPolicy = () => {
             <section>
               <h2 className="text-2xl font-semibold mb-4">1. Introduction</h2>
               <p className="text-muted-foreground leading-relaxed">
-                Nomadore ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our travel whitelabel platform and services. Please read this Privacy Policy carefully.
+                marhabaDMC ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our travel whitelabel platform and services. Please read this Privacy Policy carefully.
               </p>
             </section>
 
@@ -145,10 +145,10 @@ const PrivacyPolicy = () => {
               </p>
               <div className="mt-4 p-4 bg-muted rounded-lg">
                 <p className="text-muted-foreground">
-                  <strong>Email:</strong> hello@nomadore.com<br />
+                  <strong>Email:</strong> hello@marhabaDMC.com<br />
                   <strong>Phone:</strong> +91 90084 47887<br />
                   <strong>Address:</strong> New Delhi, India<br />
-                  <strong>Data Protection Officer:</strong> privacy@nomadore.com
+                  <strong>Data Protection Officer:</strong> privacy@marhabaDMC.com
                 </p>
               </div>
             </section>

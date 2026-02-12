@@ -13,7 +13,7 @@ const AboutTestimonials = () => {
       company: "TravelMax",
       avatar: "AS",
       avatarColor: "from-primary to-primary/70",
-      content: "Nomadore transformed our business. We launched our own branded portal in just 2 days and saw a 27% increase in B2B bookings within the first 3 months. The platform's ease of use and comprehensive support made all the difference.",
+      content: "marhabaDMC transformed our business. We launched our own branded portal in just 2 days and saw a 27% increase in B2B bookings within the first 3 months. The platform's ease of use and comprehensive support made all the difference.",
       rating: 5,
       metric: { value: "27%", label: "Increase in bookings" },
       highlight: "27% increase in bookings",
@@ -74,7 +74,7 @@ const AboutTestimonials = () => {
             Loved by Travel Professionals
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            See what our partners have to say about their experience building successful halal tourism businesses with Nomadore.
+            See what our partners have to say about their experience building successful halal tourism businesses with marhabaDMC.
           </p>
         </div>
 
@@ -127,7 +127,7 @@ const AboutTestimonials = () => {
           style={{ animationDelay: "0.8s" }}
         >
           <p className="text-muted-foreground">
-            Join <span className="text-primary font-semibold">100+ travel professionals</span> who trust Nomadore to power their halal tourism businesses
+            Join <span className="text-primary font-semibold">100+ travel professionals</span> who trust marhabaDMC to power their halal tourism businesses
           </p>
         </div>
       </div>
