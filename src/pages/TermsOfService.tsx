@@ -116,7 +116,7 @@ const TermsOfService = () => {
               </p>
               <div className="mt-4 p-4 bg-muted rounded-lg">
                 <p className="text-muted-foreground">
-                  <strong>Email:</strong> hello@marhabaDMC.com<br />
+                  <strong>Email:</strong> hello@marhabadmc.com<br />
                   <strong>Phone:</strong> +91 90084 47887<br />
                   <strong>Address:</strong> New Delhi, India
                 </p>

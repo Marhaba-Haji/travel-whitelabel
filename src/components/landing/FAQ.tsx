@@ -134,14 +134,14 @@ const FAQ = () => {
 
                 {/* Email */}
                 <a
-                  href="mailto:hello@marhabaDMC.com"
+                  href="mailto:hello@marhabadmc.com"
                   className="flex flex-col items-center gap-2 p-4 bg-card rounded-lg border border-border hover:border-primary/30 hover:shadow-md transition-all group"
                 >
                   <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                     <Mail className="h-6 w-6 text-primary" />
                   </div>
                   <span className="font-medium text-foreground">Email</span>
-                  <span className="text-xs text-muted-foreground">hello@marhabaDMC.com</span>
+                  <span className="text-xs text-muted-foreground">hello@marhabadmc.com</span>
                 </a>
 
                 {/* Phone */}

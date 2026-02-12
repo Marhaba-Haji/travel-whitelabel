@@ -110,10 +110,10 @@ const AccountPendingActivation = () => {
             <p className="text-sm text-muted-foreground">
               Questions?{" "}
               <a
-                href="mailto:hello@marhabaDMC.com"
+                href="mailto:hello@marhabadmc.com"
                 className="text-primary hover:underline font-medium"
               >
-                hello@marhabaDMC.com
+                hello@marhabadmc.com
               </a>
             </p>
           </div>

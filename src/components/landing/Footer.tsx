@@ -264,16 +264,21 @@ const Footer = () => {
                 <span>+91 90084 47887</span>
               </a>
               <a
-                href="mailto:hello@marhabaDMC.com"
+                href="mailto:hello@marhabadmc.com"
                 className="flex items-center gap-3 text-background/70 hover:text-background transition-colors"
               >
                 <Mail className="h-5 w-5" />
-                <span>hello@marhabaDMC.com</span>
+                <span>hello@marhabadmc.com</span>
               </a>
-              <div className="flex items-center gap-3 text-background/70">
+              <a
+                href="https://maps.google.com/?q=Paramount+Avenue+63/1+3rd+floor+mosque+road+cross+frazer+town+Bangalore+560005"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 text-background/70 hover:text-background transition-colors"
+              >
                 <MapPin className="h-5 w-5 flex-shrink-0" />
-                <span>Bangalore, India</span>
-              </div>
+                <span>Paramount Avenue, 63/1, 3rd floor, mosque road cross, frazer town, Bangalore 560005</span>
+              </a>
             </div>
 
             {/* Quick Links & Social */}

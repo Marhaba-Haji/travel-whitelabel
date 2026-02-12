@@ -58,7 +58,7 @@ const RefundPolicy = () => {
                 To request a refund:
               </p>
               <ol className="list-decimal pl-6 space-y-2 text-muted-foreground">
-                <li>Contact our support team at hello@marhabaDMC.com or +91 90084 47887</li>
+                <li>Contact our support team at hello@marhabadmc.com or +91 90084 47887</li>
                 <li>Provide your account information and order/reference number</li>
                 <li>Clearly state the reason for your refund request</li>
                 <li>Include any relevant documentation or evidence</li>
@@ -149,7 +149,7 @@ const RefundPolicy = () => {
               </p>
               <div className="mt-4 p-4 bg-muted rounded-lg">
                 <p className="text-muted-foreground">
-                  <strong>Email:</strong> hello@marhabaDMC.com<br />
+                  <strong>Email:</strong> hello@marhabadmc.com<br />
                   <strong>Phone:</strong> +91 90084 47887<br />
                   <strong>Address:</strong> New Delhi, India<br />
                   <strong>Business Hours:</strong> Monday - Friday, 9:00 AM - 6:00 PM IST
