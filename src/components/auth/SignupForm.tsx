@@ -189,19 +189,17 @@ const SignupForm = ({ amount = SIGNUP_AMOUNT, totalPrice = 18799, symbol = "₹"
     return cleaned;
   };
 
-  const getApiBase = () => {
-    const envUrl = import.meta.env.VITE_API_URL;
-    if (envUrl) return envUrl.replace(/\/$/, "");
-    if (import.meta.env.DEV) return "http://localhost:3001";
-    return "";
+  const getEdgeFunctionUrl = () => {
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://kofijegdzeshitunwddn.supabase.co";
+    return `${supabaseUrl}/functions/v1/create-payment`;
   };
 
   const onSubmit = async (data: SignupFormValues) => {
     setIsLoading(true);
 
     try {
-      const apiBase = getApiBase();
-      const res = await fetch(`${apiBase}/api/create-payment`, {
+      const url = getEdgeFunctionUrl();
+      const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

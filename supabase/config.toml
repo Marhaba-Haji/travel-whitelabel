@@ -2,3 +2,9 @@ project_id = "kofijegdzeshitunwddn"
 
 [functions.validate-coupon]
 verify_jwt = false
+
+[functions.create-payment]
+verify_jwt = false
+
+[functions.payu-callback]
+verify_jwt = false
