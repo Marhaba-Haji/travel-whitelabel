@@ -1,209 +1,202 @@
 
-# About Page - Long-Form Landing Page Design
+
+# Superadmin Dashboard - Complete Implementation Plan
 
 ## Overview
 
-Create a comprehensive About page (`/about`) that tells the complete marhabaDMC story as a halal tourism enablement company. This will be a long-form landing page with multiple sections, following the existing design patterns established in the landing page components.
+Build a secure superadmin dashboard accessible only to `harab.business@gmail.com` that provides full visibility and control over all site data, dynamic pricing, coupon management, and site contact details.
 
 ---
 
-## Page Structure & Sections
+## Part 1: Database Schema Changes
 
-The content will be organized into **12 distinct sections**, each with its own visual treatment:
+### New Tables
 
-### Section 1: Hero - "About marhabaDMC"
-- Large hero with gradient background
-- Tagline: "Halal Tourism Enablement Company"
-- Subtle decorative floating elements
-- Brief intro paragraph
+**1. `site_settings`** - Stores dynamic site configuration (pricing, GST, contact details)
 
-### Section 2: Who We Are
-- Two-column layout (text + visual)
-- Key philosophy statement in a highlighted box
-- Emphasis: "We are the systems, intelligence, and backbone that make halal tourism businesses stronger"
+| Column | Type | Default | Purpose |
+|--------|------|---------|---------|
+| id | uuid | gen_random_uuid() | PK |
+| key | text (unique) | - | Setting identifier |
+| value | jsonb | - | Setting value |
+| updated_at | timestamp | now() | Last modified |
+| updated_by | text | null | Email of who changed it |
 
-### Section 3: Our Focus - Halal Tourism
-- Badge: "End-to-End Halal Tourism"
-- Three focus areas as cards:
-  - Halal tourism-focused destinations globally
-  - Domestic and international itinerary curation
-  - Supplier and service selection
-- Visual emphasis on religious/cultural considerations
+Pre-seeded keys:
+- `pricing` -> `{ "base_price": 18799, "gst_percent": 0, "currency": "INR" }`
+- `contact` -> `{ "whatsapp": "+919008447887", "phone": "+919008447887", "email": "hello@marhabadmc.com" }`
 
-### Section 4: Curated Itineraries
-- Feature cards showing itinerary types:
-  - Group and individual travel
-  - Religious, leisure, and purpose-driven journeys
-  - Operational feasibility
-  - Adaptable to market segments
-- Agent benefits callout
+**2. `coupons`** - Discount coupon management
 
-### Section 5: Content Supplier
-- Badge: "Content Engine"
-- Grid of content types provided:
-  - Destination content
-  - Itinerary narratives
-  - Religious and cultural context
-  - Sales-ready descriptions
-- Value proposition: Reduce costs, maintain consistency
+| Column | Type | Default | Purpose |
+|--------|------|---------|---------|
+| id | uuid | gen_random_uuid() | PK |
+| code | text (unique) | - | Coupon code (uppercase) |
+| discount_type | text | 'percentage' | 'percentage' or 'fixed' |
+| discount_value | numeric | - | Amount or percent off |
+| max_uses | integer | null | null = unlimited |
+| times_used | integer | 0 | Current usage count |
+| valid_from | timestamp | now() | Start validity |
+| valid_until | timestamp | null | null = no expiry |
+| is_active | boolean | true | Soft disable |
+| created_at | timestamp | now() | - |
+| updated_at | timestamp | now() | - |
 
-### Section 6: WhiteLabel Technology
-- Reuse existing portal visual style (Admin, Supplier, B2B Agent, B2C)
-- Four mini-cards showing each portal
-- Link to main platform features
+**3. `app_role` enum + `user_roles` table** - Role-based access control
 
-### Section 7: Contracted Inventory
-- Similar styling to CompetitiveEdge section
-- Three pillars:
-  - Airline seat allocations
-  - Hotel partnerships
-  - Ground services
-- Competitive pricing emphasis
+Following the security-definer pattern to avoid RLS recursion:
+- Create `app_role` enum: `('superadmin', 'admin', 'user')`
+- Create `user_roles` table with `user_id` (FK to auth.users) and `role`
+- Create `has_role()` security definer function
+- Assign `superadmin` role to `harab.business@gmail.com` after they sign up via Supabase Auth
 
-### Section 8: AI-Powered Sales
-- Bot/AI visual with chat mockup
-- Key capabilities list
-- Benefits grid (reduce dependency, improve efficiency, lower costs, increase conversions)
-- "AI works alongside agents" tagline
+### RLS Policies
 
-### Section 9: Training & Enablement
-- Horizontal timeline or step cards
-- Training types:
-  - Industry training
-  - Business and operations training
-  - Tool and platform onboarding
-  - Sales enablement support
-  - Marketing guidance
-
-### Section 10: Hospitality Technology (Coming Soon)
-- "Coming Soon" badge with subtle animation
-- Target audience: Hotels, Lodges, Small operators
-- Platform capabilities preview
-- Visual indicating future expansion
-
-### Section 11: Our Philosophy
-- Full-width quote-style section
-- Three pillars with icons:
-  - "Infrastructure should empower, not overshadow"
-  - "Growth should be structured, not chaotic"
-  - "Trust should be embedded, not explained"
-
-### Section 12: Who We Work With & CTA
-- Partner types in horizontal badges/pills
-- "Looking Ahead" vision statement
-- Two CTAs:
-  - "Apply for Partner Access" (primary)
-  - "Request a Platform Overview" (secondary)
+- `site_settings`: Public SELECT (frontend needs pricing/contact), admin-only UPDATE
+- `coupons`: Admin-only for all operations
+- `user_roles`: Admin-only SELECT, no public access
+- All existing tables (`contact_enquiries`, `newsletter_subscriptions`, `registrations`, `payments`, `payment_gateway_responses`): Add SELECT policy for admin users
 
 ---
 
-## Technical Implementation
+## Part 2: Authentication Setup
 
-### New Files to Create
+Since there's no auth currently, we need to set up Supabase Auth:
+
+1. **Admin login page** at `/admin/login` - simple email/password login using `supabase.auth.signInWithPassword()`
+2. **Auth context provider** to manage session state across the app
+3. **Protected route wrapper** that checks if the user has `superadmin` role
+4. The superadmin account (`harab.business@gmail.com`) will need to be created via Supabase Auth (the migration will include a note about this)
+
+---
+
+## Part 3: Admin Dashboard UI
+
+### Route: `/admin` (protected)
+
+A sidebar-based dashboard layout with these tabs/sections:
+
+**Tab 1: Overview**
+- Summary cards: Total registrations, total payments, pending payments, contact enquiries count, newsletter subscribers count
+- Quick stats at a glance
+
+**Tab 2: Contact Enquiries**
+- Table showing all entries from `contact_enquiries`
+- Columns: Name, Email, Phone, Message (truncated), Status, Date
+- Status badge (new/read/responded)
+- Click to expand full message
+
+**Tab 3: Newsletter Signups**
+- Table of all `newsletter_subscriptions`
+- Columns: Email, Subscribed At
+- Count display
+
+**Tab 4: Registrations**
+- Table of all `registrations`
+- Columns: Full Name, Email, Phone, City, Status, Created At
+- Status filter (pending_payment, payment_completed, active, etc.)
+- Highlight rows where status is still `pending_payment` (abandoned signups)
+
+**Tab 5: Payments**
+- Table of all `payments` joined with registration info
+- Columns: Txn ID, Name (from registration), Amount, Status, Payment Mode, Date
+- Status badges (initiated/success/failed)
+- Filter for "Abandoned" = status is `initiated` (started but never completed)
+
+**Tab 6: Pricing & GST**
+- Current base price display with edit field
+- GST percentage field
+- Live preview: "Base: 18,799 + GST 18% = 22,182.82 (Total charged)"
+- Save button updates `site_settings`
+
+**Tab 7: Coupons**
+- Table of all coupons with status
+- Create new coupon form: code, discount type, value, max uses, valid until
+- Toggle active/inactive
+- Usage count display
+
+**Tab 8: Site Settings**
+- WhatsApp number
+- Phone number
+- Email address
+- Save updates `site_settings`
+
+---
+
+## Part 4: Dynamic Data Integration
+
+### Frontend reads from `site_settings`:
+
+1. **Pricing**: The signup page, pricing section, and SignupForm will fetch the current price from `site_settings` instead of using hardcoded `18799`
+2. **Contact details**: Footer, FloatingWhatsApp, and About page will read WhatsApp/phone/email from `site_settings`
+3. **Coupon validation**: Add a coupon code field to the SignupForm. An edge function validates the coupon and returns the discounted price
+
+### Edge Function: `validate-coupon`
+- Accepts coupon code
+- Checks validity (active, not expired, under max uses)
+- Returns discount details
+- Increments `times_used` on successful payment
+
+### Server-side (server/index.js) changes:
+- The `create-payment` endpoint will read the current price from `site_settings` instead of hardcoded `18799.00`
+- Apply coupon discount if a valid coupon code is provided
+- Calculate GST and pass total to PayU
+
+---
+
+## Part 5: Files to Create
 
 | File | Purpose |
 |------|---------|
-| `src/pages/About.tsx` | Main About page component |
-| `src/components/about/AboutHero.tsx` | Hero section |
-| `src/components/about/WhoWeAre.tsx` | Who We Are section |
-| `src/components/about/HalalFocus.tsx` | Halal Tourism focus section |
-| `src/components/about/Itineraries.tsx` | Curated Itineraries section |
-| `src/components/about/ContentSupplier.tsx` | Content supplier section |
-| `src/components/about/TechPlatform.tsx` | WhiteLabel Technology section |
-| `src/components/about/ContractedInventory.tsx` | Contracted rates section |
-| `src/components/about/AIPowered.tsx` | AI Sales section |
-| `src/components/about/TrainingSupport.tsx` | Training section |
-| `src/components/about/HospitalityTech.tsx` | Coming Soon hospitality section |
-| `src/components/about/Philosophy.tsx` | Philosophy section |
-| `src/components/about/WorkWithUs.tsx` | Partners + CTA section |
+| `src/contexts/AuthContext.tsx` | Supabase auth session provider |
+| `src/components/admin/AdminLayout.tsx` | Sidebar layout for admin |
+| `src/components/admin/OverviewTab.tsx` | Dashboard overview with stats |
+| `src/components/admin/ContactEnquiriesTab.tsx` | Contact form entries table |
+| `src/components/admin/NewsletterTab.tsx` | Newsletter subscribers table |
+| `src/components/admin/RegistrationsTab.tsx` | Registrations table |
+| `src/components/admin/PaymentsTab.tsx` | Payments table with abandoned filter |
+| `src/components/admin/PricingTab.tsx` | Dynamic pricing + GST control |
+| `src/components/admin/CouponsTab.tsx` | Coupon CRUD |
+| `src/components/admin/SiteSettingsTab.tsx` | Contact details management |
+| `src/components/admin/ProtectedRoute.tsx` | Auth + role guard |
+| `src/pages/Admin.tsx` | Main admin page |
+| `src/pages/AdminLogin.tsx` | Admin login page |
+| `src/hooks/useSiteSettings.tsx` | Hook to fetch site_settings |
+| `supabase/functions/validate-coupon/index.ts` | Coupon validation edge function |
 
-### Files to Modify
+## Part 6: Files to Modify
 
 | File | Changes |
 |------|---------|
-| `src/App.tsx` | Add route for `/about` |
-| `src/components/landing/Header.tsx` | Add "About" link to navigation |
-| `src/components/landing/Footer.tsx` | Add "About" to quick links |
+| `src/App.tsx` | Add `/admin`, `/admin/login` routes, wrap with AuthProvider |
+| `src/components/landing/Footer.tsx` | Read contact details from site_settings |
+| `src/components/landing/FloatingWhatsApp.tsx` | Read WhatsApp number from site_settings |
+| `src/components/landing/Pricing.tsx` | Read price from site_settings |
+| `src/pages/Signup.tsx` | Read price from site_settings |
+| `src/components/auth/SignupForm.tsx` | Add coupon code field, read dynamic price |
+| `server/index.js` | Read price + GST from site_settings, handle coupon in create-payment |
+| `supabase/config.toml` | Add validate-coupon function config |
 
 ---
 
-## Design Patterns to Follow
+## Part 7: Security Considerations
 
-Based on existing components, I will use:
-
-1. **Section Structure**
-   - Consistent padding: `py-20`
-   - Container with centered content
-   - Decorative background blurs/gradients
-
-2. **Headers**
-   - Badge pill at top (uppercase, tracking-wider)
-   - Large heading (text-3xl md:text-4xl font-bold)
-   - Muted description paragraph
-
-3. **Cards**
-   - Using existing Card components
-   - Hover effects with shadow-xl
-   - Gradient icon containers
-
-4. **Animations**
-   - useScrollAnimation hook for reveal effects
-   - animate-fade-in, animate-scale-in classes
-   - Staggered delays for grid items
-
-5. **Color Usage**
-   - Primary blue for main CTAs and highlights
-   - Gold accent for exclusive/premium features
-   - Muted foreground for descriptions
+1. **Server-side role check**: The `has_role()` security definer function ensures RLS policies work without recursion
+2. **No client-side admin checks**: Admin status is verified via Supabase RLS, not localStorage
+3. **Edge function JWT validation**: The validate-coupon function validates auth tokens server-side
+4. **Superadmin setup**: After the migration, `harab.business@gmail.com` must sign up via Supabase Auth dashboard, then the role is assigned via a SQL insert into `user_roles`
 
 ---
 
-## Visual Highlights
+## Implementation Order
 
-### Unique Elements for About Page
+1. Database migration (new tables, RLS, seed data)
+2. Auth context and protected route components
+3. Admin login page
+4. Admin dashboard layout + all tabs
+5. Site settings hook for frontend
+6. Update frontend components to use dynamic settings
+7. Coupon validation edge function
+8. Update server/index.js for dynamic pricing
+9. Testing
 
-1. **Philosophy Section**: Full-width dark/primary background with large quote typography
-
-2. **Coming Soon Badge**: Animated pulse for Hospitality Tech section
-
-3. **Partner Types**: Horizontal scrolling badges on mobile
-
-4. **Vision Statement**: Gradient text treatment for "Looking Ahead"
-
----
-
-## Navigation Integration
-
-### Header Changes
-Add "About" link between existing nav items:
-```text
-Features | Portals | About | Pricing | FAQ | Contact
-```
-
-### Footer Changes
-Add to Quick Links:
-```text
-About | Features | Portals | Pricing | FAQ
-```
-
----
-
-## Responsive Considerations
-
-- All sections use responsive grid (grid-cols-1 md:grid-cols-2 lg:grid-cols-3/4)
-- Text sizes scale appropriately (text-3xl md:text-4xl)
-- Card layouts stack on mobile
-- CTAs become full-width on mobile
-
----
-
-## Summary
-
-This plan creates a comprehensive About page that:
-
-1. **Tells the complete marhabaDMC story** across 12 well-structured sections
-2. **Maintains design consistency** with existing landing page components
-3. **Uses modular components** for easy future updates
-4. **Integrates seamlessly** into existing navigation
-5. **Follows responsive patterns** for mobile-first design
-6. **Emphasizes halal tourism focus** as the core differentiator
