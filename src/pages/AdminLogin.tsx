@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -12,8 +12,14 @@ const AdminLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const { signIn } = useAuth();
+  const { signIn, user, isSuperadmin, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!authLoading && user && isSuperadmin) {
+      navigate("/admin", { replace: true });
+    }
+  }, [authLoading, user, isSuperadmin, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,9 +28,8 @@ const AdminLogin = () => {
     setLoading(false);
     if (error) {
       toast.error(error.message);
-    } else {
-      navigate("/admin");
     }
+    // Navigation happens via useEffect when user + isSuperadmin are ready
   };
 
   return (
