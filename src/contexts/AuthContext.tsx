@@ -19,14 +19,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
   const [isSuperadmin, setIsSuperadmin] = useState(false);
 
-  const checkRoleAndFinishLoading = async (session: { user: { id: string } } | null) => {
-    setSession(session);
-    setUser(session?.user ?? null);
-    if (session?.user) {
+  const checkRoleAndFinishLoading = async (sessionData: Session | null) => {
+    setSession(sessionData);
+    setUser(sessionData?.user ?? null);
+    if (sessionData?.user) {
       const { data } = await supabase
         .from("user_roles")
         .select("role")
-        .eq("user_id", session.user.id)
+        .eq("user_id", sessionData.user.id)
         .eq("role", "superadmin")
         .maybeSingle();
       setIsSuperadmin(!!data);

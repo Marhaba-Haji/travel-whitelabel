@@ -19,7 +19,7 @@ export const usePricing = () => {
         .eq("key", "pricing")
         .single();
       if (error) throw error;
-      return (data?.value ?? { base_price: 18799, gst_percent: 0, currency: "INR" }) as PricingData;
+      return (data?.value as unknown as PricingData) ?? { base_price: 18799, gst_percent: 0, currency: "INR" };
     },
   });
 
