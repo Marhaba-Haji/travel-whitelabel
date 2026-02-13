@@ -1,8 +1,11 @@
 import { MessageCircle } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useContactSettings } from "@/hooks/useContactSettings";
 
 const FloatingWhatsApp = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const { whatsappUrlWithMessage } = useContactSettings();
+  const whatsappHref = whatsappUrlWithMessage("Hi, I'm interested in the travel portal");
 
   useEffect(() => {
     const toggleVisibility = () => {
@@ -19,7 +22,7 @@ const FloatingWhatsApp = () => {
 
   return (
     <a
-      href="https://wa.me/919008447887?text=Hi%2C%20I%27m%20interested%20in%20the%20marhabaDMC%20travel%20portal"
+      href={whatsappHref}
       target="_blank"
       rel="noopener noreferrer"
       className={`fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-[#25D366] text-primary-foreground px-4 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 ${

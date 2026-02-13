@@ -20,12 +20,18 @@ import {
   Zap
 } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { usePricing } from "@/hooks/usePricing";
+import { useContactSettings } from "@/hooks/useContactSettings";
 import AnimatedCounter from "@/components/AnimatedCounter";
 import CountdownTimer from "@/components/CountdownTimer";
 import InvestmentCalculator from "@/components/InvestmentCalculator";
 
 const Pricing = () => {
   const { ref, isVisible } = useScrollAnimation();
+  const { totalPrice, formattedPrice, pricePerDay, symbol, isLoading } = usePricing();
+  const { whatsappUrl } = useContactSettings();
+  const originalPrice = Math.round(totalPrice / 0.38);
+  const discountPercent = Math.round(((originalPrice - totalPrice) / originalPrice) * 100);
 
   // Set countdown to 3 days from now
   const countdownDate = new Date();
@@ -247,16 +253,16 @@ const Pricing = () => {
                 <div className="mb-4">
                   {/* Strikethrough Original Price */}
                   <div className="flex items-center justify-center gap-2 mb-2">
-                    <span className="text-lg text-muted-foreground line-through">₹49,999</span>
+                    <span className="text-lg text-muted-foreground line-through">{symbol}{originalPrice.toLocaleString("en-IN")}</span>
                     <Badge variant="secondary" className="bg-primary/10 text-primary">
-                      62% OFF
+                      {discountPercent}% OFF
                     </Badge>
                   </div>
                   
                   {/* Main Price */}
                   <div className="flex items-baseline justify-center gap-1">
-                    <span className="text-2xl font-medium text-muted-foreground">₹</span>
-                    <span className="text-6xl font-bold text-foreground">18,799</span>
+                    <span className="text-2xl font-medium text-muted-foreground">{symbol}</span>
+                    <span className="text-6xl font-bold text-foreground">{isLoading ? "..." : Math.round(totalPrice).toLocaleString("en-IN")}</span>
                   </div>
                   <p className="text-muted-foreground mt-1">per year</p>
                 </div>
@@ -265,7 +271,7 @@ const Pricing = () => {
                 <div className="bg-accent/50 rounded-xl p-4 border border-primary/20">
                   <div className="flex items-center justify-center gap-2 mb-2">
                     <Coffee className="w-5 h-5 text-primary" />
-                    <span className="text-2xl font-bold text-primary">Just ₹51/day</span>
+                    <span className="text-2xl font-bold text-primary">Just {symbol}{pricePerDay.toLocaleString("en-IN")}/day</span>
                   </div>
                   <p className="text-xs text-muted-foreground">
                     Less than your daily coffee • Less than a movie ticket
@@ -337,7 +343,7 @@ const Pricing = () => {
                     </div>
                   </div>
                   <p className="text-muted-foreground text-sm text-center">
-                    Have questions? <a href="https://wa.me/919008447887" className="text-primary font-medium hover:underline">Talk to a success coach</a>
+                    Have questions? <a href={whatsappUrl} className="text-primary font-medium hover:underline">Talk to a success coach</a>
                   </p>
                 </div>
               </CardFooter>
@@ -347,7 +353,7 @@ const Pricing = () => {
           {/* Right Column - Calculator & Social Proof */}
           <div className={`space-y-6 opacity-0 ${isVisible ? "animate-fade-in" : ""}`} style={{ animationDelay: "0.4s" }}>
             {/* Investment Calculator Widget */}
-            <InvestmentCalculator />
+            <InvestmentCalculator investmentAmount={Math.round(totalPrice)} />
 
             {/* Mini Testimonials */}
             <div className="space-y-4">

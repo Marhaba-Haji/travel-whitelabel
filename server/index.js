@@ -131,7 +131,7 @@ app.post("/api/create-payment", async (req, res) => {
     const isDemo = !PAYU_KEY || !salt;
 
     const body = req.body || {};
-    const { fullName, email, phone, city, password, termsAccepted } = body;
+    const { fullName, email, phone, city, password, termsAccepted, couponCode } = body;
 
     if (!email || !fullName || !phone) {
       return res.status(400).json({ error: "Missing required fields: fullName, email, phone" });
@@ -168,7 +168,50 @@ app.post("/api/create-payment", async (req, res) => {
       });
     }
 
-    const amount = "18799.00";
+    let amount = "18799.00";
+    let appliedCouponCode = null;
+
+    if (supabase) {
+      const { data: pricing } = await supabase.from("site_settings").select("value").eq("key", "pricing").single();
+      const v = pricing?.value || {};
+      const basePrice = Number(v.base_price) || 18799;
+      const gstPercent = Number(v.gst_percent) || 0;
+      let total = basePrice * (1 + gstPercent / 100);
+
+      if (couponCode && String(couponCode).trim()) {
+        const code = String(couponCode).trim().toUpperCase();
+        const { data: coupon, error: couponErr } = await supabase
+          .from("coupons")
+          .select("id, code, discount_type, discount_value, max_uses, times_used, valid_until, is_active")
+          .eq("code", code)
+          .eq("is_active", true)
+          .maybeSingle();
+
+        if (!couponErr && coupon) {
+          const now = new Date();
+          const validUntil = coupon.valid_until ? new Date(coupon.valid_until) : null;
+          const underMaxUses = coupon.max_uses == null || coupon.times_used < coupon.max_uses;
+
+          if (!validUntil || validUntil >= now) {
+            if (underMaxUses) {
+              if (coupon.discount_type === "percentage") {
+                total = total * (1 - Number(coupon.discount_value) / 100);
+              } else {
+                total = Math.max(0, total - Number(coupon.discount_value));
+              }
+              appliedCouponCode = coupon.code;
+              await supabase.from("coupons").update({
+                times_used: coupon.times_used + 1,
+                updated_at: new Date().toISOString(),
+              }).eq("id", coupon.id);
+            }
+          }
+        }
+      }
+
+      amount = Math.max(0.01, total).toFixed(2);
+    }
+
     const txnid = `TXN${Date.now()}${Math.random().toString(36).slice(2, 8)}`;
     const productinfo = "Travel Agency White-Label Platform - Annual Subscription";
     const firstname = (fullName || "").split(" ")[0] || fullName;
@@ -189,7 +232,7 @@ app.post("/api/create-payment", async (req, res) => {
       udf1: city || "",
       udf2: fullName || "",
       udf3: registrationId || "",
-      udf4: "",
+      udf4: appliedCouponCode || "",
       udf5: "",
     };
 

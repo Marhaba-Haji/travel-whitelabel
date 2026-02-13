@@ -19,37 +19,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
   const [isSuperadmin, setIsSuperadmin] = useState(false);
 
-  const checkRole = async (userId: string) => {
-    const { data } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId)
-      .eq("role", "superadmin")
-      .maybeSingle();
-    setIsSuperadmin(!!data);
+  const checkRoleAndFinishLoading = async (session: { user: { id: string } } | null) => {
+    setSession(session);
+    setUser(session?.user ?? null);
+    if (session?.user) {
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", session.user.id)
+        .eq("role", "superadmin")
+        .maybeSingle();
+      setIsSuperadmin(!!data);
+    } else {
+      setIsSuperadmin(false);
+    }
+    setLoading(false);
   };
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          setTimeout(() => checkRole(session.user.id), 0);
-        } else {
-          setIsSuperadmin(false);
-        }
-        setLoading(false);
+      (_event, session) => {
+        checkRoleAndFinishLoading(session);
       }
     );
 
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        checkRole(session.user.id);
-      }
-      setLoading(false);
+      checkRoleAndFinishLoading(session);
     });
 
     return () => subscription.unsubscribe();

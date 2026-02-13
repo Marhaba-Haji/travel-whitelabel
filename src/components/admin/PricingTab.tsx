@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { PRICING_QUERY_KEY } from "@/hooks/usePricing";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -38,6 +39,7 @@ const PricingTab = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-pricing"] });
+      queryClient.invalidateQueries({ queryKey: PRICING_QUERY_KEY });
       toast.success("Pricing updated!");
     },
     onError: (e) => toast.error(e.message),

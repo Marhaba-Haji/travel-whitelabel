@@ -2,12 +2,15 @@ import { useState } from "react";
 import { Slider } from "@/components/ui/slider";
 import { TrendingUp, Calculator, Sparkles } from "lucide-react";
 
-const InvestmentCalculator = () => {
+interface InvestmentCalculatorProps {
+  investmentAmount?: number;
+}
+
+const InvestmentCalculator = ({ investmentAmount = 18799 }: InvestmentCalculatorProps) => {
   const [bookingsPerMonth, setBookingsPerMonth] = useState([10]);
   
   // Average commission per booking
   const avgCommissionPerBooking = 4000;
-  const investmentAmount = 18799;
   
   const monthlyEarnings = bookingsPerMonth[0] * avgCommissionPerBooking;
   const yearlyEarnings = monthlyEarnings * 12;

@@ -6,10 +6,12 @@ import { toast } from "@/hooks/use-toast";
 import { Phone, Mail, MapPin, MessageCircle, Shield, Lock, CreditCard, Facebook, Twitter, Instagram, Linkedin, ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { useContactSettings } from "@/hooks/useContactSettings";
 
 const Footer = () => {
   const { ref: formRef, isVisible: formVisible } = useScrollAnimation();
   const { ref: infoRef, isVisible: infoVisible } = useScrollAnimation();
+  const { whatsappUrl, phone, email, address } = useContactSettings();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -248,37 +250,39 @@ const Footer = () => {
             {/* Contact Details */}
             <div className="space-y-4 mb-8">
               <a
-                href="https://wa.me/919008447887"
+                href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 text-background/70 hover:text-background transition-colors"
               >
                 <MessageCircle className="h-5 w-5" />
-                <span>WhatsApp: +91 90084 47887</span>
+                <span>WhatsApp: {phone}</span>
               </a>
               <a
-                href="tel:+919008447887"
+                href={`tel:${phone.replace(/\D/g, "")}`}
                 className="flex items-center gap-3 text-background/70 hover:text-background transition-colors"
               >
                 <Phone className="h-5 w-5" />
-                <span>+91 90084 47887</span>
+                <span>{phone}</span>
               </a>
               <a
-                href="mailto:hello@marhabadmc.com"
+                href={`mailto:${email}`}
                 className="flex items-center gap-3 text-background/70 hover:text-background transition-colors"
               >
                 <Mail className="h-5 w-5" />
-                <span>hello@marhabadmc.com</span>
+                <span>{email}</span>
               </a>
-              <a
-                href="https://maps.google.com/?q=Paramount+Avenue+63/1+3rd+floor+mosque+road+cross+frazer+town+Bangalore+560005"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 text-background/70 hover:text-background transition-colors"
-              >
-                <MapPin className="h-5 w-5 flex-shrink-0" />
-                <span>Paramount Avenue, 63/1, 3rd floor, mosque road cross, frazer town, Bangalore 560005</span>
-              </a>
+              {address && (
+                <a
+                  href={`https://maps.google.com/?q=${encodeURIComponent(address)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 text-background/70 hover:text-background transition-colors"
+                >
+                  <MapPin className="h-5 w-5 flex-shrink-0" />
+                  <span>{address}</span>
+                </a>
+              )}
             </div>
 
             {/* Quick Links & Social */}

@@ -3,11 +3,13 @@ import { ArrowLeft, Rocket, Users, TrendingUp, CheckCircle, Zap, DollarSign, Cal
 import LogoAnimated from "@/components/landing/LogoAnimated";
 import SignupForm from "@/components/auth/SignupForm";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { usePricing } from "@/hooks/usePricing";
 import { useEffect } from "react";
 
 const Signup = () => {
   const { ref: formRef, isVisible: formVisible } = useScrollAnimation();
   const { ref: visualRef, isVisible: visualVisible } = useScrollAnimation();
+  const { formattedPrice, pricePerMonth, symbol, totalPrice, isLoading } = usePricing();
 
   // Scroll to top when component mounts
   useEffect(() => {
@@ -82,7 +84,7 @@ const Signup = () => {
                 </p>
               </div>
 
-              <SignupForm amount="₹18,799" />
+              <SignupForm amount={formattedPrice} totalPrice={Math.round(totalPrice)} symbol={symbol} />
             </div>
 
             {/* Benefits - Mobile */}
@@ -136,16 +138,16 @@ const Signup = () => {
                     
                     <div className="space-y-4">
                       <div className="flex flex-wrap items-baseline justify-center gap-1 sm:gap-2">
-                        <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground">₹</span>
+                        <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground">{symbol}</span>
                         <span className="text-4xl sm:text-6xl lg:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary via-gold to-primary animate-gradient-shift bg-[length:200%_auto]">
-                          18,799
+                          {isLoading ? "..." : Math.round(totalPrice).toLocaleString("en-IN")}
                         </span>
                         <span className="text-lg sm:text-xl lg:text-2xl text-muted-foreground">/year</span>
                       </div>
                       
                       <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
                         <Calendar className="h-4 w-4" />
-                        <span>Just ₹1,567/month</span>
+                        <span>Just {symbol}{pricePerMonth.toLocaleString("en-IN")}/month</span>
                       </div>
                       
                       <div className="pt-4 border-t border-border">

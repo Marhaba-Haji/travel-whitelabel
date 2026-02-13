@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Form,
   FormControl,
@@ -14,7 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { toast } from "@/hooks/use-toast";
-import { Eye, EyeOff, Loader2, CheckCircle2, CreditCard } from "lucide-react";
+import { Eye, EyeOff, Loader2, CheckCircle2, CreditCard, Ticket } from "lucide-react";
 import { Link } from "react-router-dom";
 
 // Phone validation for Indian format: +91XXXXXXXXXX or 10 digits
@@ -48,6 +49,7 @@ const signupSchema = z
       .string()
       .min(2, "City must be at least 2 characters")
       .min(1, "City is required"),
+    couponCode: z.string().optional(),
     password: z
       .string()
       .min(6, "Password must be at least 6 characters")
@@ -69,12 +71,21 @@ const PAYMENT_LINK_KEY = "signup_payment_pending";
 
 interface SignupFormProps {
   amount?: string;
+  totalPrice?: number;
+  symbol?: string;
 }
 
-const SignupForm = ({ amount = SIGNUP_AMOUNT }: SignupFormProps) => {
+type CouponValidation =
+  | { status: "idle" }
+  | { status: "validating" }
+  | { status: "valid"; discount_type: string; discount_value: number }
+  | { status: "invalid"; error: string };
+
+const SignupForm = ({ amount = SIGNUP_AMOUNT, totalPrice = 18799, symbol = "₹" }: SignupFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [couponValidation, setCouponValidation] = useState<CouponValidation>({ status: "idle" });
 
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
@@ -83,6 +94,7 @@ const SignupForm = ({ amount = SIGNUP_AMOUNT }: SignupFormProps) => {
       email: "",
       phone: "",
       city: "",
+      couponCode: "",
       password: "",
       confirmPassword: "",
       termsAccepted: false,
@@ -93,7 +105,54 @@ const SignupForm = ({ amount = SIGNUP_AMOUNT }: SignupFormProps) => {
   // Watch password fields for real-time match validation
   const password = form.watch("password");
   const confirmPassword = form.watch("confirmPassword");
+  const couponCode = form.watch("couponCode");
   const passwordsMatch = password && confirmPassword && password === confirmPassword;
+
+  const computeDiscountedAmount = (): string | null => {
+    if (couponValidation.status !== "valid") return null;
+    let discounted = totalPrice;
+    if (couponValidation.discount_type === "percentage") {
+      discounted = totalPrice * (1 - couponValidation.discount_value / 100);
+    } else {
+      discounted = Math.max(0, totalPrice - couponValidation.discount_value);
+    }
+    return `${symbol}${Math.round(discounted).toLocaleString("en-IN")}`;
+  };
+
+  const displayAmount = couponValidation.status === "valid" ? computeDiscountedAmount() : amount;
+
+  const validateCoupon = async () => {
+    const code = String(couponCode || "").trim().toUpperCase();
+    if (!code) {
+      setCouponValidation({ status: "idle" });
+      return;
+    }
+    setCouponValidation({ status: "validating" });
+    try {
+      const { data, error } = await supabase.functions.invoke("validate-coupon", {
+        body: { code },
+      });
+      if (error) {
+        setCouponValidation({ status: "invalid", error: error.message || "Validation failed" });
+        return;
+      }
+      const result = data as { valid: boolean; error?: string; discount_type?: string; discount_value?: number };
+      if (!result.valid) {
+        setCouponValidation({ status: "invalid", error: result.error || "Invalid coupon code" });
+        return;
+      }
+      if (
+        (result.discount_type === "percentage" || result.discount_type === "fixed") &&
+        typeof result.discount_value === "number"
+      ) {
+        setCouponValidation({ status: "valid", discount_type: result.discount_type, discount_value: result.discount_value });
+      } else {
+        setCouponValidation({ status: "invalid", error: "Invalid discount data" });
+      }
+    } catch (e) {
+      setCouponValidation({ status: "invalid", error: (e as Error).message || "Failed to validate coupon" });
+    }
+  };
 
   // Format phone number as user types
   const formatPhoneNumber = (value: string) => {
@@ -143,6 +202,7 @@ const SignupForm = ({ amount = SIGNUP_AMOUNT }: SignupFormProps) => {
           email: data.email,
           phone: data.phone,
           city: data.city,
+          couponCode: data.couponCode?.trim() || undefined,
           password: data.password,
           termsAccepted: data.termsAccepted,
         }),
@@ -303,6 +363,52 @@ const SignupForm = ({ amount = SIGNUP_AMOUNT }: SignupFormProps) => {
 
         <FormField
           control={form.control}
+          name="couponCode"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="flex items-center gap-2">
+                <Ticket className="h-4 w-4" />
+                Coupon Code (optional)
+              </FormLabel>
+              <div className="flex gap-2">
+                <FormControl>
+                  <Input
+                    type="text"
+                    placeholder="Enter code for discount"
+                    className="h-11 flex-1"
+                    {...field}
+                    onChange={(e) => {
+                      field.onChange(e);
+                      if (couponValidation.status !== "idle") setCouponValidation({ status: "idle" });
+                    }}
+                    disabled={isLoading}
+                  />
+                </FormControl>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="h-11 shrink-0"
+                  onClick={validateCoupon}
+                  disabled={isLoading || !field.value?.trim()}
+                >
+                  {couponValidation.status === "validating" ? "..." : "Apply"}
+                </Button>
+              </div>
+              {couponValidation.status === "valid" && displayAmount && (
+                <p className="text-sm text-primary font-medium">
+                  Coupon applied! You&apos;ll pay {displayAmount}
+                </p>
+              )}
+              {couponValidation.status === "invalid" && (
+                <p className="text-sm text-destructive">{couponValidation.error}</p>
+              )}
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
           name="password"
           render={({ field }) => (
             <FormItem>
@@ -427,7 +533,7 @@ const SignupForm = ({ amount = SIGNUP_AMOUNT }: SignupFormProps) => {
           ) : (
             <>
               <CreditCard className="mr-2 h-4 w-4" />
-              Register & Pay {amount}
+              Register & Pay {displayAmount ?? amount}
             </>
           )}
         </Button>
