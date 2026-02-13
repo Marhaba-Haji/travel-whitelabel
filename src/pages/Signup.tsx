@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { ArrowLeft, Rocket, Users, TrendingUp, CheckCircle, Zap, DollarSign, Calendar, Sparkles } from "lucide-react";
-import LogoAnimated from "@/components/landing/LogoAnimated";
 import SignupForm from "@/components/auth/SignupForm";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { usePricing } from "@/hooks/usePricing";
@@ -9,7 +8,8 @@ import { useEffect } from "react";
 const Signup = () => {
   const { ref: formRef, isVisible: formVisible } = useScrollAnimation();
   const { ref: visualRef, isVisible: visualVisible } = useScrollAnimation();
-  const { formattedPrice, pricePerMonth, symbol, totalPrice, isLoading } = usePricing();
+  const { formattedBasePrice, symbol, basePrice, isLoading } = usePricing();
+  const basePricePerMonth = Math.round(basePrice / 12);
 
   // Scroll to top when component mounts
   useEffect(() => {
@@ -68,9 +68,19 @@ const Signup = () => {
               Back to home
             </Link>
 
-            {/* Logo */}
+            {/* Logo - matches header */}
             <div className="mb-8 lg:mb-4">
-              <LogoAnimated size="lg" />
+              <Link to="/" className="flex items-center gap-2.5">
+                <img
+                  src="/assets/marhaba-dmc-logo.png"
+                  alt="marhabaDMC"
+                  className="h-10 w-auto object-contain flex-shrink-0"
+                />
+                <span className="text-2xl leading-none">
+                  <span className="font-marhaba text-foreground">marhaba</span>
+                  <span className="font-dmc font-semibold text-primary">DMC</span>
+                </span>
+              </Link>
             </div>
 
             {/* Form Card */}
@@ -84,7 +94,7 @@ const Signup = () => {
                 </p>
               </div>
 
-              <SignupForm amount={formattedPrice} totalPrice={Math.round(totalPrice)} symbol={symbol} />
+              <SignupForm amount={formattedBasePrice} symbol={symbol} />
             </div>
 
             {/* Benefits - Mobile */}
@@ -140,14 +150,14 @@ const Signup = () => {
                       <div className="flex flex-wrap items-baseline justify-center gap-1 sm:gap-2">
                         <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground">{symbol}</span>
                         <span className="text-4xl sm:text-6xl lg:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary via-gold to-primary animate-gradient-shift bg-[length:200%_auto]">
-                          {isLoading ? "..." : Math.round(totalPrice).toLocaleString("en-IN")}
+                          {isLoading ? "..." : Math.round(basePrice).toLocaleString("en-IN")}
                         </span>
                         <span className="text-lg sm:text-xl lg:text-2xl text-muted-foreground">/year</span>
                       </div>
                       
                       <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
                         <Calendar className="h-4 w-4" />
-                        <span>Just {symbol}{pricePerMonth.toLocaleString("en-IN")}/month</span>
+                        <span>Just {symbol}{basePricePerMonth.toLocaleString("en-IN")}/month</span>
                       </div>
                       
                       <div className="pt-4 border-t border-border">

@@ -37,17 +37,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
+    const clearInvalidSession = async () => {
+      await supabase.auth.signOut({ scope: "local" });
+      checkRoleAndFinishLoading(null);
+    };
+
+    const onRejection = (event: PromiseRejectionEvent) => {
+      const msg = String(event.reason?.message ?? "");
+      if (msg.includes("Invalid Refresh Token") || msg.includes("Refresh Token Not Found")) {
+        event.preventDefault();
+        clearInvalidSession();
+      }
+    };
+    window.addEventListener("unhandledrejection", onRejection);
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         checkRoleAndFinishLoading(session);
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      checkRoleAndFinishLoading(session);
-    });
+    supabase.auth
+      .getSession()
+      .then(({ data: { session } }) => {
+        checkRoleAndFinishLoading(session);
+      })
+      .catch((err) => {
+        const msg = String(err?.message ?? "");
+        if (msg.includes("Invalid Refresh Token") || msg.includes("Refresh Token Not Found")) {
+          clearInvalidSession();
+        } else {
+          checkRoleAndFinishLoading(null);
+        }
+      });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      window.removeEventListener("unhandledrejection", onRejection);
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signIn = async (email: string, password: string) => {

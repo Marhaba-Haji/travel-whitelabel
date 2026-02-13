@@ -73,7 +73,6 @@ const PAYMENT_LINK_KEY = "signup_payment_pending";
 
 interface SignupFormProps {
   amount?: string;
-  totalPrice?: number;
   symbol?: string;
 }
 
@@ -83,7 +82,7 @@ type CouponValidation =
   | { status: "valid"; discount_type: string; discount_value: number }
   | { status: "invalid"; error: string };
 
-const SignupForm = ({ amount = SIGNUP_AMOUNT, totalPrice = 18799, symbol = "₹" }: SignupFormProps) => {
+const SignupForm = ({ amount = SIGNUP_AMOUNT, symbol = "₹" }: SignupFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -91,6 +90,7 @@ const SignupForm = ({ amount = SIGNUP_AMOUNT, totalPrice = 18799, symbol = "₹"
   const [showSummary, setShowSummary] = useState(false);
   const [validatedData, setValidatedData] = useState<SignupFormValues | null>(null);
   const { basePrice, gstPercent } = usePricing();
+  const subtotalForDiscount = basePrice * (1 + gstPercent / 100);
 
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
@@ -113,18 +113,18 @@ const SignupForm = ({ amount = SIGNUP_AMOUNT, totalPrice = 18799, symbol = "₹"
   const couponCode = form.watch("couponCode");
   const passwordsMatch = password && confirmPassword && password === confirmPassword;
 
-  const computeDiscountedAmount = (): string | null => {
-    if (couponValidation.status !== "valid") return null;
-    let discounted = totalPrice;
+  const computeDiscountSavings = (): number => {
+    if (couponValidation.status !== "valid") return 0;
     if (couponValidation.discount_type === "percentage") {
-      discounted = totalPrice * (1 - couponValidation.discount_value / 100);
-    } else {
-      discounted = Math.max(0, totalPrice - couponValidation.discount_value);
+      return subtotalForDiscount * (couponValidation.discount_value / 100);
     }
-    return `${symbol}${Math.round(discounted).toLocaleString("en-IN")}`;
+    return Math.min(couponValidation.discount_value, subtotalForDiscount);
   };
 
-  const displayAmount = couponValidation.status === "valid" ? computeDiscountedAmount() : amount;
+  const discountSavings = computeDiscountSavings();
+  const couponSavingsFormatted = discountSavings > 0
+    ? `${symbol}${Math.round(discountSavings).toLocaleString("en-IN")}`
+    : null;
 
   const validateCoupon = async () => {
     const code = String(couponCode || "").trim().toUpperCase();
@@ -438,9 +438,9 @@ const SignupForm = ({ amount = SIGNUP_AMOUNT, totalPrice = 18799, symbol = "₹"
                   {couponValidation.status === "validating" ? "..." : "Apply"}
                 </Button>
               </div>
-              {couponValidation.status === "valid" && displayAmount && (
+              {couponValidation.status === "valid" && couponSavingsFormatted && (
                 <p className="text-sm text-primary font-medium">
-                  Coupon applied! You&apos;ll pay {displayAmount}
+                  Coupon applied! You&apos;ll save {couponSavingsFormatted}
                 </p>
               )}
               {couponValidation.status === "invalid" && (
@@ -570,7 +570,7 @@ const SignupForm = ({ amount = SIGNUP_AMOUNT, totalPrice = 18799, symbol = "₹"
           disabled={isLoading}
         >
           <CreditCard className="mr-2 h-4 w-4" />
-          Review Order & Pay {displayAmount ?? amount}
+          Review Order & Pay { couponSavingsFormatted ? `— Save ${couponSavingsFormatted}` : amount}
         </Button>
 
         <div className="text-center text-sm text-muted-foreground">

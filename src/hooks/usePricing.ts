@@ -30,6 +30,7 @@ export const usePricing = () => {
   const symbol = currency === "INR" ? "₹" : currency === "USD" ? "$" : "₹";
 
   const formattedPrice = `${symbol}${Math.round(totalPrice).toLocaleString("en-IN")}`;
+  const formattedBasePrice = `${symbol}${Math.round(basePrice).toLocaleString("en-IN")}`;
   const pricePerDay = Math.round(totalPrice / 365);
   const pricePerMonth = Math.round(totalPrice / 12);
 
@@ -40,6 +41,7 @@ export const usePricing = () => {
     currency,
     symbol,
     formattedPrice,
+    formattedBasePrice,
     pricePerDay,
     pricePerMonth,
     isLoading,

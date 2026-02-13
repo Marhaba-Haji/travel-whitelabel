@@ -4,7 +4,7 @@ import { ArrowRight, X } from "lucide-react";
 import { usePricing } from "@/hooks/usePricing";
 
 const StickyCTA = () => {
-  const { formattedPrice, isLoading } = usePricing();
+  const { formattedBasePrice, isLoading } = usePricing();
   const [isVisible, setIsVisible] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
 
@@ -43,7 +43,7 @@ const StickyCTA = () => {
               Ready to launch your travel portal?
             </p>
             <p className="text-xs text-muted-foreground">
-              Starting at just {isLoading ? "..." : `${formattedPrice}/year`}
+              Starting at just {isLoading ? "..." : `${formattedBasePrice}/year`}
             </p>
           </div>
 

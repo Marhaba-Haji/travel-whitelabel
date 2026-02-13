@@ -28,10 +28,11 @@ import InvestmentCalculator from "@/components/InvestmentCalculator";
 
 const Pricing = () => {
   const { ref, isVisible } = useScrollAnimation();
-  const { totalPrice, formattedPrice, pricePerDay, symbol, isLoading } = usePricing();
+  const { basePrice, symbol, isLoading } = usePricing();
   const { whatsappUrl } = useContactSettings();
-  const originalPrice = Math.round(totalPrice / 0.38);
-  const discountPercent = Math.round(((originalPrice - totalPrice) / originalPrice) * 100);
+  const pricePerDay = Math.round(basePrice / 365);
+  const originalPrice = Math.round(basePrice / 0.38);
+  const discountPercent = Math.round(((originalPrice - basePrice) / originalPrice) * 100);
 
   // Set countdown to 3 days from now
   const countdownDate = new Date();
@@ -259,10 +260,10 @@ const Pricing = () => {
                     </Badge>
                   </div>
                   
-                  {/* Main Price */}
+                  {/* Main Price (base price, excl. GST) */}
                   <div className="flex items-baseline justify-center gap-1">
                     <span className="text-2xl font-medium text-muted-foreground">{symbol}</span>
-                    <span className="text-6xl font-bold text-foreground">{isLoading ? "..." : Math.round(totalPrice).toLocaleString("en-IN")}</span>
+                    <span className="text-6xl font-bold text-foreground">{isLoading ? "..." : Math.round(basePrice).toLocaleString("en-IN")}</span>
                   </div>
                   <p className="text-muted-foreground mt-1">per year</p>
                 </div>
@@ -353,7 +354,7 @@ const Pricing = () => {
           {/* Right Column - Calculator & Social Proof */}
           <div className={`space-y-6 opacity-0 ${isVisible ? "animate-fade-in" : ""}`} style={{ animationDelay: "0.4s" }}>
             {/* Investment Calculator Widget */}
-            <InvestmentCalculator investmentAmount={Math.round(totalPrice)} />
+            <InvestmentCalculator investmentAmount={Math.round(basePrice)} />
 
             {/* Mini Testimonials */}
             <div className="space-y-4">

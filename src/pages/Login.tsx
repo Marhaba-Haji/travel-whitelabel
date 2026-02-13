@@ -1,6 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
 import { ArrowLeft, Shield, Users, TrendingUp } from "lucide-react";
-import LogoAnimated from "@/components/landing/LogoAnimated";
 import LoginForm from "@/components/auth/LoginForm";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useEffect } from "react";
@@ -55,9 +54,19 @@ const Login = () => {
               Back to home
             </Link>
 
-            {/* Logo */}
+            {/* Logo - matches header */}
             <div className="mb-8">
-              <LogoAnimated size="lg" />
+              <Link to="/" className="flex items-center gap-2.5">
+                <img
+                  src="/assets/marhaba-dmc-logo.png"
+                  alt="marhabaDMC"
+                  className="h-10 w-auto object-contain flex-shrink-0"
+                />
+                <span className="text-2xl leading-none">
+                  <span className="font-marhaba text-foreground">marhaba</span>
+                  <span className="font-dmc font-semibold text-primary">DMC</span>
+                </span>
+              </Link>
             </div>
 
             {/* Form Card */}
