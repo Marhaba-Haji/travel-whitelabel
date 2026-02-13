@@ -189,11 +189,18 @@ const SignupForm = ({ amount = SIGNUP_AMOUNT, totalPrice = 18799, symbol = "₹"
     return cleaned;
   };
 
+  const getApiBase = () => {
+    const envUrl = import.meta.env.VITE_API_URL;
+    if (envUrl) return envUrl.replace(/\/$/, "");
+    if (import.meta.env.DEV) return "http://localhost:3001";
+    return "";
+  };
+
   const onSubmit = async (data: SignupFormValues) => {
     setIsLoading(true);
 
     try {
-      const apiBase = import.meta.env.VITE_API_URL ?? "";
+      const apiBase = getApiBase();
       const res = await fetch(`${apiBase}/api/create-payment`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -208,14 +215,19 @@ const SignupForm = ({ amount = SIGNUP_AMOUNT, totalPrice = 18799, symbol = "₹"
         }),
       });
 
-      let json: { action?: string; params?: Record<string, string>; demo?: boolean; redirect?: string; error?: string; message?: string };
+      let json: { action?: string; params?: Record<string, string>; demo?: boolean; redirect?: string; error?: string; message?: string } = {};
       try {
-        json = await res.json();
+        json = (await res.json()) as typeof json;
       } catch {
-        json = {};
+        toast({
+          variant: "destructive",
+          title: "Invalid server response",
+          description: "Could not process payment setup. Ensure the API server is running (npm run server).",
+        });
+        return;
       }
 
-      // Demo mode when PayU not configured
+      // Demo mode when PayU not configured - redirect to success without payment
       if (json.demo && json.redirect) {
         sessionStorage.setItem(PAYMENT_LINK_KEY, JSON.stringify(data));
         window.location.href = json.redirect;
@@ -242,8 +254,8 @@ const SignupForm = ({ amount = SIGNUP_AMOUNT, totalPrice = 18799, symbol = "₹"
       if (!json.action || !json.params) {
         toast({
           variant: "destructive",
-          title: "Invalid response",
-          description: "Please try again or contact support.",
+          title: "Payment gateway not available",
+          description: json.error || json.message || "PayU may not be configured. Add PAYU_KEY and PAYU_SALT to server/.env",
         });
         return;
       }
@@ -263,10 +275,13 @@ const SignupForm = ({ amount = SIGNUP_AMOUNT, totalPrice = 18799, symbol = "₹"
       });
       document.body.appendChild(form);
       form.submit();
-    } catch {
-      // API unreachable (server not running) - demo redirect
-      sessionStorage.setItem(PAYMENT_LINK_KEY, JSON.stringify(data));
-      window.location.href = "/signup-success";
+    } catch (err) {
+      console.error("Payment setup error:", err);
+      toast({
+        variant: "destructive",
+        title: "Cannot reach payment server",
+        description: "Start the API server with 'npm run server' or 'npm run dev:all' to enable payment collection.",
+      });
     } finally {
       setIsLoading(false);
     }
