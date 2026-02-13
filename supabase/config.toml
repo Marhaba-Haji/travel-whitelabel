@@ -1,1 +1,4 @@
 project_id = "kofijegdzeshitunwddn"
+
+[functions.validate-coupon]
+verify_jwt = false
