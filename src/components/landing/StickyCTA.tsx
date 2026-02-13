@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, X } from "lucide-react";
+import { usePricing } from "@/hooks/usePricing";
 
 const StickyCTA = () => {
+  const { formattedPrice, isLoading } = usePricing();
   const [isVisible, setIsVisible] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
 
@@ -41,7 +43,7 @@ const StickyCTA = () => {
               Ready to launch your travel portal?
             </p>
             <p className="text-xs text-muted-foreground">
-              Starting at just ₹18,799/year
+              Starting at just {isLoading ? "..." : `${formattedPrice}/year`}
             </p>
           </div>
 
