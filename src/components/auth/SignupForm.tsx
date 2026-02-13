@@ -17,6 +17,8 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { Eye, EyeOff, Loader2, CheckCircle2, CreditCard, Ticket } from "lucide-react";
 import { Link } from "react-router-dom";
+import OrderSummary from "./OrderSummary";
+import { usePricing } from "@/hooks/usePricing";
 
 // Phone validation for Indian format: +91XXXXXXXXXX or 10 digits
 const phoneRegex = /^(\+91[6-9]\d{9}|[6-9]\d{9})$/;
@@ -86,6 +88,9 @@ const SignupForm = ({ amount = SIGNUP_AMOUNT, totalPrice = 18799, symbol = "₹"
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [couponValidation, setCouponValidation] = useState<CouponValidation>({ status: "idle" });
+  const [showSummary, setShowSummary] = useState(false);
+  const [validatedData, setValidatedData] = useState<SignupFormValues | null>(null);
+  const { basePrice, gstPercent } = usePricing();
 
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
@@ -195,6 +200,12 @@ const SignupForm = ({ amount = SIGNUP_AMOUNT, totalPrice = 18799, symbol = "₹"
   };
 
   const onSubmit = async (data: SignupFormValues) => {
+    setValidatedData(data);
+    setShowSummary(true);
+  };
+
+  const proceedToPayment = async () => {
+    if (!validatedData) return;
     setIsLoading(true);
 
     try {
@@ -203,13 +214,13 @@ const SignupForm = ({ amount = SIGNUP_AMOUNT, totalPrice = 18799, symbol = "₹"
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          fullName: data.fullName,
-          email: data.email,
-          phone: data.phone,
-          city: data.city,
-          couponCode: data.couponCode?.trim() || undefined,
-          password: data.password,
-          termsAccepted: data.termsAccepted,
+          fullName: validatedData.fullName,
+          email: validatedData.email,
+          phone: validatedData.phone,
+          city: validatedData.city,
+          couponCode: validatedData.couponCode?.trim() || undefined,
+          password: validatedData.password,
+          termsAccepted: validatedData.termsAccepted,
         }),
       });
 
@@ -220,22 +231,20 @@ const SignupForm = ({ amount = SIGNUP_AMOUNT, totalPrice = 18799, symbol = "₹"
         toast({
           variant: "destructive",
           title: "Invalid server response",
-          description: "Could not process payment setup. Ensure the API server is running (npm run server).",
+          description: "Could not process payment setup. Please try again.",
         });
         return;
       }
 
-      // Demo mode when PayU not configured - redirect to success without payment
       if (json.demo && json.redirect) {
-        sessionStorage.setItem(PAYMENT_LINK_KEY, JSON.stringify(data));
+        sessionStorage.setItem(PAYMENT_LINK_KEY, JSON.stringify(validatedData));
         window.location.href = json.redirect;
         return;
       }
 
       if (!res.ok) {
-        // Fallback to demo when server unreachable or returns 5xx (e.g. PayU not configured)
         if (res.status >= 500 || res.status === 0) {
-          sessionStorage.setItem(PAYMENT_LINK_KEY, JSON.stringify(data));
+          sessionStorage.setItem(PAYMENT_LINK_KEY, JSON.stringify(validatedData));
           window.location.href = "/signup-success";
           return;
         }
@@ -247,43 +256,65 @@ const SignupForm = ({ amount = SIGNUP_AMOUNT, totalPrice = 18799, symbol = "₹"
         return;
       }
 
-      sessionStorage.setItem(PAYMENT_LINK_KEY, JSON.stringify(data));
+      sessionStorage.setItem(PAYMENT_LINK_KEY, JSON.stringify(validatedData));
 
       if (!json.action || !json.params) {
         toast({
           variant: "destructive",
           title: "Payment gateway not available",
-          description: json.error || json.message || "PayU may not be configured. Add PAYU_KEY and PAYU_SALT to server/.env",
+          description: json.error || json.message || "PayU may not be configured.",
         });
         return;
       }
 
-      // Submit form to PayU gateway
-      const form = document.createElement("form");
-      form.method = "POST";
-      form.action = json.action;
+      const payForm = document.createElement("form");
+      payForm.method = "POST";
+      payForm.action = json.action;
       Object.entries(json.params).forEach(([key, value]) => {
         if (value != null && value !== "") {
           const input = document.createElement("input");
           input.type = "hidden";
           input.name = key;
           input.value = String(value);
-          form.appendChild(input);
+          payForm.appendChild(input);
         }
       });
-      document.body.appendChild(form);
-      form.submit();
+      document.body.appendChild(payForm);
+      payForm.submit();
     } catch (err) {
       console.error("Payment setup error:", err);
       toast({
         variant: "destructive",
         title: "Cannot reach payment server",
-        description: "Start the API server with 'npm run server' or 'npm run dev:all' to enable payment collection.",
+        description: "Please try again later or contact support.",
       });
     } finally {
       setIsLoading(false);
     }
   };
+
+  if (showSummary && validatedData) {
+    return (
+      <OrderSummary
+        fullName={validatedData.fullName}
+        email={validatedData.email}
+        phone={validatedData.phone}
+        city={validatedData.city}
+        couponCode={validatedData.couponCode?.trim().toUpperCase()}
+        basePrice={basePrice}
+        gstPercent={gstPercent}
+        symbol={symbol}
+        discount={
+          couponValidation.status === "valid"
+            ? { type: couponValidation.discount_type, value: couponValidation.discount_value }
+            : null
+        }
+        onConfirm={proceedToPayment}
+        onBack={() => setShowSummary(false)}
+        isLoading={isLoading}
+      />
+    );
+  }
 
   return (
     <Form {...form}>
@@ -538,17 +569,8 @@ const SignupForm = ({ amount = SIGNUP_AMOUNT, totalPrice = 18799, symbol = "₹"
           className="w-full h-11 text-base font-semibold bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg"
           disabled={isLoading}
         >
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Processing to payment...
-            </>
-          ) : (
-            <>
-              <CreditCard className="mr-2 h-4 w-4" />
-              Register & Pay {displayAmount ?? amount}
-            </>
-          )}
+          <CreditCard className="mr-2 h-4 w-4" />
+          Review Order & Pay {displayAmount ?? amount}
         </Button>
 
         <div className="text-center text-sm text-muted-foreground">
