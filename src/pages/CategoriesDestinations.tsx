@@ -266,12 +266,12 @@ const CategoriesDestinations = () => {
 
             <div className="max-w-5xl mx-auto">
               <Tabs value={activeCategoryTab} onValueChange={setActiveCategoryTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 mb-8 bg-muted/50 p-1.5 rounded-lg">
+                <TabsList className="h-auto min-h-12 grid w-full grid-cols-2 lg:grid-cols-4 mb-8 bg-muted/50 p-1.5 rounded-lg">
                   {categories.map((category) => (
                     <TabsTrigger 
                       key={category.id} 
                       value={category.id}
-                      className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all group"
+                      className="flex items-center justify-center gap-2 min-h-10 min-w-0 py-2.5 px-3 data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all group"
                     >
                       <category.icon className="h-4 w-4 group-hover:scale-110 transition-transform" />
                       <span className="hidden sm:inline">{category.name}</span>
