@@ -7,11 +7,20 @@ import { Phone, Mail, MapPin, MessageCircle, Shield, Lock, CreditCard, Facebook,
 import { useState } from "react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useContactSettings } from "@/hooks/useContactSettings";
+import { useSocialSettings } from "@/hooks/useSocialSettings";
+
+const socialIcons: Record<string, React.ComponentType<{ className?: string }>> = {
+  facebook: Facebook,
+  instagram: Instagram,
+  linkedin: Linkedin,
+  x: Twitter,
+};
 
 const Footer = () => {
   const { ref: formRef, isVisible: formVisible } = useScrollAnimation();
   const { ref: infoRef, isVisible: infoVisible } = useScrollAnimation();
   const { whatsappUrl, phone, email, address } = useContactSettings();
+  const { socialLinks } = useSocialSettings();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -115,12 +124,6 @@ const Footer = () => {
     { name: "FAQ", href: "#faq" },
   ];
 
-  const socialLinks = [
-    { icon: Facebook, href: "https://facebook.com/marhabaDMC", label: "Facebook" },
-    { icon: Twitter, href: "https://twitter.com/marhabaDMC", label: "Twitter" },
-    { icon: Instagram, href: "https://instagram.com/marhabaDMC", label: "Instagram" },
-    { icon: Linkedin, href: "https://linkedin.com/company/marhabaDMC", label: "LinkedIn" },
-  ];
 
   const scrollToSection = (href: string) => {
     const element = document.querySelector(href);
@@ -313,23 +316,28 @@ const Footer = () => {
               </div>
 
               {/* Social Links */}
-              <div>
-                <h4 className="font-semibold mb-4">Follow Us</h4>
-                <div className="flex gap-3">
-                  {socialLinks.map((social) => (
-                    <a
-                      key={social.label}
-                      href={social.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-10 h-10 rounded-full bg-background/10 flex items-center justify-center text-background/70 hover:bg-background/20 hover:text-background transition-all"
-                      aria-label={social.label}
-                    >
-                      <social.icon className="h-5 w-5" />
-                    </a>
-                  ))}
+              {socialLinks.length > 0 && (
+                <div>
+                  <h4 className="font-semibold mb-4">Follow Us</h4>
+                  <div className="flex gap-3">
+                    {socialLinks.map((social) => {
+                      const Icon = socialIcons[social.platform];
+                      return Icon ? (
+                        <a
+                          key={social.platform}
+                          href={social.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-10 h-10 rounded-full bg-background/10 flex items-center justify-center text-background/70 hover:bg-background/20 hover:text-background transition-all"
+                          aria-label={social.label}
+                        >
+                          <Icon className="h-5 w-5" />
+                        </a>
+                      ) : null;
+                    })}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
