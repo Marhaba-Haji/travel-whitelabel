@@ -156,7 +156,10 @@ app.post("/api/create-payment", async (req, res) => {
 
       if (regErr) {
         console.error("Registration insert error:", regErr);
-        return res.status(500).json({ error: "Registration failed. Please try again.", message: regErr.message });
+        const msg = regErr.code === "23505"
+          ? "An account with this email already exists."
+          : "Registration failed. Please try again.";
+        return res.status(regErr.code === "23505" ? 400 : 500).json({ error: "Registration failed", message: msg });
       }
       registrationId = reg?.id;
     }
@@ -261,7 +264,7 @@ app.post("/api/create-payment", async (req, res) => {
     console.error("create-payment error:", err);
     res.status(500).json({
       error: "Server error",
-      message: err?.message || "Please try again.",
+      message: "Please try again later.",
     });
   }
 });

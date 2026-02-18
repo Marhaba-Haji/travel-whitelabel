@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import bcrypt from "https://esm.sh/bcryptjs@2.4.3";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -46,12 +47,7 @@ async function generatePayUHash(
 }
 
 async function hashPassword(password: string): Promise<string> {
-  // Simple SHA-256 hash for password storage (bcrypt not available in Deno edge)
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  return bcrypt.hashSync(String(password), 10);
 }
 
 Deno.serve(async (req) => {
@@ -107,19 +103,23 @@ Deno.serve(async (req) => {
 
     if (regErr) {
       console.error("Registration insert error:", regErr);
+      const userMessage = regErr.code === "23505"
+        ? "An account with this email already exists."
+        : "Registration failed. Please try again.";
       return new Response(
-        JSON.stringify({ error: "Registration failed. Please try again.", message: regErr.message }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ error: "Registration failed", message: userMessage }),
+        { status: regErr.code === "23505" ? 400 : 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     const registrationId = reg?.id;
 
-    // If PayU not configured, demo mode
+    // If PayU not configured, return error in production
     if (!PAYU_KEY || !PAYU_SALT) {
+      console.error("PAYU_KEY or PAYU_SALT not configured");
       return new Response(
-        JSON.stringify({ demo: true, redirect: "/signup-success" }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ error: "Payment system unavailable", message: "Service temporarily unavailable. Please try again later." }),
+        { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
@@ -214,7 +214,7 @@ Deno.serve(async (req) => {
   } catch (err) {
     console.error("create-payment error:", err);
     return new Response(
-      JSON.stringify({ error: "Server error", message: (err as Error).message }),
+      JSON.stringify({ error: "Server error", message: "Please try again later." }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
