@@ -1,30 +1,33 @@
-import Header from "@/components/landing/Header";
-import Hero from "@/components/landing/Hero";
-import TrustedBy from "@/components/landing/TrustedBy";
-import Stats from "@/components/landing/Stats";
-import Features from "@/components/landing/Features";
-import CompetitiveEdge from "@/components/landing/CompetitiveEdge";
-import ProductShowcase from "@/components/landing/ProductShowcase";
-import Portals from "@/components/landing/Portals";
-import HowItWorks from "@/components/landing/HowItWorks";
-import Pricing from "@/components/landing/Pricing";
-import Testimonials from "@/components/landing/Testimonials";
-import FAQ from "@/components/landing/FAQ";
-import Footer from "@/components/landing/Footer";
-import FloatingWhatsApp from "@/components/landing/FloatingWhatsApp";
-import StickyCTA from "@/components/landing/StickyCTA";
+import { lazy, Suspense } from "react";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
+
+// Above-the-fold: load eagerly
+import Header from "@/components/landing/Header";
+import Hero from "@/components/landing/Hero";
+
+// Below-the-fold: lazy load to reduce initial JS bundle and improve TTI
+const TrustedBy = lazy(() => import("@/components/landing/TrustedBy"));
+const Stats = lazy(() => import("@/components/landing/Stats"));
+const Features = lazy(() => import("@/components/landing/Features"));
+const CompetitiveEdge = lazy(() => import("@/components/landing/CompetitiveEdge"));
+const ProductShowcase = lazy(() => import("@/components/landing/ProductShowcase"));
+const Portals = lazy(() => import("@/components/landing/Portals"));
+const HowItWorks = lazy(() => import("@/components/landing/HowItWorks"));
+const Pricing = lazy(() => import("@/components/landing/Pricing"));
+const Testimonials = lazy(() => import("@/components/landing/Testimonials"));
+const FAQ = lazy(() => import("@/components/landing/FAQ"));
+const Footer = lazy(() => import("@/components/landing/Footer"));
+const FloatingWhatsApp = lazy(() => import("@/components/landing/FloatingWhatsApp"));
+const StickyCTA = lazy(() => import("@/components/landing/StickyCTA"));
 
 const Index = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // Handle hash scrolling when navigating to home page with hash
     if (location.hash) {
       const element = document.querySelector(location.hash);
       if (element) {
-        // Small delay to ensure page is rendered
         setTimeout(() => {
           element.scrollIntoView({ behavior: "smooth" });
         }, 100);
@@ -37,22 +40,27 @@ const Index = () => {
       <Header />
       <main>
         <Hero />
-        <TrustedBy />
-        <Stats />
-        <Features />
-        <CompetitiveEdge />
-        <ProductShowcase />
-        <Portals />
-        <HowItWorks />
-        <Pricing />
-        <Testimonials />
-        <FAQ />
+        <Suspense fallback={null}>
+          <TrustedBy />
+          <Stats />
+          <Features />
+          <CompetitiveEdge />
+          <ProductShowcase />
+          <Portals />
+          <HowItWorks />
+          <Pricing />
+          <Testimonials />
+          <FAQ />
+        </Suspense>
       </main>
-      <Footer />
-      <FloatingWhatsApp />
-      <StickyCTA />
+      <Suspense fallback={null}>
+        <Footer />
+        <FloatingWhatsApp />
+        <StickyCTA />
+      </Suspense>
     </div>
   );
 };
 
 export default Index;
+
