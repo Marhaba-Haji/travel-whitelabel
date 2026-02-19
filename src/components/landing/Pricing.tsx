@@ -1,384 +1,303 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Check, 
-  ArrowRight, 
-  Shield, 
-  CreditCard, 
-  Sparkles, 
-  Flame,
-  Coffee,
+import {
+  Check,
+  Shield,
+  CreditCard,
   TrendingUp,
-  Users,
   Star,
-  Rocket,
-  GraduationCap,
-  Headphones,
-  BadgeCheck,
-  Clock,
-  Zap
 } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import { usePricing } from "@/hooks/usePricing";
 import { useContactSettings } from "@/hooks/useContactSettings";
-import AnimatedCounter from "@/components/AnimatedCounter";
-import CountdownTimer from "@/components/CountdownTimer";
-import InvestmentCalculator from "@/components/InvestmentCalculator";
+
+const coreInfrastructure = [
+  "Flight API",
+  "Hotel API",
+  "Visa API",
+  "Activities API",
+  "Hajj Packages",
+  "Umrah Packages",
+  "Holiday Packages",
+  "Car Transport at Destination",
+  "Guide Module",
+  "Group Flights Module",
+  "Contracted Rates Access",
+  "Admin Portal",
+  "B2C Direct Booking Website",
+  "Halal Travel Content Library",
+  "Add Your Own Content",
+];
+
+const growthExtras = [
+  "AI Sales Enquiry Handling Agent",
+  "Supplier Portal",
+  "B2B Sub-Agent Portal",
+  "Free .in Domain (1 Year)",
+];
+
+const authorityExtras = [
+  "Google Business Profile Setup",
+  "LinkedIn Business Page Setup",
+  "Instagram Business Setup",
+  "Facebook Business Setup",
+  "X Page Setup",
+  "Professional Logo Design",
+  "Social Media Banners",
+];
 
 const Pricing = () => {
   const { ref, isVisible } = useScrollAnimation();
-  const { basePrice, symbol, isLoading } = usePricing();
   const { whatsappUrl } = useContactSettings();
-  const pricePerDay = Math.round(basePrice / 365);
-  const originalPrice = Math.round(basePrice / 0.38);
-  const discountPercent = Math.round(((originalPrice - basePrice) / originalPrice) * 100);
-
-  // Set countdown to 3 days from now
-  const countdownDate = new Date();
-  countdownDate.setDate(countdownDate.getDate() + 3);
-
-  const techStackFeatures = [
-    "Flight API Integration",
-    "Hotel API Integration", 
-    "Exclusive Contracted Hotel Rates",
-    "Special Flight Inventory Access",
-    "Visa API Integration",
-    "Activities API Integration",
-    "4 White-label Portals",
-    "Custom Domain & Branding",
-  ];
-
-  const trainingFeatures = [
-    "Travel Industry Masterclass",
-    "Platform Training Videos",
-    "Sales & Marketing Training",
-    "Weekly Live Q&A Sessions",
-  ];
-
-  const supportFeatures = [
-    "6 days Technical Support",
-    "Private Community Access",
-    "Monthly Success Calls",
-    "Top Performer Rewards",
-  ];
-
-  const earningTiers = [
-    { level: "Beginner (Part-time)", amount: "₹20,000", highlight: false },
-    { level: "Active Agent", amount: "₹50,000", highlight: true },
-    { level: "Power Seller", amount: "₹2,00,000", highlight: false, badge: "Top Earner" },
-  ];
-
-  const testimonials = [
-    {
-      name: "Ahmed Siddiqui",
-      city: "Jaipur",
-      earnings: "₹1.5L in 2 months",
-      quote: "Best investment I ever made. The training alone is worth 10x the price!",
-      avatar: "AS",
-    },
-    {
-      name: "Ayesha Khan",
-      city: "Ahmedabad", 
-      earnings: "₹80K/month",
-      quote: "Started part-time, now it's my full-time business. Life-changing!",
-      avatar: "AK",
-    },
-    {
-      name: "Mohammed Ali",
-      city: "Delhi",
-      earnings: "₹2L+ monthly",
-      quote: "The support team is incredible. They helped me close my first 50 bookings.",
-      avatar: "MA",
-    },
-  ];
-
-  const scrollToContact = () => {
-    const element = document.querySelector("#contact");
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
-  };
 
   return (
     <section id="pricing" className="py-20 bg-muted/30 relative overflow-hidden">
       {/* Background decoration */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl" />
-      
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+
       <div className="container mx-auto px-4 relative">
-        {/* Header */}
+
+        {/* ── 1. Section Header ── */}
         <div
           ref={ref}
           className={`text-center mb-12 opacity-0 ${isVisible ? "animate-fade-in" : ""}`}
         >
           <Badge className="mb-4 bg-primary/10 text-primary hover:bg-primary/20 border-0">
-            Your Investment
+            Subscription Plans
           </Badge>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mt-2 mb-4">
-            Less Than a Cup of{" "}
-            <span className="text-primary">Coffee Per Day</span>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mt-2 mb-4 max-w-3xl mx-auto leading-tight">
+            Launch Your Own Travel Business — With Real Infrastructure
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            One small investment. Unlimited earning potential. Your future starts here.
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-3">
+            MarhabaDMC provides the complete operating layer for halal travel businesses — from global APIs and contracted rates to structured destination management and distribution tools.
+          </p>
+          <p className="text-sm text-muted-foreground max-w-xl mx-auto">
+            Every plan includes our core travel infrastructure. You simply decide how far you want to scale.
           </p>
         </div>
 
-        {/* Countdown Timer */}
-        <div className={`flex justify-center mb-8 opacity-0 ${isVisible ? "animate-fade-in" : ""}`} style={{ animationDelay: "0.1s" }}>
-          <div className="bg-destructive/10 border border-destructive/20 rounded-full px-6 py-3 flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Clock className="w-5 h-5 text-destructive animate-pulse" />
-              <span className="text-sm font-medium text-destructive">Special pricing ends in:</span>
-            </div>
-            <CountdownTimer targetDate={countdownDate} />
-          </div>
-        </div>
-
-        <div className="grid lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {/* Left Column - Value Stack */}
-          <div className={`space-y-6 opacity-0 ${isVisible ? "animate-fade-in" : ""}`} style={{ animationDelay: "0.2s" }}>
-            {/* Tech Stack */}
-            <div className="bg-card border border-border rounded-2xl p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <Rocket className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-foreground">Your Tech Stack</h3>
-                  <p className="text-xs text-muted-foreground">Worth ₹2,00,000+</p>
-                </div>
-              </div>
-              <ul className="space-y-2">
-                {techStackFeatures.map((feature) => (
-                  <li key={feature} className="flex items-center gap-2 text-sm">
-                    <Check className="h-4 w-4 text-primary flex-shrink-0" />
-                    <span className="text-muted-foreground">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Training Academy */}
-            <div className="bg-card border border-border rounded-2xl p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <GraduationCap className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-foreground">Training Academy</h3>
-                  <p className="text-xs text-muted-foreground">Worth ₹50,000+</p>
-                </div>
-              </div>
-              <ul className="space-y-2">
-                {trainingFeatures.map((feature) => (
-                  <li key={feature} className="flex items-center gap-2 text-sm">
-                    <Check className="h-4 w-4 text-primary flex-shrink-0" />
-                    <span className="text-muted-foreground">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Support System */}
-            <div className="bg-card border border-border rounded-2xl p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <Headphones className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-foreground">Support System</h3>
-                  <p className="text-xs text-muted-foreground">Priceless</p>
-                </div>
-              </div>
-              <ul className="space-y-2">
-                {supportFeatures.map((feature) => (
-                  <li key={feature} className="flex items-center gap-2 text-sm">
-                    <Check className="h-4 w-4 text-primary flex-shrink-0" />
-                    <span className="text-muted-foreground">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Optional Add-ons Card */}
-            <div className="bg-gradient-to-br from-primary/5 to-accent/30 border border-primary/20 rounded-2xl p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <Sparkles className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-foreground">Power-Up Add-ons</h3>
-                  <p className="text-xs text-muted-foreground">Supercharge your sales</p>
-                </div>
-              </div>
-              <div className="bg-card rounded-xl p-4 border border-border">
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <Users className="w-4 h-4 text-primary" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-foreground text-sm">AI Sales Assistant</h4>
-                    <p className="text-xs text-muted-foreground mb-2">24/7 multilingual chatbot that converts visitors while you sleep</p>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">From ₹6/min</Badge>
-                      <span className="text-xs text-muted-foreground">Pay per use</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Center Column - Main Pricing Card */}
-          <div
-            className={`opacity-0 ${isVisible ? "animate-scale-in" : ""}`}
-            style={{ animationDelay: "0.3s" }}
-          >
-            <Card className="relative border-2 border-primary shadow-2xl animate-glow-pulse h-full">
-              {/* Hot Badge */}
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                <Badge className="bg-gradient-to-r from-destructive to-destructive/80 text-destructive-foreground px-4 py-1.5 text-sm shadow-lg">
-                  <Flame className="w-3 h-3 mr-1" />
-                  Early Bird Offer
-                </Badge>
-              </div>
-
-              {/* Spots Remaining */}
-              <div className="absolute -top-3 -right-3">
-                <div className="bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full animate-bounce-subtle">
-                  Only 23 spots left!
-                </div>
-              </div>
-
-              <CardHeader className="text-center pt-10 pb-4">
-                <div className="mb-4">
-                  {/* Strikethrough Original Price */}
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <span className="text-lg text-muted-foreground line-through">{symbol}{originalPrice.toLocaleString("en-IN")}</span>
-                    <Badge variant="secondary" className="bg-primary/10 text-primary">
-                      {discountPercent}% OFF
-                    </Badge>
-                  </div>
-                  
-                  {/* Main Price (base price, excl. GST) */}
-                  <div className="flex items-baseline justify-center gap-1">
-                    <span className="text-2xl font-medium text-muted-foreground">{symbol}</span>
-                    <span className="text-6xl font-bold text-foreground">{isLoading ? "..." : Math.round(basePrice).toLocaleString("en-IN")}</span>
-                  </div>
-                  <p className="text-muted-foreground mt-1">per year</p>
-                </div>
-
-                {/* Daily Breakdown */}
-                <div className="bg-accent/50 rounded-xl p-4 border border-primary/20">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <Coffee className="w-5 h-5 text-primary" />
-                    <span className="text-2xl font-bold text-primary">Just {symbol}{pricePerDay.toLocaleString("en-IN")}/day</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Less than your daily coffee • Less than a movie ticket
-                  </p>
-                </div>
-              </CardHeader>
-
-              <CardContent className="pt-4">
-                {/* ROI Highlight */}
-                <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 mb-6">
-                  <div className="flex items-center gap-2 mb-2">
-                    <TrendingUp className="w-5 h-5 text-primary" />
-                    <span className="font-semibold text-foreground">Your investment pays for itself</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    in just <span className="text-primary font-bold">4-5 holiday bookings!</span>
-                  </p>
-                </div>
-
-              </CardContent>
-
-              <CardFooter className="flex flex-col gap-4 pt-4">
-                <Button size="lg" className="w-full text-lg group relative overflow-hidden" asChild>
-                  <a href="/signup">
-                    <Zap className="mr-2 h-5 w-5" />
-                    Start My Journey
-                    <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                  </a>
-                </Button>
-                <p className="text-xs text-muted-foreground text-center">
-                  Setup takes 10 minutes. Start earning tomorrow.
-                </p>
-
-                {/* Payment Icons */}
-                <div className="flex items-center justify-center gap-3 pt-2">
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <CreditCard className="w-4 h-4" />
-                    <span>Secure</span>
-                  </div>
-                  <div className="h-4 w-px bg-border" />
-                  <div className="flex items-center gap-2">
-                    <div className="bg-card border border-border rounded px-2 py-1">
-                      <span className="text-[10px] font-bold text-primary tracking-wider">VISA</span>
-                    </div>
-                    <div className="bg-card border border-border rounded px-2 py-1 flex items-center gap-0.5">
-                      <div className="w-2.5 h-2.5 rounded-full bg-destructive/80" />
-                      <div className="w-2.5 h-2.5 rounded-full bg-primary/60 -ml-1" />
-                    </div>
-                    <div className="bg-card border border-border rounded px-2 py-1">
-                      <span className="text-[10px] font-bold text-foreground">UPI</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Trust Elements */}
-                <div className="pt-6 border-t border-border">
-                  <div className="flex items-center justify-center gap-6 flex-wrap mb-4">
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Shield className="w-4 h-4 text-primary" />
-                      <span className="text-sm">SSL Secured</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Check className="w-4 h-4 text-primary" />
-                      <span className="text-sm">No Hidden Fees</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <CreditCard className="w-4 h-4 text-primary" />
-                      <span className="text-sm">Secure Payments</span>
-                    </div>
-                  </div>
-                  <p className="text-muted-foreground text-sm text-center">
-                    Have questions? <a href={whatsappUrl} className="text-primary font-medium hover:underline">Talk to a success coach</a>
-                  </p>
-                </div>
-              </CardFooter>
-            </Card>
-          </div>
-
-          {/* Right Column - Calculator & Social Proof */}
-          <div className={`space-y-6 opacity-0 ${isVisible ? "animate-fade-in" : ""}`} style={{ animationDelay: "0.4s" }}>
-            {/* Investment Calculator Widget */}
-            <InvestmentCalculator investmentAmount={Math.round(basePrice)} />
-
-            {/* Mini Testimonials */}
-            <div className="space-y-4">
-              {testimonials.map((testimonial) => (
-                <div key={testimonial.name} className="bg-card border border-border rounded-xl p-4">
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-gold flex items-center justify-center text-sm font-bold text-primary-foreground flex-shrink-0">
-                      {testimonial.avatar}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-semibold text-foreground text-sm">{testimonial.name}</span>
-                        <BadgeCheck className="w-4 h-4 text-primary" />
-                      </div>
-                      <p className="text-xs text-muted-foreground mb-2">{testimonial.city} • <span className="text-gold font-semibold">{testimonial.earnings}</span></p>
-                      <p className="text-sm text-muted-foreground italic">"{testimonial.quote}"</p>
-                    </div>
-                  </div>
+        {/* ── 2. Core Infrastructure Block ── */}
+        <div className={`max-w-4xl mx-auto mb-14 opacity-0 ${isVisible ? "animate-fade-in" : ""}`} style={{ animationDelay: "0.1s" }}>
+          <div className="bg-card border border-border rounded-2xl p-8">
+            <h3 className="text-lg font-semibold text-foreground mb-6 text-center">
+              Core Infrastructure — Included in All Plans
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {coreInfrastructure.map((item) => (
+                <div key={item} className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                  <span className="text-sm text-muted-foreground">{item}</span>
                 </div>
               ))}
             </div>
-
           </div>
         </div>
+
+        {/* ── 3. Three-Plan Comparison Grid ── */}
+        <div className={`max-w-5xl mx-auto mb-14 opacity-0 ${isVisible ? "animate-fade-in" : ""}`} style={{ animationDelay: "0.2s" }}>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+
+            {/* Launch Plan */}
+            <div className="bg-card border border-border rounded-2xl p-6 flex flex-col h-full">
+              <div className="mb-6">
+                <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-2">Launch Plan</p>
+                <div className="flex items-baseline gap-1 mb-1">
+                  <span className="text-3xl font-bold text-foreground">₹24,999</span>
+                </div>
+                <p className="text-xs text-muted-foreground">per year + GST</p>
+              </div>
+
+              <div className="border-t border-border pt-5 mb-6 flex-1">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Includes</p>
+                <ul className="space-y-2">
+                  {coreInfrastructure.map((item) => (
+                    <li key={item} className="flex items-start gap-2 text-sm">
+                      <Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                      <span className="text-muted-foreground">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <Button variant="outline" className="w-full" asChild>
+                <a href="/signup">Get Started</a>
+              </Button>
+            </div>
+
+            {/* Growth Plan — Most Popular */}
+            <div className="relative md:scale-[1.03] flex flex-col">
+              {/* Badge above card */}
+              <div className="flex justify-center mb-3">
+                <Badge className="bg-primary text-primary-foreground px-4 py-1 text-sm shadow-md">
+                  Most Popular
+                </Badge>
+              </div>
+
+              <div className="bg-card border-2 border-primary rounded-2xl p-6 flex flex-col shadow-2xl shadow-primary/20 flex-1">
+                <div className="mb-6">
+                  <p className="text-sm font-medium text-primary uppercase tracking-widest mb-2">Growth Plan</p>
+                  <div className="flex items-baseline gap-1 mb-1">
+                    <span className="text-3xl font-bold text-foreground">₹29,999</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">per year + GST</p>
+                </div>
+
+                <div className="border-t border-border pt-5 mb-6 flex-1">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Includes All Core Infrastructure</p>
+                  <ul className="space-y-2 mb-5">
+                    {coreInfrastructure.map((item) => (
+                      <li key={item} className="flex items-start gap-2 text-sm">
+                        <Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                        <span className="text-muted-foreground">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Also Includes</p>
+                  <ul className="space-y-2">
+                    {growthExtras.map((item) => (
+                      <li key={item} className="flex items-start gap-2 text-sm">
+                        <Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                        <span className="text-foreground font-medium">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <Button className="w-full" asChild>
+                  <a href="/signup">Get Started</a>
+                </Button>
+              </div>
+            </div>
+
+            {/* Authority Plan */}
+            <div className="bg-card border border-border rounded-2xl p-6 flex flex-col h-full">
+              <div className="mb-2">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest">Authority Plan</p>
+                  <Badge variant="secondary" className="text-xs bg-muted text-muted-foreground border-0">
+                    Complete Brand Setup
+                  </Badge>
+                </div>
+                <div className="flex items-baseline gap-1 mb-1">
+                  <span className="text-3xl font-bold text-foreground">₹34,999</span>
+                </div>
+                <p className="text-xs text-muted-foreground mb-4">per year + GST</p>
+              </div>
+
+              <div className="border-t border-border pt-5 mb-6 flex-1">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Includes All Core Infrastructure</p>
+                <ul className="space-y-2 mb-4">
+                  {coreInfrastructure.map((item) => (
+                    <li key={item} className="flex items-start gap-2 text-sm">
+                      <Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                      <span className="text-muted-foreground">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Growth Additions</p>
+                <ul className="space-y-2 mb-4">
+                  {growthExtras.map((item) => (
+                    <li key={item} className="flex items-start gap-2 text-sm">
+                      <Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                      <span className="text-muted-foreground">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Also Includes</p>
+                <ul className="space-y-2">
+                  {authorityExtras.map((item) => (
+                    <li key={item} className="flex items-start gap-2 text-sm">
+                      <Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                      <span className="text-foreground font-medium">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <Button variant="outline" className="w-full" asChild>
+                <a href="/signup">Get Started</a>
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* ── 4. Persuasion Blocks ── */}
+        <div className={`max-w-4xl mx-auto mb-14 opacity-0 ${isVisible ? "animate-fade-in" : ""}`} style={{ animationDelay: "0.3s" }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <div className="bg-card border border-border rounded-2xl p-6 border-l-4 border-l-primary">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <TrendingUp className="w-5 h-5 text-primary" />
+                </div>
+                <h4 className="font-semibold text-foreground">Why Most Choose Growth Plan</h4>
+              </div>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                For just ₹5,000 more than Launch, you unlock AI automation, supplier control, agent distribution, and free domain — making it the smart scaling choice.
+              </p>
+            </div>
+
+            <div className="bg-card border border-border rounded-2xl p-6 border-l-4 border-l-primary">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <Star className="w-5 h-5 text-primary" />
+                </div>
+                <h4 className="font-semibold text-foreground">Why Authority Plan Wins Long-Term</h4>
+              </div>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                For another ₹5,000, you receive complete brand presence — logo, social media setup, and Google visibility structured from day one.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* ── 5. CTA Section ── */}
+        <div className={`text-center mb-14 opacity-0 ${isVisible ? "animate-fade-in" : ""}`} style={{ animationDelay: "0.4s" }}>
+          <h3 className="text-2xl font-bold text-foreground mb-6">Ready to Build Your Travel Business?</h3>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Button size="lg" asChild>
+              <a href="/signup">Get Started Now</a>
+            </Button>
+            <Button size="lg" variant="outline" asChild>
+              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">Talk to Our Team</a>
+            </Button>
+          </div>
+        </div>
+
+        {/* ── 6. Trust Bar ── */}
+        <div className={`opacity-0 ${isVisible ? "animate-fade-in" : ""}`} style={{ animationDelay: "0.5s" }}>
+          <div className="border-t border-border pt-8">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 flex-wrap mb-4">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Shield className="w-4 h-4 text-primary" />
+                <span className="text-sm">SSL Secured</span>
+              </div>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Check className="w-4 h-4 text-primary" />
+                <span className="text-sm">No Hidden Fees</span>
+              </div>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <CreditCard className="w-4 h-4 text-primary" />
+                <span className="text-sm">Secure Payments</span>
+              </div>
+            </div>
+            <div className="flex items-center justify-center gap-3">
+              <div className="bg-card border border-border rounded px-2 py-1">
+                <span className="text-[10px] font-bold text-primary tracking-wider">VISA</span>
+              </div>
+              <div className="bg-card border border-border rounded px-2 py-1 flex items-center gap-0.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-destructive/80" />
+                <div className="w-2.5 h-2.5 rounded-full bg-primary/60 -ml-1" />
+              </div>
+              <div className="bg-card border border-border rounded px-2 py-1">
+                <span className="text-[10px] font-bold text-foreground">UPI</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </section>
   );
