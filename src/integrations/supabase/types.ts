@@ -225,6 +225,7 @@ export type Database = {
           id: string
           password_hash: string | null
           phone: string
+          plan_name: string | null
           status: string
           terms_accepted: boolean
           updated_at: string
@@ -237,6 +238,7 @@ export type Database = {
           id?: string
           password_hash?: string | null
           phone: string
+          plan_name?: string | null
           status?: string
           terms_accepted?: boolean
           updated_at?: string
@@ -249,6 +251,7 @@ export type Database = {
           id?: string
           password_hash?: string | null
           phone?: string
+          plan_name?: string | null
           status?: string
           terms_accepted?: boolean
           updated_at?: string
