@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useContactSettings } from "@/hooks/useContactSettings";
+import { usePlans } from "@/hooks/usePlans";
 
 const coreInfrastructure = [
   "Flight API",
@@ -48,6 +49,10 @@ const authorityExtras = [
 const Pricing = () => {
   const { ref, isVisible } = useScrollAnimation();
   const { whatsappUrl } = useContactSettings();
+  const { pricing, gstPercent, symbol } = usePlans();
+
+  const fmt = (base: number) =>
+    `${symbol}${base.toLocaleString("en-IN")}`;
 
   return (
     <section id="pricing" className="py-20 bg-muted/30 relative overflow-hidden">
@@ -101,9 +106,9 @@ const Pricing = () => {
               <div className="mb-6">
                 <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-2">Launch Plan</p>
                 <div className="flex items-baseline gap-1 mb-1">
-                  <span className="text-3xl font-bold text-foreground">₹24,999</span>
+                  <span className="text-3xl font-bold text-foreground">{fmt(pricing.launch)}</span>
                 </div>
-                <p className="text-xs text-muted-foreground">per year + GST</p>
+                <p className="text-xs text-muted-foreground">per year + {gstPercent}% GST</p>
               </div>
 
               <div className="border-t border-border pt-5 mb-6 flex-1">
@@ -119,13 +124,12 @@ const Pricing = () => {
               </div>
 
               <Button variant="outline" className="w-full" asChild>
-                <a href="/signup">Get Started</a>
+                <a href="/signup?plan=launch">Get Started</a>
               </Button>
             </div>
 
             {/* Growth Plan — Most Popular */}
             <div className="relative md:scale-[1.03] flex flex-col">
-              {/* Badge above card */}
               <div className="flex justify-center mb-3">
                 <Badge className="bg-primary text-primary-foreground px-4 py-1 text-sm shadow-md">
                   Most Popular
@@ -136,9 +140,9 @@ const Pricing = () => {
                 <div className="mb-6">
                   <p className="text-sm font-medium text-primary uppercase tracking-widest mb-2">Growth Plan</p>
                   <div className="flex items-baseline gap-1 mb-1">
-                    <span className="text-3xl font-bold text-foreground">₹29,999</span>
+                    <span className="text-3xl font-bold text-foreground">{fmt(pricing.growth)}</span>
                   </div>
-                  <p className="text-xs text-muted-foreground">per year + GST</p>
+                  <p className="text-xs text-muted-foreground">per year + {gstPercent}% GST</p>
                 </div>
 
                 <div className="border-t border-border pt-5 mb-6 flex-1">
@@ -164,7 +168,7 @@ const Pricing = () => {
                 </div>
 
                 <Button className="w-full" asChild>
-                  <a href="/signup">Get Started</a>
+                  <a href="/signup?plan=growth">Get Started</a>
                 </Button>
               </div>
             </div>
@@ -179,9 +183,9 @@ const Pricing = () => {
                   </Badge>
                 </div>
                 <div className="flex items-baseline gap-1 mb-1">
-                  <span className="text-3xl font-bold text-foreground">₹34,999</span>
+                  <span className="text-3xl font-bold text-foreground">{fmt(pricing.authority)}</span>
                 </div>
-                <p className="text-xs text-muted-foreground mb-4">per year + GST</p>
+                <p className="text-xs text-muted-foreground mb-4">per year + {gstPercent}% GST</p>
               </div>
 
               <div className="border-t border-border pt-5 mb-6 flex-1">
@@ -217,7 +221,7 @@ const Pricing = () => {
               </div>
 
               <Button variant="outline" className="w-full" asChild>
-                <a href="/signup">Get Started</a>
+                <a href="/signup?plan=authority">Get Started</a>
               </Button>
             </div>
           </div>
@@ -235,7 +239,7 @@ const Pricing = () => {
                 <h4 className="font-semibold text-foreground">Why Most Choose Growth Plan</h4>
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                For just ₹5,000 more than Launch, you unlock AI automation, supplier control, agent distribution, and free domain — making it the smart scaling choice.
+                For just {symbol}{(pricing.growth - pricing.launch).toLocaleString("en-IN")} more than Launch, you unlock AI automation, supplier control, agent distribution, and free domain — making it the smart scaling choice.
               </p>
             </div>
 
@@ -247,7 +251,7 @@ const Pricing = () => {
                 <h4 className="font-semibold text-foreground">Why Authority Plan Wins Long-Term</h4>
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                For another ₹5,000, you receive complete brand presence — logo, social media setup, and Google visibility structured from day one.
+                For another {symbol}{(pricing.authority - pricing.growth).toLocaleString("en-IN")}, you receive complete brand presence — logo, social media setup, and Google visibility structured from day one.
               </p>
             </div>
           </div>

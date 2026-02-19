@@ -1,65 +1,32 @@
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Check } from "lucide-react";
 import SignupForm from "@/components/auth/SignupForm";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import { usePricing } from "@/hooks/usePricing";
+import { usePlans, PlanKey } from "@/hooks/usePlans";
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-// ── Plan definitions ──────────────────────────────────────────
-const PLANS = [
-  {
-    key: "launch",
-    name: "Launch Plan",
-    basePrice: 24999,
-    badge: null,
-    extras: [],
-    highlight: false,
-  },
-  {
-    key: "growth",
-    name: "Growth Plan",
-    basePrice: 29999,
-    badge: "Most Popular",
-    extras: [
-      "AI Sales Enquiry Handling Agent",
-      "Supplier Portal",
-      "B2B Sub-Agent Portal",
-      "Free .in Domain (1 Year)",
-    ],
-    highlight: true,
-  },
-  {
-    key: "authority",
-    name: "Authority Plan",
-    basePrice: 34999,
-    badge: "Complete Brand Setup",
-    extras: [
-      "Everything in Growth",
-      "Google & LinkedIn Setup",
-      "Instagram & Facebook Setup",
-      "Professional Logo Design",
-      "Social Media Banners",
-    ],
-    highlight: false,
-  },
-] as const;
-
-type PlanKey = (typeof PLANS)[number]["key"];
-
 const Signup = () => {
   const { ref: formRef, isVisible: formVisible } = useScrollAnimation();
   const { ref: plansRef, isVisible: plansVisible } = useScrollAnimation();
-  const { symbol, gstPercent } = usePricing();
-  const [selectedPlanKey, setSelectedPlanKey] = useState<PlanKey>("growth");
+  const { plans, gstPercent, symbol, isLoading } = usePlans();
+  const [searchParams] = useSearchParams();
+
+  // Pre-select plan from ?plan= URL param, default growth
+  const paramPlan = searchParams.get("plan") as PlanKey | null;
+  const initialKey: PlanKey =
+    paramPlan && ["launch", "growth", "authority"].includes(paramPlan)
+      ? paramPlan
+      : "growth";
+  const [selectedPlanKey, setSelectedPlanKey] = useState<PlanKey>(initialKey);
 
   // Scroll to top when component mounts
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
   }, []);
 
-  const selectedPlan = PLANS.find((p) => p.key === selectedPlanKey)!;
+  const selectedPlan = plans.find((p) => p.key === selectedPlanKey) ?? plans[1];
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-x-hidden bg-background">
@@ -107,7 +74,7 @@ const Signup = () => {
                 <p className="text-muted-foreground text-sm">
                   Subscribing to{" "}
                   <span className="font-semibold text-primary">{selectedPlan.name}</span>
-                  {" "}— ₹{selectedPlan.basePrice.toLocaleString("en-IN")} + GST/year
+                  {" "}— {symbol}{selectedPlan.basePrice.toLocaleString("en-IN")} + {gstPercent}% GST/year
                 </p>
               </div>
 
@@ -134,83 +101,91 @@ const Signup = () => {
                 </p>
               </div>
 
-              {PLANS.map((plan) => {
-                const isSelected = selectedPlanKey === plan.key;
-                return (
-                  <button
-                    key={plan.key}
-                    type="button"
-                    onClick={() => setSelectedPlanKey(plan.key)}
-                    className={cn(
-                      "w-full text-left rounded-2xl border-2 p-5 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary",
-                      isSelected
-                        ? "border-primary bg-primary/5 shadow-lg shadow-primary/10"
-                        : "border-border bg-card hover:border-primary/40"
-                    )}
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1 flex-wrap">
-                          <span className={cn(
-                            "font-semibold text-base",
-                            isSelected ? "text-primary" : "text-foreground"
-                          )}>
-                            {plan.name}
-                          </span>
-                          {plan.badge && (
-                            <Badge
-                              className={cn(
-                                "text-xs px-2 py-0.5 border-0",
-                                plan.highlight
-                                  ? "bg-primary text-primary-foreground"
-                                  : "bg-muted text-muted-foreground"
-                              )}
-                            >
-                              {plan.badge}
-                            </Badge>
+              {isLoading ? (
+                <div className="space-y-3">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="h-24 rounded-2xl bg-muted animate-pulse" />
+                  ))}
+                </div>
+              ) : (
+                plans.map((plan) => {
+                  const isSelected = selectedPlanKey === plan.key;
+                  return (
+                    <button
+                      key={plan.key}
+                      type="button"
+                      onClick={() => setSelectedPlanKey(plan.key)}
+                      className={cn(
+                        "w-full text-left rounded-2xl border-2 p-5 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                        isSelected
+                          ? "border-primary bg-primary/5 shadow-lg shadow-primary/10"
+                          : "border-border bg-card hover:border-primary/40"
+                      )}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1 flex-wrap">
+                            <span className={cn(
+                              "font-semibold text-base",
+                              isSelected ? "text-primary" : "text-foreground"
+                            )}>
+                              {plan.name}
+                            </span>
+                            {plan.badge && (
+                              <Badge
+                                className={cn(
+                                  "text-xs px-2 py-0.5 border-0",
+                                  plan.highlight
+                                    ? "bg-primary text-primary-foreground"
+                                    : "bg-muted text-muted-foreground"
+                                )}
+                              >
+                                {plan.badge}
+                              </Badge>
+                            )}
+                          </div>
+
+                          <div className="flex items-baseline gap-1 mb-3">
+                            <span className="text-2xl font-bold text-foreground">
+                              {symbol}{plan.basePrice.toLocaleString("en-IN")}
+                            </span>
+                            <span className="text-xs text-muted-foreground">/ year + {gstPercent}% GST</span>
+                          </div>
+
+                          {plan.extras.length > 0 && (
+                            <ul className="space-y-1">
+                              {plan.extras.map((extra) => (
+                                <li key={extra} className="flex items-center gap-2 text-xs text-muted-foreground">
+                                  <Check className="h-3 w-3 text-primary flex-shrink-0" />
+                                  {extra}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+
+                          {plan.key === "launch" && (
+                            <p className="text-xs text-muted-foreground">
+                              Core travel infrastructure — all 15 APIs and portals included.
+                            </p>
                           )}
                         </div>
 
-                        <div className="flex items-baseline gap-1 mb-3">
-                          <span className="text-2xl font-bold text-foreground">
-                            ₹{plan.basePrice.toLocaleString("en-IN")}
-                          </span>
-                          <span className="text-xs text-muted-foreground">/ year + GST</span>
+                        {/* Selection indicator */}
+                        <div className={cn(
+                          "w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-all",
+                          isSelected
+                            ? "border-primary bg-primary"
+                            : "border-border bg-transparent"
+                        )}>
+                          {isSelected && (
+                            <Check className="h-3 w-3 text-primary-foreground" />
+                          )}
                         </div>
-
-                        {plan.extras.length > 0 && (
-                          <ul className="space-y-1">
-                            {plan.extras.map((extra) => (
-                              <li key={extra} className="flex items-center gap-2 text-xs text-muted-foreground">
-                                <Check className="h-3 w-3 text-primary flex-shrink-0" />
-                                {extra}
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-
-                        {plan.key === "launch" && (
-                          <p className="text-xs text-muted-foreground">
-                            Core travel infrastructure — all 15 APIs and portals included.
-                          </p>
-                        )}
                       </div>
-
-                      {/* Selection indicator */}
-                      <div className={cn(
-                        "w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-all",
-                        isSelected
-                          ? "border-primary bg-primary"
-                          : "border-border bg-transparent"
-                      )}>
-                        {isSelected && (
-                          <Check className="h-3 w-3 text-primary-foreground" />
-                        )}
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
+                    </button>
+                  );
+                })
+              )}
 
               {/* Shared infrastructure note */}
               <div className="bg-muted/50 border border-border rounded-xl p-4 mt-2">
