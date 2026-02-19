@@ -1,65 +1,82 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, Rocket, Users, TrendingUp, CheckCircle, Zap, DollarSign, Calendar, Sparkles } from "lucide-react";
+import { ArrowLeft, Check } from "lucide-react";
 import SignupForm from "@/components/auth/SignupForm";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { usePricing } from "@/hooks/usePricing";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+
+// ── Plan definitions ──────────────────────────────────────────
+const PLANS = [
+  {
+    key: "launch",
+    name: "Launch Plan",
+    basePrice: 24999,
+    badge: null,
+    extras: [],
+    highlight: false,
+  },
+  {
+    key: "growth",
+    name: "Growth Plan",
+    basePrice: 29999,
+    badge: "Most Popular",
+    extras: [
+      "AI Sales Enquiry Handling Agent",
+      "Supplier Portal",
+      "B2B Sub-Agent Portal",
+      "Free .in Domain (1 Year)",
+    ],
+    highlight: true,
+  },
+  {
+    key: "authority",
+    name: "Authority Plan",
+    basePrice: 34999,
+    badge: "Complete Brand Setup",
+    extras: [
+      "Everything in Growth",
+      "Google & LinkedIn Setup",
+      "Instagram & Facebook Setup",
+      "Professional Logo Design",
+      "Social Media Banners",
+    ],
+    highlight: false,
+  },
+] as const;
+
+type PlanKey = (typeof PLANS)[number]["key"];
 
 const Signup = () => {
   const { ref: formRef, isVisible: formVisible } = useScrollAnimation();
-  const { ref: visualRef, isVisible: visualVisible } = useScrollAnimation();
-  const { formattedBasePrice, symbol, basePrice, isLoading } = usePricing();
-  const basePricePerMonth = Math.round(basePrice / 12);
+  const { ref: plansRef, isVisible: plansVisible } = useScrollAnimation();
+  const { symbol, gstPercent } = usePricing();
+  const [selectedPlanKey, setSelectedPlanKey] = useState<PlanKey>("growth");
 
   // Scroll to top when component mounts
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
   }, []);
 
-  const benefits = [
-    { icon: Rocket, text: "Launch in 24 Hours", color: "text-primary" },
-    { icon: TrendingUp, text: "Start Earning Immediately", color: "text-gold" },
-    { icon: CheckCircle, text: "Complete Training Included", color: "text-primary" },
-  ];
-
-  const successStories = [
-    {
-      name: "Fatima Sheikh",
-      city: "Delhi",
-      achievement: "Earned ₹2L in first month",
-    },
-    {
-      name: "Hassan Ali",
-      city: "Mumbai",
-      achievement: "500+ bookings completed",
-    },
-    {
-      name: "Zainab Khan",
-      city: "Bangalore",
-      achievement: "Full-time travel entrepreneur",
-    },
-  ];
+  const selectedPlan = PLANS.find((p) => p.key === selectedPlanKey)!;
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-x-hidden bg-background">
-      {/* Animated Background */}
+      {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-accent via-background to-background" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent" />
-
-      {/* Floating decorative elements */}
       <div className="absolute top-20 right-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse-soft pointer-events-none" />
       <div className="absolute bottom-20 left-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse-soft pointer-events-none" style={{ animationDelay: "1s" }} />
-      <div className="absolute top-1/2 right-1/4 w-48 h-48 bg-primary/5 rounded-full blur-2xl animate-float-slow pointer-events-none" />
 
       <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center lg:items-start min-w-0">
-          {/* Left Side - Signup Form */}
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start min-w-0">
+
+          {/* ── Left: Signup Form ── */}
           <div
             ref={formRef}
             className={`w-full max-w-md mx-auto lg:mx-0 lg:max-w-none min-w-0 opacity-0 ${formVisible ? "animate-fade-in" : ""}`}
           >
-            {/* Back to Home Link */}
             <Link
               to="/"
               className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors mb-8 lg:mb-4"
@@ -68,7 +85,6 @@ const Signup = () => {
               Back to home
             </Link>
 
-            {/* Logo - matches header */}
             <div className="mb-8 lg:mb-4">
               <Link to="/" className="flex items-center gap-2.5">
                 <img
@@ -83,153 +99,141 @@ const Signup = () => {
               </Link>
             </div>
 
-            {/* Form Card */}
             <div className="bg-card/90 backdrop-blur-sm border border-border rounded-2xl p-8 shadow-xl">
               <div className="mb-6">
                 <h1 className="text-3xl font-bold text-foreground mb-2">
                   Create your account
                 </h1>
-                <p className="text-muted-foreground">
-                  Start your travel agency journey today
+                <p className="text-muted-foreground text-sm">
+                  Subscribing to{" "}
+                  <span className="font-semibold text-primary">{selectedPlan.name}</span>
+                  {" "}— ₹{selectedPlan.basePrice.toLocaleString("en-IN")} + GST/year
                 </p>
               </div>
 
-              <SignupForm amount={formattedBasePrice} symbol={symbol} />
-            </div>
-
-            {/* Benefits - Mobile */}
-            <div className="mt-8 lg:hidden">
-              <div className="flex flex-wrap items-center justify-center gap-6">
-                {benefits.map((benefit, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center gap-2 text-sm text-muted-foreground"
-                  >
-                    <benefit.icon className={`h-4 w-4 ${benefit.color}`} />
-                    <span>{benefit.text}</span>
-                  </div>
-                ))}
-              </div>
+              <SignupForm
+                selectedPlanName={selectedPlan.name}
+                planBasePrice={selectedPlan.basePrice}
+                symbol={symbol}
+                gstPercent={gstPercent}
+              />
             </div>
           </div>
 
-          {/* Right Side - Pricing Section */}
+          {/* ── Right: Plan Selector ── */}
           <div
-            ref={visualRef}
-            className={`w-full max-w-md mx-auto lg:mx-0 lg:max-w-none min-w-0 opacity-0 ${visualVisible ? "animate-fade-in-right" : ""}`}
+            ref={plansRef}
+            className={`w-full max-w-md mx-auto lg:mx-0 lg:max-w-none min-w-0 opacity-0 ${plansVisible ? "animate-fade-in-right" : ""}`}
             style={{ animationDelay: "0.2s" }}
           >
-            <div className="relative w-full max-w-full">
-              {/* Pricing Card */}
-              <div className="bg-gradient-to-br from-primary/20 via-primary/10 to-gold/10 rounded-3xl p-6 sm:p-8 lg:p-12 border-2 border-primary/30 backdrop-blur-sm shadow-2xl relative overflow-hidden w-full">
-                {/* Animated Background Glow */}
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-gold/5 animate-pulse-soft" />
-                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
-                <div className="absolute bottom-0 left-0 w-48 h-48 bg-gold/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2 pointer-events-none" />
-                
-                <div className="relative z-10 space-y-8">
-                  {/* Header */}
-                  <div className="text-center">
-                    <div className="inline-flex items-center gap-2 bg-primary/20 border border-primary/30 px-4 py-2 rounded-full mb-4">
-                      <Sparkles className="h-4 w-4 text-primary" />
-                      <span className="text-sm font-semibold text-primary">Special Launch Price</span>
-                    </div>
-                    <h2 className="text-2xl lg:text-3xl font-bold text-foreground mb-2">
-                      Your Complete Travel Business Platform
-                    </h2>
-                    <p className="text-muted-foreground">
-                      Everything you need to start earning
-                    </p>
-                  </div>
-
-                  {/* Main Price Display */}
-                  <div className="bg-card/80 backdrop-blur-sm border-2 border-primary/20 rounded-2xl p-4 sm:p-8 text-center relative overflow-hidden">
-                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-gold to-primary animate-gradient-shift bg-[length:200%_auto]" />
-                    
-                    <div className="space-y-4">
-                      <div className="flex flex-wrap items-baseline justify-center gap-1 sm:gap-2">
-                        <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground">{symbol}</span>
-                        <span className="text-4xl sm:text-6xl lg:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary via-gold to-primary animate-gradient-shift bg-[length:200%_auto]">
-                          {isLoading ? "..." : Math.round(basePrice).toLocaleString("en-IN")}
-                        </span>
-                        <span className="text-lg sm:text-xl lg:text-2xl text-muted-foreground">/year</span>
-                      </div>
-                      
-                      <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                        <Calendar className="h-4 w-4" />
-                        <span>Just {symbol}{basePricePerMonth.toLocaleString("en-IN")}/month</span>
-                      </div>
-                      
-                      <div className="pt-4 border-t border-border">
-                        <div className="inline-flex flex-wrap items-center justify-center gap-2 bg-gold/20 border border-gold/30 px-3 sm:px-4 py-2 rounded-full max-w-full">
-                          <Zap className="h-4 w-4 text-gold flex-shrink-0" />
-                          <span className="text-xs sm:text-sm font-semibold text-gold text-center">Save ₹25,00,000+ vs Building Your Own</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Value Breakdown */}
-                  <div className="space-y-4">
-                    <h3 className="font-bold text-lg text-foreground text-center">What's Included:</h3>
-                    <div className="grid gap-3">
-                      {[
-                        { icon: Rocket, text: "Complete White-Label Portal", value: "₹50,000" },
-                        { icon: Users, text: "Full Training & Support", value: "₹25,000" },
-                        { icon: TrendingUp, text: "Marketing Tools & Templates", value: "₹30,000" },
-                        { icon: CheckCircle, text: "6 days Technical Support", value: "₹15,000" },
-                        { icon: DollarSign, text: "Payment Gateway Setup", value: "₹10,000" },
-                      ].map((item, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center justify-between bg-card/60 backdrop-blur-sm border border-border rounded-xl p-4 hover:shadow-lg transition-all hover:border-primary/30"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
-                              <item.icon className="h-5 w-5 text-primary" />
-                            </div>
-                            <span className="font-medium text-foreground text-sm lg:text-base">{item.text}</span>
-                          </div>
-                          <span className="text-sm font-bold text-gold">{item.value}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* ROI Calculator */}
-                  <div className="bg-gradient-to-br from-primary/10 to-gold/10 border border-primary/20 rounded-xl p-6 space-y-4">
-                    <div className="flex items-center gap-2 mb-4">
-                      <TrendingUp className="h-5 w-5 text-primary" />
-                      <h3 className="font-bold text-foreground">Potential ROI</h3>
-                    </div>
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">Average Monthly Bookings</span>
-                        <span className="font-bold text-foreground">50+</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">Avg. Commission per Booking</span>
-                        <span className="font-bold text-foreground">₹4,000</span>
-                      </div>
-                      <div className="pt-3 border-t border-primary/20">
-                        <div className="flex justify-between items-center">
-                          <span className="font-semibold text-foreground">Monthly Earning Potential</span>
-                          <span className="text-xl font-bold text-gold">₹2,00,000+</span>
-                        </div>
-                      </div>
-                      <div className="text-xs text-center text-muted-foreground pt-2">
-                        Break even in just <span className="font-bold text-primary">3 days</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+            <div className="space-y-4">
+              <div className="mb-2">
+                <h2 className="text-xl font-bold text-foreground">Choose your plan</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  All plans include core travel infrastructure. Select below.
+                </p>
               </div>
 
-              {/* Floating decorative elements */}
-              <div className="absolute -top-8 -right-8 w-32 h-32 bg-primary/10 rounded-full blur-2xl animate-float hidden lg:block pointer-events-none" />
-              <div className="absolute -bottom-8 -left-8 w-40 h-40 bg-gold/5 rounded-full blur-3xl animate-float-slow hidden lg:block pointer-events-none" />
+              {PLANS.map((plan) => {
+                const isSelected = selectedPlanKey === plan.key;
+                return (
+                  <button
+                    key={plan.key}
+                    type="button"
+                    onClick={() => setSelectedPlanKey(plan.key)}
+                    className={cn(
+                      "w-full text-left rounded-2xl border-2 p-5 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                      isSelected
+                        ? "border-primary bg-primary/5 shadow-lg shadow-primary/10"
+                        : "border-border bg-card hover:border-primary/40"
+                    )}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <span className={cn(
+                            "font-semibold text-base",
+                            isSelected ? "text-primary" : "text-foreground"
+                          )}>
+                            {plan.name}
+                          </span>
+                          {plan.badge && (
+                            <Badge
+                              className={cn(
+                                "text-xs px-2 py-0.5 border-0",
+                                plan.highlight
+                                  ? "bg-primary text-primary-foreground"
+                                  : "bg-muted text-muted-foreground"
+                              )}
+                            >
+                              {plan.badge}
+                            </Badge>
+                          )}
+                        </div>
+
+                        <div className="flex items-baseline gap-1 mb-3">
+                          <span className="text-2xl font-bold text-foreground">
+                            ₹{plan.basePrice.toLocaleString("en-IN")}
+                          </span>
+                          <span className="text-xs text-muted-foreground">/ year + GST</span>
+                        </div>
+
+                        {plan.extras.length > 0 && (
+                          <ul className="space-y-1">
+                            {plan.extras.map((extra) => (
+                              <li key={extra} className="flex items-center gap-2 text-xs text-muted-foreground">
+                                <Check className="h-3 w-3 text-primary flex-shrink-0" />
+                                {extra}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+
+                        {plan.key === "launch" && (
+                          <p className="text-xs text-muted-foreground">
+                            Core travel infrastructure — all 15 APIs and portals included.
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Selection indicator */}
+                      <div className={cn(
+                        "w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-all",
+                        isSelected
+                          ? "border-primary bg-primary"
+                          : "border-border bg-transparent"
+                      )}>
+                        {isSelected && (
+                          <Check className="h-3 w-3 text-primary-foreground" />
+                        )}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+
+              {/* Shared infrastructure note */}
+              <div className="bg-muted/50 border border-border rounded-xl p-4 mt-2">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                  All plans include
+                </p>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {[
+                    "Flight API", "Hotel API", "Visa API", "Activities API",
+                    "Hajj & Umrah Packages", "Holiday Packages",
+                    "Admin Portal", "B2C Booking Website",
+                    "Contracted Rates Access", "Halal Content Library",
+                  ].map((item) => (
+                    <div key={item} className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <Check className="h-3 w-3 text-primary flex-shrink-0" />
+                      {item}
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
+
         </div>
       </div>
     </div>
