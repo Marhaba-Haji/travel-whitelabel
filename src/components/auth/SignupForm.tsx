@@ -18,7 +18,6 @@ import { toast } from "@/hooks/use-toast";
 import { Eye, EyeOff, Loader2, CheckCircle2, CreditCard, Ticket } from "lucide-react";
 import { Link } from "react-router-dom";
 import OrderSummary from "./OrderSummary";
-import { usePricing } from "@/hooks/usePricing";
 
 // Phone validation for Indian format: +91XXXXXXXXXX or 10 digits
 const phoneRegex = /^(\+91[6-9]\d{9}|[6-9]\d{9})$/;
@@ -68,11 +67,12 @@ const signupSchema = z
 
 type SignupFormValues = z.infer<typeof signupSchema>;
 
-const SIGNUP_AMOUNT = "₹18,799";
 const PAYMENT_LINK_KEY = "signup_payment_pending";
 
 interface SignupFormProps {
-  amount?: string;
+  selectedPlanName: string;
+  planBasePrice: number;
+  gstPercent: number;
   symbol?: string;
 }
 
@@ -82,15 +82,14 @@ type CouponValidation =
   | { status: "valid"; discount_type: string; discount_value: number }
   | { status: "invalid"; error: string };
 
-const SignupForm = ({ amount = SIGNUP_AMOUNT, symbol = "₹" }: SignupFormProps) => {
+const SignupForm = ({ selectedPlanName, planBasePrice, gstPercent, symbol = "₹" }: SignupFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [couponValidation, setCouponValidation] = useState<CouponValidation>({ status: "idle" });
   const [showSummary, setShowSummary] = useState(false);
   const [validatedData, setValidatedData] = useState<SignupFormValues | null>(null);
-  const { basePrice, gstPercent } = usePricing();
-  const subtotalForDiscount = basePrice * (1 + gstPercent / 100);
+  const subtotalForDiscount = planBasePrice * (1 + gstPercent / 100);
 
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
@@ -221,6 +220,8 @@ const SignupForm = ({ amount = SIGNUP_AMOUNT, symbol = "₹" }: SignupFormProps)
           couponCode: validatedData.couponCode?.trim() || undefined,
           password: validatedData.password,
           termsAccepted: validatedData.termsAccepted,
+          planName: selectedPlanName,
+          planBasePrice: planBasePrice,
         }),
       });
 
@@ -301,7 +302,8 @@ const SignupForm = ({ amount = SIGNUP_AMOUNT, symbol = "₹" }: SignupFormProps)
         phone={validatedData.phone}
         city={validatedData.city}
         couponCode={validatedData.couponCode?.trim().toUpperCase()}
-        basePrice={basePrice}
+        selectedPlanName={selectedPlanName}
+        basePrice={planBasePrice}
         gstPercent={gstPercent}
         symbol={symbol}
         discount={
@@ -570,7 +572,7 @@ const SignupForm = ({ amount = SIGNUP_AMOUNT, symbol = "₹" }: SignupFormProps)
           disabled={isLoading}
         >
           <CreditCard className="mr-2 h-4 w-4" />
-          Review Order & Pay { couponSavingsFormatted ? `— Save ${couponSavingsFormatted}` : amount}
+          Review Order & Pay {couponSavingsFormatted ? `— Save ${couponSavingsFormatted}` : `${symbol}${Math.round(planBasePrice * (1 + gstPercent / 100)).toLocaleString("en-IN")}`}
         </Button>
 
         <div className="text-center text-sm text-muted-foreground">

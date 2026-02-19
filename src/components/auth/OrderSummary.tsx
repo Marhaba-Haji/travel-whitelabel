@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, CreditCard, User, Mail, Phone, MapPin, Ticket, Loader2 } from "lucide-react";
+import { ArrowLeft, CreditCard, User, Mail, Phone, MapPin, Ticket, Loader2, Package } from "lucide-react";
 
 interface OrderSummaryProps {
   fullName: string;
@@ -8,6 +8,7 @@ interface OrderSummaryProps {
   phone: string;
   city: string;
   couponCode?: string;
+  selectedPlanName: string;
   basePrice: number;
   gstPercent: number;
   symbol: string;
@@ -23,6 +24,7 @@ const OrderSummary = ({
   phone,
   city,
   couponCode,
+  selectedPlanName,
   basePrice,
   gstPercent,
   symbol,
@@ -65,6 +67,17 @@ const OrderSummary = ({
         Please review your details before proceeding to payment.
       </p>
 
+      {/* Selected Plan */}
+      <div className="bg-primary/5 border border-primary/20 rounded-xl p-4">
+        <div className="flex items-center gap-3">
+          <Package className="h-5 w-5 text-primary flex-shrink-0" />
+          <div>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Selected Plan</p>
+            <p className="font-semibold text-foreground">{selectedPlanName}</p>
+          </div>
+        </div>
+      </div>
+
       {/* Registration Details */}
       <div className="bg-muted/50 border border-border rounded-xl p-5 space-y-3">
         <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
@@ -101,7 +114,7 @@ const OrderSummary = ({
         </h3>
         <div className="space-y-2.5">
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Base Price</span>
+            <span className="text-muted-foreground">Base Price ({selectedPlanName})</span>
             <span className="font-medium text-foreground">{formatAmount(basePrice)}</span>
           </div>
           <div className="flex justify-between text-sm">
@@ -128,13 +141,13 @@ const OrderSummary = ({
       </div>
 
       <div className="text-xs text-muted-foreground text-center">
-        Travel Agency White-Label Platform — Annual Subscription
+        MarhabaDMC — Annual Subscription · {selectedPlanName}
       </div>
 
       <Button
         type="button"
         onClick={onConfirm}
-        className="w-full h-12 text-base font-semibold bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg"
+        className="w-full h-12 text-base font-semibold"
         disabled={isLoading}
       >
         {isLoading ? (

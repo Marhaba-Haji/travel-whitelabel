@@ -77,7 +77,7 @@ Deno.serve(async (req) => {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
     const body = await req.json();
-    const { fullName, email, phone, city, password, termsAccepted, couponCode } = body;
+    const { fullName, email, phone, city, password, termsAccepted, couponCode, planName, planBasePrice } = body;
 
     if (!email || !fullName || !phone) {
       return new Response(
@@ -123,16 +123,33 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Calculate amount from site_settings
-    const { data: pricing } = await supabase
-      .from("site_settings")
-      .select("value")
-      .eq("key", "pricing")
-      .single();
+    // Calculate amount — use plan price if provided, else fall back to site_settings
+    let basePrice: number;
+    let gstPercent: number;
 
-    const v = (pricing?.value as Record<string, unknown>) || {};
-    const basePrice = Number(v.base_price) || 18799;
-    const gstPercent = Number(v.gst_percent) || 0;
+    if (planBasePrice && typeof planBasePrice === "number" && planBasePrice > 0) {
+      // Use the plan price selected by the user on the frontend
+      basePrice = planBasePrice;
+      // Still read GST% from site_settings
+      const { data: pricing } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "pricing")
+        .single();
+      const v = (pricing?.value as Record<string, unknown>) || {};
+      gstPercent = Number(v.gst_percent) || 0;
+    } else {
+      // Fallback: read everything from site_settings (legacy / direct API call)
+      const { data: pricing } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "pricing")
+        .single();
+      const v = (pricing?.value as Record<string, unknown>) || {};
+      basePrice = Number(v.base_price) || 18799;
+      gstPercent = Number(v.gst_percent) || 0;
+    }
+
     let total = basePrice * (1 + gstPercent / 100);
 
     let appliedCouponCode: string | null = null;
@@ -169,7 +186,9 @@ Deno.serve(async (req) => {
 
     const amount = Math.max(0.01, total).toFixed(2);
     const txnid = `TXN${Date.now()}${Math.random().toString(36).slice(2, 8)}`;
-    const productinfo = "Travel Agency White-Label Platform - Annual Subscription";
+    const productinfo = planName
+      ? `MarhabaDMC ${planName} - Annual Subscription`
+      : "MarhabaDMC Travel Agency Platform - Annual Subscription";
     const firstname = (fullName || "").split(" ")[0] || fullName;
 
     const surl = `${EDGE_BASE}/payu-callback`;
