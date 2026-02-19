@@ -97,6 +97,7 @@ Deno.serve(async (req) => {
         city: city ? String(city).trim().slice(0, 100) : null,
         password_hash: passwordHash,
         terms_accepted: Boolean(termsAccepted),
+        plan_name: planName ? String(planName).trim().slice(0, 100) : null,
       })
       .select("id")
       .single();

@@ -9,12 +9,21 @@ import { cn } from "@/lib/utils";
 
 const statuses = ["all", "pending_payment", "payment_completed", "active", "inactive"];
 
+const PLAN_BADGE_VARIANT: Record<string, string> = {
+  "Launch Plan": "secondary",
+  "Growth Plan": "default",
+  "Authority Plan": "outline",
+};
+
 const RegistrationsTab = () => {
   const [filter, setFilter] = useState("all");
   const { data, isLoading } = useQuery({
     queryKey: ["admin-registrations"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("registrations").select("*").order("created_at", { ascending: false });
+      const { data, error } = await supabase
+        .from("registrations")
+        .select("*")
+        .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
     },
@@ -31,7 +40,9 @@ const RegistrationsTab = () => {
         <Select value={filter} onValueChange={setFilter}>
           <SelectTrigger className="w-[200px]"><SelectValue /></SelectTrigger>
           <SelectContent>
-            {statuses.map((s) => <SelectItem key={s} value={s}>{s === "all" ? "All" : s.replace(/_/g, " ")}</SelectItem>)}
+            {statuses.map((s) => (
+              <SelectItem key={s} value={s}>{s === "all" ? "All" : s.replace(/_/g, " ")}</SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
@@ -43,6 +54,7 @@ const RegistrationsTab = () => {
               <TableHead>Email</TableHead>
               <TableHead>Phone</TableHead>
               <TableHead>City</TableHead>
+              <TableHead>Plan</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Created</TableHead>
             </TableRow>
@@ -55,15 +67,39 @@ const RegistrationsTab = () => {
                 <TableCell>{r.phone}</TableCell>
                 <TableCell>{r.city ?? "—"}</TableCell>
                 <TableCell>
+                  {r.plan_name ? (
+                    <Badge
+                      variant={
+                        (PLAN_BADGE_VARIANT[r.plan_name] as "secondary" | "default" | "outline" | "destructive") ??
+                        "secondary"
+                      }
+                      className={cn(
+                        r.plan_name === "Growth Plan" && "bg-primary text-primary-foreground border-0",
+                        r.plan_name === "Authority Plan" && "border-border text-foreground"
+                      )}
+                    >
+                      {r.plan_name}
+                    </Badge>
+                  ) : (
+                    <span className="text-muted-foreground text-xs">—</span>
+                  )}
+                </TableCell>
+                <TableCell>
                   <Badge variant={r.status === "pending_payment" ? "destructive" : "secondary"}>
                     {r.status.replace(/_/g, " ")}
                   </Badge>
                 </TableCell>
-                <TableCell className="text-muted-foreground text-sm">{format(new Date(r.created_at), "dd MMM yyyy")}</TableCell>
+                <TableCell className="text-muted-foreground text-sm">
+                  {format(new Date(r.created_at), "dd MMM yyyy")}
+                </TableCell>
               </TableRow>
             ))}
             {!filtered?.length && (
-              <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-8">No registrations found</TableCell></TableRow>
+              <TableRow>
+                <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                  No registrations found
+                </TableCell>
+              </TableRow>
             )}
           </TableBody>
         </Table>
