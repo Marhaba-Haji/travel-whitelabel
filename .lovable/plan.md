@@ -1,202 +1,180 @@
 
+# Pricing Section Redesign — 3-Tier Subscription Model
 
-# Superadmin Dashboard - Complete Implementation Plan
+## Scope
 
-## Overview
-
-Build a secure superadmin dashboard accessible only to `harab.business@gmail.com` that provides full visibility and control over all site data, dynamic pricing, coupon management, and site contact details.
-
----
-
-## Part 1: Database Schema Changes
-
-### New Tables
-
-**1. `site_settings`** - Stores dynamic site configuration (pricing, GST, contact details)
-
-| Column | Type | Default | Purpose |
-|--------|------|---------|---------|
-| id | uuid | gen_random_uuid() | PK |
-| key | text (unique) | - | Setting identifier |
-| value | jsonb | - | Setting value |
-| updated_at | timestamp | now() | Last modified |
-| updated_by | text | null | Email of who changed it |
-
-Pre-seeded keys:
-- `pricing` -> `{ "base_price": 18799, "gst_percent": 0, "currency": "INR" }`
-- `contact` -> `{ "whatsapp": "+919008447887", "phone": "+919008447887", "email": "hello@marhabadmc.com" }`
-
-**2. `coupons`** - Discount coupon management
-
-| Column | Type | Default | Purpose |
-|--------|------|---------|---------|
-| id | uuid | gen_random_uuid() | PK |
-| code | text (unique) | - | Coupon code (uppercase) |
-| discount_type | text | 'percentage' | 'percentage' or 'fixed' |
-| discount_value | numeric | - | Amount or percent off |
-| max_uses | integer | null | null = unlimited |
-| times_used | integer | 0 | Current usage count |
-| valid_from | timestamp | now() | Start validity |
-| valid_until | timestamp | null | null = no expiry |
-| is_active | boolean | true | Soft disable |
-| created_at | timestamp | now() | - |
-| updated_at | timestamp | now() | - |
-
-**3. `app_role` enum + `user_roles` table** - Role-based access control
-
-Following the security-definer pattern to avoid RLS recursion:
-- Create `app_role` enum: `('superadmin', 'admin', 'user')`
-- Create `user_roles` table with `user_id` (FK to auth.users) and `role`
-- Create `has_role()` security definer function
-- Assign `superadmin` role to `harab.business@gmail.com` after they sign up via Supabase Auth
-
-### RLS Policies
-
-- `site_settings`: Public SELECT (frontend needs pricing/contact), admin-only UPDATE
-- `coupons`: Admin-only for all operations
-- `user_roles`: Admin-only SELECT, no public access
-- All existing tables (`contact_enquiries`, `newsletter_subscriptions`, `registrations`, `payments`, `payment_gateway_responses`): Add SELECT policy for admin users
+Full rewrite of `src/components/landing/Pricing.tsx`. No backend changes, no route changes, no other files modified.
 
 ---
 
-## Part 2: Authentication Setup
+## New Section Architecture (top to bottom)
 
-Since there's no auth currently, we need to set up Supabase Auth:
+```text
+1. Section Header
+   └── Badge + H2 + description + supporting line
 
-1. **Admin login page** at `/admin/login` - simple email/password login using `supabase.auth.signInWithPassword()`
-2. **Auth context provider** to manage session state across the app
-3. **Protected route wrapper** that checks if the user has `superadmin` role
-4. The superadmin account (`harab.business@gmail.com`) will need to be created via Supabase Auth (the migration will include a note about this)
+2. Core Infrastructure Block
+   └── Icon grid — 15 features shared by all plans
 
----
+3. Three-Plan Comparison Grid (3 columns)
+   ├── Launch Plan    — ₹24,999  (neutral)
+   ├── Growth Plan    — ₹29,999  (highlighted, "Most Popular" badge)
+   └── Authority Plan — ₹34,999  (subtle "Complete Brand Setup" tag)
 
-## Part 3: Admin Dashboard UI
+4. Persuasion Blocks (2 short text blocks)
+   ├── "Why Most Choose Growth Plan"
+   └── "Why Authority Plan Wins Long-Term"
 
-### Route: `/admin` (protected)
+5. CTA Section
+   └── "Get Started Now" + "Talk to Our Team" buttons
 
-A sidebar-based dashboard layout with these tabs/sections:
-
-**Tab 1: Overview**
-- Summary cards: Total registrations, total payments, pending payments, contact enquiries count, newsletter subscribers count
-- Quick stats at a glance
-
-**Tab 2: Contact Enquiries**
-- Table showing all entries from `contact_enquiries`
-- Columns: Name, Email, Phone, Message (truncated), Status, Date
-- Status badge (new/read/responded)
-- Click to expand full message
-
-**Tab 3: Newsletter Signups**
-- Table of all `newsletter_subscriptions`
-- Columns: Email, Subscribed At
-- Count display
-
-**Tab 4: Registrations**
-- Table of all `registrations`
-- Columns: Full Name, Email, Phone, City, Status, Created At
-- Status filter (pending_payment, payment_completed, active, etc.)
-- Highlight rows where status is still `pending_payment` (abandoned signups)
-
-**Tab 5: Payments**
-- Table of all `payments` joined with registration info
-- Columns: Txn ID, Name (from registration), Amount, Status, Payment Mode, Date
-- Status badges (initiated/success/failed)
-- Filter for "Abandoned" = status is `initiated` (started but never completed)
-
-**Tab 6: Pricing & GST**
-- Current base price display with edit field
-- GST percentage field
-- Live preview: "Base: 18,799 + GST 18% = 22,182.82 (Total charged)"
-- Save button updates `site_settings`
-
-**Tab 7: Coupons**
-- Table of all coupons with status
-- Create new coupon form: code, discount type, value, max uses, valid until
-- Toggle active/inactive
-- Usage count display
-
-**Tab 8: Site Settings**
-- WhatsApp number
-- Phone number
-- Email address
-- Save updates `site_settings`
+6. Trust Bar
+   └── SSL Secured · No Hidden Fees · Secure Payments (retained from current)
+```
 
 ---
 
-## Part 4: Dynamic Data Integration
+## Detailed Implementation
 
-### Frontend reads from `site_settings`:
+### 1. Section Header
 
-1. **Pricing**: The signup page, pricing section, and SignupForm will fetch the current price from `site_settings` instead of using hardcoded `18799`
-2. **Contact details**: Footer, FloatingWhatsApp, and About page will read WhatsApp/phone/email from `site_settings`
-3. **Coupon validation**: Add a coupon code field to the SignupForm. An edge function validates the coupon and returns the discounted price
-
-### Edge Function: `validate-coupon`
-- Accepts coupon code
-- Checks validity (active, not expired, under max uses)
-- Returns discount details
-- Increments `times_used` on successful payment
-
-### Server-side (server/index.js) changes:
-- The `create-payment` endpoint will read the current price from `site_settings` instead of hardcoded `18799.00`
-- Apply coupon discount if a valid coupon code is provided
-- Calculate GST and pass total to PayU
+- Badge text: `"Subscription Plans"`
+- H2: `"Launch Your Own Travel Business — With Real Infrastructure"`
+- Paragraph: `"MarhabaDMC provides the complete operating layer for halal travel businesses — from global APIs and contracted rates to structured destination management and distribution tools."`
+- Supporting line (smaller, muted): `"Every plan includes our core travel infrastructure. You simply decide how far you want to scale."`
 
 ---
 
-## Part 5: Files to Create
+### 2. Core Infrastructure Block
 
-| File | Purpose |
-|------|---------|
-| `src/contexts/AuthContext.tsx` | Supabase auth session provider |
-| `src/components/admin/AdminLayout.tsx` | Sidebar layout for admin |
-| `src/components/admin/OverviewTab.tsx` | Dashboard overview with stats |
-| `src/components/admin/ContactEnquiriesTab.tsx` | Contact form entries table |
-| `src/components/admin/NewsletterTab.tsx` | Newsletter subscribers table |
-| `src/components/admin/RegistrationsTab.tsx` | Registrations table |
-| `src/components/admin/PaymentsTab.tsx` | Payments table with abandoned filter |
-| `src/components/admin/PricingTab.tsx` | Dynamic pricing + GST control |
-| `src/components/admin/CouponsTab.tsx` | Coupon CRUD |
-| `src/components/admin/SiteSettingsTab.tsx` | Contact details management |
-| `src/components/admin/ProtectedRoute.tsx` | Auth + role guard |
-| `src/pages/Admin.tsx` | Main admin page |
-| `src/pages/AdminLogin.tsx` | Admin login page |
-| `src/hooks/useSiteSettings.tsx` | Hook to fetch site_settings |
-| `supabase/functions/validate-coupon/index.ts` | Coupon validation edge function |
+Title: `"Core Infrastructure — Included in All Plans"`
 
-## Part 6: Files to Modify
+Displayed as a **responsive 3-column icon grid** (collapses to 2-col on mobile). Each item has a small `Check` icon in primary blue and label text.
 
-| File | Changes |
-|------|---------|
-| `src/App.tsx` | Add `/admin`, `/admin/login` routes, wrap with AuthProvider |
-| `src/components/landing/Footer.tsx` | Read contact details from site_settings |
-| `src/components/landing/FloatingWhatsApp.tsx` | Read WhatsApp number from site_settings |
-| `src/components/landing/Pricing.tsx` | Read price from site_settings |
-| `src/pages/Signup.tsx` | Read price from site_settings |
-| `src/components/auth/SignupForm.tsx` | Add coupon code field, read dynamic price |
-| `server/index.js` | Read price + GST from site_settings, handle coupon in create-payment |
-| `supabase/config.toml` | Add validate-coupon function config |
+15 items:
+- Flight API
+- Hotel API
+- Visa API
+- Activities API
+- Hajj Packages
+- Umrah Packages
+- Holiday Packages
+- Car Transport at Destination
+- Guide Module
+- Group Flights Module
+- Contracted Rates Access
+- Admin Portal
+- B2C Direct Booking Website
+- Halal Travel Content Library
+- Add Your Own Content
+
+Visual treatment: neutral `bg-card` container with a `border-border` border, slightly separated from the plan cards below with a horizontal rule or spacing.
 
 ---
 
-## Part 7: Security Considerations
+### 3. Three-Plan Comparison Grid
 
-1. **Server-side role check**: The `has_role()` security definer function ensures RLS policies work without recursion
-2. **No client-side admin checks**: Admin status is verified via Supabase RLS, not localStorage
-3. **Edge function JWT validation**: The validate-coupon function validates auth tokens server-side
-4. **Superadmin setup**: After the migration, `harab.business@gmail.com` must sign up via Supabase Auth dashboard, then the role is assigned via a SQL insert into `user_roles`
+**Grid**: `grid-cols-1 md:grid-cols-3` with `gap-6`, `max-w-5xl mx-auto`
+
+#### Plan Cards — shared structure per card:
+```
+[ Plan Name ]
+[ Price + /year ]
+[ Divider ]
+[ Feature list ]
+[ CTA Button ]
+```
+
+#### Launch Plan — ₹24,999
+- Neutral card: standard `bg-card border-border`
+- No badge
+- Feature list: "All Core Infrastructure" (listed individually with Check icons)
+- Button: outline variant → `/signup`
+
+#### Growth Plan — ₹29,999 (Most Popular)
+- Elevated card: `border-2 border-primary shadow-2xl` with a subtle `shadow-primary/20`
+- Badge positioned above card: `"Most Popular"` in primary blue
+- Scale up slightly: `scale-[1.03]` on desktop so it visually protrudes
+- Feature list: Everything in Launch + AI Sales Enquiry Handling Agent, Supplier Portal, B2B Sub-Agent Portal, Free .in Domain (1 Year)
+- Button: filled primary variant → `/signup`
+
+#### Authority Plan — ₹34,999
+- Neutral-plus card: `bg-card border-border` with a subtle `border-foreground/20`
+- Small tag: `"Complete Brand Setup"` as a secondary badge
+- Feature list: Everything in Growth + Google Business Profile Setup, LinkedIn Business Page Setup, Instagram Business Setup, Facebook Business Setup, X Page Setup, Professional Logo Design, Social Media Banners
+- Button: outline variant → `/signup`
+
+**Feature list rendering**: Each plan shows its exclusive additions in a distinct sub-section ("Also Includes:" heading in small muted text), keeping the list scannable without repeating all core items.
 
 ---
 
-## Implementation Order
+### 4. Persuasion Blocks
 
-1. Database migration (new tables, RLS, seed data)
-2. Auth context and protected route components
-3. Admin login page
-4. Admin dashboard layout + all tabs
-5. Site settings hook for frontend
-6. Update frontend components to use dynamic settings
-7. Coupon validation edge function
-8. Update server/index.js for dynamic pricing
-9. Testing
+Two side-by-side cards (stack on mobile) below the comparison grid:
 
+**Block 1 — "Why Most Choose Growth Plan"**
+- Icon: `TrendingUp`
+- Text: "For just ₹5,000 more than Launch, you unlock AI automation, supplier control, agent distribution, and free domain — making it the smart scaling choice."
+
+**Block 2 — "Why Authority Plan Wins Long-Term"**
+- Icon: `Star`
+- Text: "For another ₹5,000, you receive complete brand presence — logo, social media setup, and Google visibility structured from day one."
+
+Styled as `bg-card border border-border rounded-2xl p-6` with a left accent border in primary blue.
+
+---
+
+### 5. CTA Section
+
+Centered block below persuasion cards:
+
+- H3: `"Ready to Build Your Travel Business?"`
+- Two buttons side by side:
+  - Primary filled: `"Get Started Now"` → `/signup`
+  - Outline: `"Talk to Our Team"` → links to `whatsappUrl` from `useContactSettings`
+
+---
+
+### 6. Trust Bar
+
+Retained from current design:
+- SSL Secured · No Hidden Fees · Secure Payments
+- Payment method icons (VISA, Mastercard circles, UPI)
+
+---
+
+## Hooks Retained
+
+- `useScrollAnimation` — for fade-in on scroll
+- `useContactSettings` — for WhatsApp URL on "Talk to Our Team" button
+- Remove `usePricing` — prices are now hardcoded per plan (₹24,999 / ₹29,999 / ₹34,999) as specified; the dynamic pricing hook is no longer needed in this section
+- Remove `CountdownTimer`, `InvestmentCalculator`, `AnimatedCounter` — not part of the new design
+
+---
+
+## Mobile Behavior
+
+- Core infrastructure grid: 2 columns on mobile
+- Plan cards: stack vertically (`grid-cols-1` → `md:grid-cols-3`)
+- Growth Plan remains visually highlighted in the stacked order (placed second / center)
+- Persuasion blocks: stack vertically on mobile
+- CTA buttons: stack vertically on mobile
+
+---
+
+## Tone / Style Constraints Applied
+
+- No emojis anywhere in the component
+- No hype language ("life-changing", "only 23 spots left", countdown timer removed)
+- No coffee/coffee-price comparisons
+- Corporate, infrastructure-focused language throughout
+- Existing CSS variables respected (`--primary`, `--foreground`, `--muted-foreground`, `--border`, `--card`)
+- Global theme colors unchanged
+
+---
+
+## File Changed
+
+| File | Change |
+|------|--------|
+| `src/components/landing/Pricing.tsx` | Full rewrite with new 3-tier layout |
