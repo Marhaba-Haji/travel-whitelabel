@@ -47,11 +47,13 @@ const Header = () => {
           {/* Logo */}
           <div className="flex items-center">
             <a href="/" className="flex items-end gap-2.5">
-              <img
-                src="/assets/marhaba-dmc-logo.png"
-                alt="marhabaDMC"
-                className="h-7 w-auto object-contain flex-shrink-0"
-              />
+                <img
+                  src="/assets/marhaba-dmc-logo.png"
+                  alt="marhabaDMC"
+                  width="28"
+                  height="28"
+                  className="h-7 w-auto object-contain flex-shrink-0"
+                />
               <span className="text-[1.25rem] leading-none">
                 <span className="font-marhaba text-foreground">marhaba</span>
                 <span className="font-dmc font-semibold text-primary">DMC</span>
