@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { lazy, Suspense } from "react";
 import Index from "./pages/Index";
 import ProtectedRoute from "./components/admin/ProtectedRoute";
+import PageLoader from "./components/PageLoader";
 
 const About = lazy(() => import("./pages/About"));
 const Login = lazy(() => import("./pages/Login"));
@@ -30,7 +31,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-          <Suspense fallback={null}>
+          <Suspense fallback={<PageLoader />}>
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/about" element={<About />} />
