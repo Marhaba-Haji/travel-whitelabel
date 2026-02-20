@@ -218,6 +218,8 @@ const Footer = () => {
                   <img
                     src="/assets/marhaba-dmc-logo-white.png"
                     alt="marhabaDMC"
+                    width="28"
+                    height="28"
                     className="h-7 w-auto object-contain flex-shrink-0"
                   />
                   <span className="text-[1.1rem] leading-none text-background">
