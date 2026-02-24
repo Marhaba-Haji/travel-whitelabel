@@ -72,6 +72,7 @@ const PAYMENT_LINK_KEY = "signup_payment_pending";
 interface SignupFormProps {
   selectedPlanName: string;
   planBasePrice: number;
+  planKey: string;
   gstPercent: number;
   symbol?: string;
 }
@@ -82,7 +83,7 @@ type CouponValidation =
   | { status: "valid"; discount_type: string; discount_value: number }
   | { status: "invalid"; error: string };
 
-const SignupForm = ({ selectedPlanName, planBasePrice, gstPercent, symbol = "₹" }: SignupFormProps) => {
+const SignupForm = ({ selectedPlanName, planBasePrice, planKey, gstPercent, symbol = "₹" }: SignupFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -134,7 +135,7 @@ const SignupForm = ({ selectedPlanName, planBasePrice, gstPercent, symbol = "₹
     setCouponValidation({ status: "validating" });
     try {
       const { data, error } = await supabase.functions.invoke("validate-coupon", {
-        body: { code },
+        body: { code, planKey },
       });
       if (error) {
         setCouponValidation({ status: "invalid", error: error.message || "Validation failed" });

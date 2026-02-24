@@ -22,7 +22,7 @@ const Login = () => {
 
   const trustIndicators = [
     { icon: Users, text: "5000+ travelers looking for travel agents online every hour", color: "text-primary" },
-    { icon: TrendingUp, text: "Earn 50,000 per month on average", color: "text-gold" },
+    { icon: TrendingUp, text: "Earning potential of ₹50,000+/month", color: "text-gold" },
     { icon: Shield, text: "Secure & Trusted", color: "text-primary" },
   ];
 

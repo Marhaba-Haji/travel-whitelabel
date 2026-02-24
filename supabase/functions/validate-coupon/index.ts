@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { code } = await req.json();
+    const { code, planKey } = await req.json();
     if (!code) {
       return new Response(JSON.stringify({ valid: false, error: "No coupon code provided" }), {
         status: 400,
@@ -48,6 +48,16 @@ serve(async (req) => {
       return new Response(JSON.stringify({ valid: false, error: "Coupon usage limit reached" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+
+    // Check plan eligibility
+    if (coupon.applicable_plans && planKey) {
+      const plans = coupon.applicable_plans as string[];
+      if (plans.length > 0 && !plans.includes(planKey)) {
+        return new Response(JSON.stringify({ valid: false, error: "This coupon is not valid for the selected plan" }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
     }
 
     return new Response(JSON.stringify({

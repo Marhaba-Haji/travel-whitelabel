@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, X } from "lucide-react";
-import { usePricing } from "@/hooks/usePricing";
+import { usePlans } from "@/hooks/usePlans";
 
 const StickyCTA = () => {
-  const { formattedBasePrice, isLoading } = usePricing();
+  const { plans, formatted, isLoading } = usePlans();
+  const launchPlan = plans[0];
+  const formattedBasePrice = formatted(launchPlan.basePrice);
   const [isVisible, setIsVisible] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
 
