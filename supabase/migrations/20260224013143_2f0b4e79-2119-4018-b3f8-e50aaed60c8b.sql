@@ -1,0 +1,1 @@
+ALTER TABLE public.coupons ADD COLUMN applicable_plans text[] DEFAULT NULL;

@@ -24,8 +24,8 @@ const Hero = () => {
   const remainingIndicesRef = useRef<number[]>([]);
 
   const rotatingBenefits = [
-    "Earn ₹50,000+ Monthly",
-    "Travel the World for Free", 
+    "Earning Potential: ₹50,000+/mo",
+    "Travel at Insider Rates", 
     "Be Your Own Boss",
     "Work From Anywhere",
     "Start Earning in 24 Hours",
@@ -82,8 +82,8 @@ const Hero = () => {
     },
     {
       icon: Globe,
-      title: "Travel the World",
-      description: "Top agents get sponsored trips",
+      title: "Travel at Insider Rates",
+      description: "Access exclusive rates & more travel opportunities",
       color: "from-primary/80 to-primary/50",
     },
     {
@@ -294,8 +294,8 @@ const Hero = () => {
                   <CheckCircle className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Avg. Monthly Earning</p>
-                  <p className="text-lg font-bold text-primary">₹50,000+</p>
+                  <p className="text-xs text-muted-foreground">Earning Potential</p>
+                  <p className="text-lg font-bold text-primary">₹50,000+/mo</p>
                 </div>
               </div>
             </div>

@@ -49,6 +49,7 @@ export type Database = {
       }
       coupons: {
         Row: {
+          applicable_plans: string[] | null
           code: string
           created_at: string
           discount_type: string
@@ -62,6 +63,7 @@ export type Database = {
           valid_until: string | null
         }
         Insert: {
+          applicable_plans?: string[] | null
           code: string
           created_at?: string
           discount_type?: string
@@ -75,6 +77,7 @@ export type Database = {
           valid_until?: string | null
         }
         Update: {
+          applicable_plans?: string[] | null
           code?: string
           created_at?: string
           discount_type?: string

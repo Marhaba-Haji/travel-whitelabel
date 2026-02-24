@@ -81,6 +81,7 @@ const Signup = () => {
               <SignupForm
                 selectedPlanName={selectedPlan.name}
                 planBasePrice={selectedPlan.basePrice}
+                planKey={selectedPlan.key}
                 symbol={symbol}
                 gstPercent={gstPercent}
               />

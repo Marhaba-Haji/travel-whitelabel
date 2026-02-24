@@ -128,27 +128,20 @@ Deno.serve(async (req) => {
     let basePrice: number;
     let gstPercent: number;
 
+    // Read GST from plans_pricing (the key used by the admin CMS)
+    const { data: plansPricing } = await supabase
+      .from("site_settings")
+      .select("value")
+      .eq("key", "plans_pricing")
+      .single();
+    const pv = (plansPricing?.value as Record<string, unknown>) || {};
+    gstPercent = Number(pv.gst_percent) || 18;
+
     if (planBasePrice && typeof planBasePrice === "number" && planBasePrice > 0) {
-      // Use the plan price selected by the user on the frontend
       basePrice = planBasePrice;
-      // Still read GST% from site_settings
-      const { data: pricing } = await supabase
-        .from("site_settings")
-        .select("value")
-        .eq("key", "pricing")
-        .single();
-      const v = (pricing?.value as Record<string, unknown>) || {};
-      gstPercent = Number(v.gst_percent) || 0;
     } else {
-      // Fallback: read everything from site_settings (legacy / direct API call)
-      const { data: pricing } = await supabase
-        .from("site_settings")
-        .select("value")
-        .eq("key", "pricing")
-        .single();
-      const v = (pricing?.value as Record<string, unknown>) || {};
-      basePrice = Number(v.base_price) || 18799;
-      gstPercent = Number(v.gst_percent) || 0;
+      // Fallback: use launch price from plans_pricing or legacy pricing
+      basePrice = Number(pv.launch) || 24999;
     }
 
     let total = basePrice * (1 + gstPercent / 100);
@@ -170,7 +163,12 @@ Deno.serve(async (req) => {
         const validUntil = coupon.valid_until ? new Date(coupon.valid_until) : null;
         const underMaxUses = coupon.max_uses == null || coupon.times_used < coupon.max_uses;
 
-        if ((!validUntil || validUntil >= now) && underMaxUses) {
+        // Derive planKey from planName (e.g. "Growth Plan" -> "growth")
+        const planKey = planName ? String(planName).replace(/\s*plan\s*/i, "").trim().toLowerCase() : null;
+        const applicablePlans = (coupon as Record<string, unknown>).applicable_plans as string[] | null;
+        const planAllowed = !applicablePlans || !planKey || applicablePlans.includes(planKey);
+
+        if ((!validUntil || validUntil >= now) && underMaxUses && planAllowed) {
           if (coupon.discount_type === "percentage") {
             total = total * (1 - Number(coupon.discount_value) / 100);
           } else {
