@@ -28,7 +28,7 @@ const Hero = () => {
     "Travel at Insider Rates", 
     "Be Your Own Boss",
     "Work From Anywhere",
-    "Start Earning in 24 Hours",
+    "Launch-Ready in 24 Hours",
     "Build Your Dream Business"
   ];
 
@@ -180,7 +180,8 @@ const Hero = () => {
                 words={rotatingBenefits}
                 className="text-primary font-semibold"
                 typingSpeed={80}
-                pauseDuration={3000}
+                deletingSpeed={40}
+                pauseDuration={3500}
               />
             </div>
             
