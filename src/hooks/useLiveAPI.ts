@@ -142,14 +142,14 @@ export function useLiveAPI(systemInstruction: string) {
         }
       };
 
-      // Fetch ephemeral token from backend
+      // Fetch API key from backend
       const { data: tokenData, error: tokenError } = await supabase.functions.invoke('gemini-token');
-      if (tokenError || !tokenData?.token) {
-        throw new Error(tokenData?.error || 'Failed to get ephemeral token');
+      if (tokenError || !tokenData?.apiKey) {
+        throw new Error(tokenData?.error || 'Failed to get API key');
       }
 
       const ai = new GoogleGenAI({
-        apiKey: tokenData.token,
+        apiKey: tokenData.apiKey,
         httpOptions: { apiVersion: 'v1alpha' },
       });
 
