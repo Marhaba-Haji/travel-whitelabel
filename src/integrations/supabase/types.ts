@@ -14,36 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      voice_ai_leads: {
-        Row: {
-          id: string
-          name: string
-          email: string
-          phone: string | null
-          notes: string | null
-          source: string
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          name: string
-          email: string
-          phone?: string | null
-          notes?: string | null
-          source?: string
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          name?: string
-          email?: string
-          phone?: string | null
-          notes?: string | null
-          source?: string
-          created_at?: string
-        }
-        Relationships: []
-      }
       contact_enquiries: {
         Row: {
           created_at: string
@@ -330,6 +300,36 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      voice_ai_leads: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          name: string
+          notes: string | null
+          phone: string | null
+          source: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          name: string
+          notes?: string | null
+          phone?: string | null
+          source?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          source?: string
         }
         Relationships: []
       }
