@@ -23,7 +23,7 @@ const ROTATING_BENEFITS = [
   "Work From Anywhere",
   "Launch-Ready in 24 Hours",
   "Build Your Dream Business",
-] as const;
+];
 
 const Hero = () => {
   const { ref: leftRef, isVisible: leftVisible } = useScrollAnimation();
