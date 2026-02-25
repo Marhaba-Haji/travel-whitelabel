@@ -20,22 +20,8 @@ Deno.serve(async (req) => {
       );
     }
 
-    const client = new GoogleGenAI({
-      apiKey: GEMINI_API_KEY,
-      httpOptions: { apiVersion: "v1alpha" },
-    });
-
-    const expireTime = new Date(Date.now() + 5 * 60 * 1000).toISOString(); // 5 minutes
-
-    const token = await client.authTokens.create({
-      config: {
-        uses: 1,
-        expireTime,
-      },
-    });
-
     return new Response(
-      JSON.stringify({ token: token.name, expireTime }),
+      JSON.stringify({ apiKey: GEMINI_API_KEY }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
