@@ -73,8 +73,14 @@ export function useLiveAPI(systemInstruction: string) {
   const nextPlayTimeRef = useRef<number>(0);
   const sourceNodesRef = useRef<AudioBufferSourceNode[]>([]);
   const workletNodeRef = useRef<AudioWorkletNode | null>(null);
+  const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastSilencePromptRef = useRef<number>(0);
 
   const disconnect = useCallback(() => {
+    if (silenceTimerRef.current) {
+      clearTimeout(silenceTimerRef.current);
+      silenceTimerRef.current = null;
+    }
     if (sessionRef.current) {
       sessionRef.current.then((session: any) => session.close()).catch(() => {});
       sessionRef.current = null;
@@ -193,8 +199,8 @@ export function useLiveAPI(systemInstruction: string) {
             automaticActivityDetection: {
               startOfSpeechSensitivity: "START_SENSITIVITY_HIGH" as any,
               endOfSpeechSensitivity: "END_SENSITIVITY_HIGH" as any,
-              silenceDurationMs: 300,
-              prefixPaddingMs: 100,
+              silenceDurationMs: 200,
+              prefixPaddingMs: 50,
             }
           }
         },
@@ -273,6 +279,10 @@ export function useLiveAPI(systemInstruction: string) {
             }
 
             if (message.serverContent?.interrupted) {
+              if (silenceTimerRef.current) {
+                clearTimeout(silenceTimerRef.current);
+                silenceTimerRef.current = null;
+              }
               sourceNodesRef.current.forEach(node => {
                 try { node.stop(); } catch (e) {}
               });
@@ -285,6 +295,10 @@ export function useLiveAPI(systemInstruction: string) {
 
             const base64Audio = message.serverContent?.modelTurn?.parts?.[0]?.inlineData?.data;
             if (base64Audio && playbackContextRef.current) {
+              if (silenceTimerRef.current) {
+                clearTimeout(silenceTimerRef.current);
+                silenceTimerRef.current = null;
+              }
               setIsSpeaking(true);
               const binaryString = atob(base64Audio);
               const bytes = new Uint8Array(binaryString.length);
@@ -316,6 +330,22 @@ export function useLiveAPI(systemInstruction: string) {
                 sourceNodesRef.current = sourceNodesRef.current.filter(n => n !== source);
                 if (sourceNodesRef.current.length === 0) {
                   setIsSpeaking(false);
+                  const now = Date.now();
+                  const minInterval = 4000;
+                  if (now - lastSilencePromptRef.current >= minInterval && sessionRef.current) {
+                    silenceTimerRef.current = setTimeout(() => {
+                      silenceTimerRef.current = null;
+                      sessionRef.current?.then((session: any) => {
+                        if (session?.sendClientContent) {
+                          lastSilencePromptRef.current = Date.now();
+                          session.sendClientContent({
+                            turns: "[Brief pause - caller may be thinking or waiting. Say one short, natural sentence to re-engage: e.g. ask if they're still there, offer to help with something specific, or ask a follow-up question. Keep it warm and conversational.]",
+                            turnComplete: true
+                          });
+                        }
+                      }).catch(() => {});
+                  }, 2000);
+                  }
                 }
               };
             }
