@@ -61,7 +61,7 @@ const AboutStats = () => {
       suffix: "+",
       label: "Countries",
       description: "With inventory access",
-      color: "from-accent/80 to-accent/50",
+      color: "from-primary/90 to-primary/60",
     },
     {
       icon: GraduationCap,
@@ -69,15 +69,15 @@ const AboutStats = () => {
       suffix: "+",
       label: "Training Sessions",
       description: "Planned each year",
-      color: "from-accent/70 to-accent/40",
+      color: "from-primary/80 to-primary/50",
     },
     {
       icon: Bot,
       value: 50000,
       suffix: "+",
-      label: "AI Interactions",
+      label: "AI TEST Interactions",
       description: "Handled monthly",
-      color: "from-accent/60 to-accent/30",
+      color: "from-primary/70 to-primary/40",
     },
     {
       icon: Server,
@@ -85,7 +85,7 @@ const AboutStats = () => {
       suffix: "%",
       label: "Platform Uptime",
       description: "Reliable infrastructure",
-      color: "from-gold/80 to-gold/50",
+      color: "from-gold to-gold/70",
     },
   ];
 
