@@ -42,6 +42,12 @@ All colors MUST be HSL.
     --gold: 45 93% 47%;
     --gold-foreground: 0 0% 100%;
 
+    /* Nyra widget – maroon & mango yellow palette (modern warm contrast) */
+    --nyra: 348 58% 42%;
+    --nyra-foreground: 0 0% 100%;
+    --nyra-accent: 42 98% 55%;
+    --nyra-accent-foreground: 25 95% 15%;
+
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5% 26%;
     --sidebar-primary: 221 83% 53%;
@@ -92,6 +98,12 @@ All colors MUST be HSL.
     /* Premium accent for dark mode */
     --gold: 45 93% 47%;
     --gold-foreground: 0 0% 100%;
+
+    /* Nyra widget – maroon & mango yellow */
+    --nyra: 348 58% 48%;
+    --nyra-foreground: 0 0% 100%;
+    --nyra-accent: 42 98% 58%;
+    --nyra-accent-foreground: 25 95% 15%;
   }
 }
 

@@ -19,6 +19,21 @@ const SAVE_LEAD_FUNCTION = {
   }],
 };
 
+const UPDATE_LEAD_FUNCTION = {
+  functionDeclarations: [{
+    name: 'update_lead',
+    description: 'Update the lead record with the caller\'s requirements. Call this AFTER save_lead has been called, whenever the caller shares their travel needs, preferences, or requirements—e.g. destinations, dates, package type, visa needs, flight preferences, hotel preferences, group size, budget, etc. Call it as you learn new details during the conversation, before the call ends. Use the caller\'s email to identify the lead.',
+    parameters: {
+      type: 'object',
+      properties: {
+        email: { type: 'string', description: 'The caller\'s email address (used to find their lead record)' },
+        requirements: { type: 'string', description: 'Summary of the caller\'s requirements, preferences, or interests shared during the conversation' },
+      },
+      required: ['email', 'requirements'],
+    },
+  }],
+};
+
 const workletCode = `
 class AudioCaptureProcessor extends AudioWorkletProcessor {
   constructor() {
@@ -58,6 +73,33 @@ export function useLiveAPI(systemInstruction: string) {
   const nextPlayTimeRef = useRef<number>(0);
   const sourceNodesRef = useRef<AudioBufferSourceNode[]>([]);
   const workletNodeRef = useRef<AudioWorkletNode | null>(null);
+
+  const disconnect = useCallback(() => {
+    if (sessionRef.current) {
+      sessionRef.current.then((session: any) => session.close()).catch(() => {});
+      sessionRef.current = null;
+    }
+    if (workletNodeRef.current) {
+      workletNodeRef.current.disconnect();
+      workletNodeRef.current = null;
+    }
+    if (captureContextRef.current) {
+      captureContextRef.current.close();
+      captureContextRef.current = null;
+    }
+    if (playbackContextRef.current) {
+      playbackContextRef.current.close();
+      playbackContextRef.current = null;
+    }
+    if (mediaStreamRef.current) {
+      mediaStreamRef.current.getTracks().forEach(track => track.stop());
+      mediaStreamRef.current = null;
+    }
+    setIsConnected(false);
+    setIsConnecting(false);
+    setIsSpeaking(false);
+    sourceNodesRef.current = [];
+  }, []);
 
   const connect = useCallback(async () => {
     setIsConnecting(true);
@@ -119,7 +161,7 @@ export function useLiveAPI(systemInstruction: string) {
             voiceConfig: { prebuiltVoiceConfig: { voiceName: "Kore" } },
           },
           systemInstruction,
-          tools: [{ googleSearch: {} }, SAVE_LEAD_FUNCTION as any],
+          tools: [{ googleSearch: {} }, SAVE_LEAD_FUNCTION as any, UPDATE_LEAD_FUNCTION as any],
           realtimeInputConfig: {
             automaticActivityDetection: {
               startOfSpeechSensitivity: "START_SENSITIVITY_HIGH" as any,
@@ -138,7 +180,7 @@ export function useLiveAPI(systemInstruction: string) {
             // Send an initial message to prompt Nyra to start the conversation
             sessionPromise.then(session => {
               session.sendClientContent({
-                turns: "Hi Nyra! I just connected. Please greet me warmly, introduce yourself as representing Marhaba DMC, and in your first response ask only for my name—one thing at a time.",
+                turns: "Hi Nyra! I just connected. Please greet me warmly, introduce yourself as representing Marhaba DMC, mention that you can speak in any language I'm comfortable with, and in your first response ask only for my name—one thing at a time.",
                 turnComplete: true
               });
             }).catch(console.error);
@@ -172,6 +214,28 @@ export function useLiveAPI(systemInstruction: string) {
                       id: fc.id,
                       name: 'save_lead',
                       response: { success: false, saved: false, error: 'Failed to save' },
+                    });
+                  }
+                } else if (fc.name === 'update_lead' && fc.args) {
+                  const args = fc.args as { email?: string; requirements?: string };
+                  try {
+                    const { data, error } = await supabase.functions.invoke('voice-ai-lead-update', {
+                      body: {
+                        email: args.email || '',
+                        requirements: args.requirements || '',
+                      },
+                    });
+                    const updated = !error && data?.updated !== false;
+                    responses.push({
+                      id: fc.id,
+                      name: 'update_lead',
+                      response: { success: updated, updated },
+                    });
+                  } catch (err) {
+                    responses.push({
+                      id: fc.id,
+                      name: 'update_lead',
+                      response: { success: false, updated: false, error: 'Failed to update' },
                     });
                   }
                 }
@@ -246,34 +310,7 @@ export function useLiveAPI(systemInstruction: string) {
       setIsConnecting(false);
       disconnect();
     }
-  }, [systemInstruction]);
-
-  const disconnect = useCallback(() => {
-    if (sessionRef.current) {
-      sessionRef.current.then((session: any) => session.close()).catch(() => {});
-      sessionRef.current = null;
-    }
-    if (workletNodeRef.current) {
-      workletNodeRef.current.disconnect();
-      workletNodeRef.current = null;
-    }
-    if (captureContextRef.current) {
-      captureContextRef.current.close();
-      captureContextRef.current = null;
-    }
-    if (playbackContextRef.current) {
-      playbackContextRef.current.close();
-      playbackContextRef.current = null;
-    }
-    if (mediaStreamRef.current) {
-      mediaStreamRef.current.getTracks().forEach(track => track.stop());
-      mediaStreamRef.current = null;
-    }
-    setIsConnected(false);
-    setIsConnecting(false);
-    setIsSpeaking(false);
-    sourceNodesRef.current = [];
-  }, []);
+  }, [systemInstruction, disconnect]);
 
   return {
     isConnected,
