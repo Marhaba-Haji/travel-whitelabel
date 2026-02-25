@@ -124,9 +124,15 @@ export default function NyraWidget() {
                   )}
                 </button>
 
-                <div className="mt-6 h-8 text-center">
+                <div className="mt-6 min-h-[2rem] text-center px-4">
                   {error ? (
-                    <p className="text-destructive font-sans text-xs">{error}</p>
+                    error.startsWith('RATE_LIMITED:') ? (
+                      <p className="text-amber-600 dark:text-amber-400 font-sans text-xs leading-relaxed">
+                        ⏳ {error.replace('RATE_LIMITED:', '')}
+                      </p>
+                    ) : (
+                      <p className="text-destructive font-sans text-xs">{error}</p>
+                    )
                   ) : isConnecting ? (
                     <p className="text-nyra font-sans text-xs uppercase tracking-widest animate-pulse">Connecting...</p>
                   ) : isConnected ? (
