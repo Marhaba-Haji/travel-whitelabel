@@ -8,3 +8,9 @@ verify_jwt = false
 
 [functions.payu-callback]
 verify_jwt = false
+
+[functions.gemini-token]
+verify_jwt = false
+
+[functions.voice-ai-lead]
+verify_jwt = false

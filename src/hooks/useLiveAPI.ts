@@ -2,8 +2,6 @@ import { useState, useRef, useCallback } from 'react';
 import { GoogleGenAI, Modality, LiveServerMessage } from '@google/genai';
 import { supabase } from '@/integrations/supabase/client';
 
-const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
-
 const SAVE_LEAD_FUNCTION = {
   functionDeclarations: [{
     name: 'save_lead',
@@ -101,6 +99,17 @@ export function useLiveAPI(systemInstruction: string) {
           }).catch(() => {});
         }
       };
+
+      // Fetch ephemeral token from backend
+      const { data: tokenData, error: tokenError } = await supabase.functions.invoke('gemini-token');
+      if (tokenError || !tokenData?.token) {
+        throw new Error(tokenData?.error || 'Failed to get ephemeral token');
+      }
+
+      const ai = new GoogleGenAI({
+        apiKey: tokenData.token,
+        httpOptions: { apiVersion: 'v1alpha' },
+      });
 
       sessionPromise = ai.live.connect({
         model: "gemini-2.5-flash-native-audio-preview-09-2025",
