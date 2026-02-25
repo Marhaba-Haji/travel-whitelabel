@@ -16,21 +16,21 @@ import TypewriterText from "@/components/TypewriterText";
 import AnimatedCounter from "@/components/AnimatedCounter";
 import { useState, useEffect, useRef } from "react";
 
+const ROTATING_BENEFITS = [
+  "Earning Potential: ₹50,000+/mo",
+  "Travel at Insider Rates",
+  "Be Your Own Boss",
+  "Work From Anywhere",
+  "Launch-Ready in 24 Hours",
+  "Build Your Dream Business",
+] as const;
+
 const Hero = () => {
   const { ref: leftRef, isVisible: leftVisible } = useScrollAnimation();
   const { ref: rightRef, isVisible: rightVisible } = useScrollAnimation();
 
   const [currentActivityIndex, setCurrentActivityIndex] = useState(0);
   const remainingIndicesRef = useRef<number[]>([]);
-
-  const rotatingBenefits = [
-    "Earning Potential: ₹50,000+/mo",
-    "Travel at Insider Rates", 
-    "Be Your Own Boss",
-    "Work From Anywhere",
-    "Launch-Ready in 24 Hours",
-    "Build Your Dream Business"
-  ];
 
   const recentActivities = [
     { name: "Amjad", city: "Bangalore", action: "is looking for Turkey Visa" },
@@ -177,11 +177,12 @@ const Hero = () => {
             {/* Animated Typewriter Subtext */}
             <div className="text-xl md:text-2xl text-muted-foreground mb-6 min-h-[2rem] flex items-center justify-center lg:justify-start">
               <TypewriterText 
-                words={rotatingBenefits}
+                words={ROTATING_BENEFITS}
                 className="text-primary font-semibold"
                 typingSpeed={80}
                 deletingSpeed={40}
-                pauseDuration={3500}
+                pauseDuration={3000}
+                pausePerChar={100}
               />
             </div>
             
