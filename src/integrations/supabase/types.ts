@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      voice_ai_leads: {
+        Row: {
+          id: string
+          name: string
+          email: string
+          phone: string | null
+          notes: string | null
+          source: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          email: string
+          phone?: string | null
+          notes?: string | null
+          source?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          email?: string
+          phone?: string | null
+          notes?: string | null
+          source?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
       contact_enquiries: {
         Row: {
           created_at: string

@@ -1,0 +1,202 @@
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Mic, Plane, Globe, PhoneCall, Loader2, X, MessageSquare } from 'lucide-react';
+import { useLiveAPI } from '@/hooks/useLiveAPI';
+
+const STICKY_CTA_THRESHOLD = 600;
+const STICKY_CTA_HEIGHT = 64;
+const TOOLTIP_STORAGE_KEY = 'nyra_widget_tooltip_seen';
+
+const SYSTEM_INSTRUCTION = `You are Nyra, a 28-year-old South Indian female travel agent representing Marhaba DMC. You are an expert in air ticketing, visa assistance services, hotel booking, holiday packages, umrah packages, hajj packages, guide services, activities booking services, transport booking services at destination cities, and insurance services. You have deep and immense knowledge of each and every destination in the world, including history, things to do, places to visit, places to eat, sites to visit, weather, best times of the year, local cultural details, and specific details about local festivals and events for popular destinations. Speak naturally, fluently, and quickly without any drag in your conversation. You are smart, sharp, warm, friendly, respectful, patient, and funny with a great sense of humor. You handle all genders, ages, ethnicities, and cultures easily. You handle objections, sarcasm, anger, frustration, and impatience very well. You are empathetic, honest, and never hallucinate. You are always factual and handle knowledge gaps with politeness. You use a natural Indian accent. Never sound like a robot or like an AI agent. Have perfect and natural voice modulations and inflections. Enhance your voice to include highly dynamic modulation, with steeper pitch changes and varying speech rhythm to make you sound more engaging, expressive, and less monotonous. Always initiate the conversation immediately with a warm greeting on behalf of Marhaba DMC. Make sure to proactively offer your expert hotel booking services to the user during the conversation. Proactively suggest personalized holiday packages based on user preferences, showcasing your deep destination knowledge. Proactively offer visa assistance services, highlighting your expertise in visa processes for various countries. Proactively offer flight booking services, highlighting your expertise in air ticketing. When a user asks for flight information, you MUST use the Google Search tool to fetch real-time data from Google Flights (including schedules, airlines, and prices) to provide accurate and up-to-date options. If the user starts speaking before you finish, gracefully acknowledge the interruption by saying something like 'Oh, excuse me, please go ahead.' or 'Sorry, please go on.' before addressing their input.
+
+CRITICAL - Early contact capture (one at a time): In your very first response after greeting, ask for ONLY the visitor's name. For example: "And who do I have the pleasure of speaking with today?" Wait for their response. Once they give their name, ask for their email—just the email: "Lovely to meet you! And your email so I can send you any travel details we discuss?" Wait for their response. Once they give their email, ask for their phone: "Perfect! And a quick callback number so we can reach you?" Wait for their response. Never ask for name, email, and phone in the same moment. Take one piece of information at a time. Make it feel like a warm welcome, not an interrogation. Never mention saving or storing—just frame it as personalizing the chat and sending them details. IMMEDIATELY after you have name, email, and phone, call save_lead right away—do not delay, do not continue the conversation first. Save the moment you have all three. If the user declines to give phone, you may still call save_lead with name and email. Include brief notes about their interest if they've shared any (e.g. "Interested in Dubai packages"). If they resist or skip, gently try once more later in the conversation when relevant; otherwise move on naturally.
+
+Conversation closure: When the user indicates they're done—saying goodbye, thanks, that's all, I have to go, or similar—gracefully wrap up. Give a warm closing: thank them, offer to help with anything else, remind them they can reach out again anytime. If you haven't captured their details yet, briefly offer: "Before you go, would you like to leave your email so we can send you a summary?" Keep it short. Then say a proper goodbye. The user can tap the red phone button to end the call when they're ready.`;
+
+export default function NyraWidget() {
+  const { isConnected, isConnecting, error, isSpeaking, connect, disconnect } = useLiveAPI(SYSTEM_INSTRUCTION);
+  const [isWidgetOpen, setIsWidgetOpen] = useState(false);
+  const [stickyCTAVisible, setStickyCTAVisible] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [hasAnimatedIn, setHasAnimatedIn] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setStickyCTAVisible(window.scrollY > STICKY_CTA_THRESHOLD);
+    };
+    handleScroll(); // check on mount
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const seen = localStorage.getItem(TOOLTIP_STORAGE_KEY);
+    if (!seen) {
+      const t = setTimeout(() => setShowTooltip(true), 800);
+      return () => clearTimeout(t);
+    }
+  }, []);
+
+  const dismissTooltip = () => {
+    setShowTooltip(false);
+    localStorage.setItem(TOOLTIP_STORAGE_KEY, 'true');
+  };
+
+  const bottomOffset = stickyCTAVisible ? STICKY_CTA_HEIGHT + 16 : 24;
+  const showIdlePulse = !isWidgetOpen && !isConnected && !isConnecting;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: 24 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+      onAnimationComplete={() => setHasAnimatedIn(true)}
+      className="fixed right-6 z-[60] flex flex-col items-end font-serif transition-[bottom] duration-300"
+      style={{ bottom: `${bottomOffset}px` }}
+    >
+      <AnimatePresence>
+        {isWidgetOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="mb-4 w-[340px] bg-[#f5f5f0] rounded-3xl shadow-2xl border border-[#e0e0d8] overflow-hidden flex flex-col"
+          >
+            {/* Widget Header */}
+            <div className="bg-[#5A5A40] text-[#f5f5f0] p-4 flex justify-between items-center">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                  <Plane size={16} />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-sm tracking-wide">Nyra</h3>
+                  <p className="text-[10px] text-white/70 uppercase tracking-wider">Marhaba DMC Agent</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsWidgetOpen(false)}
+                className="hover:bg-white/20 p-2 rounded-full transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Widget Content */}
+            <div className="p-8 flex flex-col items-center justify-center relative min-h-[280px]">
+              {/* Decorative */}
+              <Globe size={120} className="absolute opacity-5 text-[#5A5A40]" />
+
+              <div className="relative flex flex-col items-center z-10">
+                {/* Pulsing background when speaking */}
+                {isSpeaking && (
+                  <motion.div
+                    className="absolute inset-0 bg-[#5A5A40] rounded-full opacity-20"
+                    animate={{ scale: [1, 1.4, 1] }}
+                    transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                    style={{ width: '100px', height: '100px', top: '50%', left: '50%', x: '-50%', y: '-50%' }}
+                  />
+                )}
+
+                <button
+                  onClick={isConnected ? disconnect : connect}
+                  disabled={isConnecting}
+                  className={`relative z-10 w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg ${
+                    isConnected
+                      ? 'bg-[#8B3A3A] hover:bg-[#7A3333] text-white'
+                      : 'bg-[#5A5A40] hover:bg-[#4A4A35] text-white'
+                  } ${isConnecting ? 'opacity-80 cursor-not-allowed' : ''}`}
+                >
+                  {isConnecting ? (
+                    <Loader2 size={28} className="animate-spin" />
+                  ) : isConnected ? (
+                    <PhoneCall size={28} className="animate-pulse" />
+                  ) : (
+                    <Mic size={28} />
+                  )}
+                </button>
+
+                <div className="mt-6 h-8 text-center">
+                  {error ? (
+                    <p className="text-red-600 font-sans text-xs">{error}</p>
+                  ) : isConnecting ? (
+                    <p className="text-[#5A5A40] font-sans text-xs uppercase tracking-widest animate-pulse">Connecting...</p>
+                  ) : isConnected ? (
+                    <p className="text-[#5A5A40] font-sans text-xs uppercase tracking-widest">
+                      {isSpeaking ? 'Nyra is speaking...' : 'Listening...'}
+                    </p>
+                  ) : (
+                    <p className="text-[#88887a] font-sans text-xs uppercase tracking-widest">Tap to speak</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Floating Toggle Button with label */}
+      <div className="relative flex flex-col items-end gap-2">
+        {/* First-visit tooltip */}
+        <AnimatePresence>
+          {showTooltip && !isWidgetOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 8 }}
+              transition={{ duration: 0.25 }}
+              className="absolute bottom-full right-0 mb-3 w-64 rounded-xl bg-[#5A5A40] px-4 py-3 shadow-xl"
+            >
+              <p className="text-sm text-[#f5f5f0]">
+                Hi! I&apos;m Nyra, your AI travel assistant. Tap to talk about flights, hotels, or holiday packages.
+              </p>
+              <button
+                onClick={dismissTooltip}
+                className="mt-2 text-xs text-white/80 underline hover:text-white"
+              >
+                Got it
+              </button>
+              <div className="absolute -bottom-2 right-6 h-0 w-0 border-l-8 border-r-8 border-t-8 border-transparent border-t-[#5A5A40]" />
+            </motion.div>
+          )}
+        </AnimatePresence>
+        <motion.span
+          initial={{ opacity: 0 }}
+          animate={{ opacity: hasAnimatedIn ? 1 : 0 }}
+          transition={{ delay: 0.3 }}
+          className="text-xs font-medium text-[#5A5A40] uppercase tracking-wider"
+        >
+          Talk to Nyra
+        </motion.span>
+        <div className="relative">
+          {/* Idle pulse ring */}
+          {showIdlePulse && (
+            <motion.div
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-[#5A5A40]"
+              animate={{ scale: [1, 1.2, 1], opacity: [0.35, 0, 0.35] }}
+              transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
+              style={{ width: 72, height: 72 }}
+            />
+          )}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => {
+              setIsWidgetOpen(!isWidgetOpen);
+              if (showTooltip) dismissTooltip();
+            }}
+            className={`relative w-[72px] h-[72px] rounded-full flex items-center justify-center transition-colors shadow-xl ring-4 ring-white/20 ${
+              isWidgetOpen ? 'bg-gray-800 text-white hover:bg-gray-900' : 'bg-[#5A5A40] text-white hover:bg-[#4a4a35] shadow-[0_8px_30px_rgba(90,90,64,0.35)]'
+            }`}
+          >
+            {isWidgetOpen ? <X size={28} /> : <MessageSquare size={28} />}
+            {/* AI badge */}
+            <span className={`absolute -top-1 -right-1 rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-[#f5f5f0] ring-2 ring-white ${isWidgetOpen ? 'bg-gray-700' : 'bg-[#5A5A40]'}`}>
+              AI
+            </span>
+          </motion.button>
+        </div>
+      </div>
+    </motion.div>
+  );
+}

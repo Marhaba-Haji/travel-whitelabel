@@ -4,12 +4,13 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, MessageSquare, Mail, Users, CreditCard,
-  DollarSign, Ticket, Settings, LogOut, Menu, X
+  DollarSign, Ticket, Settings, LogOut, Menu, X, Mic
 } from "lucide-react";
 
 const tabs = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
   { id: "enquiries", label: "Contact Enquiries", icon: MessageSquare },
+  { id: "voice-ai-leads", label: "Voice AI Leads", icon: Mic },
   { id: "newsletter", label: "Newsletter", icon: Mail },
   { id: "registrations", label: "Registrations", icon: Users },
   { id: "payments", label: "Payments", icon: CreditCard },

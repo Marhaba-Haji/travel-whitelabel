@@ -22,10 +22,8 @@ const FloatingWhatsApp = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Lift the button above the StickyCTA bar when it's visible
-  const bottomOffset = stickyCTAVisible
-    ? `${STICKY_CTA_HEIGHT + 16}px`
-    : "24px";
+  // Lift above StickyCTA when visible
+  const bottomOffset = stickyCTAVisible ? `${STICKY_CTA_HEIGHT + 16}px` : "24px";
 
   return (
     <a
@@ -33,7 +31,7 @@ const FloatingWhatsApp = () => {
       target="_blank"
       rel="noopener noreferrer"
       style={{ bottom: bottomOffset }}
-      className={`fixed right-6 z-[60] flex items-center gap-2 bg-[#25D366] text-primary-foreground px-4 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 ${
+      className={`fixed left-6 z-[60] flex items-center gap-2 bg-[#25D366] text-primary-foreground px-4 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 ${
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"
       }`}
       aria-label="Contact us on WhatsApp"

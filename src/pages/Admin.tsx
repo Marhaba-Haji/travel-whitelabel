@@ -2,6 +2,7 @@ import { useState } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import OverviewTab from "@/components/admin/OverviewTab";
 import ContactEnquiriesTab from "@/components/admin/ContactEnquiriesTab";
+import VoiceAILeadsTab from "@/components/admin/VoiceAILeadsTab";
 import NewsletterTab from "@/components/admin/NewsletterTab";
 import RegistrationsTab from "@/components/admin/RegistrationsTab";
 import PaymentsTab from "@/components/admin/PaymentsTab";
@@ -12,6 +13,7 @@ import SiteSettingsTab from "@/components/admin/SiteSettingsTab";
 const tabComponents: Record<string, React.FC> = {
   overview: OverviewTab,
   enquiries: ContactEnquiriesTab,
+  "voice-ai-leads": VoiceAILeadsTab,
   newsletter: NewsletterTab,
   registrations: RegistrationsTab,
   payments: PaymentsTab,

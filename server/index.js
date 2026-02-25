@@ -91,6 +91,43 @@ app.post("/api/contact", async (req, res) => {
   }
 });
 
+// ----- Voice AI lead (from Nyra conversations) -----
+app.post("/api/voice-ai-lead", async (req, res) => {
+  try {
+    const { name, email, phone, notes } = req.body || {};
+    if (!name?.trim() || !email?.trim()) {
+      return res.status(400).json({ error: "Name and email are required" });
+    }
+    const trimmedEmail = String(email).trim();
+    if (!trimmedEmail.includes("@")) {
+      return res.status(400).json({ error: "Please provide a valid email address" });
+    }
+
+    if (!supabase) {
+      console.warn("Supabase not configured; voice AI lead not stored");
+      return res.status(200).json({ success: true, saved: false });
+    }
+
+    const { error } = await supabase.from("voice_ai_leads").insert({
+      name: String(name).trim().slice(0, 100),
+      email: trimmedEmail.slice(0, 255),
+      phone: phone ? String(phone).trim().slice(0, 20) : null,
+      notes: notes ? String(notes).trim().slice(0, 1000) : null,
+      source: "nyra",
+    });
+
+    if (error) {
+      console.error("Voice AI lead insert error:", error);
+      return res.status(500).json({ error: "Failed to save lead. Please try again.", saved: false });
+    }
+
+    res.status(200).json({ success: true, saved: true });
+  } catch (err) {
+    console.error("Voice AI lead API error:", err);
+    res.status(500).json({ error: "Server error. Please try again.", saved: false });
+  }
+});
+
 // ----- Newsletter -----
 app.post("/api/newsletter", async (req, res) => {
   try {
