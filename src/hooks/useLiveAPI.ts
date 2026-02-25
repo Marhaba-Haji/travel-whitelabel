@@ -145,6 +145,10 @@ export function useLiveAPI(systemInstruction: string) {
       // Fetch API key from backend
       const { data: tokenData, error: tokenError } = await supabase.functions.invoke('gemini-token');
       if (tokenError || !tokenData?.apiKey) {
+        if (tokenData?.retryAfter || tokenData?.error?.includes('Rate limited')) {
+          const mins = Math.ceil((tokenData?.retryAfter || 300) / 60);
+          throw new Error(`RATE_LIMITED:Please wait ${mins} minute${mins > 1 ? 's' : ''} before starting another call.`);
+        }
         throw new Error(tokenData?.error || 'Failed to get API key');
       }
 
