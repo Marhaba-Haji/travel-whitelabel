@@ -144,7 +144,30 @@ export function useLiveAPI(systemInstruction: string) {
 
       // Fetch API key from backend
       const { data: tokenData, error: tokenError } = await supabase.functions.invoke('gemini-token');
-      if (tokenError || !tokenData?.apiKey) {
+      
+      if (tokenError) {
+        console.error("gemini-token error:", tokenError);
+        // Try to parse the error body for rate limit info
+        let errorBody: any = null;
+        try {
+          if (tokenError instanceof Response) {
+            errorBody = await tokenError.json();
+          } else if (typeof tokenError === 'object' && tokenError?.context) {
+            errorBody = JSON.parse(tokenError.context);
+          } else if (typeof tokenError === 'object' && tokenError?.message) {
+            try { errorBody = JSON.parse(tokenError.message); } catch {}
+          }
+        } catch {}
+        
+        if (errorBody?.retryAfter || errorBody?.error?.includes('Rate limited')) {
+          const mins = Math.ceil((errorBody?.retryAfter || 300) / 60);
+          throw new Error(`RATE_LIMITED:Please wait ${mins} minute${mins > 1 ? 's' : ''} before starting another call.`);
+        }
+        throw new Error(errorBody?.error || tokenError?.message || 'Failed to get API key');
+      }
+      
+      if (!tokenData?.apiKey) {
+        console.error("gemini-token returned no apiKey:", tokenData);
         if (tokenData?.retryAfter || tokenData?.error?.includes('Rate limited')) {
           const mins = Math.ceil((tokenData?.retryAfter || 300) / 60);
           throw new Error(`RATE_LIMITED:Please wait ${mins} minute${mins > 1 ? 's' : ''} before starting another call.`);
