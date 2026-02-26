@@ -4,7 +4,8 @@ import { useItinerary } from '@/contexts/ItineraryContext';
 import TripHeader from './TripHeader';
 import GuestCards from './GuestCards';
 import DayTimeline from './DayTimeline';
-import { Save, Share2, Check, Loader2, Link as LinkIcon } from 'lucide-react';
+import { Save, Share2, Check, Loader2, Link as LinkIcon, Download } from 'lucide-react';
+import { generateItineraryPDF } from '@/lib/itinerary-pdf';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -117,6 +118,13 @@ export default function ItineraryPanel() {
             >
               {shareId ? <LinkIcon size={12} /> : <Share2 size={12} />}
               {shareId ? 'Copy Link' : 'Save & Share'}
+            </button>
+            <button
+              onClick={() => generateItineraryPDF(state, totalPrice)}
+              className="flex items-center justify-center gap-1.5 text-xs font-medium py-2 px-3 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+              title="Download PDF"
+            >
+              <Download size={12} />
             </button>
           </div>
         </motion.div>
