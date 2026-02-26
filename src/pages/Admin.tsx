@@ -3,6 +3,7 @@ import AdminLayout from "@/components/admin/AdminLayout";
 import OverviewTab from "@/components/admin/OverviewTab";
 import ContactEnquiriesTab from "@/components/admin/ContactEnquiriesTab";
 import VoiceAILeadsTab from "@/components/admin/VoiceAILeadsTab";
+import SavedItinerariesTab from "@/components/admin/SavedItinerariesTab";
 import NewsletterTab from "@/components/admin/NewsletterTab";
 import RegistrationsTab from "@/components/admin/RegistrationsTab";
 import PaymentsTab from "@/components/admin/PaymentsTab";
@@ -14,6 +15,7 @@ const tabComponents: Record<string, React.FC> = {
   overview: OverviewTab,
   enquiries: ContactEnquiriesTab,
   "voice-ai-leads": VoiceAILeadsTab,
+  itineraries: SavedItinerariesTab,
   newsletter: NewsletterTab,
   registrations: RegistrationsTab,
   payments: PaymentsTab,

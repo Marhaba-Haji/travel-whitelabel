@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from '@/integrations/supabase/client';
-import { CalendarDays, MapPin, Users, Plane, BedDouble, FileCheck, Car, ArrowRightLeft, UtensilsCrossed, Shield, ArrowLeft, Share2 } from 'lucide-react';
+import { CalendarDays, MapPin, Users, Plane, BedDouble, FileCheck, Car, ArrowRightLeft, UtensilsCrossed, Shield, ArrowLeft, Share2, Download } from 'lucide-react';
+import { generateItineraryPDF } from '@/lib/itinerary-pdf';
 import type { ItemType } from '@/types/itinerary';
 import PageLoader from '@/components/PageLoader';
 
@@ -103,6 +104,23 @@ export default function SharedItinerary() {
     }
   };
 
+  const handleDownloadPDF = () => {
+    if (!itinerary) return;
+    const stateForPdf = {
+      tripInfo: {
+        title: itinerary.title || '',
+        destination: itinerary.destination || '',
+        currency: itinerary.currency,
+        startDate: itinerary.start_date || undefined,
+        endDate: itinerary.end_date || undefined,
+      },
+      guests: itinerary.guests || [],
+      days: itinerary.days || [],
+      isActive: true,
+    };
+    generateItineraryPDF(stateForPdf, itinerary.total_price);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -115,12 +133,20 @@ export default function SharedItinerary() {
           <Link to="/" className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm">
             <ArrowLeft size={16} /> Home
           </Link>
-          <button
-            onClick={handleShare}
-            className="flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
-          >
-            <Share2 size={14} /> Share
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={handleDownloadPDF}
+              className="flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+            >
+              <Download size={14} /> PDF
+            </button>
+            <button
+              onClick={handleShare}
+              className="flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+            >
+              <Share2 size={14} /> Share
+            </button>
+          </div>
         </div>
       </motion.header>
 
