@@ -261,6 +261,60 @@ export type Database = {
         }
         Relationships: []
       }
+      saved_itineraries: {
+        Row: {
+          created_at: string
+          currency: string
+          customer_email: string | null
+          customer_name: string | null
+          customer_phone: string | null
+          days: Json
+          destination: string | null
+          end_date: string | null
+          guests: Json
+          id: string
+          share_id: string
+          start_date: string | null
+          title: string | null
+          total_price: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          days?: Json
+          destination?: string | null
+          end_date?: string | null
+          guests?: Json
+          id?: string
+          share_id?: string
+          start_date?: string | null
+          title?: string | null
+          total_price?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          days?: Json
+          destination?: string | null
+          end_date?: string | null
+          guests?: Json
+          id?: string
+          share_id?: string
+          start_date?: string | null
+          title?: string | null
+          total_price?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
           id: string
