@@ -1,73 +1,153 @@
 
 
-## Plan: Fix GST Calculation, Plan-Level Coupons, and Messaging Updates
+# Real-Time Voice-Driven Itinerary Builder
 
-This plan addresses 4 distinct issues:
+## Overview
 
----
-
-### 1. Fix GST Not Applied in Payment Calculation
-
-**Root Cause:** The `create-payment` edge function reads GST from `site_settings` key `"pricing"` (the old single-plan row), but the admin CMS saves GST under the key `"plans_pricing"`. Both rows exist in the database, but the edge function looks at the wrong one.
-
-**Fix:**
-- Update `supabase/functions/create-payment/index.ts` to read GST from `plans_pricing` instead of `pricing`
-- Also update `src/components/landing/StickyCTA.tsx` which still uses the old `usePricing` hook -- switch it to `usePlans`
+When a customer starts talking to Nyra about a trip, the widget expands into a stunning split-screen experience: Nyra's voice call on one side, and a beautifully designed live itinerary being built in real-time on the other. Nyra adds flights, hotels, visas, activities, transport, meals, insurance -- all organized day-by-day with dates, prices, and guest details. The customer can also manually edit, delete, reorder, or modify any item directly on the page.
 
 ---
 
-### 2. Plan-Level Coupons
+## Architecture
 
-Currently coupons apply globally to any plan. The request is to restrict a coupon to specific plans (e.g., a bigger discount only for the Growth plan).
+```text
++---------------------------+     tool calls      +------------------+
+|  Gemini Live API (Voice)  | ──────────────────> |  useLiveAPI.ts   |
++---------------------------+                      +------------------+
+                                                          |
+                                              update_itinerary tool
+                                                          |
+                                                   React state
+                                                   (useItinerary)
+                                                          |
+                                          +-------------------------------+
+                                          |   Expanded Nyra Panel         |
+                                          |  [Voice Call] | [Itinerary]   |
+                                          +-------------------------------+
+```
 
-**Database Change:**
-- Add an `applicable_plans` column (type `text[]`, nullable, default `NULL`) to the `coupons` table
-- `NULL` means the coupon works for all plans (backward compatible)
-- A value like `{"growth", "authority"}` restricts it to those plans only
-
-**Code Changes:**
-- **Admin CouponsTab** -- add a multi-select for applicable plans (Launch, Growth, Authority) when creating a coupon; show the selected plans in the table
-- **`validate-coupon` edge function** -- accept `planKey` in the request body and check the coupon's `applicable_plans` against it; reject if the plan isn't eligible
-- **`create-payment` edge function** -- pass `planName` when validating the coupon internally, and check `applicable_plans`
-- **`SignupForm.tsx`** -- send the selected `planKey` when calling `validate-coupon` so the backend can verify eligibility
-- **`OrderSummary`** -- no changes needed (already receives discount data)
-
----
-
-### 3. Update "Earn 50,000+ Monthly" Messaging
-
-The phrase "Earn 50,000+ Monthly" sounds like a guaranteed income. Update to potential-focused language.
-
-**Files to update:**
-- `src/components/landing/Hero.tsx`:
-  - `rotatingBenefits` array: Change `"Earn ₹50,000+ Monthly"` to `"Earning Potential: ₹50,000+/mo"`
-  - Floating metric card: Change "Avg. Monthly Earning" / "₹50,000+" to "Earning Potential" / "₹50,000+/mo"
-- `src/pages/Login.tsx`:
-  - Trust indicator: Change `"Earn 50,000 per month on average"` to `"Earning potential of ₹50,000+/month"`
+No database table needed initially -- the itinerary lives in React state during the call. Persistence (save/share/PDF) can be added later.
 
 ---
 
-### 4. Update "Travel the World for Free" Messaging
+## What Gets Built
 
-This implies free travel which is misleading. The actual benefit is discounted travel rates and more travel opportunities.
+### 1. New Gemini Tool: `update_itinerary`
 
-**File to update:**
-- `src/components/landing/Hero.tsx`:
-  - `rotatingBenefits` array: Change `"Travel the World for Free"` to `"Travel at Insider Rates"`
-  - Benefit card for "Travel the World": Update description from "Top agents get sponsored trips" to "Access exclusive rates and more travel opportunities"
+A new function declaration added to `useLiveAPI.ts` tools. Nyra calls this whenever she discusses a travel component:
+
+- **Action**: `add`, `update`, `remove`, `set_guests`, `set_trip_info`
+- **Item types**: `flight`, `hotel`, `visa`, `activity`, `transport`, `transfer`, `meal`, `insurance`
+- **Fields**: day number, date, title, description, price, currency, guest names/ages, duration, location, etc.
+
+This tool updates a shared React state store (via a new `useItinerary` hook/context) that the UI subscribes to.
+
+### 2. Itinerary Data Model (TypeScript types)
+
+```text
+TripInfo: title, destination, startDate, endDate, currency
+Guest: name, age, relation (e.g. "spouse", "child")
+ItineraryItem: id, day, date, type, title, subtitle, price, details, guestIds
+ItineraryState: tripInfo, guests[], days[] (each day has items[])
+```
+
+### 3. Itinerary Context (`useItinerary` hook)
+
+- Shared React context providing the itinerary state
+- Exposes actions: `addItem`, `updateItem`, `removeItem`, `reorderItem`, `setGuests`, `setTripInfo`
+- The `useLiveAPI` tool handler calls these actions
+- The UI panel reads from this context for real-time rendering
+
+### 4. Expanded Nyra Widget UI
+
+When Nyra starts building an itinerary, the widget transforms:
+
+- **Collapsed mode** (current): Small floating button + popup card
+- **Expanded mode** (new): Full-screen or near-full overlay with two panels:
+  - **Left panel (~35%)**: Voice call controls (mic button, speaking indicator, waveform visualization)
+  - **Right panel (~65%)**: Live itinerary viewer/editor
+
+The transition uses smooth Motion animations (scale, slide, fade).
+
+### 5. Itinerary Panel Design
+
+**Header section:**
+- Trip title with gradient text animation
+- Destination with a subtle globe icon
+- Date range pill
+- Guest count badge
+- Total estimated price with animated counter
+
+**Guest cards:**
+- Horizontal scrollable cards showing each guest (name, age, relation)
+- Ability to click to edit or remove
+
+**Day-by-day timeline:**
+- Vertical timeline with animated connector lines
+- Each day is a section with the date as a header
+- Items within each day are cards with:
+  - Type icon (plane for flights, bed for hotels, map-pin for activities, etc.)
+  - Color-coded left border per type
+  - Title, subtitle, time, price
+  - Expand/collapse for details
+  - Edit and delete buttons (manual editing)
+  - Smooth entry animation (slide-up-fade) when Nyra adds them
+
+**Bottom bar:**
+- Running total price with animated counter
+- "Share" and "Download PDF" placeholder buttons
+
+### 6. Manual Editing Capabilities
+
+Each itinerary item supports:
+- **Inline edit**: Click title/price/date to edit directly
+- **Delete**: Remove with confirmation
+- **Drag to reorder**: Within the same day
+- **Add manually**: "+" button on each day to add items without voice
+
+### 7. Updated System Instruction
+
+Add instructions telling Nyra to use the `update_itinerary` tool as she discusses travel components, building the package step by step.
 
 ---
 
-### Technical Summary of All Changes
+## Files to Create/Modify
 
-| File | Change |
+| File | Action |
 |------|--------|
-| `supabase/functions/create-payment/index.ts` | Read GST from `plans_pricing` key instead of `pricing` |
-| `supabase/functions/validate-coupon/index.ts` | Accept `planKey`, check `applicable_plans` column |
-| `src/components/admin/CouponsTab.tsx` | Add plan-selection UI for coupon creation and display |
-| `src/components/auth/SignupForm.tsx` | Pass `planKey` to validate-coupon call |
-| `src/components/landing/Hero.tsx` | Update rotating benefits and benefit card text |
-| `src/components/landing/StickyCTA.tsx` | Switch from `usePricing` to `usePlans` hook |
-| `src/pages/Login.tsx` | Update trust indicator text |
-| Database migration | Add `applicable_plans text[]` column to `coupons` table |
+| `src/contexts/ItineraryContext.tsx` | Create -- itinerary state management |
+| `src/types/itinerary.ts` | Create -- TypeScript types |
+| `src/components/itinerary/ItineraryPanel.tsx` | Create -- main itinerary viewer |
+| `src/components/itinerary/DayTimeline.tsx` | Create -- day-by-day timeline |
+| `src/components/itinerary/ItineraryItem.tsx` | Create -- individual item card |
+| `src/components/itinerary/GuestCards.tsx` | Create -- guest display/edit |
+| `src/components/itinerary/TripHeader.tsx` | Create -- trip info header |
+| `src/components/itinerary/ItineraryFooter.tsx` | Create -- totals bar |
+| `src/components/NyraWidget.tsx` | Modify -- add expanded panel mode |
+| `src/hooks/useLiveAPI.ts` | Modify -- add update_itinerary tool |
+| `src/App.tsx` | Modify -- wrap with ItineraryProvider |
+
+---
+
+## Visual Design Details
+
+- **Color coding by item type**: Flights (sky blue), Hotels (violet), Visa (amber), Activities (emerald), Transport (orange), Meals (rose), Insurance (slate)
+- **Animated entry**: Each new item slides in with a subtle glow effect when Nyra adds it
+- **Glass-morphism cards**: Semi-transparent cards with backdrop blur
+- **Gradient timeline line**: Animated gradient flowing down the day connector
+- **Price counter**: Numbers animate up/down when prices change (using AnimatedCounter pattern already in the project)
+- **Responsive**: On mobile, the expanded view stacks vertically (voice on top, itinerary below as scrollable)
+
+---
+
+## Implementation Sequence
+
+1. Create TypeScript types and ItineraryContext
+2. Build the itinerary UI components (panel, timeline, items, guests, header, footer)
+3. Add `update_itinerary` tool declaration and handler to `useLiveAPI.ts`
+4. Refactor `NyraWidget.tsx` to support expanded panel mode
+5. Update system instruction to guide Nyra on itinerary building
+6. Wrap App with ItineraryProvider
+7. Add manual editing (inline edit, delete, reorder)
+8. Polish animations and responsive design
 
