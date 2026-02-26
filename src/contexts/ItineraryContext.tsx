@@ -107,6 +107,7 @@ interface ItineraryContextValue {
   addItem: (item: ItineraryItem) => void;
   updateItem: (id: string, updates: Partial<ItineraryItem>) => void;
   removeItem: (id: string) => void;
+  reorderItem: (id: string, newDay: number, newIndex: number) => void;
   setTripInfo: (info: Partial<TripInfo>) => void;
   setGuests: (guests: Guest[]) => void;
   addGuest: (guest: Guest) => void;
@@ -122,6 +123,7 @@ export function ItineraryProvider({ children }: { children: React.ReactNode }) {
   const addItem = useCallback((item: ItineraryItem) => dispatch({ type: 'ADD_ITEM', payload: item }), []);
   const updateItem = useCallback((id: string, updates: Partial<ItineraryItem>) => dispatch({ type: 'UPDATE_ITEM', payload: { id, updates } }), []);
   const removeItem = useCallback((id: string) => dispatch({ type: 'REMOVE_ITEM', payload: id }), []);
+  const reorderItem = useCallback((id: string, newDay: number, newIndex: number) => dispatch({ type: 'REORDER_ITEM', payload: { id, newDay, newIndex } }), []);
   const setTripInfo = useCallback((info: Partial<TripInfo>) => dispatch({ type: 'SET_TRIP_INFO', payload: info }), []);
   const setGuests = useCallback((guests: Guest[]) => dispatch({ type: 'SET_GUESTS', payload: guests }), []);
   const addGuest = useCallback((guest: Guest) => dispatch({ type: 'ADD_GUEST', payload: guest }), []);
@@ -130,7 +132,7 @@ export function ItineraryProvider({ children }: { children: React.ReactNode }) {
   const totalPrice = state.days.reduce((sum, d) => sum + d.items.reduce((s, i) => s + (i.price || 0), 0), 0);
 
   return (
-    <ItineraryContext.Provider value={{ state, dispatch, addItem, updateItem, removeItem, setTripInfo, setGuests, addGuest, removeGuest, totalPrice }}>
+    <ItineraryContext.Provider value={{ state, dispatch, addItem, updateItem, removeItem, reorderItem, setTripInfo, setGuests, addGuest, removeGuest, totalPrice }}>
       {children}
     </ItineraryContext.Provider>
   );
