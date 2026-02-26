@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
-import { Plane, BedDouble, FileCheck, MapPin, Car, ArrowRightLeft, UtensilsCrossed, Shield, Pencil, Trash2, Check, X, ChevronDown, ChevronUp } from 'lucide-react';
-import type { ItineraryItem as IItem, ItemType, ITEM_TYPE_CONFIG } from '@/types/itinerary';
+import { Plane, BedDouble, FileCheck, MapPin, Car, ArrowRightLeft, UtensilsCrossed, Shield, Pencil, Trash2, Check, X, ChevronDown, ChevronUp, GripVertical } from 'lucide-react';
+import type { ItineraryItem as IItem, ItemType } from '@/types/itinerary';
 import { useItinerary } from '@/contexts/ItineraryContext';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 const ICONS: Record<ItemType, React.ElementType> = {
   flight: Plane, hotel: BedDouble, visa: FileCheck, activity: MapPin,
@@ -17,15 +19,33 @@ const COLORS: Record<ItemType, string> = {
 interface Props {
   item: IItem;
   index: number;
+  sortable?: boolean;
 }
 
-export default function ItineraryItemCard({ item, index }: Props) {
+export default function ItineraryItemCard({ item, index, sortable }: Props) {
   const { updateItem, removeItem, state } = useItinerary();
   const [isEditing, setIsEditing] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [editTitle, setEditTitle] = useState(item.title);
   const [editPrice, setEditPrice] = useState(item.price?.toString() || '');
   const [editDetails, setEditDetails] = useState(item.details || '');
+
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: item.id, disabled: !sortable || isEditing });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+    borderLeftWidth: '3px',
+    borderLeftColor: `hsl(${COLORS[item.type] || '215 14% 45%'})`,
+  };
 
   const Icon = ICONS[item.type] || MapPin;
   const color = COLORS[item.type] || '215 14% 45%';
@@ -51,12 +71,13 @@ export default function ItineraryItemCard({ item, index }: Props) {
 
   return (
     <motion.div
+      ref={setNodeRef}
+      style={style}
       initial={{ opacity: 0, y: 12, scale: 0.97 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
+      animate={{ opacity: isDragging ? 0.4 : 1, y: 0, scale: 1 }}
       transition={{ delay: index * 0.05, duration: 0.3 }}
       layout
       className="group relative rounded-xl border border-border/60 bg-card/80 backdrop-blur-sm overflow-hidden hover:shadow-md transition-shadow"
-      style={{ borderLeftWidth: '3px', borderLeftColor: `hsl(${color})` }}
     >
       {/* Glow on entry */}
       <motion.div
@@ -68,7 +89,19 @@ export default function ItineraryItemCard({ item, index }: Props) {
       />
 
       <div className="relative p-3">
-        <div className="flex items-start gap-3">
+        <div className="flex items-start gap-2">
+          {/* Drag handle */}
+          {sortable && !isEditing && (
+            <button
+              {...attributes}
+              {...listeners}
+              className="w-5 h-8 flex items-center justify-center shrink-0 cursor-grab active:cursor-grabbing text-muted-foreground/40 hover:text-muted-foreground transition-colors mt-0.5 touch-none"
+              tabIndex={-1}
+            >
+              <GripVertical size={14} />
+            </button>
+          )}
+
           {/* Type icon */}
           <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
             style={{ backgroundColor: `hsl(${color} / 0.12)` }}>
