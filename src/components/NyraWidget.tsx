@@ -1,7 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Mic, Plane, Globe, PhoneCall, Loader2, X, MessageSquare } from 'lucide-react';
-import { useLiveAPI } from '@/hooks/useLiveAPI';
+import { Mic, Plane, Globe, PhoneCall, Loader2, X, MessageSquare, PanelRightOpen, PanelRightClose } from 'lucide-react';
+import { useLiveAPI, ItineraryToolHandler } from '@/hooks/useLiveAPI';
+import { useItinerary } from '@/contexts/ItineraryContext';
+import { useIsMobile } from '@/hooks/use-mobile';
+import ItineraryPanel from '@/components/itinerary/ItineraryPanel';
+import type { ItemType, Guest } from '@/types/itinerary';
 
 const STICKY_CTA_THRESHOLD = 600;
 const STICKY_CTA_HEIGHT = 64;
@@ -19,20 +23,111 @@ CRITICAL - Early contact capture (one at a time): In your very first response af
 
 CRITICAL - Update lead with requirements: AFTER save_lead has been called, as the conversation continues and the caller shares their travel needs, preferences, or requirements, you MUST call update_lead to add this information to their record BEFORE the call ends. Call update_lead whenever they share: destinations, travel dates, package type (holiday/umrah/hajj), visa needs, flight preferences, hotel preferences, group size, budget, or any other requirements. Use their email and a concise summary of what they shared. Call it multiple times during the conversation as you learn new details—do not wait until the end. This ensures their lead record is complete before they hang up.
 
+CRITICAL - LIVE ITINERARY BUILDER: You have access to the update_itinerary tool which builds a live visual itinerary on the customer's screen in real time as you discuss their trip. USE THIS TOOL PROACTIVELY AND FREQUENTLY:
+
+1. As soon as you learn the destination, call update_itinerary with action "set_trip_info" to set the trip title, destination, and currency.
+2. When you learn the travel dates, update the trip info with start_date and end_date.
+3. When you learn about the travellers (family members, ages, etc.), call update_itinerary with action "set_guests" providing the full guest list.
+4. As you discuss EACH component of the trip (flights, hotels, visa, activities, transport, transfers, meals, insurance), IMMEDIATELY call update_itinerary with action "add_item" for each one. Include:
+   - item_type (flight/hotel/visa/activity/transport/transfer/meal/insurance)
+   - day number (which day of the trip)
+   - date (the actual date)
+   - item_title (descriptive title)
+   - subtitle (brief description)
+   - price (estimated price in the trip currency)
+   - details (full details)
+   - time (if relevant)
+   - location (if relevant)
+   - duration (if relevant)
+5. If the customer wants to modify something, use action "update_item" with the item_id and updated fields.
+6. If they want to remove something, use action "remove_item" with the item_id.
+7. Build the itinerary day by day, component by component, as naturally as possible during the conversation.
+8. Use Google Search to estimate realistic prices for flights, hotels, activities, etc.
+9. Suggest a complete day-by-day plan proactively—don't just wait for the customer to ask for each component.
+
 Conversation closure: When the user indicates they're done—saying goodbye, thanks, that's all, I have to go, or similar—gracefully wrap up. Give a warm closing: thank them, offer to help with anything else, remind them they can reach out again anytime. If you haven't captured their details yet, briefly offer: "Before you go, would you like to leave your email so we can send you a summary?" Keep it short. Then say a proper goodbye. The user will tap the red phone button to end the call when they're ready.`;
 
 export default function NyraWidget() {
-  const { isConnected, isConnecting, error, isSpeaking, connect, disconnect } = useLiveAPI(SYSTEM_INSTRUCTION);
+  const { addItem, updateItem, removeItem, setTripInfo, setGuests, addGuest, state, dispatch } = useItinerary();
+  const isMobile = useIsMobile();
+
+  // Itinerary tool handler
+  const handleItineraryTool: ItineraryToolHandler = useCallback((action: string, args: Record<string, any>) => {
+    switch (action) {
+      case 'set_trip_info':
+        setTripInfo({
+          title: args.title,
+          destination: args.destination,
+          startDate: args.start_date,
+          endDate: args.end_date,
+          currency: args.currency || 'INR',
+        });
+        break;
+      case 'set_guests':
+        if (Array.isArray(args.guests)) {
+          const guests: Guest[] = args.guests.map((g: any) => ({
+            id: crypto.randomUUID(),
+            name: g.name,
+            age: g.age,
+            relation: g.relation,
+          }));
+          setGuests(guests);
+        }
+        break;
+      case 'add_item':
+        addItem({
+          id: crypto.randomUUID(),
+          day: args.day || 1,
+          date: args.date,
+          type: (args.item_type || 'activity') as ItemType,
+          title: args.item_title || 'Untitled',
+          subtitle: args.subtitle,
+          price: args.price,
+          details: args.details,
+          time: args.time,
+          location: args.location,
+          duration: args.duration,
+        });
+        break;
+      case 'update_item':
+        if (args.item_id) {
+          updateItem(args.item_id, {
+            ...(args.item_title && { title: args.item_title }),
+            ...(args.subtitle && { subtitle: args.subtitle }),
+            ...(args.price !== undefined && { price: args.price }),
+            ...(args.details && { details: args.details }),
+            ...(args.time && { time: args.time }),
+            ...(args.location && { location: args.location }),
+            ...(args.duration && { duration: args.duration }),
+            ...(args.day && { day: args.day }),
+            ...(args.date && { date: args.date }),
+          });
+        }
+        break;
+      case 'remove_item':
+        if (args.item_id) removeItem(args.item_id);
+        break;
+    }
+  }, [addItem, updateItem, removeItem, setTripInfo, setGuests]);
+
+  const { isConnected, isConnecting, error, isSpeaking, connect, disconnect } = useLiveAPI(SYSTEM_INSTRUCTION, handleItineraryTool);
   const [isWidgetOpen, setIsWidgetOpen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [stickyCTAVisible, setStickyCTAVisible] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const [hasAnimatedIn, setHasAnimatedIn] = useState(false);
 
+  // Auto-expand when itinerary becomes active
   useEffect(() => {
-    const handleScroll = () => {
-      setStickyCTAVisible(window.scrollY > STICKY_CTA_THRESHOLD);
-    };
-    handleScroll(); // check on mount
+    if (state.isActive && isConnected && !isExpanded) {
+      setIsExpanded(true);
+      setIsWidgetOpen(true);
+    }
+  }, [state.isActive, isConnected]);
+
+  useEffect(() => {
+    const handleScroll = () => setStickyCTAVisible(window.scrollY > STICKY_CTA_THRESHOLD);
+    handleScroll();
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -50,9 +145,115 @@ export default function NyraWidget() {
     localStorage.setItem(TOOLTIP_STORAGE_KEY, 'true');
   };
 
+  const handleDisconnect = () => {
+    disconnect();
+    // Don't reset itinerary — keep it visible for review
+  };
+
   const bottomOffset = stickyCTAVisible ? STICKY_CTA_HEIGHT + 16 : 24;
   const showIdlePulse = !isWidgetOpen && !isConnected && !isConnecting;
 
+  // ── EXPANDED MODE ──────────────────────────────────────────────────────────
+  if (isExpanded && isWidgetOpen) {
+    return (
+      <AnimatePresence>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[60] bg-background/80 backdrop-blur-sm"
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            className={`absolute inset-3 md:inset-6 rounded-2xl border border-border bg-card shadow-2xl overflow-hidden flex ${isMobile ? 'flex-col' : 'flex-row'}`}
+          >
+            {/* LEFT: Voice Panel */}
+            <div className={`${isMobile ? 'h-[35%]' : 'w-[35%]'} flex flex-col border-b md:border-b-0 md:border-r border-border/50 bg-gradient-to-br from-card to-muted/30`}>
+              {/* Header bar */}
+              <div className="flex items-center justify-between px-4 py-3 border-b border-border/50">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-full bg-nyra/15 flex items-center justify-center">
+                    <Plane size={13} className="text-nyra" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-foreground">Nyra</h3>
+                    <p className="text-[9px] text-muted-foreground uppercase tracking-widest">Marhaba DMC</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => setIsExpanded(false)}
+                    className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-muted transition-colors"
+                    title="Collapse panel"
+                  >
+                    <PanelRightClose size={14} className="text-muted-foreground" />
+                  </button>
+                  <button
+                    onClick={() => { setIsWidgetOpen(false); setIsExpanded(false); }}
+                    className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-muted transition-colors"
+                  >
+                    <X size={14} className="text-muted-foreground" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Voice area */}
+              <div className="flex-1 flex flex-col items-center justify-center relative px-6">
+                <Globe size={isMobile ? 80 : 120} className="absolute opacity-[0.04] text-nyra" />
+
+                <div className="relative flex flex-col items-center z-10">
+                  {isSpeaking && (
+                    <motion.div
+                      className="absolute inset-0 bg-nyra rounded-full opacity-20"
+                      animate={{ scale: [1, 1.5, 1] }}
+                      transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                      style={{ width: '100px', height: '100px', top: '50%', left: '50%', x: '-50%', y: '-50%' }}
+                    />
+                  )}
+
+                  <button
+                    onClick={isConnected ? handleDisconnect : connect}
+                    disabled={isConnecting}
+                    className={`relative z-10 w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg ${
+                      isConnected ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground' : 'bg-nyra hover:bg-nyra/90 text-nyra-foreground'
+                    } ${isConnecting ? 'opacity-80 cursor-not-allowed' : ''}`}
+                  >
+                    {isConnecting ? <Loader2 size={28} className="animate-spin" /> : isConnected ? <PhoneCall size={28} className="animate-pulse" /> : <Mic size={28} />}
+                  </button>
+
+                  <div className="mt-5 min-h-[2rem] text-center">
+                    {error ? (
+                      error.startsWith('RATE_LIMITED:') ? (
+                        <p className="text-amber-600 dark:text-amber-400 font-sans text-xs leading-relaxed">⏳ {error.replace('RATE_LIMITED:', '')}</p>
+                      ) : (
+                        <p className="text-destructive font-sans text-xs">{error}</p>
+                      )
+                    ) : isConnecting ? (
+                      <p className="text-nyra font-sans text-xs uppercase tracking-widest animate-pulse">Connecting...</p>
+                    ) : isConnected ? (
+                      <p className="text-nyra font-sans text-xs uppercase tracking-widest">{isSpeaking ? 'Nyra is speaking...' : 'Listening...'}</p>
+                    ) : (
+                      <p className="text-muted-foreground font-sans text-xs uppercase tracking-widest">Tap to speak</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* RIGHT: Itinerary Panel */}
+            <div className={`${isMobile ? 'h-[65%]' : 'flex-1'} overflow-hidden`}>
+              <ItineraryPanel />
+            </div>
+          </motion.div>
+        </motion.div>
+      </AnimatePresence>
+    );
+  }
+
+  // ── COLLAPSED / NORMAL MODE ────────────────────────────────────────────────
   return (
     <motion.div
       initial={{ opacity: 0, x: 24 }}
@@ -82,21 +283,27 @@ export default function NyraWidget() {
                   <p className="text-[10px] text-nyra-foreground/80 uppercase tracking-wider">Marhaba DMC Agent</p>
                 </div>
               </div>
-              <button
-                onClick={() => setIsWidgetOpen(false)}
-                className="hover:bg-nyra-foreground/20 p-2 rounded-full transition-colors"
-              >
-                <X size={18} />
-              </button>
+              <div className="flex items-center gap-1">
+                {/* Expand button — only show when itinerary has content or is connected */}
+                {(state.isActive || isConnected) && (
+                  <button
+                    onClick={() => setIsExpanded(true)}
+                    className="hover:bg-nyra-foreground/20 p-2 rounded-full transition-colors"
+                    title="Expand itinerary view"
+                  >
+                    <PanelRightOpen size={16} />
+                  </button>
+                )}
+                <button onClick={() => setIsWidgetOpen(false)} className="hover:bg-nyra-foreground/20 p-2 rounded-full transition-colors">
+                  <X size={18} />
+                </button>
+              </div>
             </div>
 
             {/* Widget Content */}
             <div className="p-8 flex flex-col items-center justify-center relative min-h-[280px] bg-gradient-to-b from-nyra/5 to-nyra-accent/5">
-              {/* Decorative */}
               <Globe size={120} className="absolute opacity-[0.06] text-nyra" />
-
               <div className="relative flex flex-col items-center z-10">
-                {/* Pulsing background when speaking */}
                 {isSpeaking && (
                   <motion.div
                     className="absolute inset-0 bg-nyra rounded-full opacity-25"
@@ -105,40 +312,26 @@ export default function NyraWidget() {
                     style={{ width: '100px', height: '100px', top: '50%', left: '50%', x: '-50%', y: '-50%' }}
                   />
                 )}
-
                 <button
-                  onClick={isConnected ? disconnect : connect}
+                  onClick={isConnected ? handleDisconnect : connect}
                   disabled={isConnecting}
                   className={`relative z-10 w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg ${
-                    isConnected
-                      ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground'
-                      : 'bg-nyra hover:bg-nyra/90 text-nyra-foreground'
+                    isConnected ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground' : 'bg-nyra hover:bg-nyra/90 text-nyra-foreground'
                   } ${isConnecting ? 'opacity-80 cursor-not-allowed' : ''}`}
                 >
-                  {isConnecting ? (
-                    <Loader2 size={28} className="animate-spin" />
-                  ) : isConnected ? (
-                    <PhoneCall size={28} className="animate-pulse" />
-                  ) : (
-                    <Mic size={28} />
-                  )}
+                  {isConnecting ? <Loader2 size={28} className="animate-spin" /> : isConnected ? <PhoneCall size={28} className="animate-pulse" /> : <Mic size={28} />}
                 </button>
-
                 <div className="mt-6 min-h-[2rem] text-center px-4">
                   {error ? (
                     error.startsWith('RATE_LIMITED:') ? (
-                      <p className="text-amber-600 dark:text-amber-400 font-sans text-xs leading-relaxed">
-                        ⏳ {error.replace('RATE_LIMITED:', '')}
-                      </p>
+                      <p className="text-amber-600 dark:text-amber-400 font-sans text-xs leading-relaxed">⏳ {error.replace('RATE_LIMITED:', '')}</p>
                     ) : (
                       <p className="text-destructive font-sans text-xs">{error}</p>
                     )
                   ) : isConnecting ? (
                     <p className="text-nyra font-sans text-xs uppercase tracking-widest animate-pulse">Connecting...</p>
                   ) : isConnected ? (
-                    <p className="text-nyra font-sans text-xs uppercase tracking-widest">
-                      {isSpeaking ? 'Nyra is speaking...' : 'Listening...'}
-                    </p>
+                    <p className="text-nyra font-sans text-xs uppercase tracking-widest">{isSpeaking ? 'Nyra is speaking...' : 'Listening...'}</p>
                   ) : (
                     <p className="text-muted-foreground font-sans text-xs uppercase tracking-widest">Tap to speak</p>
                   )}
@@ -149,9 +342,8 @@ export default function NyraWidget() {
         )}
       </AnimatePresence>
 
-      {/* Floating Toggle Button with label */}
+      {/* Floating Toggle Button */}
       <div className="relative flex flex-col items-end gap-2">
-        {/* First-visit tooltip */}
         <AnimatePresence>
           {showTooltip && !isWidgetOpen && (
             <motion.div
@@ -161,15 +353,8 @@ export default function NyraWidget() {
               transition={{ duration: 0.25 }}
               className="absolute bottom-full right-0 mb-3 w-64 rounded-xl bg-nyra text-nyra-foreground px-4 py-3 shadow-xl border border-nyra/30"
             >
-              <p className="text-sm">
-                Hi! I&apos;m Nyra, your AI travel assistant. Tap to talk about flights, hotels, or holiday packages.
-              </p>
-              <button
-                onClick={dismissTooltip}
-                className="mt-2 text-xs text-nyra-foreground/80 underline hover:text-nyra-foreground"
-              >
-                Got it
-              </button>
+              <p className="text-sm">Hi! I&apos;m Nyra, your AI travel assistant. Tap to talk about flights, hotels, or holiday packages.</p>
+              <button onClick={dismissTooltip} className="mt-2 text-xs text-nyra-foreground/80 underline hover:text-nyra-foreground">Got it</button>
               <div className="absolute -bottom-2 right-6 h-0 w-0 border-l-8 border-r-8 border-t-8 border-transparent border-t-nyra" />
             </motion.div>
           )}
@@ -183,7 +368,6 @@ export default function NyraWidget() {
           Talk to Nyra
         </motion.span>
         <div className="relative">
-          {/* Idle pulse ring */}
           {showIdlePulse && (
             <motion.div
               className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-nyra"
@@ -206,10 +390,7 @@ export default function NyraWidget() {
             }`}
           >
             {isWidgetOpen ? <X size={28} /> : <MessageSquare size={28} />}
-            {/* AI badge */}
-            <span className={`absolute -top-1 -right-1 rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider ring-2 ring-background ${
-              isWidgetOpen ? 'bg-nyra-accent text-nyra-accent-foreground' : 'bg-nyra-accent text-nyra-accent-foreground'
-            }`}>
+            <span className={`absolute -top-1 -right-1 rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider ring-2 ring-background bg-nyra-accent text-nyra-accent-foreground`}>
               AI
             </span>
           </motion.button>
