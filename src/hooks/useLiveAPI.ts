@@ -260,21 +260,33 @@ export function useLiveAPI(systemInstruction: string, onItineraryTool?: Itinerar
               for (const fc of toolCall.functionCalls) {
                 if (fc.name === 'save_lead' && fc.args) {
                   const args = fc.args as any;
-                  try {
-                    const { data, error } = await supabase.functions.invoke('voice-ai-lead', {
-                      body: { name: args.name || '', email: args.email || '', phone: args.phone || undefined, notes: args.notes || undefined },
-                    });
-                    responses.push({ id: fc.id, name: 'save_lead', response: { success: !error && data?.saved !== false } });
-                  } catch { responses.push({ id: fc.id, name: 'save_lead', response: { success: false } }); }
+                  const leadName = (args.name || '').trim();
+                  const leadEmail = (args.email || '').trim();
+                  if (!leadName || !leadEmail || !leadEmail.includes('@')) {
+                    responses.push({ id: fc.id, name: 'save_lead', response: { success: false, error: 'Name and a valid email are required. Please ask the customer again.' } });
+                  } else {
+                    try {
+                      const { data, error } = await supabase.functions.invoke('voice-ai-lead', {
+                        body: { name: leadName, email: leadEmail, phone: args.phone || undefined, notes: args.notes || undefined },
+                      });
+                      responses.push({ id: fc.id, name: 'save_lead', response: { success: !error && data?.saved !== false } });
+                    } catch { responses.push({ id: fc.id, name: 'save_lead', response: { success: false } }); }
+                  }
 
                 } else if (fc.name === 'update_lead' && fc.args) {
                   const args = fc.args as any;
-                  try {
-                    const { data, error } = await supabase.functions.invoke('voice-ai-lead-update', {
-                      body: { email: args.email || '', requirements: args.requirements || '' },
-                    });
-                    responses.push({ id: fc.id, name: 'update_lead', response: { success: !error && data?.updated !== false } });
-                  } catch { responses.push({ id: fc.id, name: 'update_lead', response: { success: false } }); }
+                  const updateEmail = (args.email || '').trim();
+                  const requirements = (args.requirements || '').trim();
+                  if (!updateEmail || !updateEmail.includes('@') || !requirements) {
+                    responses.push({ id: fc.id, name: 'update_lead', response: { success: false, error: 'A valid email and requirements text are needed.' } });
+                  } else {
+                    try {
+                      const { data, error } = await supabase.functions.invoke('voice-ai-lead-update', {
+                        body: { email: updateEmail, requirements },
+                      });
+                      responses.push({ id: fc.id, name: 'update_lead', response: { success: !error && data?.updated !== false } });
+                    } catch { responses.push({ id: fc.id, name: 'update_lead', response: { success: false } }); }
+                  }
 
                 } else if (fc.name === 'update_itinerary' && fc.args) {
                   const args = fc.args as Record<string, any>;
