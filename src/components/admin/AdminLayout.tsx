@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, MessageSquare, Mail, Users, CreditCard,
-  DollarSign, Ticket, Settings, LogOut, Menu, X, Mic, Map
+  DollarSign, Ticket, Settings, LogOut, Menu, X, Mic, Map, Bot
 } from "lucide-react";
 
 const tabs = [
@@ -17,6 +17,7 @@ const tabs = [
   { id: "payments", label: "Payments", icon: CreditCard },
   { id: "pricing", label: "Pricing & GST", icon: DollarSign },
   { id: "coupons", label: "Coupons", icon: Ticket },
+  { id: "ai-agent", label: "AI Agent Config", icon: Bot },
   { id: "settings", label: "Site Settings", icon: Settings },
 ];
 

@@ -50,13 +50,11 @@ Call this tool proactively and frequently as you discuss the trip. Do NOT wait u
       type: 'object',
       properties: {
         action: { type: 'string', description: 'One of: set_trip_info, set_guests, add_item, update_item, remove_item' },
-        // set_trip_info fields
         title: { type: 'string', description: 'Trip title, e.g. "Family Dubai Adventure"' },
         destination: { type: 'string', description: 'Main destination' },
         start_date: { type: 'string', description: 'Trip start date, e.g. "15 Mar 2026"' },
         end_date: { type: 'string', description: 'Trip end date, e.g. "22 Mar 2026"' },
         currency: { type: 'string', description: 'Currency code, default INR' },
-        // set_guests fields
         guests: {
           type: 'array',
           description: 'Full guest list',
@@ -70,7 +68,6 @@ Call this tool proactively and frequently as you discuss the trip. Do NOT wait u
             required: ['name'],
           },
         },
-        // add_item / update_item fields
         item_id: { type: 'string', description: 'Item ID (for update/remove)' },
         item_type: { type: 'string', description: 'One of: flight, hotel, visa, activity, transport, transfer, meal, insurance' },
         day: { type: 'number', description: 'Day number (1-based)' },
@@ -84,6 +81,37 @@ Call this tool proactively and frequently as you discuss the trip. Do NOT wait u
         duration: { type: 'string', description: 'Duration, e.g. "3 hours"' },
       },
       required: ['action'],
+    },
+  }],
+};
+
+const SAVE_SESSION_CONTEXT_FUNCTION = {
+  functionDeclarations: [{
+    name: 'save_session_context',
+    description: 'Save a summary of the conversation so far. Call this periodically (every 3-4 exchanges) so context is preserved if the connection drops. Include a concise summary of everything discussed.',
+    parameters: {
+      type: 'object',
+      properties: {
+        summary: { type: 'string', description: 'Concise summary of the entire conversation so far, including caller name, requirements, itinerary discussed, etc.' },
+        visitor_name: { type: 'string', description: 'The caller\'s name if known' },
+        visitor_email: { type: 'string', description: 'The caller\'s email if known' },
+      },
+      required: ['summary'],
+    },
+  }],
+};
+
+const SEND_WHATSAPP_FUNCTION = {
+  functionDeclarations: [{
+    name: 'send_whatsapp',
+    description: 'Generate a WhatsApp message link to send information to the caller. Use when the caller asks you to send details via WhatsApp.',
+    parameters: {
+      type: 'object',
+      properties: {
+        phone: { type: 'string', description: 'Caller phone number with country code, e.g. +919008447887' },
+        message: { type: 'string', description: 'The message to pre-fill in WhatsApp' },
+      },
+      required: ['phone', 'message'],
     },
   }],
 };
@@ -120,9 +148,25 @@ registerProcessor('audio-capture-processor', AudioCaptureProcessor);
 
 export type ItineraryToolHandler = (action: string, args: Record<string, any>) => void;
 
+export interface SessionContext {
+  sessionId: string;
+  previousSummary?: string;
+}
+
+export interface CommunicationConfig {
+  whatsapp?: boolean;
+  email?: boolean;
+  sms?: boolean;
+}
+
 // ── Hook ───────────────────────────────────────────────────────────────────────
 
-export function useLiveAPI(systemInstruction: string, onItineraryTool?: ItineraryToolHandler) {
+export function useLiveAPI(
+  systemInstruction: string,
+  onItineraryTool?: ItineraryToolHandler,
+  sessionContext?: SessionContext,
+  communicationConfig?: CommunicationConfig,
+) {
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -137,6 +181,10 @@ export function useLiveAPI(systemInstruction: string, onItineraryTool?: Itinerar
   const workletNodeRef = useRef<AudioWorkletNode | null>(null);
   const onItineraryToolRef = useRef(onItineraryTool);
   onItineraryToolRef.current = onItineraryTool;
+  const sessionContextRef = useRef(sessionContext);
+  sessionContextRef.current = sessionContext;
+  const communicationConfigRef = useRef(communicationConfig);
+  communicationConfigRef.current = communicationConfig;
 
   const disconnect = useCallback(() => {
     if (sessionRef.current) {
@@ -217,18 +265,25 @@ export function useLiveAPI(systemInstruction: string, onItineraryTool?: Itinerar
 
       const ai = new GoogleGenAI({ apiKey: tokenData.apiKey, httpOptions: { apiVersion: 'v1alpha' } });
 
+      // Build tools list
+      const tools: any[] = [
+        { googleSearch: {} },
+        SAVE_LEAD_FUNCTION,
+        UPDATE_LEAD_FUNCTION,
+        UPDATE_ITINERARY_FUNCTION,
+        SAVE_SESSION_CONTEXT_FUNCTION,
+      ];
+      if (communicationConfigRef.current?.whatsapp) {
+        tools.push(SEND_WHATSAPP_FUNCTION);
+      }
+
       sessionPromise = ai.live.connect({
         model: "gemini-2.5-flash-native-audio-preview-09-2025",
         config: {
           responseModalities: [Modality.AUDIO],
           speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Kore" } } },
           systemInstruction,
-          tools: [
-            { googleSearch: {} },
-            SAVE_LEAD_FUNCTION as any,
-            UPDATE_LEAD_FUNCTION as any,
-            UPDATE_ITINERARY_FUNCTION as any,
-          ],
+          tools,
           realtimeInputConfig: {
             automaticActivityDetection: {
               startOfSpeechSensitivity: "START_SENSITIVITY_HIGH" as any,
@@ -243,11 +298,22 @@ export function useLiveAPI(systemInstruction: string, onItineraryTool?: Itinerar
             setIsConnected(true);
             setIsConnecting(false);
             sessionRef.current = sessionPromise;
+
+            const ctx = sessionContextRef.current;
+            const hasPreviousContext = ctx?.previousSummary && ctx.previousSummary.trim().length > 0;
+
             sessionPromise.then(session => {
-              session.sendClientContent({
-                turns: "Hi Nyra! I just connected. Please greet me warmly, introduce yourself as representing Marhaba DMC, mention that you can speak in any language I'm comfortable with, and in your first response ask only for my name—one thing at a time.",
-                turnComplete: true
-              });
+              if (hasPreviousContext) {
+                session.sendClientContent({
+                  turns: `Hi Nyra, we were speaking earlier. Here's what we discussed: ${ctx!.previousSummary}. Continue from where we left off naturally. Don't repeat the greeting—just acknowledge we're reconnecting and pick up the conversation.`,
+                  turnComplete: true
+                });
+              } else {
+                session.sendClientContent({
+                  turns: "Hi Nyra! I just connected. Please greet me warmly, introduce yourself as representing Marhaba DMC, mention that you can speak in any language I'm comfortable with, and in your first response ask only for my name—one thing at a time.",
+                  turnComplete: true
+                });
+              }
             }).catch(console.error);
           },
           onmessage: async (message: LiveServerMessage) => {
@@ -295,6 +361,40 @@ export function useLiveAPI(systemInstruction: string, onItineraryTool?: Itinerar
                     responses.push({ id: fc.id, name: 'update_itinerary', response: { success: true } });
                   } catch {
                     responses.push({ id: fc.id, name: 'update_itinerary', response: { success: false } });
+                  }
+
+                } else if (fc.name === 'save_session_context' && fc.args) {
+                  const args = fc.args as any;
+                  const sid = sessionContextRef.current?.sessionId;
+                  if (sid) {
+                    try {
+                      await supabase.functions.invoke('voice-ai-session', {
+                        body: {
+                          session_id: sid,
+                          conversation_summary: args.summary || '',
+                          visitor_name: args.visitor_name || undefined,
+                          visitor_email: args.visitor_email || undefined,
+                        },
+                      });
+                      responses.push({ id: fc.id, name: 'save_session_context', response: { success: true } });
+                    } catch {
+                      responses.push({ id: fc.id, name: 'save_session_context', response: { success: false } });
+                    }
+                  } else {
+                    responses.push({ id: fc.id, name: 'save_session_context', response: { success: false, error: 'No session ID' } });
+                  }
+
+                } else if (fc.name === 'send_whatsapp' && fc.args) {
+                  const args = fc.args as any;
+                  const phone = (args.phone || '').replace(/[^+\d]/g, '');
+                  const message = args.message || '';
+                  if (phone && message) {
+                    const waLink = `https://wa.me/${phone.replace('+', '')}?text=${encodeURIComponent(message)}`;
+                    // Open in new tab for the visitor
+                    window.open(waLink, '_blank');
+                    responses.push({ id: fc.id, name: 'send_whatsapp', response: { success: true, message: 'WhatsApp message link opened for the caller.' } });
+                  } else {
+                    responses.push({ id: fc.id, name: 'send_whatsapp', response: { success: false, error: 'Phone and message are required.' } });
                   }
                 }
               }

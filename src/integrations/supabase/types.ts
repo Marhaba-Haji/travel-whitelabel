@@ -357,6 +357,39 @@ export type Database = {
         }
         Relationships: []
       }
+      voice_ai_lead_documents: {
+        Row: {
+          created_at: string
+          document_type: string
+          file_name: string
+          file_size: number | null
+          file_url: string
+          id: string
+          lead_email: string
+          mime_type: string | null
+        }
+        Insert: {
+          created_at?: string
+          document_type: string
+          file_name: string
+          file_size?: number | null
+          file_url: string
+          id?: string
+          lead_email: string
+          mime_type?: string | null
+        }
+        Update: {
+          created_at?: string
+          document_type?: string
+          file_name?: string
+          file_size?: number | null
+          file_url?: string
+          id?: string
+          lead_email?: string
+          mime_type?: string | null
+        }
+        Relationships: []
+      }
       voice_ai_leads: {
         Row: {
           created_at: string
@@ -387,6 +420,39 @@ export type Database = {
           phone?: string | null
           source?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      voice_ai_sessions: {
+        Row: {
+          conversation_summary: string | null
+          created_at: string
+          id: string
+          itinerary_state: Json | null
+          last_active_at: string
+          session_id: string
+          visitor_email: string | null
+          visitor_name: string | null
+        }
+        Insert: {
+          conversation_summary?: string | null
+          created_at?: string
+          id?: string
+          itinerary_state?: Json | null
+          last_active_at?: string
+          session_id: string
+          visitor_email?: string | null
+          visitor_name?: string | null
+        }
+        Update: {
+          conversation_summary?: string | null
+          created_at?: string
+          id?: string
+          itinerary_state?: Json | null
+          last_active_at?: string
+          session_id?: string
+          visitor_email?: string | null
+          visitor_name?: string | null
         }
         Relationships: []
       }
