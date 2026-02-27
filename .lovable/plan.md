@@ -1,153 +1,151 @@
 
 
-# Real-Time Voice-Driven Itinerary Builder
+# Session Persistence + Admin AI Agent Configuration
 
-## Overview
+## Problem 1: Lost Context on Reconnect
 
-When a customer starts talking to Nyra about a trip, the widget expands into a stunning split-screen experience: Nyra's voice call on one side, and a beautifully designed live itinerary being built in real-time on the other. Nyra adds flights, hotels, visas, activities, transport, meals, insurance -- all organized day-by-day with dates, prices, and guest details. The customer can also manually edit, delete, reorder, or modify any item directly on the page.
+When the Gemini Live API WebSocket drops or the page refreshes, all conversation context is lost. The AI starts from scratch with no memory of the previous interaction.
+
+**Solution**: Generate a persistent session ID per visitor, periodically save a conversation summary to the database, and on reconnect, inject the previous context as initial turns so the AI remembers everything.
+
+## Problem 2: No Way to Update Agent Knowledge or Behavior
+
+All of Nyra's knowledge (visa prices, packages, behavior rules) is hardcoded in the source code. To update anything, you'd need a code change. You also can't instruct Nyra to send emails, WhatsApp messages, or SMS.
+
+**Solution**: A new "AI Agent Config" tab in the admin panel with rich text areas for knowledge, behavior, and communication tool configuration. These get fetched at runtime and injected into the system prompt.
 
 ---
 
 ## Architecture
 
 ```text
-+---------------------------+     tool calls      +------------------+
-|  Gemini Live API (Voice)  | ──────────────────> |  useLiveAPI.ts   |
-+---------------------------+                      +------------------+
-                                                          |
-                                              update_itinerary tool
-                                                          |
-                                                   React state
-                                                   (useItinerary)
-                                                          |
-                                          +-------------------------------+
-                                          |   Expanded Nyra Panel         |
-                                          |  [Voice Call] | [Itinerary]   |
-                                          +-------------------------------+
+Admin Panel                    site_settings (DB)
+ [AI Agent Config Tab]  --->  key: "nyra_config"
+                               { knowledge, behavior, comms }
+                                        |
+                                        v
+NyraWidget (on load)  <--- fetches nyra_config
+                        |
+                        +---> Builds dynamic system instruction
+                        |     (hardcoded base + admin overrides)
+                        |
+                        +---> Session ID (sessionStorage)
+                        |
+                        +---> On connect: load previous context
+                              from voice_ai_sessions table
+                              and send as initial turns
 ```
-
-No database table needed initially -- the itinerary lives in React state during the call. Persistence (save/share/PDF) can be added later.
 
 ---
 
-## What Gets Built
+## Part 1: Session Persistence
 
-### 1. New Gemini Tool: `update_itinerary`
+### Database
 
-A new function declaration added to `useLiveAPI.ts` tools. Nyra calls this whenever she discusses a travel component:
+New table: `voice_ai_sessions`
+- `id` (uuid, PK)
+- `session_id` (text, unique) -- random ID stored in browser sessionStorage
+- `visitor_name` (text, nullable)
+- `visitor_email` (text, nullable)
+- `conversation_summary` (text) -- rolling summary of what was discussed
+- `itinerary_state` (jsonb) -- snapshot of the itinerary so far
+- `last_active_at` (timestamptz)
+- `created_at` (timestamptz)
 
-- **Action**: `add`, `update`, `remove`, `set_guests`, `set_trip_info`
-- **Item types**: `flight`, `hotel`, `visa`, `activity`, `transport`, `transfer`, `meal`, `insurance`
-- **Fields**: day number, date, title, description, price, currency, guest names/ages, duration, location, etc.
+RLS: public insert/update (anonymous visitors need to write), superadmin select.
 
-This tool updates a shared React state store (via a new `useItinerary` hook/context) that the UI subscribes to.
+### Edge Function: `voice-ai-session`
 
-### 2. Itinerary Data Model (TypeScript types)
+Handles POST (upsert session data) and GET (retrieve by session_id). Called:
+- On connect: GET to load previous context
+- Periodically during the call: POST to save summary (via a new Gemini tool)
 
+### New Gemini Tool: `save_session_context`
+
+A tool the AI calls periodically (every few exchanges) to summarize the conversation so far. This summary gets stored in the DB. On reconnect, it's sent back as context.
+
+### Client-Side Flow
+
+1. On page load, check `sessionStorage` for `nyra_session_id`. If none, generate one.
+2. On `connect()`, fetch any existing session data for that ID.
+3. If found, send previous summary + itinerary state as initial context turns (before the greeting).
+4. The greeting message changes: instead of "Hi Nyra, greet me warmly", it becomes "Hi Nyra, we were speaking earlier. Here's what we discussed: [summary]. Continue from where we left off."
+5. Add the `save_session_context` tool so the AI can persist summaries during the call.
+
+### useLiveAPI Changes
+
+- Accept a `sessionContext` parameter (previous summary text, if any)
+- Modify the `onopen` callback to inject session context as initial turns when reconnecting
+- Add `save_session_context` tool declaration and handler
+
+---
+
+## Part 2: Admin AI Agent Configuration
+
+### Database
+
+New `site_settings` key: `nyra_config` with value structure:
 ```text
-TripInfo: title, destination, startDate, endDate, currency
-Guest: name, age, relation (e.g. "spouse", "child")
-ItineraryItem: id, day, date, type, title, subtitle, price, details, guestIds
-ItineraryState: tripInfo, guests[], days[] (each day has items[])
+{
+  knowledge_base: "Visa prices: ...\nPackages: ...\nDocuments: ...",
+  behavior_instructions: "Handle pauses gracefully...\nWhen caller is frustrated...",
+  communication_enabled: { email: true, whatsapp: true, sms: false },
+  additional_notes: "Any extra context..."
+}
 ```
 
-### 3. Itinerary Context (`useItinerary` hook)
+No new table needed -- uses existing `site_settings` with upsert on key `nyra_config`.
 
-- Shared React context providing the itinerary state
-- Exposes actions: `addItem`, `updateItem`, `removeItem`, `reorderItem`, `setGuests`, `setTripInfo`
-- The `useLiveAPI` tool handler calls these actions
-- The UI panel reads from this context for real-time rendering
+### Admin Tab: AI Agent Config
 
-### 4. Expanded Nyra Widget UI
+New tab in the admin panel with:
+- **Knowledge Base** (large textarea): Visa prices, package details, document requirements, destination info, seasonal offers, etc.
+- **Behavior Instructions** (large textarea): How to handle pauses, interruptions, frustration, aggression, call flow preferences, tone adjustments
+- **Communication Tools** (toggles): Enable/disable email, WhatsApp, SMS capabilities
+- **Additional Notes** (textarea): Any other context or overrides
+- Save button that upserts to `site_settings` with key `nyra_config`
 
-When Nyra starts building an itinerary, the widget transforms:
+### Dynamic System Instruction
 
-- **Collapsed mode** (current): Small floating button + popup card
-- **Expanded mode** (new): Full-screen or near-full overlay with two panels:
-  - **Left panel (~35%)**: Voice call controls (mic button, speaking indicator, waveform visualization)
-  - **Right panel (~65%)**: Live itinerary viewer/editor
+The NyraWidget will:
+1. Fetch `nyra_config` from `site_settings` on mount
+2. Append the admin-provided knowledge and behavior text to the base system instruction
+3. Conditionally include communication tool declarations based on toggles
 
-The transition uses smooth Motion animations (scale, slide, fade).
+### New Gemini Tools (Communication)
 
-### 5. Itinerary Panel Design
+- `send_whatsapp`: Sends a WhatsApp message to the caller via the WhatsApp Business API link (opens wa.me link or calls an edge function)
+- `send_email`: Calls an edge function that sends an email (using a future email integration)
+- `send_sms`: Placeholder for SMS integration
 
-**Header section:**
-- Trip title with gradient text animation
-- Destination with a subtle globe icon
-- Date range pill
-- Guest count badge
-- Total estimated price with animated counter
-
-**Guest cards:**
-- Horizontal scrollable cards showing each guest (name, age, relation)
-- Ability to click to edit or remove
-
-**Day-by-day timeline:**
-- Vertical timeline with animated connector lines
-- Each day is a section with the date as a header
-- Items within each day are cards with:
-  - Type icon (plane for flights, bed for hotels, map-pin for activities, etc.)
-  - Color-coded left border per type
-  - Title, subtitle, time, price
-  - Expand/collapse for details
-  - Edit and delete buttons (manual editing)
-  - Smooth entry animation (slide-up-fade) when Nyra adds them
-
-**Bottom bar:**
-- Running total price with animated counter
-- "Share" and "Download PDF" placeholder buttons
-
-### 6. Manual Editing Capabilities
-
-Each itinerary item supports:
-- **Inline edit**: Click title/price/date to edit directly
-- **Delete**: Remove with confirmation
-- **Drag to reorder**: Within the same day
-- **Add manually**: "+" button on each day to add items without voice
-
-### 7. Updated System Instruction
-
-Add instructions telling Nyra to use the `update_itinerary` tool as she discusses travel components, building the package step by step.
+For now, `send_whatsapp` will generate a pre-filled WhatsApp link, and `send_email`/`send_sms` will be marked as "coming soon" in the tool response (the AI will tell the caller it will arrange for a follow-up).
 
 ---
 
 ## Files to Create/Modify
 
-| File | Action |
-|------|--------|
-| `src/contexts/ItineraryContext.tsx` | Create -- itinerary state management |
-| `src/types/itinerary.ts` | Create -- TypeScript types |
-| `src/components/itinerary/ItineraryPanel.tsx` | Create -- main itinerary viewer |
-| `src/components/itinerary/DayTimeline.tsx` | Create -- day-by-day timeline |
-| `src/components/itinerary/ItineraryItem.tsx` | Create -- individual item card |
-| `src/components/itinerary/GuestCards.tsx` | Create -- guest display/edit |
-| `src/components/itinerary/TripHeader.tsx` | Create -- trip info header |
-| `src/components/itinerary/ItineraryFooter.tsx` | Create -- totals bar |
-| `src/components/NyraWidget.tsx` | Modify -- add expanded panel mode |
-| `src/hooks/useLiveAPI.ts` | Modify -- add update_itinerary tool |
-| `src/App.tsx` | Modify -- wrap with ItineraryProvider |
-
----
-
-## Visual Design Details
-
-- **Color coding by item type**: Flights (sky blue), Hotels (violet), Visa (amber), Activities (emerald), Transport (orange), Meals (rose), Insurance (slate)
-- **Animated entry**: Each new item slides in with a subtle glow effect when Nyra adds it
-- **Glass-morphism cards**: Semi-transparent cards with backdrop blur
-- **Gradient timeline line**: Animated gradient flowing down the day connector
-- **Price counter**: Numbers animate up/down when prices change (using AnimatedCounter pattern already in the project)
-- **Responsive**: On mobile, the expanded view stacks vertically (voice on top, itinerary below as scrollable)
+| File | Action | Purpose |
+|------|--------|---------|
+| `supabase/migrations/...voice_ai_sessions.sql` | Create | New sessions table |
+| `supabase/functions/voice-ai-session/index.ts` | Create | Session CRUD edge function |
+| `src/components/admin/AIAgentConfigTab.tsx` | Create | Admin config UI |
+| `src/components/admin/AdminLayout.tsx` | Modify | Add AI Agent Config tab |
+| `src/pages/Admin.tsx` | Modify | Register new tab component |
+| `src/hooks/useNyraConfig.ts` | Create | Fetch nyra_config from site_settings |
+| `src/hooks/useLiveAPI.ts` | Modify | Add session context + save_session_context + communication tools |
+| `src/components/NyraWidget.tsx` | Modify | Fetch config, manage session ID, build dynamic prompt |
+| `supabase/config.toml` | Modify | Add voice-ai-session function config |
 
 ---
 
 ## Implementation Sequence
 
-1. Create TypeScript types and ItineraryContext
-2. Build the itinerary UI components (panel, timeline, items, guests, header, footer)
-3. Add `update_itinerary` tool declaration and handler to `useLiveAPI.ts`
-4. Refactor `NyraWidget.tsx` to support expanded panel mode
-5. Update system instruction to guide Nyra on itinerary building
-6. Wrap App with ItineraryProvider
-7. Add manual editing (inline edit, delete, reorder)
-8. Polish animations and responsive design
+1. Create `voice_ai_sessions` table via migration
+2. Create `voice-ai-session` edge function
+3. Create `useNyraConfig` hook to fetch admin config
+4. Create `AIAgentConfigTab` admin component
+5. Wire up admin tab in AdminLayout and Admin page
+6. Update `useLiveAPI` with session persistence logic and new tools
+7. Update `NyraWidget` to use dynamic system instruction and session management
+8. Test end-to-end: configure agent in admin, start call, disconnect, reconnect and verify context is preserved
 
