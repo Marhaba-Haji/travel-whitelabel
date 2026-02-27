@@ -117,6 +117,9 @@ export default function NyraWidget() {
       if (nyraConfig.communication_enabled?.whatsapp) {
         instruction += `\n\nCRITICAL - WHATSAPP: You have access to the send_whatsapp tool. When the caller asks you to send details via WhatsApp, use this tool with their phone number and the message content. The message will be sent via WhatsApp.`;
       }
+      if (nyraConfig.communication_enabled?.email) {
+        instruction += `\n\nCRITICAL - EMAIL: You have access to the send_email tool. When the caller asks you to email them details, quotes, itinerary summaries, or any information, use this tool. Provide their email address, a clear subject line, and a well-formatted HTML body with professional styling. You can send emails proactively when relevant—for example, after discussing a package or itinerary, offer to email a summary.`;
+      }
     }
     return instruction;
   }, [nyraConfig]);
