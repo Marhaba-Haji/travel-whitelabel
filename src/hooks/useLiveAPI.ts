@@ -408,9 +408,18 @@ export function useLiveAPI(
                   const phone = (args.phone || '').replace(/[^+\d]/g, '');
                   const message = args.message || '';
                   if (phone && message) {
-                    const waLink = `https://wa.me/${phone.replace('+', '')}?text=${encodeURIComponent(message)}`;
-                    window.open(waLink, '_blank');
-                    responses.push({ id: fc.id, name: 'send_whatsapp', response: { success: true, message: 'WhatsApp message link opened for the caller.' } });
+                    try {
+                      const { error: waErr } = await supabase.functions.invoke('send-whatsapp', {
+                        body: { to: phone, message },
+                      });
+                      if (waErr) {
+                        responses.push({ id: fc.id, name: 'send_whatsapp', response: { success: false, error: 'Failed to send WhatsApp message. Tell the caller you will arrange to send it manually.' } });
+                      } else {
+                        responses.push({ id: fc.id, name: 'send_whatsapp', response: { success: true, message: `WhatsApp message sent successfully to ${phone}.` } });
+                      }
+                    } catch {
+                      responses.push({ id: fc.id, name: 'send_whatsapp', response: { success: false, error: 'WhatsApp service error.' } });
+                    }
                   } else {
                     responses.push({ id: fc.id, name: 'send_whatsapp', response: { success: false, error: 'Phone and message are required.' } });
                   }
