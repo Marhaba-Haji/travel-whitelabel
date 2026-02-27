@@ -9,6 +9,7 @@ import RegistrationsTab from "@/components/admin/RegistrationsTab";
 import PaymentsTab from "@/components/admin/PaymentsTab";
 import PricingTab from "@/components/admin/PricingTab";
 import CouponsTab from "@/components/admin/CouponsTab";
+import AIAgentConfigTab from "@/components/admin/AIAgentConfigTab";
 import SiteSettingsTab from "@/components/admin/SiteSettingsTab";
 
 const tabComponents: Record<string, React.FC> = {
@@ -21,6 +22,7 @@ const tabComponents: Record<string, React.FC> = {
   payments: PaymentsTab,
   pricing: PricingTab,
   coupons: CouponsTab,
+  "ai-agent": AIAgentConfigTab,
   settings: SiteSettingsTab,
 };
 

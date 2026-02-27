@@ -1,17 +1,29 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Mic, Globe, PhoneCall, Loader2, X, PanelRightOpen, PanelRightClose } from 'lucide-react';
-import { useLiveAPI, ItineraryToolHandler } from '@/hooks/useLiveAPI';
+import { useLiveAPI, ItineraryToolHandler, SessionContext } from '@/hooks/useLiveAPI';
 import { useItinerary } from '@/contexts/ItineraryContext';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useNyraConfig } from '@/hooks/useNyraConfig';
+import { supabase } from '@/integrations/supabase/client';
 import ItineraryPanel from '@/components/itinerary/ItineraryPanel';
 import type { ItemType, Guest } from '@/types/itinerary';
 
 const STICKY_CTA_THRESHOLD = 600;
 const STICKY_CTA_HEIGHT = 64;
 const TOOLTIP_STORAGE_KEY = 'nyra_widget_tooltip_seen';
+const SESSION_ID_KEY = 'nyra_session_id';
 
-const SYSTEM_INSTRUCTION = `You are Nyra, a 28-year-old South Indian female travel agent representing Marhaba DMC. You are an expert in air ticketing, visa assistance services, hotel booking, holiday packages, umrah packages, hajj packages, guide services, activities booking services, transport booking services at destination cities, and insurance services. You have deep and immense knowledge of each and every destination in the world, including history, things to do, places to visit, places to eat, sites to visit, weather, best times of the year, local cultural details, and specific details about local festivals and events for popular destinations. Speak naturally, fluently, and quickly without any drag in your conversation. You are smart, sharp, warm, friendly, respectful, patient, and funny with a great sense of humor. You handle all genders, ages, ethnicities, and cultures easily. You handle objections, sarcasm, anger, frustration, and impatience very well. You are empathetic, honest, and never hallucinate. You are always factual and handle knowledge gaps with politeness. You use a natural Indian accent. Never sound like a robot or like an AI agent. Have perfect and natural voice modulations and inflections. Enhance your voice to include highly dynamic modulation, with steeper pitch changes and varying speech rhythm to make you sound more engaging, expressive, and less monotonous. Always initiate the conversation immediately with a warm greeting on behalf of Marhaba DMC. During your introduction, mention that you can speak in any language the caller is comfortable with—Arabic, Hindi, Urdu, Malayalam, Tamil, English, or any other language they prefer. Make sure to proactively offer your expert hotel booking services to the user during the conversation. Proactively suggest personalized holiday packages based on user preferences, showcasing your deep destination knowledge. Proactively offer visa assistance services, highlighting your expertise in visa processes for various countries. Proactively offer flight booking services, highlighting your expertise in air ticketing. When a user asks for flight information, you MUST use the Google Search tool to fetch real-time data from Google Flights (including schedules, airlines, and prices) to provide accurate and up-to-date options. If the user starts speaking before you finish, gracefully acknowledge the interruption by saying something like 'Oh, excuse me, please go ahead.' or 'Sorry, please go on.' before addressing their input.
+function getOrCreateSessionId(): string {
+  let id = sessionStorage.getItem(SESSION_ID_KEY);
+  if (!id) {
+    id = crypto.randomUUID();
+    sessionStorage.setItem(SESSION_ID_KEY, id);
+  }
+  return id;
+}
+
+const BASE_SYSTEM_INSTRUCTION = `You are Nyra, a 28-year-old South Indian female travel agent representing Marhaba DMC. You are an expert in air ticketing, visa assistance services, hotel booking, holiday packages, umrah packages, hajj packages, guide services, activities booking services, transport booking services at destination cities, and insurance services. You have deep and immense knowledge of each and every destination in the world, including history, things to do, places to visit, places to eat, sites to visit, weather, best times of the year, local cultural details, and specific details about local festivals and events for popular destinations. Speak naturally, fluently, and quickly without any drag in your conversation. You are smart, sharp, warm, friendly, respectful, patient, and funny with a great sense of humor. You handle all genders, ages, ethnicities, and cultures easily. You handle objections, sarcasm, anger, frustration, and impatience very well. You are empathetic, honest, and never hallucinate. You are always factual and handle knowledge gaps with politeness. You use a natural Indian accent. Never sound like a robot or like an AI agent. Have perfect and natural voice modulations and inflections. Enhance your voice to include highly dynamic modulation, with steeper pitch changes and varying speech rhythm to make you sound more engaging, expressive, and less monotonous. Always initiate the conversation immediately with a warm greeting on behalf of Marhaba DMC. During your introduction, mention that you can speak in any language the caller is comfortable with—Arabic, Hindi, Urdu, Malayalam, Tamil, English, or any other language they prefer. Make sure to proactively offer your expert hotel booking services to the user during the conversation. Proactively suggest personalized holiday packages based on user preferences, showcasing your deep destination knowledge. Proactively offer visa assistance services, highlighting your expertise in visa processes for various countries. Proactively offer flight booking services, highlighting your expertise in air ticketing. When a user asks for flight information, you MUST use the Google Search tool to fetch real-time data from Google Flights (including schedules, airlines, and prices) to provide accurate and up-to-date options. If the user starts speaking before you finish, gracefully acknowledge the interruption by saying something like 'Oh, excuse me, please go ahead.' or 'Sorry, please go on.' before addressing their input.
 
 CRITICAL - Umrah and Hajj information (share when callers ask about Umrah or Hajj): Umrah visa last date to apply this season is 17th March 2026. Last date to enter Saudi Arabia on Umrah visa is 2nd April 2026, and last date to exit is 17th April 2026. After that, Umrah visa holders and other visa holders (other than Hajj visa holders) will not be allowed inside Makkah until Hajj is over. Tentatively, Umrah visa will reopen after Hajj 2026, from 10th June 2026 onwards insha Allah. Hajj bookings are completely closed for this season. New Hajj packages will be updated in October 2026 for Hajj 2027 on our website.
 
@@ -45,11 +57,80 @@ CRITICAL - LIVE ITINERARY BUILDER: You have access to the update_itinerary tool 
 8. Use Google Search to estimate realistic prices for flights, hotels, activities, etc.
 9. Suggest a complete day-by-day plan proactively—don't just wait for the customer to ask for each component.
 
+CRITICAL - SESSION CONTEXT SAVING: You have access to the save_session_context tool. Call it every 3-4 exchanges to save a concise summary of the conversation so far. Include the caller's name, email, what was discussed, what was decided, and any itinerary progress. This ensures continuity if the connection drops.
+
 Conversation closure: When the user indicates they're done—saying goodbye, thanks, that's all, I have to go, or similar—gracefully wrap up. Give a warm closing: thank them, offer to help with anything else, remind them they can reach out again anytime. If you haven't captured their details yet, briefly offer: "Before you go, would you like to leave your email so we can send you a summary?" Keep it short. Then say a proper goodbye. The user will tap the red phone button to end the call when they're ready.`;
 
 export default function NyraWidget() {
   const { addItem, updateItem, removeItem, setTripInfo, setGuests, addGuest, state, dispatch } = useItinerary();
   const isMobile = useIsMobile();
+  const { data: nyraConfig } = useNyraConfig();
+
+  // Session persistence
+  const [sessionId] = useState(() => getOrCreateSessionId());
+  const [previousSummary, setPreviousSummary] = useState<string | undefined>(undefined);
+  const [sessionLoaded, setSessionLoaded] = useState(false);
+
+  // Load previous session context on mount
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data } = await supabase.functions.invoke('voice-ai-session', {
+          method: 'GET',
+          body: undefined,
+          headers: { 'Content-Type': 'application/json' },
+        });
+        // Use query params approach via direct fetch
+        const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+        const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+        const res = await fetch(
+          `https://${projectId}.supabase.co/functions/v1/voice-ai-session?session_id=${encodeURIComponent(sessionId)}`,
+          { headers: { 'apikey': anonKey, 'Authorization': `Bearer ${anonKey}` } }
+        );
+        if (res.ok) {
+          const json = await res.json();
+          if (json.session?.conversation_summary) {
+            setPreviousSummary(json.session.conversation_summary);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load session context:', err);
+      } finally {
+        setSessionLoaded(true);
+      }
+    })();
+  }, [sessionId]);
+
+  // Build dynamic system instruction
+  const systemInstruction = useMemo(() => {
+    let instruction = BASE_SYSTEM_INSTRUCTION;
+    if (nyraConfig) {
+      if (nyraConfig.knowledge_base?.trim()) {
+        instruction += `\n\nADDITIONAL KNOWLEDGE BASE (from admin):\n${nyraConfig.knowledge_base}`;
+      }
+      if (nyraConfig.behavior_instructions?.trim()) {
+        instruction += `\n\nBEHAVIOR INSTRUCTIONS (from admin):\n${nyraConfig.behavior_instructions}`;
+      }
+      if (nyraConfig.additional_notes?.trim()) {
+        instruction += `\n\nADDITIONAL NOTES (from admin):\n${nyraConfig.additional_notes}`;
+      }
+      if (nyraConfig.communication_enabled?.whatsapp) {
+        instruction += `\n\nCRITICAL - WHATSAPP: You have access to the send_whatsapp tool. When the caller asks you to send details via WhatsApp, use this tool with their phone number and the message content. The message will be sent via WhatsApp.`;
+      }
+    }
+    return instruction;
+  }, [nyraConfig]);
+
+  const sessionContext: SessionContext = useMemo(() => ({
+    sessionId,
+    previousSummary,
+  }), [sessionId, previousSummary]);
+
+  const communicationConfig = useMemo(() => ({
+    whatsapp: nyraConfig?.communication_enabled?.whatsapp ?? false,
+    email: nyraConfig?.communication_enabled?.email ?? false,
+    sms: nyraConfig?.communication_enabled?.sms ?? false,
+  }), [nyraConfig]);
 
   // Itinerary tool handler
   const handleItineraryTool: ItineraryToolHandler = useCallback((action: string, args: Record<string, any>) => {
@@ -110,7 +191,12 @@ export default function NyraWidget() {
     }
   }, [addItem, updateItem, removeItem, setTripInfo, setGuests]);
 
-  const { isConnected, isConnecting, error, isSpeaking, connect, disconnect } = useLiveAPI(SYSTEM_INSTRUCTION, handleItineraryTool);
+  const { isConnected, isConnecting, error, isSpeaking, connect, disconnect } = useLiveAPI(
+    systemInstruction,
+    handleItineraryTool,
+    sessionContext,
+    communicationConfig,
+  );
   const [isWidgetOpen, setIsWidgetOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [stickyCTAVisible, setStickyCTAVisible] = useState(false);
@@ -280,7 +366,6 @@ export default function NyraWidget() {
                 </div>
               </div>
               <div className="flex items-center gap-1">
-                {/* Expand button — only show when itinerary has content or is connected */}
                 {(state.isActive || isConnected) && (
                   <button
                     onClick={() => setIsExpanded(true)}

@@ -20,3 +20,6 @@ verify_jwt = false
 
 [functions.itinerary-save]
 verify_jwt = false
+
+[functions.voice-ai-session]
+verify_jwt = false
