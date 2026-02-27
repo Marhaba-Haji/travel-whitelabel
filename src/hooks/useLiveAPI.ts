@@ -116,6 +116,22 @@ const SEND_WHATSAPP_FUNCTION = {
   }],
 };
 
+const SEND_EMAIL_FUNCTION = {
+  functionDeclarations: [{
+    name: 'send_email',
+    description: 'Send an email to the caller with travel details, itinerary summary, quotes, or any information they request. Use when the caller asks you to email them details. Format the body as clean HTML.',
+    parameters: {
+      type: 'object',
+      properties: {
+        to: { type: 'string', description: 'The recipient email address' },
+        subject: { type: 'string', description: 'Email subject line' },
+        body: { type: 'string', description: 'Email body in HTML format. Use proper HTML tags like <h2>, <p>, <ul>, <li>, <table>, <strong> etc. for a professional layout.' },
+      },
+      required: ['to', 'subject', 'body'],
+    },
+  }],
+};
+
 // ── Audio worklet ──────────────────────────────────────────────────────────────
 
 const workletCode = `
@@ -276,6 +292,9 @@ export function useLiveAPI(
       if (communicationConfigRef.current?.whatsapp) {
         tools.push(SEND_WHATSAPP_FUNCTION);
       }
+      if (communicationConfigRef.current?.email) {
+        tools.push(SEND_EMAIL_FUNCTION);
+      }
 
       sessionPromise = ai.live.connect({
         model: "gemini-2.5-flash-native-audio-preview-09-2025",
@@ -390,11 +409,32 @@ export function useLiveAPI(
                   const message = args.message || '';
                   if (phone && message) {
                     const waLink = `https://wa.me/${phone.replace('+', '')}?text=${encodeURIComponent(message)}`;
-                    // Open in new tab for the visitor
                     window.open(waLink, '_blank');
                     responses.push({ id: fc.id, name: 'send_whatsapp', response: { success: true, message: 'WhatsApp message link opened for the caller.' } });
                   } else {
                     responses.push({ id: fc.id, name: 'send_whatsapp', response: { success: false, error: 'Phone and message are required.' } });
+                  }
+
+                } else if (fc.name === 'send_email' && fc.args) {
+                  const args = fc.args as any;
+                  const to = (args.to || '').trim();
+                  const subject = (args.subject || '').trim();
+                  const emailBody = (args.body || '').trim();
+                  if (to && subject && emailBody) {
+                    try {
+                      const { error: emailErr } = await supabase.functions.invoke('send-email', {
+                        body: { to, subject, body: emailBody },
+                      });
+                      if (emailErr) {
+                        responses.push({ id: fc.id, name: 'send_email', response: { success: false, error: 'Failed to send email. Tell the caller you will arrange to send it manually.' } });
+                      } else {
+                        responses.push({ id: fc.id, name: 'send_email', response: { success: true, message: `Email sent successfully to ${to}.` } });
+                      }
+                    } catch {
+                      responses.push({ id: fc.id, name: 'send_email', response: { success: false, error: 'Email service error.' } });
+                    }
+                  } else {
+                    responses.push({ id: fc.id, name: 'send_email', response: { success: false, error: 'Email address, subject, and body are required.' } });
                   }
                 }
               }

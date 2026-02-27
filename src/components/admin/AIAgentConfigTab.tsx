@@ -133,7 +133,7 @@ const AIAgentConfigTab = () => {
           <div className="flex items-center justify-between">
             <div>
               <Label>Email</Label>
-              <p className="text-xs text-muted-foreground">Coming soon</p>
+              <p className="text-xs text-muted-foreground">Send emails to callers via Resend</p>
             </div>
             <Switch
               checked={config.communication_enabled.email}
