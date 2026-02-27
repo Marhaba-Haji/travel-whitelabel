@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Mic, Plane, Globe, PhoneCall, Loader2, X, MessageSquare, PanelRightOpen, PanelRightClose } from 'lucide-react';
+import { Mic, Globe, PhoneCall, Loader2, X, PanelRightOpen, PanelRightClose } from 'lucide-react';
 import { useLiveAPI, ItineraryToolHandler } from '@/hooks/useLiveAPI';
 import { useItinerary } from '@/contexts/ItineraryContext';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -175,9 +175,7 @@ export default function NyraWidget() {
               {/* Header bar */}
               <div className="flex items-center justify-between px-4 py-3 border-b border-border/50">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-full bg-nyra/15 flex items-center justify-center">
-                    <Plane size={13} className="text-nyra" />
-                  </div>
+                  <img src="/assets/nyra-avatar.png" alt="Nyra" className="w-7 h-7 rounded-full object-cover object-top" />
                   <div>
                     <h3 className="text-sm font-bold text-foreground">Nyra</h3>
                     <p className="text-[9px] text-muted-foreground uppercase tracking-widest">Marhaba DMC</p>
@@ -275,9 +273,7 @@ export default function NyraWidget() {
             {/* Widget Header */}
             <div className="bg-nyra text-nyra-foreground p-4 flex justify-between items-center">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-nyra-accent/25 flex items-center justify-center">
-                  <Plane size={16} className="text-nyra-accent" />
-                </div>
+                <img src="/assets/nyra-avatar.png" alt="Nyra" className="w-8 h-8 rounded-full object-cover object-top" />
                 <div>
                   <h3 className="font-semibold text-sm tracking-wide">Nyra</h3>
                   <p className="text-[10px] text-nyra-foreground/80 uppercase tracking-wider">Marhaba DMC Agent</p>
@@ -389,7 +385,15 @@ export default function NyraWidget() {
                 : 'bg-nyra text-nyra-foreground hover:bg-nyra/90 shadow-[0_8px_30px_hsl(var(--nyra)/0.45)]'
             }`}
           >
-            {isWidgetOpen ? <X size={28} /> : <MessageSquare size={28} />}
+            {isWidgetOpen ? (
+              <X size={28} />
+            ) : (
+              <img
+                src="/assets/nyra-avatar.png"
+                alt="Nyra"
+                className="w-[52px] h-[52px] rounded-full object-cover object-top"
+              />
+            )}
             <span className={`absolute -top-1 -right-1 rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider ring-2 ring-background bg-nyra-accent text-nyra-accent-foreground`}>
               AI
             </span>
