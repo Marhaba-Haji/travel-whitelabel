@@ -75,16 +75,10 @@ export default function NyraWidget() {
   useEffect(() => {
     (async () => {
       try {
-        const { data } = await supabase.functions.invoke('voice-ai-session', {
-          method: 'GET',
-          body: undefined,
-          headers: { 'Content-Type': 'application/json' },
-        });
-        // Use query params approach via direct fetch
-        const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
         const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
         const res = await fetch(
-          `https://${projectId}.supabase.co/functions/v1/voice-ai-session?session_id=${encodeURIComponent(sessionId)}`,
+          `${supabaseUrl}/functions/v1/voice-ai-session?session_id=${encodeURIComponent(sessionId)}`,
           { headers: { 'apikey': anonKey, 'Authorization': `Bearer ${anonKey}` } }
         );
         if (res.ok) {
