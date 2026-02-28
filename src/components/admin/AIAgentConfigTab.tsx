@@ -224,6 +224,7 @@ function fileToBase64(file: File): Promise<string> {
 const AIAgentConfigTab = () => {
   const queryClient = useQueryClient();
   const [config, setConfig] = useState<NyraConfig>(DEFAULT);
+  const [initialLoaded, setInitialLoaded] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-nyra-config"],
@@ -239,8 +240,11 @@ const AIAgentConfigTab = () => {
   });
 
   useEffect(() => {
-    if (data) setConfig(data);
-  }, [data]);
+    if (data && !initialLoaded) {
+      setConfig(data);
+      setInitialLoaded(true);
+    }
+  }, [data, initialLoaded]);
 
   const save = useMutation({
     mutationFn: async (newConfig: NyraConfig) => {
