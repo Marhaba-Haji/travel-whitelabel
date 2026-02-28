@@ -29,3 +29,6 @@ verify_jwt = false
 
 [functions.send-whatsapp]
 verify_jwt = false
+
+[functions.process-agent-document]
+verify_jwt = false

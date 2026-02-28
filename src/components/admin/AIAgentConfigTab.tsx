@@ -1,14 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { NYRA_CONFIG_QUERY_KEY, type NyraConfig } from "@/hooks/useNyraConfig";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Bot, BookOpen, Brain, MessageSquare, Plus, Trash2 } from "lucide-react";
+import { Bot, BookOpen, Brain, MessageSquare, Trash2, Paperclip, Send, FileText, Loader2, X } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 function migrateConfig(raw: any): NyraConfig {
   const toArray = (val: any): string[] => {
@@ -35,52 +35,195 @@ const DEFAULT: NyraConfig = {
   additional_notes: [],
 };
 
-interface InstructionLogProps {
+const ACCEPTED_TYPES = [
+  "image/jpeg", "image/png", "image/webp",
+  "application/pdf",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+];
+
+interface InstructionChatProps {
   entries: string[];
-  inputValue: string;
-  onInputChange: (v: string) => void;
-  onAdd: () => void;
+  onAdd: (text: string) => void;
   onRemove: (index: number) => void;
   placeholder: string;
-  rows?: number;
+  config: NyraConfig;
+  field: keyof Pick<NyraConfig, "knowledge_base" | "behavior_instructions" | "additional_notes">;
+  onSave: (updated: NyraConfig) => void;
 }
 
-const InstructionLog = ({ entries, inputValue, onInputChange, onAdd, onRemove, placeholder, rows = 4 }: InstructionLogProps) => (
-  <div className="space-y-3">
-    {entries.length > 0 && (
-      <div className="space-y-2 max-h-60 overflow-y-auto">
-        {entries.map((entry, i) => (
-          <div key={i} className="flex items-start gap-2 rounded-md border border-border bg-muted/30 p-3">
-            <span className="text-xs font-mono text-muted-foreground mt-0.5 shrink-0">{i + 1}.</span>
-            <p className="text-sm text-foreground flex-1 whitespace-pre-wrap">{entry}</p>
-            <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0 text-destructive hover:text-destructive" onClick={() => onRemove(i)}>
-              <Trash2 className="h-3.5 w-3.5" />
-            </Button>
+const InstructionChat = ({ entries, onAdd, onRemove, placeholder, config, field, onSave }: InstructionChatProps) => {
+  const [input, setInput] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+  const [processing, setProcessing] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const autoGrow = () => {
+    const el = textareaRef.current;
+    if (el) {
+      el.style.height = "auto";
+      el.style.height = Math.min(el.scrollHeight, 160) + "px";
+    }
+  };
+
+  const handleSend = async () => {
+    if (processing) return;
+
+    if (file) {
+      setProcessing(true);
+      try {
+        const base64 = await fileToBase64(file);
+        const { data, error } = await supabase.functions.invoke("process-agent-document", {
+          body: { fileBase64: base64, mimeType: file.type, fileName: file.name },
+        });
+        if (error) throw error;
+        if (data?.extractedText) {
+          onAdd(data.extractedText);
+        } else {
+          toast.error("No content could be extracted from the file.");
+        }
+      } catch (e: any) {
+        toast.error(e.message || "Failed to process file");
+      } finally {
+        setProcessing(false);
+        setFile(null);
+      }
+      return;
+    }
+
+    if (input.trim()) {
+      onAdd(input.trim());
+      setInput("");
+      if (textareaRef.current) {
+        textareaRef.current.style.height = "auto";
+      }
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    if (!ACCEPTED_TYPES.includes(f.type)) {
+      toast.error("Unsupported file type. Use images, PDF, Word, or Excel.");
+      return;
+    }
+    if (f.size > 20 * 1024 * 1024) {
+      toast.error("File too large. Maximum 20MB.");
+      return;
+    }
+    setFile(f);
+    e.target.value = "";
+  };
+
+  return (
+    <div className="flex flex-col">
+      {entries.length > 0 && (
+        <ScrollArea className="max-h-64 mb-3">
+          <div className="space-y-2 pr-2">
+            {entries.map((entry, i) => (
+              <div key={i} className="flex items-start gap-2 rounded-lg border border-border bg-muted/30 p-3 group">
+                <span className="text-xs font-mono text-muted-foreground mt-0.5 shrink-0">{i + 1}.</span>
+                <p className="text-sm text-foreground flex-1 whitespace-pre-wrap break-words">{entry}</p>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 shrink-0 text-destructive hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={() => onRemove(i)}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            ))}
           </div>
-        ))}
+        </ScrollArea>
+      )}
+
+      {/* File chip */}
+      {file && (
+        <div className="flex items-center gap-2 mb-2 px-1">
+          <div className="flex items-center gap-1.5 rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-medium">
+            <FileText className="h-3 w-3" />
+            <span className="max-w-[200px] truncate">{file.name}</span>
+            <button onClick={() => setFile(null)} className="ml-1 hover:text-destructive">
+              <X className="h-3 w-3" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Processing indicator */}
+      {processing && (
+        <div className="flex items-center gap-2 mb-2 px-1 text-xs text-muted-foreground">
+          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          Extracting content from {file?.name}...
+        </div>
+      )}
+
+      {/* Chat-style input bar */}
+      <div className="flex items-end gap-2 rounded-lg border border-border bg-background p-2">
+        <input
+          ref={fileRef}
+          type="file"
+          accept={ACCEPTED_TYPES.join(",")}
+          className="hidden"
+          onChange={handleFileChange}
+        />
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 shrink-0 text-muted-foreground hover:text-foreground"
+          onClick={() => fileRef.current?.click()}
+          disabled={processing}
+        >
+          <Paperclip className="h-4 w-4" />
+        </Button>
+        <textarea
+          ref={textareaRef}
+          rows={1}
+          value={input}
+          onChange={(e) => { setInput(e.target.value); autoGrow(); }}
+          onKeyDown={handleKeyDown}
+          placeholder={placeholder}
+          disabled={processing}
+          className="flex-1 resize-none bg-transparent border-0 outline-none text-sm text-foreground placeholder:text-muted-foreground min-h-[32px] max-h-[160px] py-1"
+        />
+        <Button
+          size="icon"
+          className="h-8 w-8 shrink-0"
+          onClick={handleSend}
+          disabled={(!input.trim() && !file) || processing}
+        >
+          <Send className="h-4 w-4" />
+        </Button>
       </div>
-    )}
-    <div className="flex gap-2">
-      <Textarea
-        rows={rows}
-        value={inputValue}
-        onChange={(e) => onInputChange(e.target.value)}
-        placeholder={placeholder}
-        className="flex-1"
-      />
     </div>
-    <Button variant="outline" size="sm" onClick={onAdd} disabled={!inputValue.trim()}>
-      <Plus className="h-4 w-4 mr-1" /> Add Instruction
-    </Button>
-  </div>
-);
+  );
+};
+
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      // Remove data URL prefix
+      resolve(result.split(",")[1]);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
 
 const AIAgentConfigTab = () => {
   const queryClient = useQueryClient();
   const [config, setConfig] = useState<NyraConfig>(DEFAULT);
-  const [knowledgeInput, setKnowledgeInput] = useState("");
-  const [behaviorInput, setBehaviorInput] = useState("");
-  const [notesInput, setNotesInput] = useState("");
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-nyra-config"],
@@ -117,11 +260,10 @@ const AIAgentConfigTab = () => {
     onError: (e) => toast.error(e.message),
   });
 
-  const addEntry = (field: keyof Pick<NyraConfig, "knowledge_base" | "behavior_instructions" | "additional_notes">, value: string, clearFn: (v: string) => void) => {
+  const addEntry = (field: keyof Pick<NyraConfig, "knowledge_base" | "behavior_instructions" | "additional_notes">, value: string) => {
     if (!value.trim()) return;
     const updated = { ...config, [field]: [...config[field], value.trim()] };
     setConfig(updated);
-    clearFn("");
     save.mutate(updated);
   };
 
@@ -146,7 +288,7 @@ const AIAgentConfigTab = () => {
         <div>
           <h2 className="text-lg font-semibold text-foreground">AI Agent Configuration</h2>
           <p className="text-sm text-muted-foreground">
-            Customize Nyra's knowledge, behavior, and communication tools. Changes take effect on the next call.
+            Customize Nyra's knowledge, behavior, and communication tools. Type instructions or upload files (images, PDFs, Excel, Word).
           </p>
         </div>
       </div>
@@ -160,14 +302,14 @@ const AIAgentConfigTab = () => {
           <CardDescription>Visa prices, package details, document requirements, destination info, seasonal offers, etc.</CardDescription>
         </CardHeader>
         <CardContent>
-          <InstructionLog
+          <InstructionChat
             entries={config.knowledge_base}
-            inputValue={knowledgeInput}
-            onInputChange={setKnowledgeInput}
-            onAdd={() => addEntry("knowledge_base", knowledgeInput, setKnowledgeInput)}
+            onAdd={(text) => addEntry("knowledge_base", text)}
             onRemove={(i) => removeEntry("knowledge_base", i)}
-            placeholder="e.g. Dubai tourist visa Rs. 6,500..."
-            rows={5}
+            placeholder="Type an instruction or upload a file..."
+            config={config}
+            field="knowledge_base"
+            onSave={(u) => { setConfig(u); save.mutate(u); }}
           />
         </CardContent>
       </Card>
@@ -181,13 +323,14 @@ const AIAgentConfigTab = () => {
           <CardDescription>How to handle pauses, interruptions, frustration, aggression, call flow, tone adjustments.</CardDescription>
         </CardHeader>
         <CardContent>
-          <InstructionLog
+          <InstructionChat
             entries={config.behavior_instructions}
-            inputValue={behaviorInput}
-            onInputChange={setBehaviorInput}
-            onAdd={() => addEntry("behavior_instructions", behaviorInput, setBehaviorInput)}
+            onAdd={(text) => addEntry("behavior_instructions", text)}
             onRemove={(i) => removeEntry("behavior_instructions", i)}
-            placeholder="e.g. When the caller sounds frustrated, acknowledge their concern first..."
+            placeholder="Type a behavior instruction or upload a file..."
+            config={config}
+            field="behavior_instructions"
+            onSave={(u) => { setConfig(u); save.mutate(u); }}
           />
         </CardContent>
       </Card>
@@ -228,13 +371,14 @@ const AIAgentConfigTab = () => {
           <CardDescription>Any other context or overrides for the agent.</CardDescription>
         </CardHeader>
         <CardContent>
-          <InstructionLog
+          <InstructionChat
             entries={config.additional_notes}
-            inputValue={notesInput}
-            onInputChange={setNotesInput}
-            onAdd={() => addEntry("additional_notes", notesInput, setNotesInput)}
+            onAdd={(text) => addEntry("additional_notes", text)}
             onRemove={(i) => removeEntry("additional_notes", i)}
-            placeholder="Any extra instructions or context..."
+            placeholder="Type a note or upload a file..."
+            config={config}
+            field="additional_notes"
+            onSave={(u) => { setConfig(u); save.mutate(u); }}
           />
         </CardContent>
       </Card>
