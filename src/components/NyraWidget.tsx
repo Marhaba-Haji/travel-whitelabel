@@ -99,14 +99,21 @@ export default function NyraWidget() {
   const systemInstruction = useMemo(() => {
     let instruction = BASE_SYSTEM_INSTRUCTION;
     if (nyraConfig) {
-      if (nyraConfig.knowledge_base?.trim()) {
-        instruction += `\n\nADDITIONAL KNOWLEDGE BASE (from admin):\n${nyraConfig.knowledge_base}`;
+      const joinEntries = (arr: string[] | string | undefined): string => {
+        if (Array.isArray(arr)) return arr.filter(Boolean).join("\n");
+        return typeof arr === "string" ? arr : "";
+      };
+      const kb = joinEntries(nyraConfig.knowledge_base);
+      const bi = joinEntries(nyraConfig.behavior_instructions);
+      const an = joinEntries(nyraConfig.additional_notes);
+      if (kb) {
+        instruction += `\n\nADDITIONAL KNOWLEDGE BASE (from admin):\n${kb}`;
       }
-      if (nyraConfig.behavior_instructions?.trim()) {
-        instruction += `\n\nBEHAVIOR INSTRUCTIONS (from admin):\n${nyraConfig.behavior_instructions}`;
+      if (bi) {
+        instruction += `\n\nBEHAVIOR INSTRUCTIONS (from admin):\n${bi}`;
       }
-      if (nyraConfig.additional_notes?.trim()) {
-        instruction += `\n\nADDITIONAL NOTES (from admin):\n${nyraConfig.additional_notes}`;
+      if (an) {
+        instruction += `\n\nADDITIONAL NOTES (from admin):\n${an}`;
       }
       if (nyraConfig.communication_enabled?.whatsapp) {
         instruction += `\n\nCRITICAL - WHATSAPP: You have access to the send_whatsapp tool. When the caller asks you to send details via WhatsApp, or when it would be helpful to share information on WhatsApp, use this tool with their phone number (with country code, e.g. +919008447887) and the message content. The message will be delivered directly to their WhatsApp. Always confirm the phone number before sending.`;
