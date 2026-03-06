@@ -1,6 +1,7 @@
 import { Link, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Check } from "lucide-react";
 import SignupForm from "@/components/auth/SignupForm";
+import AuroraLogo from "@/components/AuroraLogo";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { usePlans, PlanKey } from "@/hooks/usePlans";
 import { useEffect, useState } from "react";
@@ -30,11 +31,11 @@ const Signup = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-x-hidden bg-background">
-      {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-accent via-background to-background" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
-      <div className="absolute top-20 right-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse-soft pointer-events-none" />
-      <div className="absolute bottom-20 left-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse-soft pointer-events-none" style={{ animationDelay: "1s" }} />
+      {/* Aurora Dynamic gradient background */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_hsl(270_70%_58%_/_0.1),_transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_hsl(210_100%_50%_/_0.06),_transparent_50%)]" />
+      <div className="absolute top-20 right-10 w-72 h-72 bg-aurora-purple/15 rounded-full blur-3xl animate-pulse-soft pointer-events-none" />
+      <div className="absolute bottom-20 left-10 w-96 h-96 bg-aurora-blue/10 rounded-full blur-3xl animate-pulse-soft pointer-events-none" style={{ animationDelay: "1s" }} />
 
       <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start min-w-0">
@@ -53,20 +54,10 @@ const Signup = () => {
             </Link>
 
             <div className="mb-8 lg:mb-4">
-              <Link to="/" className="flex items-center gap-2.5">
-                <img
-                  src="/assets/marhaba-dmc-logo.png"
-                  alt="marhabaDMC"
-                  className="h-10 w-auto object-contain flex-shrink-0"
-                />
-                <span className="text-2xl leading-none">
-                  <span className="font-marhaba text-foreground">marhaba</span>
-                  <span className="font-dmc font-semibold text-primary">DMC</span>
-                </span>
-              </Link>
+              <AuroraLogo size="lg" />
             </div>
 
-            <div className="bg-card/90 backdrop-blur-sm border border-border rounded-2xl p-8 shadow-xl">
+            <div className="glass-card rounded-2xl p-8">
               <div className="mb-6">
                 <h1 className="text-3xl font-bold text-foreground mb-2">
                   Create your account

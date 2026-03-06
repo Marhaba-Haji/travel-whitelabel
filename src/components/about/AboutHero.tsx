@@ -5,14 +5,14 @@ const AboutHero = () => {
 
   return (
     <section className="relative pt-32 pb-20 overflow-hidden min-h-[90vh] flex items-center">
-      {/* Enhanced Background Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/10" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
+      {/* Aurora Dynamic gradient background */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_hsl(270_70%_58%_/_0.12),_transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_hsl(210_100%_50%_/_0.08),_transparent_50%)]" />
       
-      {/* Enhanced Decorative Elements */}
-      <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl pointer-events-none animate-pulse-soft" />
-      <div className="absolute bottom-10 right-10 w-96 h-96 bg-accent/20 rounded-full blur-3xl pointer-events-none animate-pulse-soft" style={{ animationDelay: "1s" }} />
-      <div className="absolute top-1/2 left-1/4 w-48 h-48 bg-primary/5 rounded-full blur-2xl pointer-events-none animate-float-slow" />
+      {/* Floating glassmorphism blobs */}
+      <div className="absolute top-20 left-10 w-72 h-72 bg-aurora-purple/15 rounded-full blur-3xl pointer-events-none animate-pulse-soft" />
+      <div className="absolute bottom-10 right-10 w-96 h-96 bg-aurora-blue/15 rounded-full blur-3xl pointer-events-none animate-pulse-soft" style={{ animationDelay: "1s" }} />
+      <div className="absolute top-1/2 left-1/4 w-48 h-48 bg-aurora-pink/10 rounded-full blur-2xl pointer-events-none animate-float-slow" />
       
       <div className="container mx-auto px-4 relative z-10">
         <div
@@ -20,7 +20,7 @@ const AboutHero = () => {
           className={`max-w-4xl mx-auto text-center opacity-0 ${isVisible ? "animate-fade-in" : ""}`}
         >
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-4 py-1.5 mb-6 animate-bounce-subtle">
+          <div className="inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 mb-6 animate-bounce-subtle">
             <span className="text-xs font-semibold text-primary uppercase tracking-wider">
               Halal Tourism Enablement Company
             </span>
@@ -42,7 +42,7 @@ const AboutHero = () => {
           </p>
 
           {/* Value Proposition */}
-          <div className="bg-card/80 backdrop-blur-sm border border-border rounded-2xl p-6 max-w-2xl mx-auto">
+          <div className="glass-card rounded-2xl p-6 max-w-2xl mx-auto">
             <p className="text-foreground font-medium text-lg">
               Empowering travel businesses with{" "}
               <span className="text-primary font-semibold">intelligent infrastructure</span>,{" "}

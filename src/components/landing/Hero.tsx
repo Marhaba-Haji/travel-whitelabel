@@ -1,210 +1,142 @@
 import { Button } from "@/components/ui/button";
-import { 
-  ArrowRight, 
-  GraduationCap, 
-  Rocket, 
-  Globe, 
-  Crown,
+import {
+  ArrowRight,
   Star,
   TrendingUp,
   Users,
+  MessageCircle,
   CheckCircle,
-  MessageCircle
 } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import TypewriterText from "@/components/TypewriterText";
 import AnimatedCounter from "@/components/AnimatedCounter";
-import { useState, useEffect, useRef } from "react";
 
 const ROTATING_BENEFITS = [
+  "Be Your Own Boss",
   "Earning Potential: ₹50,000+/mo",
   "Travel at Insider Rates",
-  "Be Your Own Boss",
   "Work From Anywhere",
   "Launch-Ready in 24 Hours",
   "Build Your Dream Business",
 ];
 
 const Hero = () => {
-  const { ref: leftRef, isVisible: leftVisible } = useScrollAnimation();
-  const { ref: rightRef, isVisible: rightVisible } = useScrollAnimation();
-
-  const [currentActivityIndex, setCurrentActivityIndex] = useState(0);
-  const remainingIndicesRef = useRef<number[]>([]);
-
-  const recentActivities = [
-    { name: "Amjad", city: "Bangalore", action: "is looking for Turkey Visa" },
-    { name: "Rashid", city: "Mumbai", action: "needs Malaysia Visa assistance" },
-    { name: "Fatima", city: "Delhi", action: "wants Egypt Tour Package" },
-    { name: "Riyaz", city: "Lucknow", action: "is planning a Halal Thailand trip" },
-    { name: "Zainab", city: "Hyderabad", action: "is searching for Singapore Family Package" },
-    { name: "Hassan", city: "Chennai", action: "is looking for Indonesia Holiday Package" },
-    { name: "Ayesha", city: "Pune", action: "wants Morocco Travel Package" },
-    { name: "Mohammed", city: "Kolkata", action: "is planning a Jordan trip" },
-    { name: "Sara", city: "Ahmedabad", action: "needs Palestine Visa support" },
-    { name: "Ali", city: "Jaipur", action: "is searching for Uzbekistan Tour" },
-    { name: "Layla", city: "Surat", action: "wants Russia Travel Package" },
-    { name: "Omar", city: "Kanpur", action: "is looking for China Visa" },
-    { name: "Noor", city: "Nagpur", action: "needs Azerbaijan Holiday Package" },
-    { name: "Yusuf", city: "Indore", action: "is planning a Maldives Honeymoon" },
-    { name: "Mariam", city: "Bhopal", action: "wants Iran Travel Package" },
-    { name: "Khalid", city: "Visakhapatnam", action: "is searching for Afghanistan Visa" },
-    { name: "Amina", city: "Patna", action: "needs Saudi Arabia Umrah Package" },
-    { name: "Ibrahim", city: "Vadodara", action: "is looking for Iraq Travel Package" },
-    { name: "Hafsa", city: "Coimbatore", action: "wants UAE Holiday Package" },
-    { name: "Bilal", city: "Agra", action: "is planning a Qatar Business Trip" },
-    { name: "Zara", city: "Madurai", action: "needs Oman Travel Package" },
-    { name: "Tariq", city: "Nashik", action: "is searching for Bahrain Visa" },
-    { name: "Aisha", city: "Faridabad", action: "wants Kuwait Travel Package" },
-    { name: "Hamza", city: "Meerut", action: "is looking for Mauritius Honeymoon Package" },
-    { name: "Sana", city: "Rajkot", action: "needs Sri Lanka Holiday Package" },
-    { name: "Usman", city: "Varanasi", action: "is planning a USA Trip" },
-    { name: "Hiba", city: "Srinagar", action: "wants UK Visa assistance" },
-    { name: "Zain", city: "Amritsar", action: "is searching for Germany Travel Package" },
-    { name: "Maryam", city: "Allahabad", action: "needs France Holiday Package" },
-    { name: "Anas", city: "Ranchi", action: "is looking for Italy Tour Package" },
-    { name: "Dua", city: "Gwalior", action: "wants Georgia Travel Package" },
-    { name: "Saad", city: "Chandigarh", action: "is planning a South Africa Safari" },
-  ];
-
-  const benefitCards = [
-    {
-      icon: GraduationCap,
-      title: "Complete Training",
-      description: "Industry, Tool & Sales training included",
-      color: "from-primary to-primary/70",
-    },
-    {
-      icon: Rocket,
-      title: "Ready in 24 Hours",
-      description: "Launch instantly, not in months",
-      color: "from-primary/90 to-primary/60",
-    },
-    {
-      icon: Globe,
-      title: "Travel at Insider Rates",
-      description: "Access exclusive rates & more travel opportunities",
-      color: "from-primary/80 to-primary/50",
-    },
-    {
-      icon: Crown,
-      title: "Be Your Own Boss",
-      description: "Work from anywhere, anytime",
-      color: "from-primary/70 to-primary/40",
-    },
-  ];
-
-  // Helper function to shuffle array
-  const shuffleArray = <T,>(array: T[]): T[] => {
-    const shuffled = [...array];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
-  };
-
-  // Initialize remaining indices on mount
-  useEffect(() => {
-    const allIndices = recentActivities
-      .map((_, idx) => idx)
-      .filter((idx) => idx !== currentActivityIndex);
-    remainingIndicesRef.current = shuffleArray(allIndices);
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentActivityIndex((prev) => {
-        // If no remaining indices, reshuffle all except current
-        if (remainingIndicesRef.current.length === 0) {
-          const allIndices = recentActivities
-            .map((_, idx) => idx)
-            .filter((idx) => idx !== prev);
-          remainingIndicesRef.current = shuffleArray(allIndices);
-        }
-        
-        // Get next index from remaining (always different from current)
-        const nextIndex = remainingIndicesRef.current.shift()!;
-        return nextIndex;
-      });
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const scrollToSection = (href: string) => {
-    const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
-  };
+  const { ref: heroRef, isVisible: heroVisible } = useScrollAnimation();
 
   return (
-    <section className="relative pt-24 pb-16 md:pt-32 md:pb-24 overflow-hidden min-h-screen flex items-center">
-      {/* Animated Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-accent via-background to-background" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
-      
-      {/* Floating decorative elements */}
-      <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse-soft" />
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse-soft" style={{ animationDelay: "1s" }} />
-      <div className="absolute top-1/2 left-1/4 w-48 h-48 bg-primary/5 rounded-full blur-2xl animate-float-slow" />
-      
-      <div className="container mx-auto px-4 relative">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Left Content */}
-          <div
-            ref={leftRef}
-            className={`text-center lg:text-left opacity-0 ${leftVisible ? "animate-fade-in" : ""}`}
+    <section className="relative pt-24 pb-8 lg:pt-32 lg:pb-24 overflow-hidden min-h-screen flex items-center">
+      {/* Aurora gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[hsl(230,40%,10%)] via-background to-background" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_center,_hsl(220_80%_40%_/_0.25),_transparent_60%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_center,_hsl(270_70%_58%_/_0.1),_transparent_50%)]" />
+
+      {/* Floating ambient blobs */}
+      <div className="absolute top-10 left-5 w-60 h-60 bg-aurora-blue/20 rounded-full blur-3xl animate-pulse-soft" />
+      <div className="absolute bottom-32 right-5 w-72 h-72 bg-aurora-purple/15 rounded-full blur-3xl animate-pulse-soft" style={{ animationDelay: "1s" }} />
+
+      <div
+        ref={heroRef}
+        className={`container mx-auto px-4 relative z-10 opacity-0 ${heroVisible ? "animate-fade-in" : ""}`}
+      >
+        {/* =========== MOBILE LAYOUT (centered, single column) =========== */}
+        <div className="flex flex-col items-center text-center lg:hidden">
+          <h1 className="text-[2.5rem] md:text-5xl font-bold text-foreground leading-[1.1] mb-3">
+            Start Your Own
+            <span className="block aurora-gradient-text animate-gradient-shift bg-[length:200%_auto] italic py-1">
+              Travel Agency
+            </span>
+            in 24 Hours
+          </h1>
+
+          <div className="text-lg text-muted-foreground mb-6 min-h-[1.75rem] flex items-center justify-center">
+            <TypewriterText
+              words={ROTATING_BENEFITS}
+              className="text-muted-foreground font-medium"
+              typingSpeed={80}
+              deletingSpeed={40}
+              pauseDuration={3000}
+              pausePerChar={100}
+            />
+          </div>
+
+          {/* Hero illustration — screen blend makes dark bg invisible */}
+          <div className="relative -mx-6 mb-4">
+            <img
+              src="/assets/hero-globe-illustration.png"
+              alt="3D globe with airplane, compass and suitcase"
+              className="w-full max-w-lg mx-auto object-contain mix-blend-screen"
+            />
+          </div>
+
+          {/* CTA */}
+          <Button
+            size="lg"
+            asChild
+            className="w-full max-w-sm h-14 rounded-full text-lg font-semibold bg-gradient-to-r from-aurora-blue via-primary to-aurora-blue bg-[length:200%_auto] animate-gradient-shift shadow-[0_0_30px_hsl(210_100%_50%_/_0.3)] hover:shadow-[0_0_40px_hsl(210_100%_50%_/_0.5)] transition-shadow group"
           >
-            {/* Live Activity Ticker */}
-            <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 px-4 py-2 rounded-full mb-6 animate-bounce-subtle">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-              </span>
-              <span className="text-sm text-foreground">
-                <span className="font-semibold text-primary">{recentActivities[currentActivityIndex].name}</span> from {recentActivities[currentActivityIndex].city} {recentActivities[currentActivityIndex].action}
-              </span>
+            <a href="/signup">
+              Start My Travel Business
+              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+            </a>
+          </Button>
+
+          {/* Social proof pill */}
+          <div className="mt-6 flex items-center gap-3 glass px-5 py-3 rounded-full">
+            <div className="flex -space-x-2.5">
+              {["A", "F", "R", "Z", "H"].map((letter, i) => (
+                <div
+                  key={letter}
+                  className="w-8 h-8 rounded-full border-2 border-card bg-gradient-to-br from-primary/30 to-aurora-blue/40 flex items-center justify-center text-[10px] font-bold text-foreground/80"
+                  style={{ zIndex: 5 - i }}
+                >
+                  {letter}
+                </div>
+              ))}
             </div>
-            
-            {/* Main Headline */}
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4 leading-tight">
+            <span className="text-sm text-muted-foreground">
+              <span className="font-bold text-foreground">5,000+</span> travelers
+            </span>
+          </div>
+        </div>
+
+        {/* =========== DESKTOP LAYOUT (2-column: text left, globe right) =========== */}
+        <div className="hidden lg:grid lg:grid-cols-[1fr_1.1fr] gap-8 xl:gap-12 items-center">
+          {/* Left — Text & CTA */}
+          <div className="text-left">
+            <h1 className="text-6xl xl:text-7xl font-bold text-foreground leading-[1.08] mb-4">
               Start Your Own
-              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary to-gold animate-gradient-shift bg-[length:200%_auto]"> Travel Agency </span>
+              <span className="block aurora-gradient-text animate-gradient-shift bg-[length:200%_auto] italic py-1">
+                Travel Agency
+              </span>
               in 24 Hours
             </h1>
 
-            {/* Animated Typewriter Subtext */}
-            <div className="text-xl md:text-2xl text-muted-foreground mb-6 min-h-[2rem] flex items-center justify-center lg:justify-start">
-              <TypewriterText 
+            <div className="text-xl text-muted-foreground mb-8 min-h-[2rem] flex items-center">
+              <TypewriterText
                 words={ROTATING_BENEFITS}
-                className="text-primary font-semibold"
+                className="text-muted-foreground font-medium"
                 typingSpeed={80}
                 deletingSpeed={40}
                 pauseDuration={3000}
                 pausePerChar={100}
               />
             </div>
-            
-            <p className="text-lg text-muted-foreground mb-6 max-w-xl mx-auto lg:mx-0">
-              Become a travel entrepreneur and build your dream business today.
-            </p>
 
-            {/* Trust Stats Row */}
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 mb-6">
-              <div className="flex items-center gap-2 bg-card border border-border px-3 py-2 rounded-lg">
+            {/* Trust stats row */}
+            <div className="flex flex-wrap items-center gap-4 mb-8">
+              <div className="flex items-center gap-2 glass-card px-3 py-2 rounded-xl">
                 <Users className="w-4 h-4 text-primary" />
                 <span className="text-sm font-medium">
                   <AnimatedCounter end={2000} suffix="+" className="text-primary font-bold" /> Customers
                 </span>
               </div>
-              <div className="flex items-center gap-2 bg-card border border-border px-3 py-2 rounded-lg">
+              <div className="flex items-center gap-2 glass-card px-3 py-2 rounded-xl">
                 <TrendingUp className="w-4 h-4 text-primary" />
                 <span className="text-sm font-medium">
                   ₹<AnimatedCounter end={5} className="text-primary font-bold" /><span className="text-primary font-bold">Cr+</span> Booked
                 </span>
               </div>
-              <div className="flex items-center gap-2 bg-card border border-border px-3 py-2 rounded-lg">
+              <div className="flex items-center gap-2 glass-card px-3 py-2 rounded-xl">
                 <Star className="w-4 h-4 text-primary fill-primary" />
                 <span className="text-sm font-medium">
                   <span className="text-primary font-bold">4.7</span> Rating
@@ -212,85 +144,65 @@ const Hero = () => {
               </div>
             </div>
 
-            {/* Avatar Stack + Live Counter */}
-            <div className="flex items-center justify-center lg:justify-start gap-4 mb-8">
-              <div className="flex -space-x-3">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <div
-                    key={i}
-                    className="w-10 h-10 rounded-full border-2 border-background bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center text-xs font-bold text-primary"
-                    style={{ zIndex: 5 - i }}
-                  >
-                    {String.fromCharCode(64 + i)}
-                  </div>
-                ))}
-                <div className="w-10 h-10 rounded-full border-2 border-background bg-primary flex items-center justify-center text-xs font-bold text-primary-foreground">
-                  +
-                </div>
-              </div>
-              <div className="text-sm text-muted-foreground">
-                <AnimatedCounter end={5000} suffix="+" className="font-bold text-primary" /> travelers are looking for travel agents online
-              </div>
-            </div>
-
-            {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-6">
-              <Button 
-                size="lg" 
+            {/* CTA + WhatsApp */}
+            <div className="flex items-center gap-4 mb-6">
+              <Button
+                size="lg"
                 asChild
-                className="shadow-lg group text-lg px-8 animate-glow-pulse relative overflow-hidden"
+                className="h-14 rounded-full text-lg font-semibold px-10 bg-gradient-to-r from-aurora-blue via-primary to-aurora-blue bg-[length:200%_auto] animate-gradient-shift shadow-[0_0_30px_hsl(210_100%_50%_/_0.3)] hover:shadow-[0_0_40px_hsl(210_100%_50%_/_0.5)] transition-shadow group"
               >
                 <a href="/signup">
-                  <span className="relative z-10 flex items-center">
-                    Start My Travel Business 
-                    <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                  </span>
+                  Start My Travel Business
+                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </a>
               </Button>
             </div>
 
-            {/* WhatsApp CTA */}
-            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 text-sm">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <MessageCircle className="w-4 h-4 text-primary" />
-                <span>Have questions?</span>
-                <a 
-                  href="https://wa.me/919008447887" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-primary font-medium hover:underline"
-                >
-                  Talk to a Success Coach
-                </a>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <MessageCircle className="w-4 h-4 text-primary" />
+              <span>Have questions?</span>
+              <a
+                href="https://wa.me/919008447887"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary font-medium hover:underline"
+              >
+                Talk to a Success Coach
+              </a>
+            </div>
+
+            {/* Avatar row */}
+            <div className="flex items-center gap-4 mt-8">
+              <div className="flex -space-x-2.5">
+                {["A", "F", "R", "Z", "H"].map((letter, i) => (
+                  <div
+                    key={letter}
+                    className="w-9 h-9 rounded-full border-2 border-card bg-gradient-to-br from-primary/30 to-aurora-blue/40 flex items-center justify-center text-[10px] font-bold text-foreground/80"
+                    style={{ zIndex: 5 - i }}
+                  >
+                    {letter}
+                  </div>
+                ))}
+                <div className="w-9 h-9 rounded-full border-2 border-card bg-primary flex items-center justify-center text-xs font-bold text-primary-foreground">
+                  +
+                </div>
               </div>
+              <span className="text-sm text-muted-foreground">
+                <AnimatedCounter end={5000} suffix="+" className="font-bold text-primary" /> travelers looking for agents
+              </span>
             </div>
           </div>
 
-          {/* Right Content - Benefit Cards Grid */}
-          <div
-            ref={rightRef}
-            className={`relative opacity-0 ${rightVisible ? "animate-fade-in-right" : ""}`}
-            style={{ animationDelay: "0.2s" }}
-          >
-            {/* Benefit Cards */}
-            <div className="grid grid-cols-2 gap-4">
-              {benefitCards.map((card, index) => (
-                <div
-                  key={card.title}
-                  className="group bg-card/90 backdrop-blur-sm border border-border rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 animate-slide-up-fade"
-                  style={{ animationDelay: `${0.1 * (index + 1)}s` }}
-                >
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${card.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                    <card.icon className="h-6 w-6 text-primary-foreground" />
-                  </div>
-                  <h3 className="font-bold text-foreground mb-1">{card.title}</h3>
-                  <p className="text-sm text-muted-foreground">{card.description}</p>
-                </div>
-              ))}
-            </div>
+          {/* Right — Globe illustration, oversized for impact */}
+          <div className="relative -mr-12 xl:-mr-16">
+            <img
+              src="/assets/hero-globe-illustration.png"
+              alt="3D globe with airplane, compass and suitcase"
+              className="w-[115%] max-w-none object-contain mix-blend-screen"
+            />
 
-            {/* Floating Success Metric Card */}
-            <div className="absolute -top-6 -right-6 lg:right-0 bg-card border border-primary/30 rounded-xl p-4 shadow-xl animate-float hidden lg:block">
+            {/* Floating metric card */}
+            <div className="absolute top-[8%] right-[8%] glass-card rounded-xl p-4 aurora-glow animate-float z-10">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                   <CheckCircle className="w-5 h-5 text-primary" />
@@ -301,10 +213,6 @@ const Hero = () => {
                 </div>
               </div>
             </div>
-
-            {/* Decorative Glow */}
-            <div className="absolute -top-8 -right-8 w-32 h-32 bg-primary/10 rounded-full blur-2xl" />
-            <div className="absolute -bottom-8 -left-8 w-40 h-40 bg-primary/5 rounded-full blur-3xl" />
           </div>
         </div>
       </div>

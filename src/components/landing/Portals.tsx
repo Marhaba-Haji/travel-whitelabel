@@ -1,211 +1,160 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Settings, PackageOpen, Users, ShoppingCart, BarChart3, Calendar, CreditCard, Search } from "lucide-react";
+import { Settings, PackageOpen, Users, ShoppingCart, BarChart3 } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const Portals = () => {
   const { ref: headerRef, isVisible: headerVisible } = useScrollAnimation();
   const { ref: gridRef, isVisible: gridVisible } = useScrollAnimation();
 
-  const scrollToContact = () => {
-    const element = document.querySelector("#contact");
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
   const portals = [
     {
       icon: Settings,
       title: "Admin Portal",
-      badge: "Full Control",
-      description: "Complete management dashboard for your travel business",
-      color: "from-primary to-primary/70",
-      accentBg: "bg-primary/5",
-      accentBorder: "border-primary/20",
+      badge: "Admin Portal",
+      badgeColor: "bg-aurora-purple/20 text-aurora-purple border-aurora-purple/30",
+      color: "from-aurora-purple to-aurora-blue",
+      description: "Complete command-line dashboard for your travel business.",
+      stats: [
+        { icon: BarChart3, label: "Revenue Bookings", value: "3,450" },
+        { label: "Revenue", value: "₹24L" },
+      ],
       features: [
         "Holiday Packages",
-        "Hajj & Umrah Packages",
-        "Visa Management",
         "Transport Services",
+        "Hajj & Umrah",
+        "Visa Management",
         "Activities & Tours",
-        "Guide Management",
+        "Credit Management",
       ],
-      mockup: {
-        title: "Admin Dashboard",
-        stats: [
-          { label: "Total Bookings", value: "2,450" },
-          { label: "Revenue", value: "₹24L" },
-        ],
-        icon: BarChart3,
-      },
     },
     {
       icon: PackageOpen,
-      title: "Supplier Portal",
-      badge: "Content Access",
-      description: "Give your suppliers dedicated access to manage their content",
-      color: "from-emerald-500 to-emerald-500/70",
-      accentBg: "bg-emerald-500/5",
-      accentBorder: "border-emerald-500/20",
+      title: "Supplier",
+      badge: "Supplier Portal",
+      badgeColor: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
+      color: "from-emerald-500 to-aurora-teal",
+      description: "Manage your supplier hub and connect to manage from backend.",
+      stats: [
+        { icon: PackageOpen, label: "Supplier Bookings", value: "360" },
+        { label: "Suppliers", value: "906" },
+      ],
       features: [
-        "Product Management",
-        "Inventory Control",
+        "Booking Management",
+        "Enquiries Control",
         "Rate Updates",
         "Availability Calendar",
-        "Performance Reports",
-        "Commission Tracking",
+        "Performance Report",
+        "Commission Support",
       ],
-      mockup: {
-        title: "Inventory Manager",
-        stats: [
-          { label: "Products", value: "156" },
-          { label: "Active", value: "98%" },
-        ],
-        icon: Calendar,
-      },
     },
     {
       icon: Users,
-      title: "B2B Agent Portal",
-      badge: "For Agents",
-      description: "Professional portal for your travel agent network",
-      color: "from-violet-500 to-violet-500/70",
-      accentBg: "bg-violet-500/5",
-      accentBorder: "border-violet-500/20",
+      title: "B2B Agent",
+      badge: "B2B Portal",
+      badgeColor: "bg-violet-500/20 text-violet-400 border-violet-500/30",
+      color: "from-violet-500 to-aurora-purple",
+      description: "Manage all report for your agent-agent commissions.",
+      stats: [
+        { icon: Users, label: "Total Agents", value: "1630" },
+        { label: "Bookings", value: "40" },
+      ],
       features: [
         "Agent Dashboard",
         "Booking Management",
         "Commission View",
         "Credit System",
         "Markup Control",
-        "White-Label Access",
+        "Payout Requests",
       ],
-      mockup: {
-        title: "Agent Console",
-        stats: [
-          { label: "Commission", value: "₹45K" },
-          { label: "Bookings", value: "89" },
-        ],
-        icon: CreditCard,
-      },
     },
     {
       icon: ShoppingCart,
-      title: "B2C Portal",
-      badge: "Direct Sales",
-      description: "Customer-facing portal for direct bookings",
-      color: "from-amber-500 to-amber-500/70",
-      accentBg: "bg-amber-500/5",
-      accentBorder: "border-amber-500/20",
+      title: "B2C",
+      badge: "B2C Website",
+      badgeColor: "bg-amber-500/20 text-amber-400 border-amber-500/30",
+      color: "from-amber-500 to-aurora-pink",
+      description: "Manage a modern portal for travel bookings.",
+      stats: [
+        { icon: ShoppingCart, label: "Total Customers", value: "1,60K" },
+        { label: "Destinations", value: "104+" },
+      ],
       features: [
         "Easy Search & Book",
+        "Curated Activities",
         "User Accounts",
-        "Payment Gateway",
         "Booking History",
-        "Travel Itineraries",
+        "Payment Gateway",
         "Customer Support",
       ],
-      mockup: {
-        title: "Book Your Trip",
-        stats: [
-          { label: "Destinations", value: "500+" },
-          { label: "Happy Users", value: "10K+" },
-        ],
-        icon: Search,
-      },
     },
   ];
 
   return (
-    <section id="portals" className="py-20 bg-muted/30 relative overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 left-0 w-72 h-72 bg-primary/3 rounded-full blur-3xl" />
-      
+    <section id="portals" className="py-24 relative overflow-hidden">
+      {/* Aurora background */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,_hsl(210_100%_50%_/_0.06),_transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_hsl(270_70%_58%_/_0.05),_transparent_50%)]" />
+
       <div className="container mx-auto px-4 relative">
+        {/* Section header */}
         <div
           ref={headerRef}
           className={`text-center mb-16 opacity-0 ${headerVisible ? "animate-fade-in" : ""}`}
         >
-          <span className="inline-block text-primary font-semibold text-sm uppercase tracking-wider bg-primary/10 px-4 py-1 rounded-full mb-4">
-            Multi-Portal System
+          <span className="inline-block text-aurora-teal font-semibold text-xs uppercase tracking-[0.2em] glass px-4 py-1.5 rounded-full mb-5">
+            Four Powerful Portals
           </span>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-2 mb-4">
-            Four Powerful Portals, One Platform
+          <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
+            Four Powerful Portals
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Manage every aspect of your travel business with dedicated portals for admins, suppliers, agents, and customers.
+            Manage every micro-portal with dealer-status suppliers.
           </p>
         </div>
 
-        <div ref={gridRef} className="grid md:grid-cols-2 gap-6">
+        {/* 2×2 Grid */}
+        <div ref={gridRef} className="grid md:grid-cols-2 gap-5">
           {portals.map((portal, index) => (
-            <Card
+            <div
               key={portal.title}
-              className={`hover:shadow-xl transition-all duration-300 opacity-0 ${portal.accentBg} ${portal.accentBorder} border ${gridVisible ? "animate-fade-in" : ""}`}
-              style={{ animationDelay: `${index * 0.15}s` }}
+              className={`glass-card rounded-2xl p-6 hover:shadow-2xl hover:border-white/20 transition-all duration-300 opacity-0 ${gridVisible ? "animate-fade-in" : ""}`}
+              style={{ animationDelay: `${index * 0.12}s` }}
             >
-              <CardHeader className="pb-4">
-                <div className="flex items-start justify-between mb-3">
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${portal.color} flex items-center justify-center shadow-lg`}>
-                    <portal.icon className="h-6 w-6 text-primary-foreground" />
+              {/* Header row: icon + title + badge */}
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${portal.color} flex items-center justify-center shadow-lg`}>
+                    <portal.icon className="h-5 w-5 text-white" />
                   </div>
-                  <Badge className={`bg-gradient-to-r ${portal.color} text-primary-foreground border-0`}>
-                    {portal.badge}
-                  </Badge>
-                </div>
-                <CardTitle className="text-xl">{portal.title}</CardTitle>
-                <CardDescription className="text-base">{portal.description}</CardDescription>
-              </CardHeader>
-              
-              <CardContent className="space-y-4">
-                {/* Mini Mockup Preview */}
-                <div className="bg-card rounded-lg border border-border p-4 shadow-sm">
-                  {/* Mockup Header */}
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="flex gap-1">
-                      <div className="w-2 h-2 rounded-full bg-destructive/50" />
-                      <div className="w-2 h-2 rounded-full bg-muted-foreground/30" />
-                      <div className="w-2 h-2 rounded-full bg-primary/50" />
-                    </div>
-                    <span className="text-xs text-muted-foreground ml-2">{portal.mockup.title}</span>
-                  </div>
-                  
-                  {/* Mockup Content */}
-                  <div className="flex items-center gap-4">
-                    <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${portal.color} flex items-center justify-center`}>
-                      <portal.mockup.icon className="h-5 w-5 text-primary-foreground" />
-                    </div>
-                    <div className="flex-1 grid grid-cols-2 gap-3">
-                      {portal.mockup.stats.map((stat) => (
-                        <div key={stat.label}>
-                          <div className="text-sm font-bold text-foreground">{stat.value}</div>
-                          <div className="text-xs text-muted-foreground">{stat.label}</div>
-                        </div>
-                      ))}
-                    </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-foreground">{portal.title}</h3>
+                    <p className="text-xs text-muted-foreground">{portal.description}</p>
                   </div>
                 </div>
+                <Badge className={`text-[10px] shrink-0 ${portal.badgeColor}`}>{portal.badge}</Badge>
+              </div>
 
-                {/* Features List */}
-                <ul className="grid grid-cols-2 gap-2">
-                  {portal.features.map((feature) => (
-                    <li key={feature} className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <div className={`w-1.5 h-1.5 rounded-full bg-gradient-to-br ${portal.color}`} />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
+              {/* Stats row */}
+              <div className="flex gap-3 mb-5">
+                {portal.stats.map((stat, idx) => (
+                  <div key={idx} className="glass rounded-xl px-4 py-3 flex-1">
+                    {stat.icon && <stat.icon className="h-3.5 w-3.5 text-muted-foreground mb-1" />}
+                    <div className="text-xl font-bold text-foreground">{stat.value}</div>
+                    <div className="text-[10px] text-muted-foreground">{stat.label}</div>
+                  </div>
+                ))}
+              </div>
 
-                {/* Request Demo Button */}
-                <Button variant="outline" size="sm" className="w-full mt-2 group" onClick={scrollToContact}>
-                  Request Demo
-                  <Calendar className="ml-2 h-3 w-3 group-hover:scale-110 transition-transform" />
-                </Button>
-              </CardContent>
-            </Card>
+              {/* Feature pills */}
+              <ul className="grid grid-cols-2 gap-x-4 gap-y-1.5">
+                {portal.features.map((feature) => (
+                  <li key={feature} className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className={`w-1.5 h-1.5 rounded-full bg-gradient-to-br ${portal.color}`} />
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+            </div>
           ))}
         </div>
       </div>

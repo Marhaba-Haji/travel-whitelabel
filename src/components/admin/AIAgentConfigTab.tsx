@@ -224,7 +224,6 @@ function fileToBase64(file: File): Promise<string> {
 const AIAgentConfigTab = () => {
   const queryClient = useQueryClient();
   const [config, setConfig] = useState<NyraConfig>(DEFAULT);
-  const [initialLoaded, setInitialLoaded] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-nyra-config"],
@@ -239,12 +238,11 @@ const AIAgentConfigTab = () => {
     },
   });
 
+  // Always sync config from server when query data changes (e.g. after save/refetch)
+  // so all entries show including those added via file upload
   useEffect(() => {
-    if (data && !initialLoaded) {
-      setConfig(data);
-      setInitialLoaded(true);
-    }
-  }, [data, initialLoaded]);
+    if (data) setConfig(data);
+  }, [data]);
 
   const save = useMutation({
     mutationFn: async (newConfig: NyraConfig) => {
@@ -266,15 +264,20 @@ const AIAgentConfigTab = () => {
 
   const addEntry = (field: keyof Pick<NyraConfig, "knowledge_base" | "behavior_instructions" | "additional_notes">, value: string) => {
     if (!value.trim()) return;
-    const updated = { ...config, [field]: [...config[field], value.trim()] };
-    setConfig(updated);
-    save.mutate(updated);
+    // Use functional update so file-upload callbacks (async) always append to latest state
+    setConfig((prev) => {
+      const updated = { ...prev, [field]: [...prev[field], value.trim()] };
+      save.mutate(updated);
+      return updated;
+    });
   };
 
   const removeEntry = (field: keyof Pick<NyraConfig, "knowledge_base" | "behavior_instructions" | "additional_notes">, index: number) => {
-    const updated = { ...config, [field]: config[field].filter((_, i) => i !== index) };
-    setConfig(updated);
-    save.mutate(updated);
+    setConfig((prev) => {
+      const updated = { ...prev, [field]: prev[field].filter((_, i) => i !== index) };
+      save.mutate(updated);
+      return updated;
+    });
   };
 
   const updateComms = (key: "email" | "whatsapp" | "sms", val: boolean) => {

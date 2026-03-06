@@ -3,7 +3,8 @@ import { useState, useEffect } from "react";
 import { useContactSettings } from "@/hooks/useContactSettings";
 
 const STICKY_CTA_THRESHOLD = 600;
-const STICKY_CTA_HEIGHT = 64; // approximate height of the StickyCTA bar in px
+const STICKY_CTA_HEIGHT = 64;
+const BOTTOM_NAV_HEIGHT = 64;
 
 const FloatingWhatsApp = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -22,8 +23,9 @@ const FloatingWhatsApp = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Lift above StickyCTA when visible
-  const bottomOffset = stickyCTAVisible ? `${STICKY_CTA_HEIGHT + 16}px` : "24px";
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+  const baseBottom = isMobile ? BOTTOM_NAV_HEIGHT + 16 : 24;
+  const bottomOffset = stickyCTAVisible ? `${baseBottom + STICKY_CTA_HEIGHT}px` : `${baseBottom}px`;
 
   return (
     <a

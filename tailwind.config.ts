@@ -5,6 +5,9 @@ export default {
   content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
   prefix: "",
   theme: {
+    fontFamily: {
+      sans: ["Inter", "system-ui", "sans-serif"],
+    },
     container: {
       center: true,
       padding: "2rem",
@@ -42,6 +45,12 @@ export default {
         gold: {
           DEFAULT: "hsl(var(--gold))",
           foreground: "hsl(var(--gold-foreground))",
+        },
+        aurora: {
+          purple: "hsl(var(--aurora-purple))",
+          blue: "hsl(var(--aurora-blue))",
+          pink: "hsl(var(--aurora-pink))",
+          teal: "hsl(var(--aurora-teal))",
         },
         nyra: {
           DEFAULT: "hsl(var(--nyra))",

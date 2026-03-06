@@ -1,8 +1,14 @@
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Bot, Languages, Clock, Zap, Users, TrendingDown, TrendingUp, MessageSquare, ArrowRight, CheckCircle2 } from "lucide-react";
 import AnimatedCounter from "@/components/AnimatedCounter";
+
+const BENEFIT_GRADIENTS = [
+  "from-aurora-blue to-aurora-teal",
+  "from-aurora-purple to-aurora-blue",
+  "from-aurora-teal to-emerald-500",
+  "from-aurora-pink to-aurora-purple",
+];
 
 const AIPowered = () => {
   const { ref, isVisible } = useScrollAnimation();
@@ -30,25 +36,30 @@ const AIPowered = () => {
   ];
 
   return (
-    <section className="py-20 bg-muted/30 relative overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent" />
-      
+    <section className="py-24 relative overflow-hidden">
+      {/* Aurora background */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_hsl(270_70%_58%_/_0.08),_transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_hsl(320_90%_60%_/_0.06),_transparent_50%)]" />
+
+      <div className="absolute top-10 right-10 w-72 h-72 bg-aurora-purple/10 rounded-full blur-3xl pointer-events-none animate-pulse-soft" />
+      <div className="absolute bottom-20 left-10 w-80 h-80 bg-aurora-pink/8 rounded-full blur-3xl pointer-events-none animate-pulse-soft" style={{ animationDelay: "1.5s" }} />
+
       <div className="container mx-auto px-4 relative z-10">
         <div
           ref={ref}
           className={`opacity-0 ${isVisible ? "animate-fade-in" : ""}`}
         >
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-4 py-1.5 mb-6">
-              <span className="text-xs font-semibold text-primary uppercase tracking-wider">
-                AI Intelligence
+          <div className="text-center mb-14">
+            <span className="inline-block text-aurora-teal font-semibold text-xs uppercase tracking-[0.2em] glass px-4 py-1.5 rounded-full mb-5">
+              AI Intelligence
+            </span>
+            <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
+              AI-Powered Sales &{" "}
+              <span className="aurora-gradient-text animate-text-shimmer bg-[length:200%_auto]">
+                Support Intelligence
               </span>
-            </div>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              AI-Powered Sales & Support Intelligence
             </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               marhabaDMC integrates AI-driven chat and voice technology to support agent sales and customer engagement.
             </p>
           </div>
@@ -56,11 +67,15 @@ const AIPowered = () => {
           {/* AI Performance Metrics */}
           <div
             ref={metricsRef}
-            className={`grid grid-cols-2 md:grid-cols-4 gap-4 mb-12 opacity-0 ${metricsVisible ? "animate-fade-in" : ""}`}
+            className={`grid grid-cols-2 md:grid-cols-4 gap-4 mb-14 opacity-0 ${metricsVisible ? "animate-fade-in" : ""}`}
           >
             {aiMetrics.map((metric, index) => (
-              <div key={index} className="bg-card border border-border rounded-xl p-4 text-center">
-                <div className="text-2xl font-bold text-primary mb-1">
+              <div
+                key={metric.label}
+                className={`glass-card rounded-2xl p-4 text-center opacity-0 ${metricsVisible ? "animate-scale-in" : ""}`}
+                style={{ animationDelay: `${index * 0.08}s` }}
+              >
+                <div className="text-2xl font-bold aurora-gradient-text animate-text-shimmer bg-[length:200%_auto] mb-1">
                   {typeof metric.value === "string" ? (
                     metric.value
                   ) : (
@@ -72,47 +87,45 @@ const AIPowered = () => {
             ))}
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-12 items-center mb-12">
+          <div className="grid lg:grid-cols-2 gap-10 items-center mb-14">
             {/* Left: Bot Visual */}
             <div className="order-2 lg:order-1">
-              <div className="bg-card border border-border rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-shadow">
-                {/* Chat Mockup */}
+              <div className="glass-card rounded-2xl p-6 hover:shadow-2xl transition-shadow">
                 <div className="space-y-4 mb-6">
                   <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center flex-shrink-0">
-                      <Bot className="w-5 h-5 text-primary" />
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-aurora-purple to-aurora-blue flex items-center justify-center flex-shrink-0 shadow-lg">
+                      <Bot className="w-5 h-5 text-white" />
                     </div>
-                    <div className="bg-muted rounded-lg rounded-tl-none p-3 max-w-[80%]">
+                    <div className="glass rounded-xl rounded-tl-none p-3 max-w-[80%]">
                       <p className="text-sm text-foreground">
                         Hello! I'm your AI travel assistant. How can I help you plan your halal-friendly journey today?
                       </p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3 justify-end">
-                    <div className="bg-primary text-primary-foreground rounded-lg rounded-tr-none p-3 max-w-[80%]">
+                    <div className="bg-gradient-to-r from-aurora-blue to-aurora-teal text-white rounded-xl rounded-tr-none p-3 max-w-[80%]">
                       <p className="text-sm">
                         I'm looking for Umrah packages for a family of 4
                       </p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center flex-shrink-0">
-                      <Bot className="w-5 h-5 text-primary" />
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-aurora-purple to-aurora-blue flex items-center justify-center flex-shrink-0 shadow-lg">
+                      <Bot className="w-5 h-5 text-white" />
                     </div>
-                    <div className="bg-muted rounded-lg rounded-tl-none p-3 max-w-[80%]">
+                    <div className="glass rounded-xl rounded-tl-none p-3 max-w-[80%]">
                       <p className="text-sm text-foreground">
                         I'd be happy to help! We have several Umrah packages perfect for families. Let me show you our most popular options...
                       </p>
                     </div>
                   </div>
                 </div>
-                
-                {/* Capabilities */}
-                <div className="pt-6 border-t border-border">
+
+                <div className="pt-6 border-t border-white/10">
                   <div className="grid grid-cols-2 gap-3">
                     {capabilities.map((cap) => (
                       <div key={cap.text} className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <cap.icon className="w-4 h-4 text-primary" />
+                        <cap.icon className="w-4 h-4 text-aurora-teal" />
                         <span>{cap.text}</span>
                       </div>
                     ))}
@@ -123,48 +136,45 @@ const AIPowered = () => {
 
             {/* Right: Content */}
             <div className="order-1 lg:order-2">
-              {/* Benefits Grid */}
               <div className="grid sm:grid-cols-2 gap-4 mb-8">
                 {benefits.map((benefit, index) => (
-                  <Card
+                  <div
                     key={benefit.title}
-                    className={`border border-border hover:shadow-lg transition-all hover:-translate-y-1 opacity-0 ${
-                      isVisible ? "animate-fade-in" : ""
+                    className={`group glass-card rounded-2xl p-4 hover:shadow-2xl hover:border-white/20 transition-all duration-300 opacity-0 ${
+                      isVisible ? "animate-scale-in" : ""
                     }`}
-                    style={{ animationDelay: `${index * 100}ms` }}
+                    style={{ animationDelay: `${index * 0.1}s` }}
                   >
-                    <CardContent className="p-4">
-                      <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center flex-shrink-0">
-                          <benefit.icon className="w-5 h-5 text-primary" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between mb-1">
-                            <h4 className="font-semibold text-foreground text-sm">{benefit.title}</h4>
-                            <span className="text-xs font-bold text-primary">{benefit.metric}</span>
-                          </div>
-                          <p className="text-muted-foreground text-xs">{benefit.description}</p>
-                        </div>
+                    <div className="flex items-start gap-3">
+                      <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${BENEFIT_GRADIENTS[index]} flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                        <benefit.icon className="w-5 h-5 text-white" />
                       </div>
-                    </CardContent>
-                  </Card>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-1">
+                          <h4 className="font-bold text-foreground text-sm">{benefit.title}</h4>
+                          <span className="text-xs font-bold text-aurora-teal">{benefit.metric}</span>
+                        </div>
+                        <p className="text-muted-foreground text-xs">{benefit.description}</p>
+                      </div>
+                    </div>
+                  </div>
                 ))}
               </div>
 
-              {/* Tagline */}
-              <div className="bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 rounded-lg p-4 mb-6">
+              <div className="glass-card rounded-2xl p-4 mb-6">
                 <p className="text-foreground font-medium text-center">
-                  AI works <span className="text-primary font-semibold">alongside agents</span>—not instead of them.
+                  AI works{" "}
+                  <span className="aurora-gradient-text animate-text-shimmer bg-[length:200%_auto] font-semibold">alongside agents</span>
+                  —not instead of them.
                 </p>
               </div>
 
-              {/* Use Cases */}
-              <div className="bg-card border border-border rounded-lg p-4">
-                <h4 className="font-semibold text-foreground mb-3 text-sm">Use Cases:</h4>
+              <div className="glass-card rounded-2xl p-4">
+                <h4 className="font-bold text-foreground mb-3 text-sm">Use Cases:</h4>
                 <div className="space-y-2">
                   {["Initial customer enquiries", "Package recommendations", "Booking assistance", "24/7 support"].map((useCase, index) => (
                     <div key={index} className="flex items-center gap-2">
-                      <CheckCircle2 className="w-3 h-3 text-primary flex-shrink-0" />
+                      <CheckCircle2 className="w-3 h-3 text-aurora-teal flex-shrink-0" />
                       <span className="text-xs text-muted-foreground">{useCase}</span>
                     </div>
                   ))}
@@ -173,9 +183,12 @@ const AIPowered = () => {
             </div>
           </div>
 
-          {/* CTA */}
           <div className="text-center">
-            <Button size="lg" asChild>
+            <Button
+              size="lg"
+              asChild
+              className="rounded-full px-8 bg-gradient-to-r from-aurora-blue via-primary to-aurora-blue bg-[length:200%_auto] animate-gradient-shift shadow-[0_0_30px_hsl(210_100%_50%_/_0.3)] hover:shadow-[0_0_40px_hsl(210_100%_50%_/_0.5)] transition-shadow"
+            >
               <a href="/signup">
                 Apply for Partner Access
                 <ArrowRight className="ml-2 h-4 w-4" />

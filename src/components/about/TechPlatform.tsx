@@ -1,61 +1,58 @@
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Package, Settings, Users, Globe, ArrowRight } from "lucide-react";
 import AnimatedCounter from "@/components/AnimatedCounter";
+
+const PORTAL_GRADIENTS = [
+  "from-aurora-blue to-aurora-teal",
+  "from-aurora-purple to-aurora-blue",
+  "from-aurora-teal to-emerald-500",
+  "from-aurora-pink to-aurora-purple",
+];
 
 const TechPlatform = () => {
   const { ref, isVisible } = useScrollAnimation();
   const { ref: metricsRef, isVisible: metricsVisible } = useScrollAnimation();
 
   const portals = [
-    {
-      icon: Package,
-      title: "Supplier Portal",
-      description: "Inventory, rates, and service management",
-      color: "from-blue-500/20 to-blue-600/10",
-    },
-    {
-      icon: Settings,
-      title: "Admin Portal",
-      description: "Pricing control, user management, reporting",
-      color: "from-purple-500/20 to-purple-600/10",
-    },
-    {
-      icon: Users,
-      title: "Agent Portal",
-      description: "Sales, bookings, lead handling",
-      color: "from-green-500/20 to-green-600/10",
-    },
-    {
-      icon: Globe,
-      title: "B2C Portal",
-      description: "Customer-facing booking under your brand",
-      color: "from-orange-500/20 to-orange-600/10",
-    },
+    { icon: Package, title: "Supplier Portal", description: "Inventory, rates, and service management" },
+    { icon: Settings, title: "Admin Portal", description: "Pricing control, user management, reporting" },
+    { icon: Users, title: "Agent Portal", description: "Sales, bookings, lead handling" },
+    { icon: Globe, title: "B2C Portal", description: "Customer-facing booking under your brand" },
   ];
 
+  const metrics = [
+    { value: <AnimatedCounter end={99.9} suffix="%" />, label: "Uptime SLA" },
+    { value: <><span>&lt;100</span><span className="text-lg">ms</span></>, label: "Response Time" },
+    { value: "6 Days", label: "Support" },
+    { value: "SSL", label: "Encrypted" },
+  ];
 
   return (
-    <section className="py-20 bg-muted/30 relative overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent" />
-      
+    <section className="py-24 relative overflow-hidden">
+      {/* Aurora background */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_hsl(210_100%_50%_/_0.08),_transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_hsl(320_90%_60%_/_0.06),_transparent_50%)]" />
+
+      <div className="absolute top-10 right-20 w-72 h-72 bg-aurora-blue/10 rounded-full blur-3xl pointer-events-none animate-pulse-soft" />
+      <div className="absolute bottom-10 left-10 w-80 h-80 bg-aurora-purple/8 rounded-full blur-3xl pointer-events-none animate-pulse-soft" style={{ animationDelay: "1.5s" }} />
+
       <div className="container mx-auto px-4 relative z-10">
         <div
           ref={ref}
           className={`opacity-0 ${isVisible ? "animate-fade-in" : ""}`}
         >
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-4 py-1.5 mb-6">
-              <span className="text-xs font-semibold text-primary uppercase tracking-wider">
-                Technology Platform
+          <div className="text-center mb-14">
+            <span className="inline-block text-aurora-teal font-semibold text-xs uppercase tracking-[0.2em] glass px-4 py-1.5 rounded-full mb-5">
+              Technology Platform
+            </span>
+            <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
+              WhiteLabel Technology{" "}
+              <span className="aurora-gradient-text animate-text-shimmer bg-[length:200%_auto]">
+                Built for Agencies
               </span>
-            </div>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              WhiteLabel Technology Built for Agencies
             </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               At the core of marhabaDMC is a WhiteLabel technology platform designed specifically for travel agencies.
             </p>
           </div>
@@ -63,71 +60,55 @@ const TechPlatform = () => {
           {/* Platform Metrics */}
           <div
             ref={metricsRef}
-            className={`grid grid-cols-2 md:grid-cols-4 gap-4 mb-12 opacity-0 ${metricsVisible ? "animate-fade-in" : ""}`}
+            className={`grid grid-cols-2 md:grid-cols-4 gap-4 mb-14 opacity-0 ${metricsVisible ? "animate-fade-in" : ""}`}
           >
-            <div className="bg-card border border-border rounded-xl p-4 text-center">
-              <div className="text-2xl font-bold text-primary mb-1">
-                <AnimatedCounter end={99.9} suffix="%" />
+            {metrics.map((metric, index) => (
+              <div
+                key={metric.label}
+                className={`glass-card rounded-2xl p-4 text-center opacity-0 ${metricsVisible ? "animate-scale-in" : ""}`}
+                style={{ animationDelay: `${index * 0.08}s` }}
+              >
+                <div className="text-2xl font-bold aurora-gradient-text animate-text-shimmer bg-[length:200%_auto] mb-1">
+                  {metric.value}
+                </div>
+                <div className="text-sm text-muted-foreground">{metric.label}</div>
               </div>
-              <div className="text-sm text-muted-foreground">Uptime SLA</div>
-            </div>
-            <div className="bg-card border border-border rounded-xl p-4 text-center">
-              <div className="text-2xl font-bold text-primary mb-1">
-                &lt;100<span className="text-lg">ms</span>
-              </div>
-              <div className="text-sm text-muted-foreground">Response Time</div>
-            </div>
-            <div className="bg-card border border-border rounded-xl p-4 text-center">
-              <div className="text-2xl font-bold text-primary mb-1">
-                6 Days
-              </div>
-              <div className="text-sm text-muted-foreground">Support</div>
-            </div>
-            <div className="bg-card border border-border rounded-xl p-4 text-center">
-              <div className="text-2xl font-bold text-primary mb-1">
-                SSL
-              </div>
-              <div className="text-sm text-muted-foreground">Encrypted</div>
-            </div>
+            ))}
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-14">
             {portals.map((portal, index) => (
-              <Card
+              <div
                 key={portal.title}
-                className={`border border-border hover:shadow-xl hover:-translate-y-2 transition-all duration-300 overflow-hidden opacity-0 flex flex-col ${
-                  isVisible ? "animate-fade-in" : ""
+                className={`group glass-card rounded-2xl p-6 hover:shadow-2xl hover:border-white/20 transition-all duration-300 opacity-0 ${
+                  isVisible ? "animate-scale-in" : ""
                 }`}
-                style={{ animationDelay: `${index * 100}ms` }}
+                style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <CardContent className={`p-0 bg-gradient-to-br ${portal.color} rounded-lg flex-1 flex flex-col`}>
-                  <div className="p-6 flex-1">
-                    <div className="w-12 h-12 rounded-lg bg-card/80 backdrop-blur-sm flex items-center justify-center mb-4">
-                      <portal.icon className="w-6 h-6 text-primary" />
-                    </div>
-                    <h3 className="font-semibold text-foreground mb-2 text-lg">
-                      {portal.title}
-                    </h3>
-                    <p className="text-muted-foreground text-sm">
-                      {portal.description}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${PORTAL_GRADIENTS[index]} flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                  <portal.icon className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="font-bold text-foreground mb-2 text-lg">{portal.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{portal.description}</p>
+              </div>
             ))}
           </div>
 
           {/* Bottom Highlight */}
-          <div className="bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 border border-primary/20 rounded-2xl p-8 text-center mb-8">
+          <div className="glass-card rounded-2xl p-8 text-center mb-10">
             <p className="text-foreground text-lg max-w-3xl mx-auto">
-              Each agency operates on its own <span className="font-semibold text-primary">branded ecosystem</span> while 
-              marhabaDMC powers the backend infrastructure.
+              Each agency operates on its own{" "}
+              <span className="font-semibold aurora-gradient-text animate-text-shimmer bg-[length:200%_auto]">branded ecosystem</span>{" "}
+              while marhabaDMC powers the backend infrastructure.
             </p>
           </div>
 
-          {/* CTA */}
           <div className="text-center">
-            <Button size="lg" asChild>
+            <Button
+              size="lg"
+              asChild
+              className="rounded-full px-8 bg-gradient-to-r from-aurora-blue via-primary to-aurora-blue bg-[length:200%_auto] animate-gradient-shift shadow-[0_0_30px_hsl(210_100%_50%_/_0.3)] hover:shadow-[0_0_40px_hsl(210_100%_50%_/_0.5)] transition-shadow"
+            >
               <a href="#contact">
                 Schedule Platform Demo
                 <ArrowRight className="ml-2 h-4 w-4" />

@@ -8,6 +8,7 @@ import { useState } from "react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useContactSettings } from "@/hooks/useContactSettings";
 import { useSocialSettings } from "@/hooks/useSocialSettings";
+import AuroraLogo from "@/components/AuroraLogo";
 
 const socialIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   facebook: Facebook,
@@ -133,7 +134,12 @@ const Footer = () => {
   };
 
   return (
-    <footer id="contact" className="bg-foreground text-background">
+    <footer id="contact" className="relative overflow-hidden">
+      {/* Aurora gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-background via-card to-background" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_hsl(270_70%_58%_/_0.12),_transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_hsl(210_100%_50%_/_0.08),_transparent_50%)]" />
+      <div className="relative text-foreground">
       <div className="container mx-auto px-4 py-16">
         <div className="grid lg:grid-cols-2 gap-12">
           {/* Contact Form */}
@@ -142,13 +148,13 @@ const Footer = () => {
             className={`opacity-0 ${formVisible ? "animate-fade-in-left" : ""}`}
           >
             <h3 className="text-2xl font-bold mb-2">Get in Touch</h3>
-            <p className="text-background/70 mb-6">
+            <p className="text-muted-foreground mb-6">
               Have questions? Fill out the form and our team will get back to you within 24 hours.
             </p>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="name" className="text-background/90">Name</Label>
+                  <Label htmlFor="name" className="text-foreground/90">Name</Label>
                   <Input
                     id="name"
                     name="name"
@@ -157,11 +163,11 @@ const Footer = () => {
                     placeholder="Your name"
                     required
                     maxLength={100}
-                    className="bg-background/10 border-background/20 text-background placeholder:text-background/50"
+                    className="glass border-white/20 text-foreground placeholder:text-muted-foreground"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="email" className="text-background/90">Email</Label>
+                  <Label htmlFor="email" className="text-foreground/90">Email</Label>
                   <Input
                     id="email"
                     name="email"
@@ -171,12 +177,12 @@ const Footer = () => {
                     placeholder="your@email.com"
                     required
                     maxLength={255}
-                    className="bg-background/10 border-background/20 text-background placeholder:text-background/50"
+                    className="glass border-white/20 text-foreground placeholder:text-muted-foreground"
                   />
                 </div>
               </div>
               <div>
-                <Label htmlFor="phone" className="text-background/90">Phone</Label>
+                <Label htmlFor="phone" className="text-foreground/90">Phone</Label>
                 <Input
                   id="phone"
                   name="phone"
@@ -184,11 +190,11 @@ const Footer = () => {
                   onChange={handleChange}
                   placeholder="+91 XXXXX XXXXX"
                   maxLength={20}
-                  className="bg-background/10 border-background/20 text-background placeholder:text-background/50"
+                  className="glass border-white/20 text-foreground placeholder:text-muted-foreground"
                 />
               </div>
               <div>
-                <Label htmlFor="message" className="text-background/90">Message</Label>
+                <Label htmlFor="message" className="text-foreground/90">Message</Label>
                 <Textarea
                   id="message"
                   name="message"
@@ -198,7 +204,7 @@ const Footer = () => {
                   rows={4}
                   required
                   maxLength={1000}
-                  className="bg-background/10 border-background/20 text-background placeholder:text-background/50"
+                  className="glass border-white/20 text-foreground placeholder:text-muted-foreground"
                 />
               </div>
               <Button type="submit" size="lg" variant="secondary" className="w-full sm:w-auto" disabled={contactLoading}>
@@ -213,29 +219,17 @@ const Footer = () => {
             className={`lg:pl-8 opacity-0 ${infoVisible ? "animate-fade-in-right" : ""}`}
           >
             <div className="mb-8">
-              <div className="flex items-center gap-2.5 mb-4">
-                <a href="/" className="flex items-center gap-2.5">
-                  <img
-                    src="/assets/marhaba-dmc-logo-white.png"
-                    alt="marhabaDMC"
-                    width="28"
-                    height="28"
-                    className="h-7 w-auto object-contain flex-shrink-0"
-                  />
-                  <span className="text-[1.1rem] leading-none text-background">
-                    <span className="font-marhaba">marhaba</span>
-                    <span className="font-dmc font-semibold text-primary">DMC</span>
-                  </span>
-                </a>
+              <div className="mb-4">
+                <AuroraLogo size="sm" />
               </div>
-              <p className="text-background/70 mb-6">
+              <p className="text-muted-foreground mb-6">
                 Travel Entrepreneurs Start Here — Launch your own travel business with complete training and support.
               </p>
 
               {/* Newsletter Signup */}
-              <div className="bg-background/5 rounded-lg p-4 border border-background/10">
+              <div className="glass rounded-xl p-4">
                 <h4 className="font-semibold mb-2">Subscribe to Our Newsletter</h4>
-                <p className="text-background/60 text-sm mb-3">Get the latest updates, tips, and industry insights.</p>
+                <p className="text-muted-foreground text-sm mb-3">Get the latest updates, tips, and industry insights.</p>
                 <form onSubmit={handleNewsletterSubmit} className="flex gap-2">
                   <Input
                     type="email"
@@ -243,7 +237,7 @@ const Footer = () => {
                     onChange={(e) => setNewsletterEmail(e.target.value)}
                     placeholder="your@email.com"
                     maxLength={255}
-                    className="bg-background/10 border-background/20 text-background placeholder:text-background/50 flex-1"
+                    className="glass border-white/20 text-foreground placeholder:text-muted-foreground flex-1"
                   />
                   <Button type="submit" variant="secondary" size="icon" className="shrink-0" disabled={newsletterLoading}>
                     <ArrowRight className="h-4 w-4" />
@@ -258,21 +252,21 @@ const Footer = () => {
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 text-background/70 hover:text-background transition-colors"
+                className="flex items-center gap-3 text-muted-foreground hover:text-foreground transition-colors"
               >
                 <MessageCircle className="h-5 w-5" />
                 <span>WhatsApp: {phone}</span>
               </a>
               <a
                 href={`tel:${phone.replace(/\D/g, "")}`}
-                className="flex items-center gap-3 text-background/70 hover:text-background transition-colors"
+                className="flex items-center gap-3 text-muted-foreground hover:text-foreground transition-colors"
               >
                 <Phone className="h-5 w-5" />
                 <span>{phone}</span>
               </a>
               <a
                 href={`mailto:${email}`}
-                className="flex items-center gap-3 text-background/70 hover:text-background transition-colors"
+                className="flex items-center gap-3 text-muted-foreground hover:text-foreground transition-colors"
               >
                 <Mail className="h-5 w-5" />
                 <span>{email}</span>
@@ -282,7 +276,7 @@ const Footer = () => {
                   href={`https://maps.google.com/?q=${encodeURIComponent(address)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-3 text-background/70 hover:text-background transition-colors"
+                  className="flex items-center gap-3 text-muted-foreground hover:text-foreground transition-colors"
                 >
                   <MapPin className="h-5 w-5 flex-shrink-0" />
                   <span>{address}</span>
@@ -300,7 +294,7 @@ const Footer = () => {
                       <a
                         key={link.name}
                         href={link.href}
-                        className="text-background/70 hover:text-background transition-colors"
+                        className="text-muted-foreground hover:text-foreground transition-colors"
                       >
                         {link.name}
                       </a>
@@ -308,7 +302,7 @@ const Footer = () => {
                       <button
                         key={link.name}
                         onClick={() => scrollToSection(link.href)}
-                        className="text-background/70 hover:text-background transition-colors"
+                        className="text-muted-foreground hover:text-foreground transition-colors"
                       >
                         {link.name}
                       </button>
@@ -330,7 +324,7 @@ const Footer = () => {
                           href={social.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-10 h-10 rounded-full bg-background/10 flex items-center justify-center text-background/70 hover:bg-background/20 hover:text-background transition-all"
+                          className="w-10 h-10 rounded-full glass flex items-center justify-center text-muted-foreground hover:text-foreground transition-all"
                           aria-label={social.label}
                         >
                           <Icon className="h-5 w-5" />
@@ -345,42 +339,42 @@ const Footer = () => {
         </div>
 
         {/* Trust Badges Section */}
-        <div className="border-t border-background/10 mt-12 pt-8">
+        <div className="border-t border-white/10 mt-12 pt-8">
           <div className="flex flex-wrap items-center justify-center gap-6 mb-6">
             {/* Security Badges */}
-            <div className="flex items-center gap-2 text-background/60">
+            <div className="flex items-center gap-2 text-muted-foreground">
               <Shield className="w-5 h-5" />
               <span className="text-sm">SSL Secured</span>
             </div>
-            <div className="flex items-center gap-2 text-background/60">
+            <div className="flex items-center gap-2 text-muted-foreground">
               <Lock className="w-5 h-5" />
               <span className="text-sm">256-bit Encryption</span>
             </div>
-            <div className="flex items-center gap-2 text-background/60">
+            <div className="flex items-center gap-2 text-muted-foreground">
               <CreditCard className="w-5 h-5" />
               <span className="text-sm">Secure Payments</span>
             </div>
             
             {/* Divider */}
-            <div className="hidden sm:block h-6 w-px bg-background/20" />
+            <div className="hidden sm:block h-6 w-px bg-white/20" />
             
             {/* Payment Icons */}
             <div className="flex items-center gap-2">
-              <div className="bg-background/10 border border-background/20 rounded px-2 py-1">
-                <span className="text-[10px] font-bold text-background/80 tracking-wider">VISA</span>
+              <div className="glass rounded px-2 py-1">
+                <span className="text-[10px] font-bold text-foreground/80 tracking-wider">VISA</span>
               </div>
-              <div className="bg-background/10 border border-background/20 rounded px-2 py-1 flex items-center gap-0.5">
+              <div className="glass rounded px-2 py-1 flex items-center gap-0.5">
                 <div className="w-2.5 h-2.5 rounded-full bg-destructive/60" />
-                <div className="w-2.5 h-2.5 rounded-full bg-background/40 -ml-1" />
+                <div className="w-2.5 h-2.5 rounded-full bg-foreground/40 -ml-1" />
               </div>
-              <div className="bg-background/10 border border-background/20 rounded px-2 py-1">
-                <span className="text-[10px] font-bold text-background/80">UPI</span>
+              <div className="glass rounded px-2 py-1">
+                <span className="text-[10px] font-bold text-foreground/80">UPI</span>
               </div>
-              <div className="bg-background/10 border border-background/20 rounded px-2 py-1">
-                <span className="text-[10px] font-bold text-background/60">RuPay</span>
+              <div className="glass rounded px-2 py-1">
+                <span className="text-[10px] font-bold text-muted-foreground">RuPay</span>
               </div>
-              <div className="bg-background/10 border border-background/20 rounded px-2 py-1">
-                <span className="text-[10px] font-bold text-background/60">NetBanking</span>
+              <div className="glass rounded px-2 py-1">
+                <span className="text-[10px] font-bold text-muted-foreground">NetBanking</span>
               </div>
             </div>
           </div>
@@ -389,31 +383,32 @@ const Footer = () => {
           <div className="flex flex-wrap items-center justify-center gap-4 mb-4">
             <a
               href="/terms-of-service"
-              className="text-background/60 hover:text-background transition-colors text-sm"
+              className="text-muted-foreground hover:text-foreground transition-colors text-sm"
             >
               Terms of Service
             </a>
-            <span className="text-background/40">•</span>
+            <span className="text-muted-foreground/60">•</span>
             <a
               href="/privacy-policy"
-              className="text-background/60 hover:text-background transition-colors text-sm"
+              className="text-muted-foreground hover:text-foreground transition-colors text-sm"
             >
               Privacy Policy
             </a>
-            <span className="text-background/40">•</span>
+            <span className="text-muted-foreground/60">•</span>
             <a
               href="/refund-policy"
-              className="text-background/60 hover:text-background transition-colors text-sm"
+              className="text-muted-foreground hover:text-foreground transition-colors text-sm"
             >
               Refund Policy
             </a>
           </div>
 
           {/* Copyright */}
-          <div className="text-center text-background/50 text-sm">
+          <div className="text-center text-muted-foreground text-sm">
             <p>© {new Date().getFullYear()} marhabaDMC. All rights reserved.</p>
           </div>
         </div>
+      </div>
       </div>
     </footer>
   );

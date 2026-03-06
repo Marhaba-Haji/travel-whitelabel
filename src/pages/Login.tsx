@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { ArrowLeft, Shield, Users, TrendingUp } from "lucide-react";
 import LoginForm from "@/components/auth/LoginForm";
+import AuroraLogo from "@/components/AuroraLogo";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useEffect } from "react";
 
@@ -28,15 +29,15 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-background">
-      {/* Animated Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-accent via-background to-background" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent" />
+      {/* Aurora Dynamic gradient background */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_hsl(270_70%_58%_/_0.12),_transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_hsl(210_100%_50%_/_0.08),_transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_hsl(320_90%_60%_/_0.06),_transparent_70%)]" />
       
-      {/* Floating decorative elements */}
-      <div className="absolute top-20 right-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse-soft" />
-      <div className="absolute bottom-20 left-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse-soft" style={{ animationDelay: "1s" }} />
-      <div className="absolute top-1/2 right-1/4 w-48 h-48 bg-primary/5 rounded-full blur-2xl animate-float-slow" />
+      {/* Floating glassmorphism blobs */}
+      <div className="absolute top-20 right-10 w-72 h-72 bg-aurora-purple/15 rounded-full blur-3xl animate-pulse-soft" />
+      <div className="absolute bottom-20 left-10 w-96 h-96 bg-aurora-blue/10 rounded-full blur-3xl animate-pulse-soft" style={{ animationDelay: "1s" }} />
+      <div className="absolute top-1/2 right-1/4 w-48 h-48 bg-aurora-pink/10 rounded-full blur-2xl animate-float-slow" />
 
       <div className="container mx-auto px-4 py-12 relative z-10">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center max-w-6xl mx-auto">
@@ -54,23 +55,12 @@ const Login = () => {
               Back to home
             </Link>
 
-            {/* Logo - matches header */}
             <div className="mb-8">
-              <Link to="/" className="flex items-center gap-2.5">
-                <img
-                  src="/assets/marhaba-dmc-logo.png"
-                  alt="marhabaDMC"
-                  className="h-10 w-auto object-contain flex-shrink-0"
-                />
-                <span className="text-2xl leading-none">
-                  <span className="font-marhaba text-foreground">marhaba</span>
-                  <span className="font-dmc font-semibold text-primary">DMC</span>
-                </span>
-              </Link>
+              <AuroraLogo size="lg" />
             </div>
 
-            {/* Form Card */}
-            <div className="bg-card/90 backdrop-blur-sm border border-border rounded-2xl p-8 shadow-xl">
+            {/* Form Card - Glassmorphism */}
+            <div className="glass-card rounded-2xl p-8">
               <div className="mb-6">
                 <h1 className="text-3xl font-bold text-foreground mb-2">
                   Welcome back
@@ -106,8 +96,8 @@ const Login = () => {
             style={{ animationDelay: "0.2s" }}
           >
             <div className="relative">
-              {/* Decorative Card */}
-              <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-3xl p-12 border border-primary/20 backdrop-blur-sm">
+              {/* Decorative Card - Glassmorphism */}
+              <div className="glass-card rounded-3xl p-12">
                 <div className="space-y-8">
                   {/* Main Visual Element */}
                   <div className="flex items-center justify-center">
@@ -126,7 +116,7 @@ const Login = () => {
                     {trustIndicators.map((indicator, index) => (
                       <div
                         key={index}
-                        className="flex items-center gap-4 bg-card/50 backdrop-blur-sm border border-border rounded-xl p-4 hover:shadow-lg transition-shadow"
+                        className="flex items-center gap-4 glass-card rounded-xl p-4 hover:shadow-xl transition-shadow"
                         style={{ animationDelay: `${0.1 * (index + 1)}s` }}
                       >
                         <div className={`w-12 h-12 rounded-lg bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center ${indicator.color}`}>
@@ -152,8 +142,8 @@ const Login = () => {
               </div>
 
               {/* Floating decorative elements */}
-              <div className="absolute -top-8 -right-8 w-32 h-32 bg-primary/10 rounded-full blur-2xl animate-float" />
-              <div className="absolute -bottom-8 -left-8 w-40 h-40 bg-primary/5 rounded-full blur-3xl animate-float-slow" />
+              <div className="absolute -top-8 -right-8 w-32 h-32 bg-aurora-purple/20 rounded-full blur-2xl animate-float" />
+              <div className="absolute -bottom-8 -left-8 w-40 h-40 bg-aurora-blue/15 rounded-full blur-3xl animate-float-slow" />
             </div>
           </div>
         </div>
