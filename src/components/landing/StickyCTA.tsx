@@ -36,7 +36,7 @@ const StickyCTA = () => {
   if (!isVisible || isDismissed) return null;
 
   return (
-    <div className="fixed bottom-16 md:bottom-0 left-0 right-0 z-40 glass border-t border-white/10 shadow-lg animate-fade-in">
+    <div className="fixed bottom-0 left-0 right-0 z-40 glass border-t border-white/10 shadow-lg animate-fade-in">
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between gap-4">
           {/* Left - Message */}
