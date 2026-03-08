@@ -1353,6 +1353,9 @@ const BlogTab = () => {
                         </div>
                       );
                     })}
+                    <Button variant="destructive" size="sm" className="w-full mt-1" onClick={cancelPipeline}>
+                      Cancel Pipeline
+                    </Button>
                   </div>
                 )}
                 <div className="border-t border-border pt-2 space-y-2"></div>
