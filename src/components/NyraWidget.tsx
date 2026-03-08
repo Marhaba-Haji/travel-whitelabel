@@ -557,7 +557,7 @@ export default function NyraWidget() {
                     <PanelRightOpen size={16} />
                   </button>
                 )}
-                <button onClick={() => setIsWidgetOpen(false)} className="hover:bg-nyra-foreground/20 p-2 rounded-full transition-colors">
+                <button onClick={() => { if (widgetMode === 'chat' && chatMessages.length > 0) persistAnalytics('chat'); setIsWidgetOpen(false); }} className="hover:bg-nyra-foreground/20 p-2 rounded-full transition-colors">
                   <X size={18} />
                 </button>
               </div>
