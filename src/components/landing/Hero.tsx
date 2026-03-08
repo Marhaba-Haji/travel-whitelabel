@@ -62,12 +62,12 @@ const Hero = () => {
           {/* Hero illustration — screen blend makes dark bg invisible */}
           <div className="relative -mx-6 mb-4">
             <img
-              src="/assets/hero-globe-illustration.webp"
+              src="/assets/hero-globe-illustration.png"
               alt="3D globe with airplane, compass and suitcase"
               width={749}
               height={418}
               fetchPriority="high"
-              className="w-full max-w-lg mx-auto object-contain mix-blend-screen"
+              className="w-full max-w-lg mx-auto object-contain"
             />
           </div>
 
@@ -199,13 +199,12 @@ const Hero = () => {
           {/* Right — Globe illustration, oversized for impact */}
           <div className="relative -mr-12 xl:-mr-16">
             <img
-              src="/assets/hero-globe-illustration.webp"
+              src="/assets/hero-globe-illustration.png"
               alt="3D globe with airplane, compass and suitcase"
-              
               width={1376}
               height={768}
               fetchPriority="high"
-              className="w-[115%] max-w-none object-contain mix-blend-screen"
+              className="w-[115%] max-w-none object-contain"
             />
 
             {/* Floating metric card */}
