@@ -95,7 +95,14 @@ const BlogTab = () => {
   const [configLoading, setConfigLoading] = useState(false);
   const [researchData, setResearchData] = useState<any>(null);
   const [useResearch, setUseResearch] = useState(true);
+  const [interlinkLoading, setInterlinkLoading] = useState<string | null>(null);
   const { toast } = useToast();
+
+  const getExistingPostsCatalog = useCallback(() => {
+    return posts
+      .filter((p) => p.status === "published")
+      .map((p) => ({ title: p.title, slug: p.slug, excerpt: p.excerpt, tags: p.tags, category: p.category }));
+  }, [posts]);
 
   const fetchPosts = useCallback(async () => {
     const { data, error } = await supabase
