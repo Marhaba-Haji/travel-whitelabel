@@ -31,11 +31,11 @@ const CompetitiveEdge = () => {
   ];
 
   return (
-    <section className="py-20 bg-gradient-to-b from-background via-accent/20 to-background relative overflow-hidden" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 800px' }}>
+    <section className="py-20 bg-gradient-to-b from-background via-accent/15 to-background relative overflow-hidden" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 800px' }}>
       {/* Background decoration */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gold/5 via-transparent to-transparent" />
-      <div className="absolute top-1/2 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl -translate-y-1/2" />
-      <div className="absolute top-1/4 left-0 w-72 h-72 bg-gold/5 rounded-full blur-3xl" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gold/3 via-transparent to-transparent" />
+      <div className="absolute top-1/2 right-0 w-80 h-80 bg-primary/3 rounded-full blur-3xl -translate-y-1/2" />
+      <div className="absolute top-1/4 left-0 w-60 h-60 bg-gold/3 rounded-full blur-3xl" />
       
       <div className="container mx-auto px-4 relative">
         {/* Header */}
