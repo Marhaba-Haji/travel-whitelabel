@@ -418,7 +418,7 @@ const BlogTab = () => {
       toast({ title: "🚀 Full pipeline complete!", description: "Article fully generated with images, meta, and internal links." });
       // Auto-submit to search engines after pipeline
       if (currentPost?.slug && currentPost?.status === "published") {
-        const postUrl = `https://marhabadmc.lovable.app/blog/${currentPost.slug}`;
+        const postUrl = `https://marhabadmc.com/blog/${currentPost.slug}`;
         supabase.functions.invoke("indexnow", { body: { urls: [postUrl] } })
           .then(() => toast({ title: "📡 Submitted to search engines for indexing" }))
           .catch(() => {});
