@@ -201,6 +201,9 @@ const Hero = () => {
             <img
               src="/assets/hero-globe-illustration.png"
               alt="3D globe with airplane, compass and suitcase"
+              width={1376}
+              height={768}
+              fetchPriority="high"
               className="w-[115%] max-w-none object-contain mix-blend-screen"
             />
 
