@@ -288,9 +288,9 @@ export default function NyraWidget() {
     supabase.from("voice_ai_sessions").update({
       source,
       message_count: messageCountRef.current,
-      tool_calls: toolCallCountsRef.current,
+      tool_calls: toolCallCountsRef.current as any,
       connected_at: connectedAtRef.current || new Date().toISOString(),
-    }).eq("session_id", sessionId).then(() => {}).catch(err => console.warn('Analytics persist failed:', err));
+    }).eq("session_id", sessionId).then(() => {}, (err) => console.warn('Analytics persist failed:', err));
   }, [sessionId]);
 
   const handleDisconnect = useCallback(async () => {
