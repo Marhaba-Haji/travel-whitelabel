@@ -13,6 +13,7 @@ import CouponsTab from "@/components/admin/CouponsTab";
 import AIAgentConfigTab from "@/components/admin/AIAgentConfigTab";
 import SiteSettingsTab from "@/components/admin/SiteSettingsTab";
 import BlogTab from "@/components/admin/BlogTab";
+import IndexingLogsTab from "@/components/admin/IndexingLogsTab";
 
 const tabComponents: Record<string, React.FC> = {
   overview: OverviewTab,
