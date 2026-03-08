@@ -144,6 +144,10 @@ export default function NyraWidget() {
 
   // Itinerary tool handler - returns generated item_id for add_item
   const handleItineraryTool: ItineraryToolHandler = useCallback((action: string, args: Record<string, any>): string | undefined => {
+    // Track tool call for analytics
+    const toolName = `update_itinerary:${action}`;
+    toolCallCountsRef.current[toolName] = (toolCallCountsRef.current[toolName] || 0) + 1;
+
     switch (action) {
       case 'set_trip_info':
         setTripInfo({
