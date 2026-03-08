@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Clock, BookOpen, X, Search, ChevronLeft, ChevronRight, Rss, Eye } from "lucide-react";
+import { Clock, BookOpen, X, Search, ChevronLeft, ChevronRight, Rss, Eye, TrendingUp, ArrowUpDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
@@ -40,6 +40,7 @@ const Blog = () => {
   const activeCategory = searchParams.get("category") || "";
   const activeTag = searchParams.get("tag") || "";
   const activeSearch = searchParams.get("q") || "";
+  const activeSort = searchParams.get("sort") || "latest";
 
   useEffect(() => {
     document.title = "Blog | Marhaba DMC — Halal Travel Insights & Industry Trends";
@@ -82,7 +83,7 @@ const Blog = () => {
 
   // Filter posts
   const filteredPosts = useMemo(() => {
-    return posts.filter((p) => {
+    const filtered = posts.filter((p) => {
       if (activeCategory && p.category !== activeCategory) return false;
       if (activeTag && !(p.tags || []).includes(activeTag)) return false;
       if (activeSearch) {
@@ -94,7 +95,12 @@ const Blog = () => {
       }
       return true;
     });
-  }, [posts, activeCategory, activeTag, activeSearch]);
+
+    if (activeSort === "popular") {
+      return [...filtered].sort((a, b) => (b.views_count || 0) - (a.views_count || 0));
+    }
+    return filtered;
+  }, [posts, activeCategory, activeTag, activeSearch, activeSort]);
 
   const POSTS_PER_PAGE = 9;
   const activePage = parseInt(searchParams.get("page") || "1", 10);
@@ -172,6 +178,23 @@ const Blog = () => {
                 Search
               </Button>
             </form>
+            <div className="flex items-center justify-center gap-2 mt-3">
+              <span className="text-xs text-muted-foreground mr-1"><ArrowUpDown className="h-3 w-3 inline mr-1" />Sort:</span>
+              <Badge
+                variant={activeSort === "latest" ? "default" : "outline"}
+                className="cursor-pointer text-xs"
+                onClick={() => setFilter("sort", "")}
+              >
+                Latest
+              </Badge>
+              <Badge
+                variant={activeSort === "popular" ? "default" : "outline"}
+                className="cursor-pointer text-xs"
+                onClick={() => setFilter("sort", "popular")}
+              >
+                <TrendingUp className="h-3 w-3 mr-1" /> Most Popular
+              </Badge>
+            </div>
           </div>
 
           {/* Filters */}
