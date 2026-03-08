@@ -124,10 +124,10 @@ const CompetitiveEdge = () => {
           </Card>
 
           {/* Card 2: AI Sales Assistant */}
-          <Card className="relative border-2 border-primary/30 bg-gradient-to-br from-card via-card to-primary/5 hover:shadow-xl transition-all duration-300 group overflow-hidden">
-            {/* NEW Badge with animation */}
+          <Card className="relative border-2 border-primary/20 bg-gradient-to-br from-card via-card to-primary/3 hover:shadow-lg transition-all duration-300 group overflow-hidden">
+            {/* NEW Badge without animation */}
             <div className="absolute -top-1 -right-1">
-              <Badge className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-3 py-1 rounded-bl-lg rounded-tr-lg shadow-lg animate-pulse">
+              <Badge className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-3 py-1 rounded-bl-lg rounded-tr-lg shadow-lg">
                 Add-on
               </Badge>
             </div>

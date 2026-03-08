@@ -136,7 +136,7 @@ const Pricing = () => {
                 </Badge>
               </div>
 
-              <div className="bg-card border-2 border-primary rounded-2xl p-6 flex flex-col shadow-2xl shadow-primary/20 flex-1">
+              <div className="bg-card border-2 border-primary rounded-2xl p-6 flex flex-col shadow-xl shadow-primary/10 flex-1">
                 <div className="mb-6">
                   <p className="text-sm font-medium text-primary uppercase tracking-widest mb-2">Growth Plan</p>
                   <div className="flex items-baseline gap-1 mb-1">

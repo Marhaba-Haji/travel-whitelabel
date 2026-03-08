@@ -70,7 +70,7 @@ const Testimonials = () => {
           {testimonials.map((testimonial, index) => (
             <div
               key={testimonial.name}
-              className={`group glass-card rounded-2xl p-6 hover:shadow-2xl hover:border-white/20 transition-all duration-300 opacity-0 ${gridVisible ? "animate-scale-in" : ""}`}
+              className={`group glass-card rounded-2xl p-6 hover:shadow-xl hover:border-white/20 transition-all duration-300 opacity-0 ${gridVisible ? "animate-scale-in" : ""}`}
               style={{ animationDelay: `${index * 0.12}s` }}
             >
               <div className="flex items-center justify-between mb-4">

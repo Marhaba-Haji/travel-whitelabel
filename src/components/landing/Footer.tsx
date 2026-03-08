@@ -137,8 +137,8 @@ const Footer = () => {
     <footer id="contact" className="relative overflow-hidden">
       {/* Aurora gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-background via-card to-background" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_hsl(270_70%_58%_/_0.12),_transparent_50%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_hsl(210_100%_50%_/_0.08),_transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_hsl(270_70%_58%_/_0.08),_transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_hsl(210_100%_50%_/_0.05),_transparent_50%)]" />
       <div className="relative text-foreground">
       <div className="container mx-auto px-4 py-16">
         <div className="grid lg:grid-cols-2 gap-12">

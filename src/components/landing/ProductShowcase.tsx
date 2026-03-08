@@ -213,8 +213,8 @@ const ProductShowcase = () => {
                     </div>
 
                     {/* Decorative glow */}
-                    <div className="absolute -top-6 -right-6 w-40 h-40 bg-aurora-purple/10 rounded-full blur-3xl" />
-                    <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-aurora-blue/10 rounded-full blur-2xl" />
+                    <div className="absolute -top-6 -right-6 w-40 h-40 bg-aurora-purple/7 rounded-full blur-3xl" />
+                    <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-aurora-blue/7 rounded-full blur-2xl" />
                   </div>
                 </TabsContent>
               ))}

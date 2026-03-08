@@ -106,7 +106,7 @@ const FAQ = () => {
           className={`max-w-3xl mx-auto mt-12 opacity-0 ${ctaVisible ? "animate-fade-in" : ""}`}
           style={{ animationDelay: "0.2s" }}
         >
-          <Card className="bg-gradient-to-br from-primary/5 to-accent/50 border-primary/20">
+          <Card className="bg-gradient-to-br from-primary/3 to-accent/40 border-primary/15">
             <CardContent className="p-8">
               <div className="text-center mb-6">
                 <h3 className="text-2xl font-bold text-foreground mb-2">

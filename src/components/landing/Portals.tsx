@@ -117,7 +117,7 @@ const Portals = () => {
           {portals.map((portal, index) => (
             <div
               key={portal.title}
-              className={`glass-card rounded-2xl p-6 hover:shadow-2xl hover:border-white/20 transition-all duration-300 opacity-0 ${gridVisible ? "animate-fade-in" : ""}`}
+              className={`glass-card rounded-2xl p-6 hover:shadow-xl hover:border-white/20 transition-all duration-300 opacity-0 ${gridVisible ? "animate-fade-in" : ""}`}
               style={{ animationDelay: `${index * 0.12}s` }}
             >
               {/* Header row: icon + title + badge */}
