@@ -92,8 +92,8 @@ const Portals = () => {
   return (
     <section id="portals" className="py-24 relative overflow-hidden">
       {/* Aurora background */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,_hsl(210_100%_50%_/_0.06),_transparent_50%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_hsl(270_70%_58%_/_0.05),_transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,_hsl(210_100%_50%_/_0.04),_transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_hsl(270_70%_58%_/_0.03),_transparent_50%)]" />
 
       <div className="container mx-auto px-4 relative">
         {/* Section header */}
