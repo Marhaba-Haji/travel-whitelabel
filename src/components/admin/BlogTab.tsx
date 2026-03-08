@@ -377,6 +377,7 @@ const BlogTab = () => {
                     <TableRow>
                       <TableHead>Title</TableHead>
                       <TableHead>Status</TableHead>
+                      <TableHead>Views</TableHead>
                       <TableHead>Reading Time</TableHead>
                       <TableHead>Date</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
@@ -390,6 +391,11 @@ const BlogTab = () => {
                           <Badge variant={post.status === "published" ? "default" : "secondary"}>
                             {post.status}
                           </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <span className="flex items-center gap-1 text-muted-foreground">
+                            <Eye className="h-3.5 w-3.5" /> {(post.views_count || 0).toLocaleString()}
+                          </span>
                         </TableCell>
                         <TableCell>{post.reading_time_minutes} min</TableCell>
                         <TableCell className="text-muted-foreground text-sm">
