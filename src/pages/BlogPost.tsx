@@ -254,13 +254,13 @@ const BlogPost = () => {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Home", item: "https://marhabadmc.lovable.app" },
-        { "@type": "ListItem", position: 2, name: "Blog", item: "https://marhabadmc.lovable.app/blog" },
+        { "@type": "ListItem", position: 1, name: "Home", item: "https://marhabadmc.com" },
+        { "@type": "ListItem", position: 2, name: "Blog", item: "https://marhabadmc.com/blog" },
         ...(post.category ? [{
           "@type": "ListItem",
           position: 3,
           name: post.category,
-          item: `https://marhabadmc.lovable.app/blog?category=${post.category}`,
+          item: `https://marhabadmc.com/blog?category=${post.category}`,
         }] : []),
         {
           "@type": "ListItem",
