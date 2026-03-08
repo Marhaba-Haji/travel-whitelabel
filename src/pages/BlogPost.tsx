@@ -424,6 +424,50 @@ const BlogPost = () => {
             </div>
           )}
 
+          {/* Newsletter */}
+          <div className="mt-16 pt-8 border-t border-border">
+            <Card className="bg-card border-border">
+              <CardContent className="p-6 md:p-8 text-center">
+                <Mail className="h-8 w-8 text-primary mx-auto mb-3" />
+                <h3 className="text-lg font-semibold text-foreground mb-1">Enjoyed this article?</h3>
+                <p className="text-sm text-muted-foreground mb-4">Get the latest travel insights delivered to your inbox.</p>
+                {newsletterDone ? (
+                  <p className="text-sm text-primary font-medium flex items-center justify-center gap-1"><Check className="h-4 w-4" /> You're subscribed!</p>
+                ) : (
+                  <form
+                    onSubmit={async (e) => {
+                      e.preventDefault();
+                      if (!newsletterEmail.trim()) return;
+                      setNewsletterLoading(true);
+                      const { error } = await supabase.from("newsletter_subscriptions").insert({ email: newsletterEmail.trim() });
+                      setNewsletterLoading(false);
+                      if (error) {
+                        toast({ title: error.code === "23505" ? "Already subscribed!" : "Something went wrong", variant: error.code === "23505" ? "default" : "destructive" });
+                        if (error.code === "23505") setNewsletterDone(true);
+                      } else {
+                        setNewsletterDone(true);
+                        toast({ title: "Subscribed!" });
+                      }
+                    }}
+                    className="flex gap-2 max-w-sm mx-auto"
+                  >
+                    <Input
+                      type="email"
+                      required
+                      placeholder="you@example.com"
+                      value={newsletterEmail}
+                      onChange={(e) => setNewsletterEmail(e.target.value)}
+                      className="flex-1"
+                    />
+                    <Button type="submit" disabled={newsletterLoading} size="sm">
+                      {newsletterLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Subscribe"}
+                    </Button>
+                  </form>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
           {/* Back CTA */}
           <div className="mt-12 text-center">
             <Button asChild variant="outline">
