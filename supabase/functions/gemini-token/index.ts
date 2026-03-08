@@ -6,15 +6,15 @@ const corsHeaders = {
 
 // In-memory rate limiter: IP → last request timestamp
 const rateLimitMap = new Map<string, number>();
-const RATE_LIMIT_MS = 5 * 60 * 1000; // 5 minutes
+const RATE_LIMIT_MS = 1 * 60 * 1000; // 1 minute (reduced from 5)
 
-// Cleanup stale entries every 10 minutes
+// Cleanup stale entries every 5 minutes
 setInterval(() => {
   const now = Date.now();
   for (const [ip, ts] of rateLimitMap) {
     if (now - ts > RATE_LIMIT_MS) rateLimitMap.delete(ip);
   }
-}, 10 * 60 * 1000);
+}, 5 * 60 * 1000);
 
 function getClientIP(req: Request): string {
   return (

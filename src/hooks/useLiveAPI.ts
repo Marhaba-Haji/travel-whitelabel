@@ -1,5 +1,4 @@
 import { useState, useRef, useCallback } from 'react';
-import { GoogleGenAI, Modality, LiveServerMessage } from '@google/genai';
 import { supabase } from '@/integrations/supabase/client';
 
 // ── Tool declarations ──────────────────────────────────────────────────────────
@@ -88,13 +87,18 @@ Call this tool proactively and frequently as you discuss the trip. Do NOT wait u
 const SAVE_SESSION_CONTEXT_FUNCTION = {
   functionDeclarations: [{
     name: 'save_session_context',
-    description: 'Save a summary of the conversation so far. Call this periodically (every 3-4 exchanges) so context is preserved if the connection drops. Include a concise summary of everything discussed.',
+    description: 'Save a structured summary of the conversation so far. Call this periodically (every 3-4 exchanges) so context is preserved if the connection drops.',
     parameters: {
       type: 'object',
       properties: {
-        summary: { type: 'string', description: 'Concise summary of the entire conversation so far, including caller name, requirements, itinerary discussed, etc.' },
+        summary: { type: 'string', description: 'Concise summary of the entire conversation so far' },
         visitor_name: { type: 'string', description: 'The caller\'s name if known' },
         visitor_email: { type: 'string', description: 'The caller\'s email if known' },
+        destinations_discussed: { type: 'string', description: 'Comma-separated list of destinations discussed' },
+        budget_range: { type: 'string', description: 'Budget range mentioned, e.g. "1-2 lakh per person"' },
+        travel_dates: { type: 'string', description: 'Travel dates discussed, e.g. "23 Mar - 5 Apr 2026"' },
+        decisions_made: { type: 'string', description: 'Key decisions already made during the call' },
+        pending_questions: { type: 'string', description: 'Questions still to be answered or topics to follow up on' },
       },
       required: ['summary'],
     },
@@ -132,7 +136,7 @@ const SEND_EMAIL_FUNCTION = {
   }],
 };
 
-// ── Audio worklet ──────────────────────────────────────────────────────────────
+// ── Audio worklet (with RNNoise integration) ──────────────────────────────────
 
 const workletCode = `
 class AudioCaptureProcessor extends AudioWorkletProcessor {
@@ -162,7 +166,7 @@ registerProcessor('audio-capture-processor', AudioCaptureProcessor);
 
 // ── Tool call handler type ─────────────────────────────────────────────────────
 
-export type ItineraryToolHandler = (action: string, args: Record<string, any>) => void;
+export type ItineraryToolHandler = (action: string, args: Record<string, any>) => string | undefined;
 
 export interface SessionContext {
   sessionId: string;
@@ -175,6 +179,60 @@ export interface CommunicationConfig {
   sms?: boolean;
 }
 
+// ── Itinerary state snapshot helper ────────────────────────────────────────────
+
+export type ItineraryStateGetter = () => {
+  itemCount: number;
+  items: { id: string; day: number; type: string; title: string }[];
+  tripInfo: { title?: string; destination?: string; startDate?: string; endDate?: string } | null;
+};
+
+// ── Audio playback buffer ──────────────────────────────────────────────────────
+
+const AUDIO_BUFFER_INTERVAL_MS = 80; // Accumulate audio chunks for smoother playback
+
+// ── Cached API key ─────────────────────────────────────────────────────────────
+
+let cachedApiKey: string | null = null;
+let cachedApiKeyTimestamp = 0;
+const API_KEY_TTL_MS = 4 * 60 * 1000; // Cache for 4 minutes (rate limit is 1 min)
+
+async function getApiKey(): Promise<string> {
+  const now = Date.now();
+  if (cachedApiKey && (now - cachedApiKeyTimestamp) < API_KEY_TTL_MS) {
+    return cachedApiKey;
+  }
+
+  const { data: tokenData, error: tokenError } = await supabase.functions.invoke('gemini-token');
+  if (tokenError) {
+    let errorBody: any = null;
+    try {
+      if (tokenError instanceof Response) errorBody = await tokenError.json();
+      else if (typeof tokenError === 'object' && tokenError?.context) errorBody = JSON.parse(tokenError.context);
+      else if (typeof tokenError === 'object' && tokenError?.message) { try { errorBody = JSON.parse(tokenError.message); } catch {} }
+    } catch {}
+    if (errorBody?.retryAfter || errorBody?.error?.includes('Rate limited')) {
+      const secs = errorBody?.retryAfter || 60;
+      throw new Error(`RATE_LIMITED:Please wait ${secs} seconds before starting another call.`);
+    }
+    throw new Error(errorBody?.error || tokenError?.message || 'Failed to get API key');
+  }
+  if (!tokenData?.apiKey) {
+    if (tokenData?.retryAfter || tokenData?.error?.includes('Rate limited')) {
+      const secs = tokenData?.retryAfter || 60;
+      throw new Error(`RATE_LIMITED:Please wait ${secs} seconds before starting another call.`);
+    }
+    throw new Error(tokenData?.error || 'Failed to get API key');
+  }
+
+  cachedApiKey = tokenData.apiKey;
+  cachedApiKeyTimestamp = now;
+  return cachedApiKey;
+}
+
+// Pre-fetch on module load (non-blocking)
+getApiKey().catch(() => {});
+
 // ── Hook ───────────────────────────────────────────────────────────────────────
 
 export function useLiveAPI(
@@ -182,6 +240,7 @@ export function useLiveAPI(
   onItineraryTool?: ItineraryToolHandler,
   sessionContext?: SessionContext,
   communicationConfig?: CommunicationConfig,
+  getItineraryState?: ItineraryStateGetter,
 ) {
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
@@ -195,18 +254,60 @@ export function useLiveAPI(
   const nextPlayTimeRef = useRef<number>(0);
   const sourceNodesRef = useRef<AudioBufferSourceNode[]>([]);
   const workletNodeRef = useRef<AudioWorkletNode | null>(null);
+  const noiseSuppressorRef = useRef<AudioWorkletNode | null>(null);
   const onItineraryToolRef = useRef(onItineraryTool);
   onItineraryToolRef.current = onItineraryTool;
   const sessionContextRef = useRef(sessionContext);
   sessionContextRef.current = sessionContext;
   const communicationConfigRef = useRef(communicationConfig);
   communicationConfigRef.current = communicationConfig;
+  const getItineraryStateRef = useRef(getItineraryState);
+  getItineraryStateRef.current = getItineraryState;
+
+  // Audio playback buffer for smoother playback
+  const audioChunkBufferRef = useRef<Float32Array[]>([]);
+  const audioBufferTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const flushAudioBuffer = useCallback(() => {
+    if (!playbackContextRef.current || audioChunkBufferRef.current.length === 0) return;
+    
+    const chunks = audioChunkBufferRef.current;
+    audioChunkBufferRef.current = [];
+    
+    // Merge all chunks into one buffer
+    const totalLength = chunks.reduce((sum, c) => sum + c.length, 0);
+    const merged = new Float32Array(totalLength);
+    let offset = 0;
+    for (const chunk of chunks) {
+      merged.set(chunk, offset);
+      offset += chunk.length;
+    }
+
+    const ctx = playbackContextRef.current;
+    const audioBuffer = ctx.createBuffer(1, merged.length, 24000);
+    audioBuffer.copyToChannel(merged, 0);
+    const src = ctx.createBufferSource();
+    src.buffer = audioBuffer;
+    src.connect(ctx.destination);
+    const currentTime = ctx.currentTime;
+    if (nextPlayTimeRef.current < currentTime) nextPlayTimeRef.current = currentTime;
+    src.start(nextPlayTimeRef.current);
+    nextPlayTimeRef.current += audioBuffer.duration;
+    sourceNodesRef.current.push(src);
+    src.onended = () => {
+      sourceNodesRef.current = sourceNodesRef.current.filter(n => n !== src);
+      if (sourceNodesRef.current.length === 0) setIsSpeaking(false);
+    };
+  }, []);
 
   const disconnect = useCallback(() => {
     if (sessionRef.current) {
       sessionRef.current.then((session: any) => session.close()).catch(() => {});
       sessionRef.current = null;
     }
+    if (audioBufferTimerRef.current) { clearTimeout(audioBufferTimerRef.current); audioBufferTimerRef.current = null; }
+    audioChunkBufferRef.current = [];
+    if (noiseSuppressorRef.current) { noiseSuppressorRef.current.disconnect(); noiseSuppressorRef.current = null; }
     if (workletNodeRef.current) { workletNodeRef.current.disconnect(); workletNodeRef.current = null; }
     if (captureContextRef.current) { captureContextRef.current.close(); captureContextRef.current = null; }
     if (playbackContextRef.current) { playbackContextRef.current.close(); playbackContextRef.current = null; }
@@ -227,19 +328,47 @@ export function useLiveAPI(
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaStreamRef.current = stream;
 
+      // Try to load RNNoise for noise suppression
+      let useNoiseSuppression = false;
+      try {
+        await captureContextRef.current.audioWorklet.addModule('/rnnoise/NoiseSuppressorWorklet.js');
+        useNoiseSuppression = true;
+      } catch (e) {
+        console.warn('RNNoise worklet not available, using raw audio:', e);
+      }
+
       await captureContextRef.current.audioWorklet.addModule(
         URL.createObjectURL(new Blob([workletCode], { type: 'application/javascript' }))
       );
 
       const source = captureContextRef.current.createMediaStreamSource(stream);
-      const workletNode = new AudioWorkletNode(captureContextRef.current, 'audio-capture-processor');
-      workletNodeRef.current = workletNode;
-      source.connect(workletNode);
-      workletNode.connect(captureContextRef.current.destination);
+
+      // Chain: mic → [noise suppressor →] capture worklet
+      if (useNoiseSuppression) {
+        try {
+          const noiseSuppressor = new AudioWorkletNode(captureContextRef.current, 'NoiseSuppressorWorklet');
+          noiseSuppressorRef.current = noiseSuppressor;
+          const workletNode = new AudioWorkletNode(captureContextRef.current, 'audio-capture-processor');
+          workletNodeRef.current = workletNode;
+          source.connect(noiseSuppressor);
+          noiseSuppressor.connect(workletNode);
+          workletNode.connect(captureContextRef.current.destination);
+        } catch (e) {
+          console.warn('Failed to instantiate RNNoise, falling back to raw audio:', e);
+          useNoiseSuppression = false;
+        }
+      }
+      
+      if (!useNoiseSuppression) {
+        const workletNode = new AudioWorkletNode(captureContextRef.current, 'audio-capture-processor');
+        workletNodeRef.current = workletNode;
+        source.connect(workletNode);
+        workletNode.connect(captureContextRef.current.destination);
+      }
 
       let sessionPromise: Promise<any>;
 
-      workletNode.port.onmessage = (e) => {
+      workletNodeRef.current!.port.onmessage = (e) => {
         const float32Data = e.data;
         const int16Data = new Int16Array(float32Data.length);
         for (let i = 0; i < float32Data.length; i++) {
@@ -254,32 +383,13 @@ export function useLiveAPI(
         }
       };
 
-      // Fetch API key
-      const { data: tokenData, error: tokenError } = await supabase.functions.invoke('gemini-token');
-      if (tokenError) {
-        console.error("gemini-token error:", tokenError);
-        let errorBody: any = null;
-        try {
-          if (tokenError instanceof Response) errorBody = await tokenError.json();
-          else if (typeof tokenError === 'object' && tokenError?.context) errorBody = JSON.parse(tokenError.context);
-          else if (typeof tokenError === 'object' && tokenError?.message) { try { errorBody = JSON.parse(tokenError.message); } catch {} }
-        } catch {}
-        if (errorBody?.retryAfter || errorBody?.error?.includes('Rate limited')) {
-          const mins = Math.ceil((errorBody?.retryAfter || 300) / 60);
-          throw new Error(`RATE_LIMITED:Please wait ${mins} minute${mins > 1 ? 's' : ''} before starting another call.`);
-        }
-        throw new Error(errorBody?.error || tokenError?.message || 'Failed to get API key');
-      }
-      if (!tokenData?.apiKey) {
-        console.error("gemini-token returned no apiKey:", tokenData);
-        if (tokenData?.retryAfter || tokenData?.error?.includes('Rate limited')) {
-          const mins = Math.ceil((tokenData?.retryAfter || 300) / 60);
-          throw new Error(`RATE_LIMITED:Please wait ${mins} minute${mins > 1 ? 's' : ''} before starting another call.`);
-        }
-        throw new Error(tokenData?.error || 'Failed to get API key');
-      }
+      // Fetch API key (uses cache)
+      const apiKey = await getApiKey();
 
-      const ai = new GoogleGenAI({ apiKey: tokenData.apiKey, httpOptions: { apiVersion: 'v1alpha' } });
+      // Dynamic import of Gemini SDK - only loaded when user actually connects
+      const { GoogleGenAI, Modality } = await import('@google/genai');
+
+      const ai = new GoogleGenAI({ apiKey, httpOptions: { apiVersion: 'v1alpha' } });
 
       // Build tools list
       const tools: any[] = [
@@ -297,7 +407,7 @@ export function useLiveAPI(
       }
 
       sessionPromise = ai.live.connect({
-        model: "gemini-2.5-flash-native-audio-preview-09-2025",
+        model: "gemini-2.5-flash-native-audio-preview",
         config: {
           responseModalities: [Modality.AUDIO],
           speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Kore" } } },
@@ -335,7 +445,7 @@ export function useLiveAPI(
               }
             }).catch(console.error);
           },
-          onmessage: async (message: LiveServerMessage) => {
+          onmessage: async (message: any) => {
             // Handle tool calls
             const toolCall = message.toolCall;
             if (toolCall?.functionCalls?.length && sessionRef.current) {
@@ -354,7 +464,12 @@ export function useLiveAPI(
                       const { data, error } = await supabase.functions.invoke('voice-ai-lead', {
                         body: { name: leadName, email: leadEmail, phone: args.phone || undefined, notes: args.notes || undefined },
                       });
-                      responses.push({ id: fc.id, name: 'save_lead', response: { success: !error && data?.saved !== false } });
+                      responses.push({ id: fc.id, name: 'save_lead', response: { 
+                        success: !error && data?.saved !== false,
+                        saved_name: leadName,
+                        saved_email: leadEmail,
+                        saved_phone: args.phone || null,
+                      } });
                     } catch { responses.push({ id: fc.id, name: 'save_lead', response: { success: false } }); }
                   }
 
@@ -369,15 +484,40 @@ export function useLiveAPI(
                       const { data, error } = await supabase.functions.invoke('voice-ai-lead-update', {
                         body: { email: updateEmail, requirements },
                       });
-                      responses.push({ id: fc.id, name: 'update_lead', response: { success: !error && data?.updated !== false } });
+                      responses.push({ id: fc.id, name: 'update_lead', response: { 
+                        success: !error && data?.updated !== false,
+                        updated_requirements: requirements,
+                      } });
                     } catch { responses.push({ id: fc.id, name: 'update_lead', response: { success: false } }); }
                   }
 
                 } else if (fc.name === 'update_itinerary' && fc.args) {
                   const args = fc.args as Record<string, any>;
                   try {
-                    onItineraryToolRef.current?.(args.action, args);
-                    responses.push({ id: fc.id, name: 'update_itinerary', response: { success: true } });
+                    const resultId = onItineraryToolRef.current?.(args.action, args);
+                    
+                    // Build rich response with current state
+                    const stateSnapshot = getItineraryStateRef.current?.();
+                    const response: Record<string, unknown> = { 
+                      success: true,
+                      action_performed: args.action,
+                    };
+                    
+                    // Return the generated item_id for add_item so AI can reference it
+                    if (resultId) {
+                      response.item_id = resultId;
+                    }
+                    
+                    // Include current itinerary state summary
+                    if (stateSnapshot) {
+                      response.current_itinerary = {
+                        item_count: stateSnapshot.itemCount,
+                        items: stateSnapshot.items.map(i => ({ id: i.id, day: i.day, type: i.type, title: i.title })),
+                        trip: stateSnapshot.tripInfo,
+                      };
+                    }
+                    
+                    responses.push({ id: fc.id, name: 'update_itinerary', response });
                   } catch {
                     responses.push({ id: fc.id, name: 'update_itinerary', response: { success: false } });
                   }
@@ -386,11 +526,21 @@ export function useLiveAPI(
                   const args = fc.args as any;
                   const sid = sessionContextRef.current?.sessionId;
                   if (sid) {
+                    // Build structured summary
+                    const structuredParts: string[] = [args.summary || ''];
+                    if (args.destinations_discussed) structuredParts.push(`Destinations: ${args.destinations_discussed}`);
+                    if (args.budget_range) structuredParts.push(`Budget: ${args.budget_range}`);
+                    if (args.travel_dates) structuredParts.push(`Dates: ${args.travel_dates}`);
+                    if (args.decisions_made) structuredParts.push(`Decisions: ${args.decisions_made}`);
+                    if (args.pending_questions) structuredParts.push(`Pending: ${args.pending_questions}`);
+                    
+                    const fullSummary = structuredParts.filter(Boolean).join(' | ');
+                    
                     try {
                       await supabase.functions.invoke('voice-ai-session', {
                         body: {
                           session_id: sid,
-                          conversation_summary: args.summary || '',
+                          conversation_summary: fullSummary,
                           visitor_name: args.visitor_name || undefined,
                           visitor_email: args.visitor_email || undefined,
                         },
@@ -457,11 +607,13 @@ export function useLiveAPI(
             if (message.serverContent?.interrupted) {
               sourceNodesRef.current.forEach(node => { try { node.stop(); } catch {} });
               sourceNodesRef.current = [];
+              if (audioBufferTimerRef.current) { clearTimeout(audioBufferTimerRef.current); audioBufferTimerRef.current = null; }
+              audioChunkBufferRef.current = [];
               if (playbackContextRef.current) nextPlayTimeRef.current = playbackContextRef.current.currentTime;
               setIsSpeaking(false);
             }
 
-            // Handle audio playback
+            // Handle audio playback with buffering
             const base64Audio = message.serverContent?.modelTurn?.parts?.[0]?.inlineData?.data;
             if (base64Audio && playbackContextRef.current) {
               setIsSpeaking(true);
@@ -472,20 +624,14 @@ export function useLiveAPI(
               const float32Data = new Float32Array(int16Data.length);
               for (let i = 0; i < int16Data.length; i++) float32Data[i] = int16Data[i] / 32768.0;
 
-              const audioBuffer = playbackContextRef.current.createBuffer(1, float32Data.length, 24000);
-              audioBuffer.copyToChannel(float32Data, 0);
-              const src = playbackContextRef.current.createBufferSource();
-              src.buffer = audioBuffer;
-              src.connect(playbackContextRef.current.destination);
-              const currentTime = playbackContextRef.current.currentTime;
-              if (nextPlayTimeRef.current < currentTime) nextPlayTimeRef.current = currentTime;
-              src.start(nextPlayTimeRef.current);
-              nextPlayTimeRef.current += audioBuffer.duration;
-              sourceNodesRef.current.push(src);
-              src.onended = () => {
-                sourceNodesRef.current = sourceNodesRef.current.filter(n => n !== src);
-                if (sourceNodesRef.current.length === 0) setIsSpeaking(false);
-              };
+              // Buffer chunks and flush periodically for smoother playback
+              audioChunkBufferRef.current.push(float32Data);
+              if (!audioBufferTimerRef.current) {
+                audioBufferTimerRef.current = setTimeout(() => {
+                  audioBufferTimerRef.current = null;
+                  flushAudioBuffer();
+                }, AUDIO_BUFFER_INTERVAL_MS);
+              }
             }
           },
           onclose: () => disconnect(),
@@ -503,7 +649,7 @@ export function useLiveAPI(
       setIsConnecting(false);
       disconnect();
     }
-  }, [systemInstruction, disconnect]);
+  }, [systemInstruction, disconnect, flushAudioBuffer]);
 
   return { isConnected, isConnecting, error, isSpeaking, connect, disconnect };
 }
