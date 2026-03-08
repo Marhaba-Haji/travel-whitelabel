@@ -10,10 +10,10 @@
 @layer base {
   :root {
     /* Aurora Dynamic Color Palette */
-    --aurora-purple: 270 70% 58%;
-    --aurora-blue: 210 100% 50%;
-    --aurora-pink: 320 90% 60%;
-    --aurora-teal: 175 70% 45%;
+    --aurora-purple: 270 60% 58%;
+    --aurora-blue: 210 85% 50%;
+    --aurora-pink: 320 76% 60%;
+    --aurora-teal: 175 60% 45%;
 
     --background: 222 47% 11%;
     --foreground: 210 40% 98%;
