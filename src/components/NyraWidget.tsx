@@ -219,11 +219,25 @@ export default function NyraWidget() {
     communicationConfig,
     getItineraryState,
   );
+  const { messages: chatMessages, isLoading: isChatLoading, error: chatError, sendMessage, clearChat } = useNyraChat(
+    systemInstruction,
+    handleItineraryTool,
+    sessionContext,
+    communicationConfig,
+    getItineraryState,
+  );
+  const [chatInput, setChatInput] = useState('');
+  const chatEndRef = useRef<HTMLDivElement>(null);
   const [isWidgetOpen, setIsWidgetOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [stickyCTAVisible, setStickyCTAVisible] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const [hasAnimatedIn, setHasAnimatedIn] = useState(false);
+
+  // Auto-scroll chat
+  useEffect(() => {
+    if (chatEndRef.current) chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+  }, [chatMessages]);
 
   // Auto-expand when itinerary becomes active
   useEffect(() => {
