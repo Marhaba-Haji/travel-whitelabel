@@ -9,6 +9,7 @@ import { ArrowLeft, Clock, User, Calendar, Share2, Check, BookOpen, List, Mail, 
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
 import ReactMarkdown from "react-markdown";
+import BlurImage from "@/components/BlurImage";
 import { useToast } from "@/hooks/use-toast";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
@@ -453,10 +454,10 @@ const BlogPost = () => {
                 const base = src.replace(/-\d+w\.webp$/, "");
                 const hasSizes = isBlogImage && base !== src;
                 return (
-                  <img
+                  <BlurImage
                     src={src}
                     alt={post.meta_description || post.title}
-                    className="w-full h-auto max-h-96 object-cover"
+                    className="rounded-lg max-h-96"
                     loading="eager"
                     width={1200}
                     height={630}
@@ -517,11 +518,9 @@ const BlogPost = () => {
                 },
                 img: ({ node, ...props }) => {
                   const src = props.src || "";
-                  // Auto-generate srcset for blog-images stored with size suffixes
                   const isBlogImage = src.includes("/blog-images/");
                   let srcSet: string | undefined;
                   if (isBlogImage) {
-                    // Extract base by removing the size suffix (-1200w, -800w, -400w)
                     const base = src.replace(/-\d+w\.webp$/, "");
                     if (base !== src) {
                       srcSet = [
@@ -532,11 +531,11 @@ const BlogPost = () => {
                     }
                   }
                   return (
-                    <img
-                      {...props}
+                    <BlurImage
+                      src={src}
                       alt={props.alt || "Blog image"}
                       loading="lazy"
-                      className="w-full h-auto rounded-lg my-6"
+                      className="rounded-lg my-6"
                       sizes="(max-width: 480px) 100vw, (max-width: 768px) 100vw, 720px"
                       {...(srcSet ? { srcSet } : {})}
                     />
