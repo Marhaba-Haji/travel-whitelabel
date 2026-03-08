@@ -31,6 +31,7 @@ interface BlogPostData {
   published_at: string | null;
   category: string | null;
   tags: string[] | null;
+  views_count?: number;
 }
 
 interface RelatedPost {
