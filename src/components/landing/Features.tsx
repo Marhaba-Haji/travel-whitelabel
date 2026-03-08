@@ -96,7 +96,7 @@ const Features = () => {
                 <div className="flex items-center gap-2 mb-2">
                   <h3 className="text-lg font-bold text-foreground">{feature.title}</h3>
                   {feature.badge && (
-                    <Badge className="text-[10px] bg-aurora-teal/15 text-aurora-teal border-aurora-teal/30 px-2 py-0">
+                    <Badge className="text-[10px] bg-aurora-teal/10 text-aurora-teal border-aurora-teal/25 px-2 py-0">
                       {feature.badge}
                     </Badge>
                   )}
