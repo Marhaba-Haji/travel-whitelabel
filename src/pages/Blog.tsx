@@ -40,6 +40,7 @@ const Blog = () => {
   const activeCategory = searchParams.get("category") || "";
   const activeTag = searchParams.get("tag") || "";
   const activeSearch = searchParams.get("q") || "";
+  const activeSort = searchParams.get("sort") || "latest";
 
   useEffect(() => {
     document.title = "Blog | Marhaba DMC — Halal Travel Insights & Industry Trends";
