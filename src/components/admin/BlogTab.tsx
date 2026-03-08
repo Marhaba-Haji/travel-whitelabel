@@ -84,10 +84,22 @@ const BlogTab = () => {
     setLoading(false);
   }, [toast]);
 
-  useEffect(() => { fetchPosts(); }, [fetchPosts]);
+  const fetchCategories = useCallback(async () => {
+    const { data } = await supabase.from("blog_categories").select("id, name, slug").order("name");
+    setCategories((data as unknown as BlogCategory[]) || []);
+  }, []);
+
+  useEffect(() => { fetchPosts(); fetchCategories(); }, [fetchPosts, fetchCategories]);
+
+  const addCategory = async () => {
+    if (!newCategory.trim()) return;
+    const { error } = await supabase.from("blog_categories").insert({ name: newCategory.trim(), slug: slugify(newCategory.trim()) });
+    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+    else { setNewCategory(""); fetchCategories(); toast({ title: "Category added!" }); }
+  };
 
   const openNew = () => {
-    setCurrentPost({ title: "", slug: "", content: "", excerpt: "", status: "draft", cover_image_url: "", meta_title: "", meta_description: "", meta_keywords: [], og_image_url: "", author_name: "Marhaba DMC" });
+    setCurrentPost({ title: "", slug: "", content: "", excerpt: "", status: "draft", cover_image_url: "", meta_title: "", meta_description: "", meta_keywords: [], og_image_url: "", author_name: "Marhaba DMC", category: "", tags: [] });
     setEditing(true);
   };
 
