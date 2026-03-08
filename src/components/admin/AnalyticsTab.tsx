@@ -1,12 +1,26 @@
+import { useState, useMemo, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { Phone, MessageSquare, Clock, Wrench, TrendingUp, Users } from "lucide-react";
+import { Phone, MessageSquare, Clock, Wrench, TrendingUp, Users, CalendarIcon, Download } from "lucide-react";
+import { format, subDays, startOfDay, endOfDay, isWithinInterval } from "date-fns";
 
 const COLORS = ["hsl(var(--primary))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))", "hsl(var(--chart-5))"];
+
+const PRESETS = [
+  { label: "Last 7 days", value: "7d" },
+  { label: "Last 30 days", value: "30d" },
+  { label: "Last 90 days", value: "90d" },
+  { label: "All time", value: "all" },
+  { label: "Custom", value: "custom" },
+];
 
 interface SessionRow {
   id: string;
@@ -22,6 +36,10 @@ interface SessionRow {
 }
 
 const AnalyticsTab = () => {
+  const [preset, setPreset] = useState("30d");
+  const [customFrom, setCustomFrom] = useState<Date | undefined>();
+  const [customTo, setCustomTo] = useState<Date | undefined>();
+
   const { data: sessions, isLoading: sessionsLoading } = useQuery({
     queryKey: ["admin-analytics-sessions"],
     queryFn: async () => {
@@ -29,7 +47,7 @@ const AnalyticsTab = () => {
         .from("voice_ai_sessions")
         .select("*")
         .order("created_at", { ascending: false })
-        .limit(500);
+        .limit(1000);
       if (error) throw error;
       return (data ?? []) as unknown as SessionRow[];
     },
@@ -46,9 +64,55 @@ const AnalyticsTab = () => {
     },
   });
 
-  if (sessionsLoading) return <p className="text-muted-foreground">Loading analytics...</p>;
+  // Filter rows by date range
+  const rows = useMemo(() => {
+    const all = sessions ?? [];
+    if (preset === "all") return all;
 
-  const rows = sessions ?? [];
+    let from: Date;
+    let to: Date = endOfDay(new Date());
+
+    if (preset === "custom") {
+      if (!customFrom) return all;
+      from = startOfDay(customFrom);
+      to = customTo ? endOfDay(customTo) : to;
+    } else {
+      const days = parseInt(preset);
+      from = startOfDay(subDays(new Date(), days));
+    }
+
+    return all.filter(r => {
+      const d = new Date(r.created_at);
+      return isWithinInterval(d, { start: from, end: to });
+    });
+  }, [sessions, preset, customFrom, customTo]);
+
+  // Export to CSV
+  const exportCSV = useCallback(() => {
+    if (!rows.length) return;
+    const headers = ["Session ID", "Source", "Messages", "Visitor Name", "Visitor Email", "Connected At", "Last Active", "Created At", "Tool Calls"];
+    const csvRows = rows.map(r => [
+      r.session_id,
+      r.source,
+      r.message_count,
+      r.visitor_name ?? "",
+      r.visitor_email ?? "",
+      r.connected_at ?? "",
+      r.last_active_at,
+      r.created_at,
+      r.tool_calls ? Object.entries(r.tool_calls).map(([k, v]) => `${k}:${v}`).join("; ") : "",
+    ]);
+    const csv = [headers, ...csvRows].map(row => row.map(c => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `nyra-analytics-${format(new Date(), "yyyy-MM-dd")}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [rows]);
+
+  if (sessionsLoading) return <p className="text-muted-foreground">Loading analytics...</p>;
 
   // Compute metrics
   const totalSessions = rows.length;
@@ -56,15 +120,12 @@ const AnalyticsTab = () => {
   const chatSessions = rows.filter(r => r.source === "chat").length;
   const totalMessages = rows.reduce((s, r) => s + (r.message_count || 0), 0);
 
-  // Call duration (seconds) from connected_at → last_active_at
   const durations = rows
     .filter(r => r.connected_at && r.last_active_at)
     .map(r => (new Date(r.last_active_at).getTime() - new Date(r.connected_at!).getTime()) / 1000)
-    .filter(d => d > 0 && d < 7200); // sanity: < 2 hours
-
+    .filter(d => d > 0 && d < 7200);
   const avgDuration = durations.length ? durations.reduce((a, b) => a + b, 0) / durations.length : 0;
 
-  // Tool usage aggregation
   const toolTotals: Record<string, number> = {};
   for (const r of rows) {
     if (r.tool_calls && typeof r.tool_calls === "object") {
@@ -73,30 +134,22 @@ const AnalyticsTab = () => {
       }
     }
   }
-  const toolData = Object.entries(toolTotals)
-    .map(([name, count]) => ({ name, count }))
-    .sort((a, b) => b.count - a.count);
+  const toolData = Object.entries(toolTotals).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
 
-  // Lead conversion rate
   const sessionsWithEmail = rows.filter(r => r.visitor_email).length;
   const conversionRate = totalSessions > 0 ? ((sessionsWithEmail / totalSessions) * 100).toFixed(1) : "0";
 
-  // Source breakdown for pie chart
   const sourceData = [
     { name: "Voice", value: voiceSessions },
     { name: "Chat", value: chatSessions },
   ].filter(d => d.value > 0);
 
-  // Sessions per day (last 30 days)
   const dayMap: Record<string, number> = {};
   for (const r of rows) {
     const day = r.created_at.slice(0, 10);
     dayMap[day] = (dayMap[day] || 0) + 1;
   }
-  const dailyData = Object.entries(dayMap)
-    .sort(([a], [b]) => a.localeCompare(b))
-    .slice(-30)
-    .map(([date, count]) => ({ date: date.slice(5), count }));
+  const dailyData = Object.entries(dayMap).sort(([a], [b]) => a.localeCompare(b)).map(([date, count]) => ({ date: date.slice(5), count }));
 
   const formatDuration = (s: number) => {
     const m = Math.floor(s / 60);
@@ -115,6 +168,56 @@ const AnalyticsTab = () => {
 
   return (
     <div className="space-y-6">
+      {/* Filters bar */}
+      <div className="flex flex-wrap items-center gap-3">
+        <Select value={preset} onValueChange={setPreset}>
+          <SelectTrigger className="w-[160px]">
+            <CalendarIcon className="h-4 w-4 mr-2 text-muted-foreground" />
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {PRESETS.map(p => (
+              <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {preset === "custom" && (
+          <div className="flex items-center gap-2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <CalendarIcon className="h-3.5 w-3.5" />
+                  {customFrom ? format(customFrom, "dd MMM yyyy") : "From"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar mode="single" selected={customFrom} onSelect={setCustomFrom} initialFocus />
+              </PopoverContent>
+            </Popover>
+            <span className="text-muted-foreground text-sm">→</span>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <CalendarIcon className="h-3.5 w-3.5" />
+                  {customTo ? format(customTo, "dd MMM yyyy") : "To"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar mode="single" selected={customTo} onSelect={setCustomTo} initialFocus />
+              </PopoverContent>
+            </Popover>
+          </div>
+        )}
+
+        <div className="ml-auto">
+          <Button variant="outline" size="sm" onClick={exportCSV} disabled={!rows.length} className="gap-2">
+            <Download className="h-4 w-4" />
+            Export CSV
+          </Button>
+        </div>
+      </div>
+
       {/* Stat cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {statCards.map(c => (
@@ -132,10 +235,9 @@ const AnalyticsTab = () => {
 
       {/* Charts row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Sessions per day */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-medium">Sessions Per Day (Last 30 Days)</CardTitle>
+            <CardTitle className="text-sm font-medium">Sessions Per Day</CardTitle>
           </CardHeader>
           <CardContent className="h-64">
             {dailyData.length > 0 ? (
@@ -148,12 +250,11 @@ const AnalyticsTab = () => {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <p className="text-muted-foreground text-center pt-20">No data yet</p>
+              <p className="text-muted-foreground text-center pt-20">No data in selected range</p>
             )}
           </CardContent>
         </Card>
 
-        {/* Source breakdown */}
         <Card>
           <CardHeader>
             <CardTitle className="text-sm font-medium">Session Source Breakdown</CardTitle>
@@ -171,7 +272,7 @@ const AnalyticsTab = () => {
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <p className="text-muted-foreground">No data yet</p>
+              <p className="text-muted-foreground">No data in selected range</p>
             )}
           </CardContent>
         </Card>
@@ -207,7 +308,7 @@ const AnalyticsTab = () => {
               </Table>
             </div>
           ) : (
-            <p className="text-muted-foreground text-center py-8">No tool usage data yet</p>
+            <p className="text-muted-foreground text-center py-8">No tool usage data in selected range</p>
           )}
         </CardContent>
       </Card>
