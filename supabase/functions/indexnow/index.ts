@@ -1,11 +1,34 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 const SITE_URL = "https://marhabadmc.lovable.app";
+
+function getSupabaseServiceClient() {
+  return createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+  );
+}
+
+async function logIndexing(supabase: any, url: string, service: string, action: string, statusCode?: number, response?: any, error?: string) {
+  try {
+    await supabase.from("indexing_logs").insert({
+      url,
+      service,
+      action,
+      status_code: statusCode ?? null,
+      response: response ?? null,
+      error: error ?? null,
+    });
+  } catch (e) {
+    console.error("Failed to log indexing:", e);
+  }
+}
 
 // Generate a JWT from a Google Service Account JSON key
 async function getGoogleAccessToken(saKey: any): Promise<string> {
@@ -21,7 +44,6 @@ async function getGoogleAccessToken(saKey: any): Promise<string> {
 
   const unsignedToken = `${header}.${claimSet}`;
 
-  // Import private key
   const pemContent = saKey.private_key
     .replace(/-----BEGIN PRIVATE KEY-----/g, "")
     .replace(/-----END PRIVATE KEY-----/g, "")
@@ -71,6 +93,7 @@ serve(async (req) => {
       });
     }
 
+    const supabase = getSupabaseServiceClient();
     const results: any = { indexnow: null, google: null };
 
     // --- IndexNow (Bing/Yandex) ---
@@ -87,11 +110,18 @@ serve(async (req) => {
             urlList: urls,
           }),
         });
+        const body = await res.text();
         results.indexnow = { status: res.status, ok: res.ok };
-        await res.text(); // consume body
+
+        for (const url of urls) {
+          await logIndexing(supabase, url, "indexnow", action, res.status, { ok: res.ok, body }, undefined);
+        }
       } catch (e: any) {
         console.error("IndexNow error:", e);
         results.indexnow = { error: e.message };
+        for (const url of urls) {
+          await logIndexing(supabase, url, "indexnow", action, undefined, undefined, e.message);
+        }
       }
     } else {
       results.indexnow = { skipped: "INDEXNOW_KEY not configured" };
@@ -117,11 +147,15 @@ serve(async (req) => {
           });
           const body = await res.json();
           googleResults.push({ url, status: res.status, response: body });
+          await logIndexing(supabase, url, "google", action, res.status, body, res.ok ? undefined : JSON.stringify(body));
         }
         results.google = googleResults;
       } catch (e: any) {
         console.error("Google Indexing error:", e);
         results.google = { error: e.message };
+        for (const url of urls) {
+          await logIndexing(supabase, url, "google", action, undefined, undefined, e.message);
+        }
       }
     } else {
       results.google = { skipped: "GOOGLE_INDEXING_SA_KEY not configured" };
