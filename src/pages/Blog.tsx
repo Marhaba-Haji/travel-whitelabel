@@ -73,9 +73,16 @@ const Blog = () => {
     return posts.filter((p) => {
       if (activeCategory && p.category !== activeCategory) return false;
       if (activeTag && !(p.tags || []).includes(activeTag)) return false;
+      if (activeSearch) {
+        const q = activeSearch.toLowerCase();
+        const titleMatch = p.title.toLowerCase().includes(q);
+        const excerptMatch = p.excerpt?.toLowerCase().includes(q);
+        const tagMatch = (p.tags || []).some((t) => t.toLowerCase().includes(q));
+        if (!titleMatch && !excerptMatch && !tagMatch) return false;
+      }
       return true;
     });
-  }, [posts, activeCategory, activeTag]);
+  }, [posts, activeCategory, activeTag, activeSearch]);
 
   const setFilter = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams);
