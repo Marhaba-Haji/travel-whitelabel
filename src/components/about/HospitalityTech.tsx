@@ -142,7 +142,7 @@ const HospitalityTech = () => {
               <Button
                 size="lg"
                 asChild
-                className="rounded-full px-8 bg-gradient-to-r from-aurora-pink via-aurora-purple to-aurora-pink bg-[length:200%_auto] animate-gradient-shift shadow-[0_0_30px_hsl(320_90%_60%_/_0.3)] hover:shadow-[0_0_40px_hsl(320_90%_60%_/_0.5)] transition-shadow"
+                className="rounded-full px-8 bg-gradient-to-r from-aurora-pink via-aurora-purple to-aurora-pink bg-[length:200%_auto] animate-gradient-shift shadow-[0_0_20px_hsl(320_90%_60%_/_0.2)] hover:shadow-[0_0_30px_hsl(320_90%_60%_/_0.3)] transition-shadow"
               >
                 <a href="#contact">
                   Request Early Access

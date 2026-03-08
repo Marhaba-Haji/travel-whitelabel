@@ -10,9 +10,9 @@ const AboutHero = () => {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_hsl(210_100%_50%_/_0.05),_transparent_50%)]" />
       
       {/* Floating glassmorphism blobs */}
-      <div className="absolute top-20 left-10 w-72 h-72 bg-aurora-purple/15 rounded-full blur-3xl pointer-events-none animate-pulse-soft" />
-      <div className="absolute bottom-10 right-10 w-96 h-96 bg-aurora-blue/15 rounded-full blur-3xl pointer-events-none animate-pulse-soft" style={{ animationDelay: "1s" }} />
-      <div className="absolute top-1/2 left-1/4 w-48 h-48 bg-aurora-pink/10 rounded-full blur-2xl pointer-events-none animate-float-slow" />
+      <div className="absolute top-20 left-10 w-60 h-60 bg-aurora-purple/10 rounded-full blur-3xl pointer-events-none animate-pulse-soft" />
+      <div className="absolute bottom-10 right-10 w-80 h-80 bg-aurora-blue/10 rounded-full blur-3xl pointer-events-none animate-pulse-soft" style={{ animationDelay: "1s" }} />
+      <div className="absolute top-1/2 left-1/4 w-40 h-40 bg-aurora-pink/7 rounded-full blur-2xl pointer-events-none animate-float-slow" />
       
       <div className="container mx-auto px-4 relative z-10">
         <div

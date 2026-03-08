@@ -162,7 +162,7 @@ const WorkWithUs = () => {
               <Button
                 size="lg"
                 asChild
-                className="rounded-full px-8 bg-gradient-to-r from-aurora-blue via-primary to-aurora-blue bg-[length:200%_auto] animate-gradient-shift shadow-[0_0_30px_hsl(210_100%_50%_/_0.3)] hover:shadow-[0_0_40px_hsl(210_100%_50%_/_0.5)] transition-shadow"
+                className="rounded-full px-8 bg-gradient-to-r from-aurora-blue via-primary to-aurora-blue bg-[length:200%_auto] animate-gradient-shift shadow-[0_0_20px_hsl(210_100%_50%_/_0.2)] hover:shadow-[0_0_30px_hsl(210_100%_50%_/_0.3)] transition-shadow"
               >
                 <a href="/signup">
                   Apply for Partner Access

@@ -128,7 +128,7 @@ const WhoWeAre = () => {
             ].map((item, index) => (
               <div
                 key={item.title}
-                className={`group glass-card rounded-2xl p-6 text-center hover:shadow-2xl hover:border-white/20 transition-all duration-300 opacity-0 ${whyVisible ? "animate-scale-in" : ""}`}
+                className={`group glass-card rounded-2xl p-6 text-center hover:shadow-xl hover:border-white/20 transition-all duration-300 opacity-0 ${whyVisible ? "animate-scale-in" : ""}`}
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${WHY_GRADIENTS[index]} flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>

@@ -88,7 +88,7 @@ const Philosophy = () => {
               {values.map((value, index) => (
                 <div
                   key={value.title}
-                  className={`group bg-white/[0.07] backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-center hover:border-white/20 hover:shadow-2xl transition-all duration-300 opacity-0 ${valuesVisible ? "animate-scale-in" : ""}`}
+                  className={`group bg-white/[0.07] backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-center hover:border-white/20 hover:shadow-xl transition-all duration-300 opacity-0 ${valuesVisible ? "animate-scale-in" : ""}`}
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
                   <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${VALUE_GRADIENTS[index]} flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
