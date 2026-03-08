@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -123,6 +123,7 @@ const BlogTab = () => {
   const [cannibalizationWarnings, setCannibalizationWarnings] = useState<CannibalizationOverlap[]>([]);
   const [imageGenLoading, setImageGenLoading] = useState(false);
   const [pipelineStep, setPipelineStep] = useState<string | null>(null);
+  const pipelineCancelledRef = useRef(false);
   const { toast } = useToast();
 
   const getExistingPostsCatalog = useCallback(() => {
@@ -382,43 +383,54 @@ const BlogTab = () => {
       toast({ title: "Enter a title first", variant: "destructive" });
       return;
     }
+    pipelineCancelledRef.current = false;
+    const check = () => { if (pipelineCancelledRef.current) throw new Error("Pipeline cancelled"); };
     try {
-      // Step 1: Research
       if (useResearch) {
         setPipelineStep("research");
         await runResearch();
+        check();
       }
 
-      // Step 2: Cannibalization check
       setPipelineStep("cannibalization");
       await checkCannibalization();
+      check();
 
-      // Step 3: Generate article
       setPipelineStep("generate_article");
       await callAI("generate_article");
+      check();
 
-      // Step 4: Generate images
       setPipelineStep("generate_images");
       await generateImages();
+      check();
 
-      // Step 5: Generate meta
       setPipelineStep("generate_meta");
       await callAI("generate_meta");
+      check();
 
-      // Step 6: Generate excerpt
       setPipelineStep("generate_excerpt");
       await callAI("generate_excerpt");
+      check();
 
-      // Step 7: Internal links
       setPipelineStep("interlink_posts");
       await callAI("interlink_posts");
 
       toast({ title: "🚀 Full pipeline complete!", description: "Article fully generated with images, meta, and internal links." });
     } catch (e: any) {
-      toast({ title: "Pipeline error", description: e.message, variant: "destructive" });
+      if (pipelineCancelledRef.current) {
+        toast({ title: "Pipeline cancelled", description: "Stopped after completing the current step. Progress is preserved." });
+      } else {
+        toast({ title: "Pipeline error", description: e.message, variant: "destructive" });
+      }
     } finally {
       setPipelineStep(null);
+      pipelineCancelledRef.current = false;
     }
+  };
+
+  const cancelPipeline = () => {
+    pipelineCancelledRef.current = true;
+    toast({ title: "Cancelling...", description: "Will stop after the current step finishes." });
   };
 
 
@@ -1341,6 +1353,9 @@ const BlogTab = () => {
                         </div>
                       );
                     })}
+                    <Button variant="destructive" size="sm" className="w-full mt-1" onClick={cancelPipeline}>
+                      Cancel Pipeline
+                    </Button>
                   </div>
                 )}
                 <div className="border-t border-border pt-2 space-y-2"></div>
