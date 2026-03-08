@@ -1,83 +1,125 @@
 
 
-# ChatGPT-Style Instruction Manager for AI Agent Config
+# Application Analysis: Updates & Upgrades Roadmap
 
-## Overview
-Redesign the AI Agent Configuration tab to have a modern, ChatGPT-like interface where admins can type instructions OR upload files (images, PDFs, Excel, Word docs). Uploaded files are processed by AI to extract text content, which is then saved as instruction entries in the appropriate category.
+After a thorough review of the entire codebase — the Nyra voice AI widget, the Gemini Live API integration, the itinerary builder, admin configuration, edge functions, and the landing page — here is a comprehensive breakdown of improvements organized by priority.
 
-## Architecture
+---
 
-### New Edge Function: `process-agent-document`
-- Accepts a file (base64-encoded) along with its MIME type and target category
-- Uses the Lovable AI Gateway (`google/gemini-2.5-flash`) to extract/summarize content from the file
-- Returns extracted text that gets saved as instruction entries
-- Supports: images (JPEG, PNG, WebP), PDFs, Excel (.xlsx), Word (.docx)
-- For images: sends the image directly to Gemini's vision capability for text extraction
-- For PDFs/docs: converts base64 to text extraction prompt
+## 1. AI Speed & Responsiveness
 
-### UI Redesign: `AIAgentConfigTab.tsx`
-Rebuild with a ChatGPT-style interface per category card:
+### 1a. Upgrade to Latest Gemini Model
+- **Current**: Using `gemini-2.5-flash-native-audio-preview-09-2025` — a preview model from September 2025.
+- **Upgrade**: Switch to the latest stable native audio model for lower latency, better accuracy, and improved tool-calling reliability.
 
-```text
-+---------------------------------------------+
-| Knowledge Base                          [v]  |
-|---------------------------------------------|
-| [Saved entry 1]                        [x]  |
-| [Saved entry 2]                        [x]  |
-| [Saved entry 3 - from uploaded PDF]    [x]  |
-|---------------------------------------------|
-| [  Type instruction or upload a file...   ] |
-| [Paperclip icon]  [Send button]             |
-+---------------------------------------------+
-```
+### 1b. Add Noise Suppression
+- **Current**: Raw microphone input is sent directly to the API. The `rnnoise` library files exist in `/public/rnnoise/` but are **never used**.
+- **Upgrade**: Integrate the RNNoise worklet into the audio capture pipeline to suppress background noise before sending to Gemini. This significantly improves speech recognition accuracy.
 
-Each category section will have:
-- A scrollable log of saved entries (existing behavior, kept)
-- A bottom input bar with a textarea, a file attachment button (paperclip icon), and a send/add button
-- File upload triggers processing via the edge function, then saves extracted text as a new entry
-- While processing, show a loading state with "Extracting content from [filename]..."
-- After extraction, the text is auto-added as an instruction entry (same save flow as today)
+### 1c. Reduce Connection Time
+- **Current**: Sequential steps: fetch API key → create AI client → connect → wait for greeting. The 5-minute rate limit on `gemini-token` is aggressive.
+- **Upgrade**: Pre-fetch the API key when the widget first mounts (not on button tap), cache it in memory, and reduce rate limit to 1 minute. This makes the "tap to call" feel instant.
 
-### Supported File Types
-- Images: `image/jpeg`, `image/png`, `image/webp` -- processed via Gemini vision
-- PDF: `application/pdf` -- base64 sent to Gemini for extraction
-- Word: `.docx` (`application/vnd.openxmlformats-officedocument.wordprocessingml.document`)
-- Excel: `.xlsx` (`application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`)
+### 1d. Optimize Audio Playback
+- **Current**: Each audio chunk creates a new `AudioBufferSourceNode`. With many small chunks, this creates scheduling gaps.
+- **Upgrade**: Buffer small chunks together and schedule them with tighter timing to eliminate audio glitches and pauses between Nyra's sentences.
 
-## Technical Details
+---
 
-### 1. Create `supabase/functions/process-agent-document/index.ts`
-- Accept POST with `{ fileBase64, mimeType, fileName, category }`
-- Use `LOVABLE_API_KEY` (already configured) to call the Lovable AI Gateway
-- For images: send as base64 image content part with a prompt like "Extract all text, data, and instructions from this image. Return them as clear, structured text."
-- For documents (PDF/DOCX/XLSX): send file content with extraction prompt
-- Return `{ extractedText: string }` 
-- Register in `supabase/config.toml`
+## 2. AI Accuracy & Intelligence
 
-### 2. Redesign `AIAgentConfigTab.tsx`
-- Replace the current `InstructionLog` component with a new `InstructionChat` component
-- Bottom input area styled like a chat input bar:
-  - Textarea (auto-grows, placeholder: "Type an instruction or upload a file...")
-  - Paperclip/attachment button (opens file picker)
-  - Send button (arrow icon)
-- When a file is selected:
-  - Show a file preview chip above the input (filename + remove button)
-  - On send, read as base64 and call `process-agent-document` edge function
-  - Show processing indicator
-  - On success, add extracted text as an instruction entry
-- Keep the existing entries list with delete buttons above the input
-- Entries from files get a small file icon badge to indicate source
+### 2a. Smarter System Prompt Architecture
+- **Current**: One massive 4,000+ word system prompt string with everything crammed in. Hardcoded Umrah prices, dates, and group packages that go stale quickly.
+- **Upgrade**: Move all product/pricing data into the admin Knowledge Base (already built!). Reduce the base system prompt to personality + behavior only. This keeps Nyra's responses accurate and lets admins update info without code changes.
 
-### 3. Update `supabase/config.toml`
-- Add `[functions.process-agent-document]` with `verify_jwt = false`
+### 2b. Better Tool Call Reliability
+- **Current**: Tool responses only return `{ success: true/false }`. The AI has no feedback on what happened.
+- **Upgrade**: Return richer responses — e.g., for `add_item`, return the generated `item_id` so the AI can reference it for updates/removals. For `save_lead`, confirm the saved data back. This prevents the AI from hallucinating item IDs.
 
-### No database changes needed
-All data continues to be stored in `site_settings` as JSONB arrays -- extracted text from files becomes regular string entries in the arrays.
+### 2c. Itinerary State Awareness
+- **Current**: The AI has no visibility into the current itinerary state. It can't see what items exist, so it can't accurately update or remove them.
+- **Upgrade**: After each tool call, send the current itinerary summary (item count, IDs, titles) back as context. Or periodically inject the current state as a client content message.
 
-## Files to Create
-1. `supabase/functions/process-agent-document/index.ts`
+### 2d. Conversation Summary Quality
+- **Current**: The AI saves summaries every 3-4 exchanges but with no structure — it's a free-text blob.
+- **Upgrade**: Use structured tool output for session saves with fields like `destinations_discussed`, `budget_range`, `travel_dates`, `decisions_made`, `pending_questions`. This makes session restoration far more accurate.
 
-## Files to Modify
-1. `src/components/admin/AIAgentConfigTab.tsx` -- full UI redesign with chat-style input
-2. `supabase/config.toml` -- register new function
+---
+
+## 3. Admin & Configuration Improvements
+
+### 3a. Knowledge Base Categorization
+- **Current**: All knowledge entries are flat — a single list of text blobs. Admins can't organize or search.
+- **Upgrade**: Add categories/tags to entries (e.g., "Pricing", "Visa", "Packages", "Destinations"). Add search/filter to the admin UI.
+
+### 3b. AI Agent Testing Interface
+- **Current**: No way to test Nyra's behavior without making a live voice call.
+- **Upgrade**: Add a text-based chat test mode in the admin dashboard that uses the same system prompt and tools but via text instead of voice. This lets admins quickly verify changes.
+
+### 3c. Conversation Analytics
+- **Current**: The VoiceAILeadsTab only shows basic lead info. No conversation metrics.
+- **Upgrade**: Track and display: average call duration, lead conversion rate, most-asked topics, tool usage frequency, session dropout rate.
+
+---
+
+## 4. Security Improvements
+
+### 4a. API Key Exposure
+- **Current**: The `gemini-token` edge function returns the raw Gemini API key to the client. If someone inspects network traffic, they get the key.
+- **Upgrade**: While necessary for the Gemini Live SDK, add additional protections: shorter-lived keys, domain restriction on the Gemini API key, or rotate keys more frequently.
+
+### 4b. Rate Limiting Improvements
+- **Current**: IP-based rate limiting with in-memory `Map` — resets on function cold start, easily bypassed with VPNs.
+- **Upgrade**: Move rate limiting to a Supabase table or use a more robust approach. Add per-session rate limits too.
+
+---
+
+## 5. UX & Feature Enhancements
+
+### 5a. Text Chat Fallback
+- **Current**: Voice-only interaction. Users in noisy environments or who prefer typing cannot use Nyra.
+- **Upgrade**: Add a text input mode alongside voice. Use the same Gemini model via the Lovable AI gateway for text, keeping the same tools and system prompt.
+
+### 5b. Multilingual UI
+- **Current**: Nyra speaks multiple languages but the UI is English-only.
+- **Upgrade**: Detect the conversation language and optionally translate UI labels in the itinerary panel.
+
+### 5c. Itinerary Comparison
+- **Current**: One itinerary at a time, no way to compare options.
+- **Upgrade**: Allow saving multiple itinerary versions and comparing them side by side.
+
+### 5d. Real-Time Pricing Integration
+- **Current**: Prices are AI-estimated guesses using Google Search.
+- **Upgrade**: Integrate with actual flight/hotel APIs (Amadeus, Booking.com) via edge functions to provide real pricing.
+
+### 5e. Post-Call Summary Email
+- **Current**: Emails can be sent during the call via the `send_email` tool, but there's no automatic post-call summary.
+- **Upgrade**: When the call disconnects, automatically generate and send a summary email with the itinerary PDF attached if the caller's email was captured.
+
+---
+
+## 6. Performance
+
+### 6a. Bundle Size
+- **Current**: The `@google/genai` SDK is loaded even when no one clicks the Nyra widget (it's in the lazy-loaded NyraWidget, which is good, but it's still loaded on mount because `NyraWidget` renders on every page).
+- **Upgrade**: Only import `@google/genai` inside the `connect()` function using dynamic `import()`, so it's truly loaded only when someone initiates a call.
+
+### 6b. Itinerary Panel Rendering
+- **Current**: Every tool call triggers a full re-render of the entire itinerary.
+- **Upgrade**: Memoize individual day and item components to prevent unnecessary re-renders during rapid AI tool calls.
+
+---
+
+## Recommended Priority Order
+
+1. **Noise suppression** (rnnoise integration) — highest impact on accuracy, already bundled
+2. **Pre-fetch API key** — makes connection feel instant
+3. **Move hardcoded data to admin Knowledge Base** — keeps info fresh
+4. **Return item IDs in tool responses** — fixes update/remove reliability
+5. **Inject itinerary state into AI context** — makes AI aware of what it built
+6. **Text chat fallback** — expands accessibility
+7. **Post-call summary email** — improves conversion
+8. **Admin testing interface** — faster iteration
+9. **Dynamic import of Gemini SDK** — performance win
+10. **Conversation analytics** — data-driven improvements
 
