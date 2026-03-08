@@ -221,12 +221,18 @@ export default function NyraWidget() {
     } : null,
   }), [state]);
 
+  // Analytics: track tool calls from voice mode
+  const handleToolCallTrack: ToolCallTracker = useCallback((toolName: string) => {
+    toolCallCountsRef.current[toolName] = (toolCallCountsRef.current[toolName] || 0) + 1;
+  }, []);
+
   const { isConnected, isConnecting, error, isSpeaking, connect, disconnect } = useLiveAPI(
     systemInstruction,
     handleItineraryTool,
     sessionContext,
     communicationConfig,
     getItineraryState,
+    handleToolCallTrack,
   );
   const { messages: chatMessages, isLoading: isChatLoading, error: chatError, sendMessage, clearChat } = useNyraChat(
     systemInstruction,
