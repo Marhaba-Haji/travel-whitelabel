@@ -132,6 +132,8 @@ const BlogTab = () => {
       author_name: currentPost.author_name || "Marhaba DMC",
       reading_time_minutes,
       published_at: currentPost.status === "published" && !currentPost.published_at ? new Date().toISOString() : currentPost.published_at,
+      category: currentPost.category || null,
+      tags: currentPost.tags?.length ? currentPost.tags : [],
     };
 
     let error;
