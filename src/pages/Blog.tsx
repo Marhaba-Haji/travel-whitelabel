@@ -61,7 +61,7 @@ const Blog = () => {
       const [postsRes, catsRes] = await Promise.all([
         supabase
           .from("blog_posts")
-          .select("id, title, slug, excerpt, cover_image_url, author_name, reading_time_minutes, published_at, meta_keywords, category, tags")
+          .select("id, title, slug, excerpt, cover_image_url, author_name, reading_time_minutes, published_at, meta_keywords, category, tags, views_count")
           .eq("status", "published")
           .order("published_at", { ascending: false }),
         supabase.from("blog_categories").select("id, name, slug").order("name"),
