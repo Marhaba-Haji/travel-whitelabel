@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Clock, User, Calendar, Share2, Check, BookOpen, List } from "lucide-react";
+import { ArrowLeft, Clock, User, Calendar, Share2, Check, BookOpen, List, Mail, Loader2 } from "lucide-react";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
 import ReactMarkdown from "react-markdown";
