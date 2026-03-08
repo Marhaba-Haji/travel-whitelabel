@@ -824,6 +824,9 @@ const BlogTab = () => {
                 <Button variant="outline" size="sm" className="w-full justify-start" disabled={!!aiLoading || !currentPost?.content} onClick={() => callAI("generate_excerpt")}>
                   {aiLoading === "generate_excerpt" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
                   Generate Excerpt
+                <Button variant="outline" size="sm" className="w-full justify-start" disabled={!!aiLoading || !currentPost?.content} onClick={() => callAI("interlink_posts")}>
+                  {aiLoading === "interlink_posts" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Link2 className="h-4 w-4 mr-2" />}
+                  Add Internal Links
                 </Button>
               </div>
             </CardContent>
