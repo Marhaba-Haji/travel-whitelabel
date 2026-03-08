@@ -22,6 +22,8 @@ interface BlogPost {
   category: string | null;
   tags: string[] | null;
   views_count?: number;
+  post_type?: string;
+  cluster_id?: string | null;
 }
 
 interface BlogCategory {
