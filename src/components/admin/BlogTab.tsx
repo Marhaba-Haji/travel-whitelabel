@@ -37,6 +37,14 @@ interface BlogPost {
   published_at: string | null;
   created_at: string;
   updated_at: string;
+  category: string | null;
+  tags: string[] | null;
+}
+
+interface BlogCategory {
+  id: string;
+  name: string;
+  slug: string;
 }
 
 const slugify = (text: string) =>
