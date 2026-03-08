@@ -243,6 +243,7 @@ export function useLiveAPI(
   sessionContext?: SessionContext,
   communicationConfig?: CommunicationConfig,
   getItineraryState?: ItineraryStateGetter,
+  onToolCall?: ToolCallTracker,
 ) {
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
