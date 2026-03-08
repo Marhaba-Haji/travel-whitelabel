@@ -443,7 +443,6 @@ Return a pillar post topic and 5-8 supporting post topics. Each supporting post 
 
       case "generate_images": {
         // Generate images using the Lovable AI image model
-        const { prompts } = await req.json().catch(() => ({ prompts: [] }));
         const imagePrompts = prompts || [];
         
         // This action receives pre-extracted prompts and generates actual images
