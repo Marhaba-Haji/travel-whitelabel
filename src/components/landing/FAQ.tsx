@@ -60,7 +60,7 @@ const FAQ = () => {
   };
 
   return (
-    <section id="faq" className="py-20 bg-muted/30">
+    <section id="faq" className="py-20 bg-muted/30" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 1200px' }}>
       <div className="container mx-auto px-4">
         <div
           ref={headerRef}

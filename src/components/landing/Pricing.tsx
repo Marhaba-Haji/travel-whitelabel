@@ -55,7 +55,7 @@ const Pricing = () => {
     `${symbol}${base.toLocaleString("en-IN")}`;
 
   return (
-    <section id="pricing" className="py-20 bg-muted/30 relative overflow-hidden">
+    <section id="pricing" className="py-20 bg-muted/30 relative overflow-hidden" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 1000px' }}>
       {/* Background decoration */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
 
