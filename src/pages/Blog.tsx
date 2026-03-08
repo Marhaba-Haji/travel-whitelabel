@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Clock, BookOpen, X, Search, ChevronLeft, ChevronRight, Rss } from "lucide-react";
+import { Clock, BookOpen, X, Search, ChevronLeft, ChevronRight, Rss, Eye } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
