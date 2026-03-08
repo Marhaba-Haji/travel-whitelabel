@@ -41,6 +41,7 @@ interface BlogPost {
   updated_at: string;
   category: string | null;
   tags: string[] | null;
+  views_count: number;
 }
 
 interface BlogCategory {
