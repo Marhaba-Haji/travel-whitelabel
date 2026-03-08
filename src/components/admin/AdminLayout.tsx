@@ -18,6 +18,7 @@ const tabs = [
   { id: "payments", label: "Payments", icon: CreditCard },
   { id: "pricing", label: "Pricing & GST", icon: DollarSign },
   { id: "coupons", label: "Coupons", icon: Ticket },
+  { id: "blog", label: "Blog", icon: FileText },
   { id: "ai-agent", label: "AI Agent Config", icon: Bot },
   { id: "settings", label: "Site Settings", icon: Settings },
 ];

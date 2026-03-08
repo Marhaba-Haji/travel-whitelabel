@@ -25,6 +25,7 @@ const tabComponents: Record<string, React.FC> = {
   payments: PaymentsTab,
   pricing: PricingTab,
   coupons: CouponsTab,
+  blog: BlogTab,
   "ai-agent": AIAgentConfigTab,
   settings: SiteSettingsTab,
 };
