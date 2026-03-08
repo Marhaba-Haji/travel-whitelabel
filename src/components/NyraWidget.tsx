@@ -136,8 +136,8 @@ export default function NyraWidget() {
     sms: nyraConfig?.communication_enabled?.sms ?? false,
   }), [nyraConfig]);
 
-  // Itinerary tool handler
-  const handleItineraryTool: ItineraryToolHandler = useCallback((action: string, args: Record<string, any>) => {
+  // Itinerary tool handler - returns generated item_id for add_item
+  const handleItineraryTool: ItineraryToolHandler = useCallback((action: string, args: Record<string, any>): string | undefined => {
     switch (action) {
       case 'set_trip_info':
         setTripInfo({
@@ -147,7 +147,7 @@ export default function NyraWidget() {
           endDate: args.end_date,
           currency: args.currency || 'INR',
         });
-        break;
+        return undefined;
       case 'set_guests':
         if (Array.isArray(args.guests)) {
           const guests: Guest[] = args.guests.map((g: any) => ({
@@ -158,10 +158,11 @@ export default function NyraWidget() {
           }));
           setGuests(guests);
         }
-        break;
-      case 'add_item':
+        return undefined;
+      case 'add_item': {
+        const newId = crypto.randomUUID();
         addItem({
-          id: crypto.randomUUID(),
+          id: newId,
           day: args.day || 1,
           date: args.date,
           type: (args.item_type || 'activity') as ItemType,
@@ -173,7 +174,8 @@ export default function NyraWidget() {
           location: args.location,
           duration: args.duration,
         });
-        break;
+        return newId; // Return ID so AI can reference it for updates/removals
+      }
       case 'update_item':
         if (args.item_id) {
           updateItem(args.item_id, {
@@ -188,18 +190,33 @@ export default function NyraWidget() {
             ...(args.date && { date: args.date }),
           });
         }
-        break;
+        return undefined;
       case 'remove_item':
         if (args.item_id) removeItem(args.item_id);
-        break;
+        return undefined;
+      default:
+        return undefined;
     }
   }, [addItem, updateItem, removeItem, setTripInfo, setGuests]);
+
+  // Provide current itinerary state to AI for context awareness
+  const getItineraryState: ItineraryStateGetter = useCallback(() => ({
+    itemCount: state.days.reduce((sum, d) => sum + d.items.length, 0),
+    items: state.days.flatMap(d => d.items.map(i => ({ id: i.id, day: i.day, type: i.type, title: i.title }))),
+    tripInfo: state.tripInfo ? {
+      title: state.tripInfo.title,
+      destination: state.tripInfo.destination,
+      startDate: state.tripInfo.startDate,
+      endDate: state.tripInfo.endDate,
+    } : null,
+  }), [state]);
 
   const { isConnected, isConnecting, error, isSpeaking, connect, disconnect } = useLiveAPI(
     systemInstruction,
     handleItineraryTool,
     sessionContext,
     communicationConfig,
+    getItineraryState,
   );
   const [isWidgetOpen, setIsWidgetOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
