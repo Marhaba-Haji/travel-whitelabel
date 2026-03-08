@@ -248,6 +248,13 @@ export default function NyraWidget() {
     if (chatEndRef.current) chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages]);
 
+  // Track connection start time for analytics
+  useEffect(() => {
+    if (isConnected) {
+      connectedAtRef.current = new Date().toISOString();
+    }
+  }, [isConnected]);
+
   // Auto-expand when itinerary becomes active
   useEffect(() => {
     if (state.isActive && isConnected && !isExpanded) {
