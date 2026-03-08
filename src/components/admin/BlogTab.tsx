@@ -1309,6 +1309,41 @@ const BlogTab = () => {
                 </div>
               )}
               <div className="border-t border-border pt-2 space-y-2">
+                {/* Full Pipeline Button */}
+                <Button
+                  size="sm"
+                  className="w-full justify-start font-semibold"
+                  disabled={!!aiLoading || !!pipelineStep || !currentPost?.title || imageGenLoading}
+                  onClick={runFullPipeline}
+                >
+                  {pipelineStep ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      {PIPELINE_STEPS.find((s) => s.key === pipelineStep)?.label || "Processing..."}
+                    </>
+                  ) : (
+                    <>
+                      <Zap className="h-4 w-4 mr-2" />
+                      Full Pipeline (One-Click)
+                    </>
+                  )}
+                </Button>
+                {pipelineStep && (
+                  <div className="space-y-1 px-1">
+                    {PIPELINE_STEPS.map((step) => {
+                      const stepIdx = PIPELINE_STEPS.findIndex((s) => s.key === step.key);
+                      const currentIdx = PIPELINE_STEPS.findIndex((s) => s.key === pipelineStep);
+                      const isDone = stepIdx < currentIdx;
+                      const isCurrent = step.key === pipelineStep;
+                      return (
+                        <div key={step.key} className={`text-xs flex items-center gap-1.5 ${isDone ? "text-primary" : isCurrent ? "text-foreground font-medium" : "text-muted-foreground/50"}`}>
+                          {isDone ? "✓" : isCurrent ? <Loader2 className="h-3 w-3 animate-spin" /> : "○"} {step.label.replace("...", "")}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+                <div className="border-t border-border pt-2 space-y-2"></div>
                 <Button variant="outline" size="sm" className="w-full justify-start" disabled={!!aiLoading || !currentPost?.title} onClick={checkCannibalization}>
                   {aiLoading === "cannibalization" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <AlertTriangle className="h-4 w-4 mr-2" />}
                   Check Cannibalization
