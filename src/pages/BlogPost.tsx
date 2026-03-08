@@ -57,6 +57,9 @@ const BlogPost = () => {
   const [readProgress, setReadProgress] = useState(0);
   const [activeTocId, setActiveTocId] = useState("");
   const [tocOpen, setTocOpen] = useState(false);
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterLoading, setNewsletterLoading] = useState(false);
+  const [newsletterDone, setNewsletterDone] = useState(false);
   const articleRef = useRef<HTMLElement>(null);
   const { toast } = useToast();
 
