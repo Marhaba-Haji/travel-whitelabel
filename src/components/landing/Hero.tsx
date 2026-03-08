@@ -199,7 +199,7 @@ const Hero = () => {
           {/* Right — Globe illustration, oversized for impact */}
           <div className="relative -mr-12 xl:-mr-16">
             <img
-              src="/assets/hero-globe-illustration.png"
+              src="/assets/hero-globe-illustration.webp"
               alt="3D globe with airplane, compass and suitcase"
               width={1376}
               height={768}
