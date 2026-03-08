@@ -310,6 +310,13 @@ export default function NyraWidget() {
                 </div>
                 <div className="flex items-center gap-1.5">
                   <button
+                    onClick={() => setWidgetMode(widgetMode === 'voice' ? 'chat' : 'voice')}
+                    className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-muted transition-colors"
+                    title={widgetMode === 'voice' ? 'Switch to text chat' : 'Switch to voice call'}
+                  >
+                    {widgetMode === 'voice' ? <MessageSquare size={14} className="text-muted-foreground" /> : <Mic size={14} className="text-muted-foreground" />}
+                  </button>
+                  <button
                     onClick={() => setIsExpanded(false)}
                     className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-muted transition-colors"
                     title="Collapse panel"
