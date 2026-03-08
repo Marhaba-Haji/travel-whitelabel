@@ -175,7 +175,7 @@
   }
 
   .glass-card {
-    @apply bg-white/[0.07] backdrop-blur-xl border border-white/10 shadow-xl;
+    @apply bg-white/[0.07] backdrop-blur-xl border border-white/10 shadow-lg;
   }
 
   .aurora-gradient {
