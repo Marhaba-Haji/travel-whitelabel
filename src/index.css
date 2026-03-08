@@ -181,9 +181,9 @@
   .aurora-gradient {
     background: linear-gradient(
       135deg,
-      hsl(var(--aurora-purple) / 0.3) 0%,
-      hsl(var(--aurora-blue) / 0.2) 50%,
-      hsl(var(--aurora-pink) / 0.2) 100%
+      hsl(var(--aurora-purple) / 0.22) 0%,
+      hsl(var(--aurora-blue) / 0.15) 50%,
+      hsl(var(--aurora-pink) / 0.15) 100%
     );
   }
 
