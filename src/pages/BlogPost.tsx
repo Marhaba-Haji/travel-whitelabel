@@ -454,10 +454,10 @@ const BlogPost = () => {
                 const base = src.replace(/-\d+w\.webp$/, "");
                 const hasSizes = isBlogImage && base !== src;
                 return (
-                  <img
+                  <BlurImage
                     src={src}
                     alt={post.meta_description || post.title}
-                    className="w-full h-auto max-h-96 object-cover"
+                    className="rounded-lg max-h-96"
                     loading="eager"
                     width={1200}
                     height={630}
