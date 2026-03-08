@@ -393,7 +393,7 @@ export default function NyraWidget() {
                     <PanelRightClose size={14} className="text-muted-foreground" />
                   </button>
                   <button
-                    onClick={() => { setIsWidgetOpen(false); setIsExpanded(false); }}
+                    onClick={() => { if (widgetMode === 'chat' && chatMessages.length > 0) persistAnalytics('chat'); setIsWidgetOpen(false); setIsExpanded(false); }}
                     className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-muted transition-colors"
                   >
                     <X size={14} className="text-muted-foreground" />
