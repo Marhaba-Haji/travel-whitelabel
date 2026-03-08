@@ -6,7 +6,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SYSTEM_PROMPT = `You are a world-class SEO and GSO (Generative Search Optimization) content strategist and blog writer for Marhaba DMC — a leading B2B Destination Management Company specializing in halal-friendly travel, luxury hospitality, and technology-driven travel solutions across the Middle East, Turkey, Southeast Asia, and the Maldives.
+const BASE_SYSTEM_PROMPT = `You are a world-class SEO and GSO (Generative Search Optimization) content strategist and blog writer for Marhaba DMC — a leading B2B Destination Management Company specializing in halal-friendly travel, luxury hospitality, and technology-driven travel solutions across the Middle East, Turkey, Southeast Asia, and the Maldives.
 
 Your writing style:
 - Professional yet engaging, authoritative yet approachable
@@ -20,6 +20,30 @@ Your writing style:
 - Focus on E-E-A-T (Experience, Expertise, Authoritativeness, Trustworthiness)
 
 Topics you excel at: halal travel, Muslim-friendly destinations, luxury DMC services, B2B travel technology, destination guides, travel industry trends, hospitality tech, group travel, MICE tourism, cultural tourism.`;
+
+function buildSystemPrompt(brandConfig?: any): string {
+  let prompt = BASE_SYSTEM_PROMPT;
+
+  if (brandConfig) {
+    if (brandConfig.brand_tone) {
+      prompt += `\n\nBrand Voice & Tone: ${brandConfig.brand_tone}`;
+    }
+    if (brandConfig.target_audience?.length) {
+      prompt += `\n\nTarget Audience Personas:\n${brandConfig.target_audience.map((a: string) => `- ${a}`).join("\n")}`;
+    }
+    if (brandConfig.target_regions?.length) {
+      prompt += `\n\nPrimary Target Regions: ${brandConfig.target_regions.join(", ")}`;
+    }
+    if (brandConfig.brand_keywords?.length) {
+      prompt += `\n\nBrand Keywords to Incorporate: ${brandConfig.brand_keywords.join(", ")}`;
+    }
+    if (brandConfig.differentiators) {
+      prompt += `\n\nKey Differentiators: ${brandConfig.differentiators}`;
+    }
+  }
+
+  return prompt;
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
