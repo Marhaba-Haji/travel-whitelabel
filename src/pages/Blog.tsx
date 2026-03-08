@@ -83,7 +83,7 @@ const Blog = () => {
 
   // Filter posts
   const filteredPosts = useMemo(() => {
-    return posts.filter((p) => {
+    const filtered = posts.filter((p) => {
       if (activeCategory && p.category !== activeCategory) return false;
       if (activeTag && !(p.tags || []).includes(activeTag)) return false;
       if (activeSearch) {
@@ -95,7 +95,12 @@ const Blog = () => {
       }
       return true;
     });
-  }, [posts, activeCategory, activeTag, activeSearch]);
+
+    if (activeSort === "popular") {
+      return [...filtered].sort((a, b) => (b.views_count || 0) - (a.views_count || 0));
+    }
+    return filtered;
+  }, [posts, activeCategory, activeTag, activeSearch, activeSort]);
 
   const POSTS_PER_PAGE = 9;
   const activePage = parseInt(searchParams.get("page") || "1", 10);
