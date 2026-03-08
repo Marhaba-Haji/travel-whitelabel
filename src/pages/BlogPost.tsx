@@ -9,6 +9,7 @@ import { ArrowLeft, Clock, User, Calendar, Share2, Check, BookOpen, List, Mail, 
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
 import ReactMarkdown from "react-markdown";
+import BlurImage from "@/components/BlurImage";
 import { useToast } from "@/hooks/use-toast";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
