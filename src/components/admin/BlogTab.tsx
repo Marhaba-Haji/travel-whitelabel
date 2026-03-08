@@ -49,6 +49,24 @@ interface BlogCategory {
   slug: string;
 }
 
+interface BlogAIConfig {
+  brand_tone: string;
+  target_audience: string[];
+  target_regions: string[];
+  brand_keywords: string[];
+  differentiators: string;
+  competitor_urls: string[];
+}
+
+const DEFAULT_AI_CONFIG: BlogAIConfig = {
+  brand_tone: "Professional yet engaging, authoritative yet approachable. Focus on expertise in halal-friendly luxury travel.",
+  target_audience: ["B2B travel agents in GCC", "Umrah/Hajj tour operators", "Luxury travel planners in SE Asia"],
+  target_regions: ["Middle East", "Turkey", "Southeast Asia", "Maldives"],
+  brand_keywords: ["halal travel", "DMC", "Muslim-friendly", "luxury hospitality", "travel technology"],
+  differentiators: "AI-powered travel technology, halal-certified experiences, contracted inventory with best rates, white-label B2B platform",
+  competitor_urls: [],
+};
+
 const slugify = (text: string) =>
   text
     .toLowerCase()
