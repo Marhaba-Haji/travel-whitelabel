@@ -90,7 +90,7 @@ const ProductShowcase = () => {
   return (
     <section className="py-24 relative overflow-hidden" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 900px' }}>
       {/* Aurora background */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center_left,_hsl(270_70%_58%_/_0.06),_transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center_left,_hsl(270_70%_58%_/_0.04),_transparent_50%)]" />
 
       <div className="container mx-auto px-4 relative">
         {/* Header */}
