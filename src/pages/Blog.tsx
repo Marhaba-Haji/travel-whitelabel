@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Clock, BookOpen, X } from "lucide-react";
+import { Clock, BookOpen, X, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
 
@@ -33,9 +34,11 @@ const Blog = () => {
   const [categories, setCategories] = useState<BlogCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
 
   const activeCategory = searchParams.get("category") || "";
   const activeTag = searchParams.get("tag") || "";
+  const activeSearch = searchParams.get("q") || "";
 
   useEffect(() => {
     document.title = "Blog | Marhaba DMC — Halal Travel Insights & Industry Trends";
@@ -70,9 +73,16 @@ const Blog = () => {
     return posts.filter((p) => {
       if (activeCategory && p.category !== activeCategory) return false;
       if (activeTag && !(p.tags || []).includes(activeTag)) return false;
+      if (activeSearch) {
+        const q = activeSearch.toLowerCase();
+        const titleMatch = p.title.toLowerCase().includes(q);
+        const excerptMatch = p.excerpt?.toLowerCase().includes(q);
+        const tagMatch = (p.tags || []).some((t) => t.toLowerCase().includes(q));
+        if (!titleMatch && !excerptMatch && !tagMatch) return false;
+      }
       return true;
     });
-  }, [posts, activeCategory, activeTag]);
+  }, [posts, activeCategory, activeTag, activeSearch]);
 
   const setFilter = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams);
@@ -88,7 +98,12 @@ const Blog = () => {
     setSearchParams({}, { replace: true });
   };
 
-  const hasFilters = activeCategory || activeTag;
+  const hasFilters = activeCategory || activeTag || activeSearch;
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setFilter("q", searchQuery.trim());
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -106,6 +121,22 @@ const Blog = () => {
             <p className="text-lg text-muted-foreground">
               Expert articles on halal travel, destination guides, travel technology, and hospitality industry trends.
             </p>
+          </div>
+
+          {/* Search */}
+          <div className="max-w-xl mx-auto mb-8">
+            <form onSubmit={handleSearch} className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search articles…"
+                className="pl-10 pr-20"
+              />
+              <Button type="submit" size="sm" className="absolute right-1 top-1/2 -translate-y-1/2 h-8">
+                Search
+              </Button>
+            </form>
           </div>
 
           {/* Filters */}
