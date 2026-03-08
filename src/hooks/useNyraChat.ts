@@ -15,6 +15,7 @@ export function useNyraChat(
   sessionContext?: SessionContext,
   communicationConfig?: CommunicationConfig,
   getItineraryState?: ItineraryStateGetter,
+  onToolCall?: ToolCallTracker,
 ) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
