@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Mic, Globe, PhoneCall, Loader2, X, PanelRightOpen, PanelRightClose } from 'lucide-react';
-import { useLiveAPI, ItineraryToolHandler, SessionContext } from '@/hooks/useLiveAPI';
+import { useLiveAPI, ItineraryToolHandler, SessionContext, ItineraryStateGetter } from '@/hooks/useLiveAPI';
 import { useItinerary } from '@/contexts/ItineraryContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useNyraConfig } from '@/hooks/useNyraConfig';
