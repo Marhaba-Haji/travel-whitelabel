@@ -31,11 +31,11 @@ const CompetitiveEdge = () => {
   ];
 
   return (
-    <section className="py-20 bg-gradient-to-b from-background via-accent/20 to-background relative overflow-hidden" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 800px' }}>
+    <section className="py-20 bg-gradient-to-b from-background via-accent/15 to-background relative overflow-hidden" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 800px' }}>
       {/* Background decoration */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gold/5 via-transparent to-transparent" />
-      <div className="absolute top-1/2 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl -translate-y-1/2" />
-      <div className="absolute top-1/4 left-0 w-72 h-72 bg-gold/5 rounded-full blur-3xl" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gold/3 via-transparent to-transparent" />
+      <div className="absolute top-1/2 right-0 w-80 h-80 bg-primary/3 rounded-full blur-3xl -translate-y-1/2" />
+      <div className="absolute top-1/4 left-0 w-60 h-60 bg-gold/3 rounded-full blur-3xl" />
       
       <div className="container mx-auto px-4 relative">
         {/* Header */}
@@ -43,7 +43,7 @@ const CompetitiveEdge = () => {
           ref={headerRef}
           className={`text-center mb-16 opacity-0 ${headerVisible ? "animate-fade-in" : ""}`}
         >
-          <Badge className="mb-4 bg-gold/10 text-gold hover:bg-gold/20 border-gold/20">
+          <Badge className="mb-4 bg-gold/8 text-gold hover:bg-gold/15 border-gold/15">
             ★ Your Unfair Advantage
           </Badge>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mt-2 mb-4">
@@ -60,7 +60,7 @@ const CompetitiveEdge = () => {
           className={`grid md:grid-cols-2 gap-8 max-w-5xl mx-auto opacity-0 ${cardsVisible ? "animate-fade-in" : ""}`}
         >
           {/* Card 1: Exclusive Contracted Rates */}
-          <Card className="relative border-2 border-gold/30 bg-gradient-to-br from-card via-card to-gold/5 hover:shadow-xl transition-all duration-300 group overflow-hidden">
+          <Card className="relative border-2 border-gold/20 bg-gradient-to-br from-card via-card to-gold/3 hover:shadow-lg transition-all duration-300 group overflow-hidden">
             {/* Exclusive Badge */}
             <div className="absolute -top-1 -right-1">
               <Badge className="bg-gradient-to-r from-gold to-gold/80 text-gold-foreground px-3 py-1 rounded-bl-lg rounded-tr-lg shadow-lg">
@@ -124,10 +124,10 @@ const CompetitiveEdge = () => {
           </Card>
 
           {/* Card 2: AI Sales Assistant */}
-          <Card className="relative border-2 border-primary/30 bg-gradient-to-br from-card via-card to-primary/5 hover:shadow-xl transition-all duration-300 group overflow-hidden">
-            {/* NEW Badge with animation */}
+          <Card className="relative border-2 border-primary/20 bg-gradient-to-br from-card via-card to-primary/3 hover:shadow-lg transition-all duration-300 group overflow-hidden">
+            {/* NEW Badge without animation */}
             <div className="absolute -top-1 -right-1">
-              <Badge className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-3 py-1 rounded-bl-lg rounded-tr-lg shadow-lg animate-pulse">
+              <Badge className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-3 py-1 rounded-bl-lg rounded-tr-lg shadow-lg">
                 Add-on
               </Badge>
             </div>

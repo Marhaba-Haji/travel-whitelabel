@@ -1,49 +1,83 @@
 
 
-## Plan: Reduce Design Loudness by ~5% (Excluding Hero)
+# ChatGPT-Style Instruction Manager for AI Agent Config
 
-The goal is a subtle toning-down across all landing page sections (except Hero) and About page sections. This means reducing visual intensity slightly — not a redesign, just dialing things back.
+## Overview
+Redesign the AI Agent Configuration tab to have a modern, ChatGPT-like interface where admins can type instructions OR upload files (images, PDFs, Excel, Word docs). Uploaded files are processed by AI to extract text content, which is then saved as instruction entries in the appropriate category.
 
-### What "5% less loud" means in practice
+## Architecture
 
-These are small, consistent tweaks applied across all affected components:
+### New Edge Function: `process-agent-document`
+- Accepts a file (base64-encoded) along with its MIME type and target category
+- Uses the Lovable AI Gateway (`google/gemini-2.5-flash`) to extract/summarize content from the file
+- Returns extracted text that gets saved as instruction entries
+- Supports: images (JPEG, PNG, WebP), PDFs, Excel (.xlsx), Word (.docx)
+- For images: sends the image directly to Gemini's vision capability for text extraction
+- For PDFs/docs: converts base64 to text extraction prompt
 
-1. **Reduce background gradient opacity** — e.g., `0.08` → `0.05`, `0.12` → `0.08`, `0.06` → `0.04`
-2. **Reduce floating blob opacity** — e.g., `/10` → `/7`, `/15` → `/10`, and reduce `blur-3xl` blob sizes by ~10-15%
-3. **Tone down animated shimmer/gradient-shift effects** — slow them down slightly (3s → 4s) so they feel calmer
-4. **Reduce hover glow intensity** — `hover:shadow-2xl` → `hover:shadow-xl`
-5. **Soften accent color intensity in badges/pills** — e.g., `bg-aurora-teal/15` → `bg-aurora-teal/10`
-6. **Remove or slow down `animate-pulse` on badges** — the "Add-on" badge pulse is attention-grabbing; slow it or remove it
+### UI Redesign: `AIAgentConfigTab.tsx`
+Rebuild with a ChatGPT-style interface per category card:
 
-### Files to edit
+```text
++---------------------------------------------+
+| Knowledge Base                          [v]  |
+|---------------------------------------------|
+| [Saved entry 1]                        [x]  |
+| [Saved entry 2]                        [x]  |
+| [Saved entry 3 - from uploaded PDF]    [x]  |
+|---------------------------------------------|
+| [  Type instruction or upload a file...   ] |
+| [Paperclip icon]  [Send button]             |
++---------------------------------------------+
+```
 
-**Landing page sections (all except Hero.tsx):**
-- `TrustedBy.tsx` — reduce background gradient opacity
-- `Stats.tsx` — already fairly clean; minimal changes
-- `Features.tsx` — reduce background radial gradient opacities, reduce hover shadow intensity
-- `CompetitiveEdge.tsx` — reduce background blob sizes/opacities, remove badge pulse animation, soften border colors (`border-gold/30` → `border-gold/20`, `border-primary/30` → `border-primary/20`)
-- `ProductShowcase.tsx` — reduce decorative glow blob opacities
-- `Portals.tsx` — reduce background gradient opacities
-- `HowItWorks.tsx` — reduce background gradient opacities, slow down shimmer animation
-- `Pricing.tsx` — reduce background blur blob opacity, soften Growth plan shadow (`shadow-primary/20` → `shadow-primary/10`)
-- `Testimonials.tsx` — reduce floating blob opacities (`/10` → `/6`, `/8` → `/5`), slow shimmer
-- `FAQ.tsx` — reduce CTA card gradient intensity
-- `Footer.tsx` — reduce background gradient opacities
-- `StickyCTA.tsx` — no changes needed (already minimal)
+Each category section will have:
+- A scrollable log of saved entries (existing behavior, kept)
+- A bottom input bar with a textarea, a file attachment button (paperclip icon), and a send/add button
+- File upload triggers processing via the edge function, then saves extracted text as a new entry
+- While processing, show a loading state with "Extracting content from [filename]..."
+- After extraction, the text is auto-added as an instruction entry (same save flow as today)
 
-**About page sections:**
-- `AboutHero.tsx` — reduce floating blob opacities (`/15` → `/10`, `/10` → `/7`), reduce blob sizes
-- All other About components (`WhoWeAre`, `HalalFocus`, `TechPlatform`, etc.) — apply same pattern of reducing background gradient opacities by ~30-40%
+### Supported File Types
+- Images: `image/jpeg`, `image/png`, `image/webp` -- processed via Gemini vision
+- PDF: `application/pdf` -- base64 sent to Gemini for extraction
+- Word: `.docx` (`application/vnd.openxmlformats-officedocument.wordprocessingml.document`)
+- Excel: `.xlsx` (`application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`)
 
-**Global CSS (`src/index.css`):**
-- Reduce `glass-card` shadow: `shadow-xl` → `shadow-lg`
-- Reduce `aurora-gradient` opacity values slightly
-- Reduce `aurora-glow` box-shadow spread
+## Technical Details
 
-**Tailwind config (`tailwind.config.ts`):**
-- Slow `text-shimmer` and `gradient-shift` animations: 3s → 4s
-- Reduce `glow-pulse` shadow intensity values
+### 1. Create `supabase/functions/process-agent-document/index.ts`
+- Accept POST with `{ fileBase64, mimeType, fileName, category }`
+- Use `LOVABLE_API_KEY` (already configured) to call the Lovable AI Gateway
+- For images: send as base64 image content part with a prompt like "Extract all text, data, and instructions from this image. Return them as clear, structured text."
+- For documents (PDF/DOCX/XLSX): send file content with extraction prompt
+- Return `{ extractedText: string }` 
+- Register in `supabase/config.toml`
 
-### Summary of changes
-~15-18 files with small opacity/size/animation tweaks. No layout changes, no color changes, no structural changes. Just a subtle reduction in visual "energy" — fewer glowing blobs, softer shadows, calmer animations.
+### 2. Redesign `AIAgentConfigTab.tsx`
+- Replace the current `InstructionLog` component with a new `InstructionChat` component
+- Bottom input area styled like a chat input bar:
+  - Textarea (auto-grows, placeholder: "Type an instruction or upload a file...")
+  - Paperclip/attachment button (opens file picker)
+  - Send button (arrow icon)
+- When a file is selected:
+  - Show a file preview chip above the input (filename + remove button)
+  - On send, read as base64 and call `process-agent-document` edge function
+  - Show processing indicator
+  - On success, add extracted text as an instruction entry
+- Keep the existing entries list with delete buttons above the input
+- Entries from files get a small file icon badge to indicate source
+
+### 3. Update `supabase/config.toml`
+- Add `[functions.process-agent-document]` with `verify_jwt = false`
+
+### No database changes needed
+All data continues to be stored in `site_settings` as JSONB arrays -- extracted text from files becomes regular string entries in the arrays.
+
+## Files to Create
+1. `supabase/functions/process-agent-document/index.ts`
+
+## Files to Modify
+1. `src/components/admin/AIAgentConfigTab.tsx` -- full UI redesign with chat-style input
+2. `supabase/config.toml` -- register new function
 

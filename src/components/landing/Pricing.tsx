@@ -57,7 +57,7 @@ const Pricing = () => {
   return (
     <section id="pricing" className="py-20 bg-muted/30 relative overflow-hidden" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 1000px' }}>
       {/* Background decoration */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/3 rounded-full blur-3xl pointer-events-none" />
 
       <div className="container mx-auto px-4 relative">
 
@@ -136,7 +136,7 @@ const Pricing = () => {
                 </Badge>
               </div>
 
-              <div className="bg-card border-2 border-primary rounded-2xl p-6 flex flex-col shadow-2xl shadow-primary/20 flex-1">
+              <div className="bg-card border-2 border-primary rounded-2xl p-6 flex flex-col shadow-xl shadow-primary/10 flex-1">
                 <div className="mb-6">
                   <p className="text-sm font-medium text-primary uppercase tracking-widest mb-2">Growth Plan</p>
                   <div className="flex items-baseline gap-1 mb-1">

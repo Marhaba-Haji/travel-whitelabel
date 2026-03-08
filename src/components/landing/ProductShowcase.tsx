@@ -90,7 +90,7 @@ const ProductShowcase = () => {
   return (
     <section className="py-24 relative overflow-hidden" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 900px' }}>
       {/* Aurora background */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center_left,_hsl(270_70%_58%_/_0.06),_transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center_left,_hsl(270_70%_58%_/_0.04),_transparent_50%)]" />
 
       <div className="container mx-auto px-4 relative">
         {/* Header */}
@@ -213,8 +213,8 @@ const ProductShowcase = () => {
                     </div>
 
                     {/* Decorative glow */}
-                    <div className="absolute -top-6 -right-6 w-40 h-40 bg-aurora-purple/10 rounded-full blur-3xl" />
-                    <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-aurora-blue/10 rounded-full blur-2xl" />
+                    <div className="absolute -top-6 -right-6 w-40 h-40 bg-aurora-purple/7 rounded-full blur-3xl" />
+                    <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-aurora-blue/7 rounded-full blur-2xl" />
                   </div>
                 </TabsContent>
               ))}

@@ -60,8 +60,8 @@ const Features = () => {
   return (
     <section id="features" className="py-24 relative overflow-hidden">
       {/* Aurora background */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_hsl(270_70%_58%_/_0.08),_transparent_50%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_hsl(210_100%_50%_/_0.06),_transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_hsl(270_70%_58%_/_0.05),_transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_hsl(210_100%_50%_/_0.04),_transparent_50%)]" />
 
       <div className="container mx-auto px-4 relative">
         {/* Section header */}
@@ -87,7 +87,7 @@ const Features = () => {
             {features.slice(0, 3).map((feature, index) => (
               <div
                 key={feature.title}
-                className={`group glass-card rounded-2xl p-6 hover:shadow-2xl hover:border-white/20 transition-all duration-300 opacity-0 ${gridVisible ? "animate-scale-in" : ""}`}
+                className={`group glass-card rounded-2xl p-6 hover:shadow-xl hover:border-white/20 transition-all duration-300 opacity-0 ${gridVisible ? "animate-scale-in" : ""}`}
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${feature.iconBg} flex items-center justify-center mb-5 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
@@ -96,7 +96,7 @@ const Features = () => {
                 <div className="flex items-center gap-2 mb-2">
                   <h3 className="text-lg font-bold text-foreground">{feature.title}</h3>
                   {feature.badge && (
-                    <Badge className="text-[10px] bg-aurora-teal/15 text-aurora-teal border-aurora-teal/30 px-2 py-0">
+                    <Badge className="text-[10px] bg-aurora-teal/10 text-aurora-teal border-aurora-teal/25 px-2 py-0">
                       {feature.badge}
                     </Badge>
                   )}
@@ -111,7 +111,7 @@ const Features = () => {
             {features.slice(3).map((feature, index) => (
               <div
                 key={feature.title}
-                className={`group glass-card rounded-2xl p-5 hover:shadow-2xl hover:border-white/20 transition-all duration-300 opacity-0 ${gridVisible ? "animate-scale-in" : ""}`}
+                className={`group glass-card rounded-2xl p-5 hover:shadow-xl hover:border-white/20 transition-all duration-300 opacity-0 ${gridVisible ? "animate-scale-in" : ""}`}
                 style={{ animationDelay: `${(index + 3) * 0.1}s` }}
               >
                 <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.iconBg} flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>

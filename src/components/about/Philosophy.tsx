@@ -32,12 +32,12 @@ const Philosophy = () => {
   return (
     <section className="py-24 relative overflow-hidden bg-[hsl(222,47%,8%)]">
       {/* Aurora background on dark */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_hsl(270_70%_58%_/_0.15),_transparent_50%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_hsl(210_100%_50%_/_0.1),_transparent_50%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_hsl(320_90%_60%_/_0.08),_transparent_40%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_hsl(270_70%_58%_/_0.1),_transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_hsl(210_100%_50%_/_0.07),_transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_hsl(320_90%_60%_/_0.05),_transparent_40%)]" />
 
-      <div className="absolute top-10 left-10 w-96 h-96 bg-aurora-purple/15 rounded-full blur-3xl pointer-events-none animate-pulse-soft" />
-      <div className="absolute bottom-10 right-10 w-96 h-96 bg-aurora-blue/12 rounded-full blur-3xl pointer-events-none animate-pulse-soft" style={{ animationDelay: "1s" }} />
+      <div className="absolute top-10 left-10 w-80 h-80 bg-aurora-purple/10 rounded-full blur-3xl pointer-events-none animate-pulse-soft" />
+      <div className="absolute bottom-10 right-10 w-80 h-80 bg-aurora-blue/8 rounded-full blur-3xl pointer-events-none animate-pulse-soft" style={{ animationDelay: "1s" }} />
 
       <div className="container mx-auto px-4 relative z-10">
         <div
@@ -88,7 +88,7 @@ const Philosophy = () => {
               {values.map((value, index) => (
                 <div
                   key={value.title}
-                  className={`group bg-white/[0.07] backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-center hover:border-white/20 hover:shadow-2xl transition-all duration-300 opacity-0 ${valuesVisible ? "animate-scale-in" : ""}`}
+                  className={`group bg-white/[0.07] backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-center hover:border-white/20 hover:shadow-xl transition-all duration-300 opacity-0 ${valuesVisible ? "animate-scale-in" : ""}`}
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
                   <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${VALUE_GRADIENTS[index]} flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>

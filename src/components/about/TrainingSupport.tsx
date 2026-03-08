@@ -24,11 +24,11 @@ const TrainingSupport = () => {
   return (
     <section className="py-24 relative overflow-hidden">
       {/* Aurora background */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_hsl(175_70%_45%_/_0.08),_transparent_50%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_hsl(270_70%_58%_/_0.06),_transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_hsl(175_70%_45%_/_0.05),_transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_hsl(270_70%_58%_/_0.04),_transparent_50%)]" />
 
-      <div className="absolute top-10 left-20 w-72 h-72 bg-aurora-teal/10 rounded-full blur-3xl pointer-events-none animate-pulse-soft" />
-      <div className="absolute bottom-10 right-10 w-80 h-80 bg-aurora-purple/8 rounded-full blur-3xl pointer-events-none animate-pulse-soft" style={{ animationDelay: "1.5s" }} />
+      <div className="absolute top-10 left-20 w-60 h-60 bg-aurora-teal/7 rounded-full blur-3xl pointer-events-none animate-pulse-soft" />
+      <div className="absolute bottom-10 right-10 w-72 h-72 bg-aurora-purple/5 rounded-full blur-3xl pointer-events-none animate-pulse-soft" style={{ animationDelay: "1.5s" }} />
 
       <div className="container mx-auto px-4 relative z-10">
         <div
@@ -62,7 +62,7 @@ const TrainingSupport = () => {
                   className={`relative opacity-0 ${isVisible ? "animate-scale-in" : ""}`}
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
-                  <div className="group glass-card rounded-2xl p-6 text-center hover:shadow-2xl hover:border-white/20 transition-all duration-300">
+                  <div className="group glass-card rounded-2xl p-6 text-center hover:shadow-xl hover:border-white/20 transition-all duration-300">
                     <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${STEP_GRADIENTS[index]} text-white text-sm font-bold flex items-center justify-center mx-auto mb-4 shadow-lg`}>
                       {training.step}
                     </div>
@@ -119,7 +119,7 @@ const TrainingSupport = () => {
             <Button
               size="lg"
               asChild
-              className="rounded-full px-8 bg-gradient-to-r from-aurora-blue via-primary to-aurora-blue bg-[length:200%_auto] animate-gradient-shift shadow-[0_0_30px_hsl(210_100%_50%_/_0.3)] hover:shadow-[0_0_40px_hsl(210_100%_50%_/_0.5)] transition-shadow"
+              className="rounded-full px-8 bg-gradient-to-r from-aurora-blue via-primary to-aurora-blue bg-[length:200%_auto] animate-gradient-shift shadow-[0_0_20px_hsl(210_100%_50%_/_0.2)] hover:shadow-[0_0_30px_hsl(210_100%_50%_/_0.3)] transition-shadow"
             >
               <a href="/signup">
                 Apply for Partner Access

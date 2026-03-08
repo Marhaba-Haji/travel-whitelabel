@@ -16,7 +16,7 @@ const TrustedBy = () => {
 
   return (
     <section className="py-10 relative overflow-hidden border-y border-white/[0.06]">
-      <div className="absolute inset-0 bg-gradient-to-r from-background via-card/50 to-background" />
+      <div className="absolute inset-0 bg-gradient-to-r from-background via-card/40 to-background" />
 
       <div
         ref={ref}
