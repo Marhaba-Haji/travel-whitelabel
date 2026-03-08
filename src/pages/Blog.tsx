@@ -84,6 +84,14 @@ const Blog = () => {
     });
   }, [posts, activeCategory, activeTag, activeSearch]);
 
+  const POSTS_PER_PAGE = 9;
+  const activePage = parseInt(searchParams.get("page") || "1", 10);
+  const totalPages = Math.ceil(filteredPosts.length / POSTS_PER_PAGE);
+  const paginatedPosts = useMemo(() => {
+    const start = (activePage - 1) * POSTS_PER_PAGE;
+    return filteredPosts.slice(start, start + POSTS_PER_PAGE);
+  }, [filteredPosts, activePage]);
+
   const setFilter = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams);
     if (value) {
@@ -91,7 +99,17 @@ const Blog = () => {
     } else {
       params.delete(key);
     }
+    // Reset to page 1 when changing filters
+    if (key !== "page") params.delete("page");
     setSearchParams(params, { replace: true });
+  };
+
+  const goToPage = (page: number) => {
+    const params = new URLSearchParams(searchParams);
+    if (page <= 1) params.delete("page");
+    else params.set("page", String(page));
+    setSearchParams(params, { replace: true });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const clearFilters = () => {
