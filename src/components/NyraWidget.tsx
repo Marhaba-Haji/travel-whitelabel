@@ -363,7 +363,7 @@ export default function NyraWidget() {
             {/* Widget Header */}
             <div className="bg-nyra text-nyra-foreground p-4 flex justify-between items-center">
               <div className="flex items-center gap-3">
-                <img src="/assets/nyra-avatar.png" alt="Nyra" className="w-8 h-8 rounded-full object-cover object-top" />
+                <img src="/assets/nyra-avatar.png" alt="Nyra" width={64} height={64} className="w-8 h-8 rounded-full object-cover object-top" />
                 <div>
                   <h3 className="font-semibold text-sm tracking-wide">Nyra</h3>
                   <p className="text-[10px] text-nyra-foreground/80 uppercase tracking-wider">Marhaba DMC Agent</p>
