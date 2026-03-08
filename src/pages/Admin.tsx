@@ -28,6 +28,7 @@ const tabComponents: Record<string, React.FC> = {
   coupons: CouponsTab,
   blog: BlogTab,
   "ai-agent": AIAgentConfigTab,
+  "indexing-logs": IndexingLogsTab,
   settings: SiteSettingsTab,
 };
 

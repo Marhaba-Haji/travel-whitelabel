@@ -20,6 +20,7 @@ const tabs = [
   { id: "coupons", label: "Coupons", icon: Ticket },
   { id: "blog", label: "Blog", icon: FileText },
   { id: "ai-agent", label: "AI Agent Config", icon: Bot },
+  { id: "indexing-logs", label: "Indexing Logs", icon: Globe },
   { id: "settings", label: "Site Settings", icon: Settings },
 ];
 
