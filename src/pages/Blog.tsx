@@ -123,6 +123,22 @@ const Blog = () => {
             </p>
           </div>
 
+          {/* Search */}
+          <div className="max-w-xl mx-auto mb-8">
+            <form onSubmit={handleSearch} className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search articles…"
+                className="pl-10 pr-20"
+              />
+              <Button type="submit" size="sm" className="absolute right-1 top-1/2 -translate-y-1/2 h-8">
+                Search
+              </Button>
+            </form>
+          </div>
+
           {/* Filters */}
           {(categories.length > 0 || allTags.length > 0) && (
             <div className="mb-8 space-y-4">
