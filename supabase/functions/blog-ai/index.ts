@@ -249,7 +249,7 @@ Consider current travel industry trends and seasonal relevance.`,
     if (tool_choice) body.tool_choice = tool_choice;
 
     // For article generation, use streaming
-    if (action === "generate_article" || action === "improve_content") {
+    if (action === "generate_article" || action === "improve_content" || action === "interlink_posts") {
       body.stream = true;
       const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
