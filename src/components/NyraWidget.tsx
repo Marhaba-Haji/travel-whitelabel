@@ -265,7 +265,7 @@ export default function NyraWidget() {
               {/* Header bar */}
               <div className="flex items-center justify-between px-4 py-3 border-b border-border/50">
                 <div className="flex items-center gap-2">
-                  <img src="/assets/nyra-avatar.png" alt="Nyra" className="w-7 h-7 rounded-full object-cover object-top" />
+                  <img src="/assets/nyra-avatar.png" alt="Nyra" width={56} height={56} className="w-7 h-7 rounded-full object-cover object-top" />
                   <div>
                     <h3 className="text-sm font-bold text-foreground">Nyra</h3>
                     <p className="text-[9px] text-muted-foreground uppercase tracking-widest">Marhaba DMC</p>
