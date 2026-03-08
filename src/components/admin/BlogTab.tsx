@@ -60,6 +60,7 @@ const calcReadingTime = (text: string) =>
 
 const BlogTab = () => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [categories, setCategories] = useState<BlogCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [currentPost, setCurrentPost] = useState<Partial<BlogPost> | null>(null);
@@ -67,6 +68,7 @@ const BlogTab = () => {
   const [aiLoading, setAiLoading] = useState<string | null>(null);
   const [topicsDialog, setTopicsDialog] = useState(false);
   const [suggestedTopics, setSuggestedTopics] = useState<any[]>([]);
+  const [newCategory, setNewCategory] = useState("");
   const { toast } = useToast();
 
   const fetchPosts = useCallback(async () => {
