@@ -122,6 +122,9 @@ const BlogPost = () => {
       setLoading(false);
 
       if (postData) {
+        // Increment view count
+        supabase.rpc("increment_blog_views", { _slug: slug }).then();
+
         const { data: allPublished } = await supabase
           .from("blog_posts")
           .select("id, title, slug, excerpt, cover_image_url, reading_time_minutes, published_at, category, tags")
