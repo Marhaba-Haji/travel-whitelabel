@@ -17,7 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Plus, Edit, Trash2, Eye, Sparkles, FileText, Tags, Lightbulb,
   BookOpen, Wand2, Loader2, ArrowLeft, Copy, Search, Globe, Users,
-  Settings, Target, TrendingUp,
+  Settings, Target, TrendingUp, Link2,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ReactMarkdown from "react-markdown";
@@ -95,7 +95,14 @@ const BlogTab = () => {
   const [configLoading, setConfigLoading] = useState(false);
   const [researchData, setResearchData] = useState<any>(null);
   const [useResearch, setUseResearch] = useState(true);
+  const [interlinkLoading, setInterlinkLoading] = useState<string | null>(null);
   const { toast } = useToast();
+
+  const getExistingPostsCatalog = useCallback(() => {
+    return posts
+      .filter((p) => p.status === "published")
+      .map((p) => ({ title: p.title, slug: p.slug, excerpt: p.excerpt, tags: p.tags, category: p.category }));
+  }, [posts]);
 
   const fetchPosts = useCallback(async () => {
     const { data, error } = await supabase
@@ -249,16 +256,20 @@ const BlogTab = () => {
   const callAI = async (action: string, extra: Record<string, string> = {}) => {
     setAiLoading(action);
     try {
+      const existingPosts = (action === "generate_article" || action === "interlink_posts")
+        ? getExistingPostsCatalog().filter((p) => p.slug !== currentPost?.slug)
+        : undefined;
       const body: any = {
         action,
         title: currentPost?.title,
         content: currentPost?.content,
         brandConfig: aiConfig,
         ...(useResearch && researchData ? { research: researchData } : {}),
+        ...(existingPosts?.length ? { existingPosts } : {}),
         ...extra,
       };
 
-      if (action === "generate_article" || action === "improve_content") {
+      if (action === "generate_article" || action === "improve_content" || action === "interlink_posts") {
         // Streaming
         const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/blog-ai`;
         const resp = await fetch(url, {
@@ -339,7 +350,85 @@ const BlogTab = () => {
     }
   };
 
-  // ─── List View ───
+  const interlinkPost = async (post: BlogPost) => {
+    setInterlinkLoading(post.id);
+    try {
+      const otherPosts = getExistingPostsCatalog().filter((p) => p.slug !== post.slug);
+      if (!otherPosts.length) {
+        toast({ title: "Need at least 2 published posts for interlinking", variant: "destructive" });
+        return;
+      }
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/blog-ai`;
+      const resp = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({
+          action: "interlink_posts",
+          title: post.title,
+          content: post.content,
+          existingPosts: otherPosts,
+          brandConfig: aiConfig,
+        }),
+      });
+      if (!resp.ok) throw new Error("Interlinking failed");
+
+      const reader = resp.body!.getReader();
+      const decoder = new TextDecoder();
+      let textBuffer = "";
+      let fullContent = "";
+      const processBuffer = () => {
+        let idx: number;
+        while ((idx = textBuffer.indexOf("\n")) !== -1) {
+          let line = textBuffer.slice(0, idx);
+          textBuffer = textBuffer.slice(idx + 1);
+          if (line.endsWith("\r")) line = line.slice(0, -1);
+          if (!line.startsWith("data: ") || line.trim() === "") continue;
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === "[DONE]") return;
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const c = parsed.choices?.[0]?.delta?.content;
+            if (c) fullContent += c;
+          } catch { break; }
+        }
+      };
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        textBuffer += decoder.decode(value, { stream: true });
+        processBuffer();
+      }
+      if (textBuffer.trim()) processBuffer();
+
+      if (fullContent.trim()) {
+        const { error } = await supabase.from("blog_posts").update({ content: fullContent }).eq("id", post.id);
+        if (error) throw error;
+        toast({ title: `Internal links added to "${post.title}"` });
+        fetchPosts();
+      }
+    } catch (e: any) {
+      toast({ title: "Interlink failed", description: e.message, variant: "destructive" });
+    } finally {
+      setInterlinkLoading(null);
+    }
+  };
+
+  const relinkAllPosts = async () => {
+    const published = posts.filter((p) => p.status === "published");
+    if (published.length < 2) {
+      toast({ title: "Need at least 2 published posts", variant: "destructive" });
+      return;
+    }
+    if (!confirm(`This will add internal links to all ${published.length} published posts. Continue?`)) return;
+    for (const post of published) {
+      await interlinkPost(post);
+    }
+    toast({ title: "All posts re-linked!" });
+  };
+
   if (!editing) {
     return (
       <div className="space-y-6">
@@ -356,6 +445,10 @@ const BlogTab = () => {
                 <p className="text-sm text-muted-foreground">{posts.length} posts total</p>
               </div>
               <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={relinkAllPosts} disabled={!!interlinkLoading || posts.filter(p => p.status === "published").length < 2}>
+                  {interlinkLoading ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Link2 className="h-4 w-4 mr-1" />}
+                  Re-link All
+                </Button>
                 <Button variant="outline" size="sm" onClick={() => callAI("suggest_topics")} disabled={!!aiLoading}>
                   {aiLoading === "suggest_topics" ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Lightbulb className="h-4 w-4 mr-1" />}
                   Suggest Topics
@@ -403,9 +496,14 @@ const BlogTab = () => {
                         </TableCell>
                         <TableCell className="text-right space-x-1">
                           {post.status === "published" && (
-                            <Button variant="ghost" size="icon" asChild>
-                              <a href={`/blog/${post.slug}`} target="_blank" rel="noreferrer"><Eye className="h-4 w-4" /></a>
-                            </Button>
+                            <>
+                              <Button variant="ghost" size="icon" asChild>
+                                <a href={`/blog/${post.slug}`} target="_blank" rel="noreferrer"><Eye className="h-4 w-4" /></a>
+                              </Button>
+                              <Button variant="ghost" size="icon" onClick={() => interlinkPost(post)} disabled={!!interlinkLoading} title="Add internal links">
+                                {interlinkLoading === post.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Link2 className="h-4 w-4" />}
+                              </Button>
+                            </>
                           )}
                           <Button variant="ghost" size="icon" onClick={() => openEdit(post)}>
                             <Edit className="h-4 w-4" />
@@ -726,6 +824,10 @@ const BlogTab = () => {
                 <Button variant="outline" size="sm" className="w-full justify-start" disabled={!!aiLoading || !currentPost?.content} onClick={() => callAI("generate_excerpt")}>
                   {aiLoading === "generate_excerpt" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
                   Generate Excerpt
+                </Button>
+                <Button variant="outline" size="sm" className="w-full justify-start" disabled={!!aiLoading || !currentPost?.content} onClick={() => callAI("interlink_posts")}>
+                  {aiLoading === "interlink_posts" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Link2 className="h-4 w-4 mr-2" />}
+                  Add Internal Links
                 </Button>
               </div>
             </CardContent>

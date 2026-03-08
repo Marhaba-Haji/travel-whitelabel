@@ -56,7 +56,7 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const { action, title, content, topic, research, brandConfig } = await req.json();
+    const { action, title, content, topic, research, brandConfig, existingPosts } = await req.json();
     const SYSTEM_PROMPT = buildSystemPrompt(brandConfig);
     let messages: { role: string; content: string }[] = [];
     let tools: any[] | undefined;
@@ -79,19 +79,24 @@ serve(async (req) => {
           researchContext += `\nTarget Audience: ${research.targetAudience || "B2B travel agents"}`;
         }
 
+        let internalLinksContext = "";
+        if (existingPosts?.length) {
+          internalLinksContext = `\n\n## Available Internal Link Targets\nYou MUST naturally weave 3-7 internal links into the article using markdown link syntax. Only link where contextually relevant. Here are the available posts:\n${existingPosts.map((p: any) => `- [${p.title}](/blog/${p.slug}) — ${p.excerpt || p.category || ""}${p.tags?.length ? ` | Tags: ${p.tags.join(", ")}` : ""}`).join("\n")}\n\nUse the format [anchor text](/blog/slug) for internal links. Choose anchor text that is natural and descriptive, not "click here".`;
+        }
+
         messages = [
           { role: "system", content: SYSTEM_PROMPT },
           {
             role: "user",
             content: `Write a comprehensive, SEO-optimized blog article about: "${title || topic}".
-${researchContext ? `\nUse the following real-time research to inform your writing — cite statistics, address content gaps identified, and differentiate from competitor angles:\n${researchContext}\n` : ""}
+${researchContext ? `\nUse the following real-time research to inform your writing — cite statistics, address content gaps identified, and differentiate from competitor angles:\n${researchContext}\n` : ""}${internalLinksContext}
 Include:
 1. An engaging introduction with a hook
 2. Well-structured sections with H2/H3 headings (use ## and ### markdown)
 3. Practical tips, statistics, or examples where relevant${research ? " (use the research data provided)" : ""}
 4. A FAQ section at the end with 3-5 questions and concise answers
 5. A compelling conclusion with a call to action
-
+${existingPosts?.length ? "6. 3-7 internal links to existing blog posts where contextually relevant" : ""}
 Make it 1500-2000 words. Use markdown formatting throughout.`,
           },
         ];
@@ -209,6 +214,26 @@ Consider current travel industry trends and seasonal relevance.`,
         tool_choice = { type: "function", function: { name: "suggest_topics" } };
         break;
 
+      case "interlink_posts": {
+        if (!existingPosts?.length || !content || !title) {
+          return new Response(JSON.stringify({ error: "existingPosts, content, and title are required for interlinking" }), {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
+        const postsCatalog = existingPosts.map((p: any) => `- Title: "${p.title}" | Slug: /blog/${p.slug} | Excerpt: ${p.excerpt || "N/A"} | Tags: ${(p.tags || []).join(", ") || "N/A"}`).join("\n");
+
+        messages = [
+          { role: "system", content: `You are an SEO internal linking specialist. Your job is to analyze blog content and insert internal links to related articles where contextually relevant. Rules:\n- Add 3-7 internal links maximum\n- Use natural, descriptive anchor text (never "click here")\n- Only link where the context genuinely relates to the target article\n- Use markdown format: [anchor text](/blog/slug)\n- Do NOT change the meaning or structure of the content\n- Return the FULL updated content with links inserted` },
+          {
+            role: "user",
+            content: `Here is a blog post titled "${title}":\n\n${content}\n\n---\n\nHere are all available internal link targets:\n${postsCatalog}\n\nInsert relevant internal links into the content above. Return the complete updated content with links naturally woven in.`,
+          },
+        ];
+        break;
+      }
+
       default:
         return new Response(JSON.stringify({ error: "Invalid action" }), {
           status: 400,
@@ -224,7 +249,7 @@ Consider current travel industry trends and seasonal relevance.`,
     if (tool_choice) body.tool_choice = tool_choice;
 
     // For article generation, use streaming
-    if (action === "generate_article" || action === "improve_content") {
+    if (action === "generate_article" || action === "improve_content" || action === "interlink_posts") {
       body.stream = true;
       const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
