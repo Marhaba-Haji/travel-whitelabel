@@ -42,19 +42,14 @@ export default function SharedItinerary() {
     if (!shareId) return;
     (async () => {
       try {
-        const { data, error: fnError } = await supabase.functions.invoke('itinerary-save', {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
-          body: null,
-        });
-        // functions.invoke doesn't support GET query params well, use direct fetch
-        const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+        const supabaseUrl = "https://kofijegdzeshitunwddn.supabase.co";
+        const anonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtvZmlqZWdkemVzaGl0dW53ZGRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5MjQxNTIsImV4cCI6MjA4NjUwMDE1Mn0.knr8JAjauZWGl-3Wd4BbaMCEZLujxHR7veJs4rQEwVw";
         const res = await fetch(
-          `https://${projectId}.supabase.co/functions/v1/itinerary-save?id=${encodeURIComponent(shareId)}`,
+          `${supabaseUrl}/functions/v1/itinerary-save?id=${encodeURIComponent(shareId)}`,
           {
             headers: {
-              'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-              'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+              'apikey': anonKey,
+              'Authorization': `Bearer ${anonKey}`,
             },
           }
         );
