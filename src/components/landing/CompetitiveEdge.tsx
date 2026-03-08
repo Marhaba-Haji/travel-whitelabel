@@ -60,7 +60,7 @@ const CompetitiveEdge = () => {
           className={`grid md:grid-cols-2 gap-8 max-w-5xl mx-auto opacity-0 ${cardsVisible ? "animate-fade-in" : ""}`}
         >
           {/* Card 1: Exclusive Contracted Rates */}
-          <Card className="relative border-2 border-gold/30 bg-gradient-to-br from-card via-card to-gold/5 hover:shadow-xl transition-all duration-300 group overflow-hidden">
+          <Card className="relative border-2 border-gold/20 bg-gradient-to-br from-card via-card to-gold/3 hover:shadow-lg transition-all duration-300 group overflow-hidden">
             {/* Exclusive Badge */}
             <div className="absolute -top-1 -right-1">
               <Badge className="bg-gradient-to-r from-gold to-gold/80 text-gold-foreground px-3 py-1 rounded-bl-lg rounded-tr-lg shadow-lg">
