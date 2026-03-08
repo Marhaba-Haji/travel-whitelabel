@@ -69,7 +69,7 @@ Deno.serve(async (req) => {
 
     // Frontend URL for redirects - derive from request origin or use a fallback
     const origin = req.headers.get("origin") || req.headers.get("referer")?.replace(/\/[^/]*$/, "") || "";
-    const FRONTEND_URL = origin || "https://marhabadmc.lovable.app";
+    const FRONTEND_URL = origin || "https://marhabadmc.com";
 
     // Backend URL for PayU callbacks (edge function URL)
     const EDGE_BASE = `${SUPABASE_URL}/functions/v1`;

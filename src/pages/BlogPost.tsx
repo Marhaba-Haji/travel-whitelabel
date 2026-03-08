@@ -220,12 +220,12 @@ const BlogPost = () => {
       headline: post.title,
       description: post.meta_description || post.excerpt || "",
       image: post.og_image_url || post.cover_image_url || "",
-      author: { "@type": "Organization", name: post.author_name || "Marhaba DMC", url: "https://marhabadmc.lovable.app" },
+      author: { "@type": "Organization", name: post.author_name || "Marhaba DMC", url: "https://marhabadmc.com" },
       publisher: {
         "@type": "Organization",
         name: "Marhaba DMC",
-        url: "https://marhabadmc.lovable.app",
-        logo: { "@type": "ImageObject", url: "https://marhabadmc.lovable.app/assets/marhaba-dmc-logo.png" },
+        url: "https://marhabadmc.com",
+        logo: { "@type": "ImageObject", url: "https://marhabadmc.com/assets/marhaba-dmc-logo.png" },
       },
       datePublished: post.published_at,
       dateModified: post.published_at,
@@ -254,13 +254,13 @@ const BlogPost = () => {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Home", item: "https://marhabadmc.lovable.app" },
-        { "@type": "ListItem", position: 2, name: "Blog", item: "https://marhabadmc.lovable.app/blog" },
+        { "@type": "ListItem", position: 1, name: "Home", item: "https://marhabadmc.com" },
+        { "@type": "ListItem", position: 2, name: "Blog", item: "https://marhabadmc.com/blog" },
         ...(post.category ? [{
           "@type": "ListItem",
           position: 3,
           name: post.category,
-          item: `https://marhabadmc.lovable.app/blog?category=${post.category}`,
+          item: `https://marhabadmc.com/blog?category=${post.category}`,
         }] : []),
         {
           "@type": "ListItem",

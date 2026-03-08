@@ -23,7 +23,7 @@ Deno.serve(async (req) => {
     const txnid = data.txnid || data.txnId || "";
     const status = data.status || "";
     const isSuccess = status === "success";
-    const frontendUrl = data.udf5 || "https://marhabadmc.lovable.app";
+    const frontendUrl = data.udf5 || "https://marhabadmc.com";
 
     if (txnid) {
       const { data: payment } = await supabase
