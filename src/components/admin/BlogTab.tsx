@@ -379,6 +379,13 @@ const BlogTab = () => {
             </div>
             {previewing ? (
               <Card className="min-h-[400px] p-6 overflow-auto">
+                {/* Reading stats */}
+                {currentPost?.content && (
+                  <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4 pb-3 border-b border-border">
+                    <span className="flex items-center gap-1"><BookOpen className="h-3.5 w-3.5" /> {currentPost.content.split(/\s+/).filter(Boolean).length} words</span>
+                    <span className="flex items-center gap-1">~{Math.max(1, Math.ceil(currentPost.content.split(/\s+/).filter(Boolean).length / 200))} min read</span>
+                  </div>
+                )}
                 <div className="prose prose-invert max-w-none">
                   <ReactMarkdown>{currentPost?.content || ""}</ReactMarkdown>
                 </div>
