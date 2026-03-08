@@ -75,15 +75,11 @@ export default function NyraWidget() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await supabase.functions.invoke('voice-ai-session', {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
-          body: undefined,
-        });
-        // Use fetch with proper Supabase URL for GET with query params
-        const { data: { session: authSession } } = await supabase.auth.getSession();
         const supabaseUrl = "https://kofijegdzeshitunwddn.supabase.co";
         const anonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtvZmlqZWdkemVzaGl0dW53ZGRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5MjQxNTIsImV4cCI6MjA4NjUwMDE1Mn0.knr8JAjauZWGl-3Wd4BbaMCEZLujxHR7veJs4rQEwVw";
+        const res = await fetch(
+          `${supabaseUrl}/functions/v1/voice-ai-session?session_id=${encodeURIComponent(sessionId)}`,
+          { headers: { 'apikey': anonKey, 'Authorization': `Bearer ${anonKey}` } }
         );
         if (res.ok) {
           const json = await res.json();
