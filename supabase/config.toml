@@ -45,5 +45,8 @@ verify_jwt = false
 [functions.blog-ai]
 verify_jwt = false
 
+[functions.blog-research]
+verify_jwt = false
+
 [functions.blog-rss]
 verify_jwt = false
