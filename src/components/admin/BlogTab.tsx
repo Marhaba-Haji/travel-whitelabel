@@ -13,9 +13,11 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Plus, Edit, Trash2, Eye, Sparkles, FileText, Tags, Lightbulb,
-  BookOpen, Wand2, Loader2, ArrowLeft, Copy,
+  BookOpen, Wand2, Loader2, ArrowLeft, Copy, Search, Globe, Users,
+  Settings, Target, TrendingUp,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ReactMarkdown from "react-markdown";
