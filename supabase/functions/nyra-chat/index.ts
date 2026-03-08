@@ -255,6 +255,7 @@ serve(async (req) => {
     let maxRounds = 5;
     let toolCallResults: { role: string; tool_call_id: string; content: string }[] = [];
     let clientActions: Record<string, unknown>[] = [];
+    let toolCallCounts: Record<string, number> = {};
 
     while (maxRounds-- > 0) {
       const allMessages = [...aiMessages, ...toolCallResults];
