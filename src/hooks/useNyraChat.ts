@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import type { ItineraryToolHandler, SessionContext, CommunicationConfig, ItineraryStateGetter } from '@/hooks/useLiveAPI';
+import type { ItineraryToolHandler, SessionContext, CommunicationConfig, ItineraryStateGetter, ToolCallTracker } from '@/hooks/useLiveAPI';
 
 export interface ChatMessage {
   id: string;
