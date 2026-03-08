@@ -1,84 +1,83 @@
 
 
-## Plan: XML Sitemap Generator + Auto-Submit to Google/Bing
+# ChatGPT-Style Instruction Manager for AI Agent Config
 
-### Overview
+## Overview
+Redesign the AI Agent Configuration tab to have a modern, ChatGPT-like interface where admins can type instructions OR upload files (images, PDFs, Excel, Word docs). Uploaded files are processed by AI to extract text content, which is then saved as instruction entries in the appropriate category.
 
-Build two new Supabase edge functions:
-1. **`sitemap`** -- Generates a dynamic XML sitemap with all static pages + published blog posts, including image entries, lastmod, and priority differentiation for pillar vs supporting posts.
-2. **`indexnow`** -- Submits URLs to Google Indexing API and Bing IndexNow for immediate crawling whenever a blog post is published or updated.
+## Architecture
 
-Plus a client-side trigger in BlogTab.tsx to auto-call the indexing function on publish.
+### New Edge Function: `process-agent-document`
+- Accepts a file (base64-encoded) along with its MIME type and target category
+- Uses the Lovable AI Gateway (`google/gemini-2.5-flash`) to extract/summarize content from the file
+- Returns extracted text that gets saved as instruction entries
+- Supports: images (JPEG, PNG, WebP), PDFs, Excel (.xlsx), Word (.docx)
+- For images: sends the image directly to Gemini's vision capability for text extraction
+- For PDFs/docs: converts base64 to text extraction prompt
 
----
+### UI Redesign: `AIAgentConfigTab.tsx`
+Rebuild with a ChatGPT-style interface per category card:
 
-### 1. Edge Function: `sitemap` (`supabase/functions/sitemap/index.ts`)
-
-- Queries `blog_posts` where `status = 'published'`, selecting slug, updated_at, post_type, cover_image_url, title, cluster_id, pillar_post_id
-- Generates XML sitemap with:
-  - **Static pages**: `/`, `/about`, `/blog`, `/signup`, `/categories-destinations`, `/privacy-policy`, `/terms-of-service`, `/refund-policy` with fixed priorities (1.0 for home, 0.8 for about/blog)
-  - **Blog posts**: `/blog/{slug}` with `<lastmod>` from updated_at, `<changefreq>weekly</changefreq>`
-  - **Priority logic**: `post_type = 'pillar'` gets 0.9, standard gets 0.6, supporting gets 0.4
-  - **Image entries**: `<image:image><image:loc>` from cover_image_url, `<image:title>` from post title
-- Add to `supabase/config.toml` with `verify_jwt = false`
-- Update `public/robots.txt` to include `Sitemap:` directive pointing to the edge function URL
-
-### 2. Edge Function: `indexnow` (`supabase/functions/indexnow/index.ts`)
-
-Handles two indexing services:
-
-**Bing/Yandex via IndexNow protocol:**
-- Generate and store an IndexNow API key as a Supabase secret (`INDEXNOW_KEY`)
-- POST to `https://api.indexnow.org/indexnow` with the URL list and key
-- No OAuth needed -- just the key
-
-**Google Indexing API:**
-- Requires a Google Service Account JSON key stored as a secret (`GOOGLE_INDEXING_SA_KEY`)
-- Generate a JWT from the service account, exchange for access token
-- POST each URL to `https://indexing.googleapis.com/v3/urlNotifications:publish` with type `URL_UPDATED`
-- Note: Google Indexing API is officially for job posting and livestream pages, but works for general sites if enabled in Search Console
-
-**Accepts payload:**
-```json
-{ "urls": ["https://marhabadmc.lovable.app/blog/my-post"], "action": "updated" }
+```text
++---------------------------------------------+
+| Knowledge Base                          [v]  |
+|---------------------------------------------|
+| [Saved entry 1]                        [x]  |
+| [Saved entry 2]                        [x]  |
+| [Saved entry 3 - from uploaded PDF]    [x]  |
+|---------------------------------------------|
+| [  Type instruction or upload a file...   ] |
+| [Paperclip icon]  [Send button]             |
++---------------------------------------------+
 ```
 
-### 3. Client-Side Integration (BlogTab.tsx)
+Each category section will have:
+- A scrollable log of saved entries (existing behavior, kept)
+- A bottom input bar with a textarea, a file attachment button (paperclip icon), and a send/add button
+- File upload triggers processing via the edge function, then saves extracted text as a new entry
+- While processing, show a loading state with "Extracting content from [filename]..."
+- After extraction, the text is auto-added as an instruction entry (same save flow as today)
 
-- After a blog post is published/updated (status changed to "published" and saved), automatically call `supabase.functions.invoke('indexnow', { body: { urls: [postUrl] } })`
-- Also trigger after the full pipeline completes
-- Show a toast: "Submitted to search engines for indexing"
+### Supported File Types
+- Images: `image/jpeg`, `image/png`, `image/webp` -- processed via Gemini vision
+- PDF: `application/pdf` -- base64 sent to Gemini for extraction
+- Word: `.docx` (`application/vnd.openxmlformats-officedocument.wordprocessingml.document`)
+- Excel: `.xlsx` (`application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`)
 
-### 4. robots.txt Update
+## Technical Details
 
-Add sitemap directive:
-```
-Sitemap: https://kofijegdzeshitunwddn.supabase.co/functions/v1/sitemap
-```
+### 1. Create `supabase/functions/process-agent-document/index.ts`
+- Accept POST with `{ fileBase64, mimeType, fileName, category }`
+- Use `LOVABLE_API_KEY` (already configured) to call the Lovable AI Gateway
+- For images: send as base64 image content part with a prompt like "Extract all text, data, and instructions from this image. Return them as clear, structured text."
+- For documents (PDF/DOCX/XLSX): send file content with extraction prompt
+- Return `{ extractedText: string }` 
+- Register in `supabase/config.toml`
 
-### 5. Config Updates
+### 2. Redesign `AIAgentConfigTab.tsx`
+- Replace the current `InstructionLog` component with a new `InstructionChat` component
+- Bottom input area styled like a chat input bar:
+  - Textarea (auto-grows, placeholder: "Type an instruction or upload a file...")
+  - Paperclip/attachment button (opens file picker)
+  - Send button (arrow icon)
+- When a file is selected:
+  - Show a file preview chip above the input (filename + remove button)
+  - On send, read as base64 and call `process-agent-document` edge function
+  - Show processing indicator
+  - On success, add extracted text as an instruction entry
+- Keep the existing entries list with delete buttons above the input
+- Entries from files get a small file icon badge to indicate source
 
-Add to `supabase/config.toml`:
-```toml
-[functions.sitemap]
-verify_jwt = false
+### 3. Update `supabase/config.toml`
+- Add `[functions.process-agent-document]` with `verify_jwt = false`
 
-[functions.indexnow]
-verify_jwt = false
-```
+### No database changes needed
+All data continues to be stored in `site_settings` as JSONB arrays -- extracted text from files becomes regular string entries in the arrays.
 
-### 6. Secrets Required
+## Files to Create
+1. `supabase/functions/process-agent-document/index.ts`
 
-- **INDEXNOW_KEY**: A self-generated UUID-style key for IndexNow (Bing/Yandex). I will generate one and ask you to store it.
-- **GOOGLE_INDEXING_SA_KEY**: Google Service Account JSON for Indexing API. This requires setup in Google Cloud Console -- I will walk you through obtaining it after the initial implementation. The function will gracefully skip Google submission if this secret is not set.
-
-### Files to Create/Edit
-
-| File | Action |
-|------|--------|
-| `supabase/functions/sitemap/index.ts` | Create |
-| `supabase/functions/indexnow/index.ts` | Create |
-| `supabase/config.toml` | Add 2 function configs |
-| `public/robots.txt` | Add Sitemap directive |
-| `src/components/admin/BlogTab.tsx` | Add auto-submit on publish |
+## Files to Modify
+1. `src/components/admin/AIAgentConfigTab.tsx` -- full UI redesign with chat-style input
+2. `supabase/config.toml` -- register new function
 

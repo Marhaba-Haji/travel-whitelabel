@@ -416,6 +416,13 @@ const BlogTab = () => {
       await callAI("interlink_posts");
 
       toast({ title: "🚀 Full pipeline complete!", description: "Article fully generated with images, meta, and internal links." });
+      // Auto-submit to search engines after pipeline
+      if (currentPost?.slug && currentPost?.status === "published") {
+        const postUrl = `https://marhabadmc.lovable.app/blog/${currentPost.slug}`;
+        supabase.functions.invoke("indexnow", { body: { urls: [postUrl] } })
+          .then(() => toast({ title: "📡 Submitted to search engines for indexing" }))
+          .catch(() => {});
+      }
     } catch (e: any) {
       if (pipelineCancelledRef.current) {
         toast({ title: "Pipeline cancelled", description: "Stopped after completing the current step. Progress is preserved." });
@@ -517,6 +524,13 @@ const BlogTab = () => {
       toast({ title: "Save failed", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "Blog post saved!" });
+      // Auto-submit to search engines if published
+      if (currentPost.status === "published") {
+        const postUrl = `https://marhabadmc.lovable.app/blog/${currentPost.slug}`;
+        supabase.functions.invoke("indexnow", { body: { urls: [postUrl] } })
+          .then(() => toast({ title: "📡 Submitted to search engines for indexing" }))
+          .catch(() => {}); // silent fail
+      }
       setEditing(false);
       setCurrentPost(null);
       fetchPosts();
