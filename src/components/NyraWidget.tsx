@@ -269,7 +269,12 @@ export default function NyraWidget() {
 
   const handleDisconnect = () => {
     disconnect();
-    // Don't reset itinerary — keep it visible for review
+  };
+
+  const handleChatSend = () => {
+    if (!chatInput.trim()) return;
+    sendMessage(chatInput);
+    setChatInput('');
   };
 
   const bottomOffset = stickyCTAVisible ? STICKY_CTA_HEIGHT + 16 : 24;
