@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState, useMemo } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Clock, ArrowRight, BookOpen } from "lucide-react";
+import { Clock, BookOpen, X } from "lucide-react";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
 
@@ -18,28 +18,77 @@ interface BlogPost {
   reading_time_minutes: number | null;
   published_at: string | null;
   meta_keywords: string[] | null;
+  category: string | null;
+  tags: string[] | null;
+}
+
+interface BlogCategory {
+  id: string;
+  name: string;
+  slug: string;
 }
 
 const Blog = () => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [categories, setCategories] = useState<BlogCategory[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const activeCategory = searchParams.get("category") || "";
+  const activeTag = searchParams.get("tag") || "";
 
   useEffect(() => {
     document.title = "Blog | Marhaba DMC — Halal Travel Insights & Industry Trends";
     const meta = document.querySelector('meta[name="description"]');
     if (meta) meta.setAttribute("content", "Explore expert insights on halal-friendly travel, destination guides, travel technology, and hospitality trends from Marhaba DMC.");
 
-    const fetchPosts = async () => {
-      const { data } = await supabase
-        .from("blog_posts")
-        .select("id, title, slug, excerpt, cover_image_url, author_name, reading_time_minutes, published_at, meta_keywords")
-        .eq("status", "published")
-        .order("published_at", { ascending: false });
-      setPosts((data as unknown as BlogPost[]) || []);
+    const fetchData = async () => {
+      const [postsRes, catsRes] = await Promise.all([
+        supabase
+          .from("blog_posts")
+          .select("id, title, slug, excerpt, cover_image_url, author_name, reading_time_minutes, published_at, meta_keywords, category, tags")
+          .eq("status", "published")
+          .order("published_at", { ascending: false }),
+        supabase.from("blog_categories").select("id, name, slug").order("name"),
+      ]);
+      setPosts((postsRes.data as unknown as BlogPost[]) || []);
+      setCategories((catsRes.data as unknown as BlogCategory[]) || []);
       setLoading(false);
     };
-    fetchPosts();
+    fetchData();
   }, []);
+
+  // Collect all unique tags from posts
+  const allTags = useMemo(() => {
+    const tagSet = new Set<string>();
+    posts.forEach((p) => p.tags?.forEach((t) => tagSet.add(t)));
+    return Array.from(tagSet).sort();
+  }, [posts]);
+
+  // Filter posts
+  const filteredPosts = useMemo(() => {
+    return posts.filter((p) => {
+      if (activeCategory && p.category !== activeCategory) return false;
+      if (activeTag && !(p.tags || []).includes(activeTag)) return false;
+      return true;
+    });
+  }, [posts, activeCategory, activeTag]);
+
+  const setFilter = (key: string, value: string) => {
+    const params = new URLSearchParams(searchParams);
+    if (value) {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+    setSearchParams(params, { replace: true });
+  };
+
+  const clearFilters = () => {
+    setSearchParams({}, { replace: true });
+  };
+
+  const hasFilters = activeCategory || activeTag;
 
   return (
     <div className="min-h-screen bg-background">
@@ -47,7 +96,7 @@ const Blog = () => {
       <main className="pt-24 pb-20">
         <div className="container mx-auto px-4">
           {/* Hero */}
-          <div className="text-center mb-16 max-w-3xl mx-auto">
+          <div className="text-center mb-12 max-w-3xl mx-auto">
             <Badge variant="outline" className="mb-4">
               <BookOpen className="h-3 w-3 mr-1" /> Our Blog
             </Badge>
@@ -58,6 +107,64 @@ const Blog = () => {
               Expert articles on halal travel, destination guides, travel technology, and hospitality industry trends.
             </p>
           </div>
+
+          {/* Filters */}
+          {(categories.length > 0 || allTags.length > 0) && (
+            <div className="mb-8 space-y-4">
+              {/* Categories */}
+              {categories.length > 0 && (
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-sm font-medium text-muted-foreground mr-1">Categories:</span>
+                  <Badge
+                    variant={!activeCategory ? "default" : "outline"}
+                    className="cursor-pointer"
+                    onClick={() => setFilter("category", "")}
+                  >
+                    All
+                  </Badge>
+                  {categories.map((cat) => (
+                    <Badge
+                      key={cat.id}
+                      variant={activeCategory === cat.slug ? "default" : "outline"}
+                      className="cursor-pointer"
+                      onClick={() => setFilter("category", activeCategory === cat.slug ? "" : cat.slug)}
+                    >
+                      {cat.name}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+
+              {/* Tags */}
+              {allTags.length > 0 && (
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-sm font-medium text-muted-foreground mr-1">Tags:</span>
+                  {allTags.map((tag) => (
+                    <Badge
+                      key={tag}
+                      variant={activeTag === tag ? "default" : "secondary"}
+                      className="cursor-pointer text-xs"
+                      onClick={() => setFilter("tag", activeTag === tag ? "" : tag)}
+                    >
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+
+              {/* Active filter indicator */}
+              {hasFilters && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">
+                    Showing {filteredPosts.length} of {posts.length} posts
+                  </span>
+                  <Button variant="ghost" size="sm" onClick={clearFilters} className="h-7 px-2 text-xs">
+                    <X className="h-3 w-3 mr-1" /> Clear filters
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Posts Grid */}
           {loading ? (
@@ -73,13 +180,20 @@ const Blog = () => {
                 </Card>
               ))}
             </div>
-          ) : posts.length === 0 ? (
+          ) : filteredPosts.length === 0 ? (
             <div className="text-center py-20">
-              <p className="text-muted-foreground text-lg">No blog posts published yet. Check back soon!</p>
+              <p className="text-muted-foreground text-lg">
+                {hasFilters ? "No posts match the selected filters." : "No blog posts published yet. Check back soon!"}
+              </p>
+              {hasFilters && (
+                <Button variant="outline" className="mt-4" onClick={clearFilters}>
+                  Clear filters
+                </Button>
+              )}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {posts.map((post) => (
+              {filteredPosts.map((post) => (
                 <Link key={post.id} to={`/blog/${post.slug}`} className="group">
                   <Card className="overflow-hidden h-full hover:border-primary/30 transition-all duration-300 hover:shadow-lg">
                     {post.cover_image_url ? (
@@ -97,11 +211,23 @@ const Blog = () => {
                       </div>
                     )}
                     <CardContent className="p-5 space-y-3">
+                      {post.category && (
+                        <Badge variant="secondary" className="text-xs">
+                          {categories.find((c) => c.slug === post.category)?.name || post.category}
+                        </Badge>
+                      )}
                       <h2 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2">
                         {post.title}
                       </h2>
                       {post.excerpt && (
                         <p className="text-sm text-muted-foreground line-clamp-3">{post.excerpt}</p>
+                      )}
+                      {(post.tags?.length ?? 0) > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {post.tags!.slice(0, 3).map((tag) => (
+                            <Badge key={tag} variant="outline" className="text-xs">{tag}</Badge>
+                          ))}
+                        </div>
                       )}
                       <div className="flex items-center justify-between text-xs text-muted-foreground pt-2">
                         <div className="flex items-center gap-3">

@@ -14,9 +14,34 @@ export type Database = {
   }
   public: {
     Tables: {
+      blog_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
       blog_posts: {
         Row: {
           author_name: string | null
+          category: string | null
           content: string
           cover_image_url: string | null
           created_at: string
@@ -30,11 +55,13 @@ export type Database = {
           reading_time_minutes: number | null
           slug: string
           status: string
+          tags: string[] | null
           title: string
           updated_at: string
         }
         Insert: {
           author_name?: string | null
+          category?: string | null
           content?: string
           cover_image_url?: string | null
           created_at?: string
@@ -48,11 +75,13 @@ export type Database = {
           reading_time_minutes?: number | null
           slug: string
           status?: string
+          tags?: string[] | null
           title: string
           updated_at?: string
         }
         Update: {
           author_name?: string | null
+          category?: string | null
           content?: string
           cover_image_url?: string | null
           created_at?: string
@@ -66,6 +95,7 @@ export type Database = {
           reading_time_minutes?: number | null
           slug?: string
           status?: string
+          tags?: string[] | null
           title?: string
           updated_at?: string
         }

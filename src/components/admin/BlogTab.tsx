@@ -37,6 +37,14 @@ interface BlogPost {
   published_at: string | null;
   created_at: string;
   updated_at: string;
+  category: string | null;
+  tags: string[] | null;
+}
+
+interface BlogCategory {
+  id: string;
+  name: string;
+  slug: string;
 }
 
 const slugify = (text: string) =>
@@ -52,6 +60,7 @@ const calcReadingTime = (text: string) =>
 
 const BlogTab = () => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [categories, setCategories] = useState<BlogCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [currentPost, setCurrentPost] = useState<Partial<BlogPost> | null>(null);
@@ -59,6 +68,7 @@ const BlogTab = () => {
   const [aiLoading, setAiLoading] = useState<string | null>(null);
   const [topicsDialog, setTopicsDialog] = useState(false);
   const [suggestedTopics, setSuggestedTopics] = useState<any[]>([]);
+  const [newCategory, setNewCategory] = useState("");
   const { toast } = useToast();
 
   const fetchPosts = useCallback(async () => {
@@ -74,10 +84,22 @@ const BlogTab = () => {
     setLoading(false);
   }, [toast]);
 
-  useEffect(() => { fetchPosts(); }, [fetchPosts]);
+  const fetchCategories = useCallback(async () => {
+    const { data } = await supabase.from("blog_categories").select("id, name, slug").order("name");
+    setCategories((data as unknown as BlogCategory[]) || []);
+  }, []);
+
+  useEffect(() => { fetchPosts(); fetchCategories(); }, [fetchPosts, fetchCategories]);
+
+  const addCategory = async () => {
+    if (!newCategory.trim()) return;
+    const { error } = await supabase.from("blog_categories").insert({ name: newCategory.trim(), slug: slugify(newCategory.trim()) });
+    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+    else { setNewCategory(""); fetchCategories(); toast({ title: "Category added!" }); }
+  };
 
   const openNew = () => {
-    setCurrentPost({ title: "", slug: "", content: "", excerpt: "", status: "draft", cover_image_url: "", meta_title: "", meta_description: "", meta_keywords: [], og_image_url: "", author_name: "Marhaba DMC" });
+    setCurrentPost({ title: "", slug: "", content: "", excerpt: "", status: "draft", cover_image_url: "", meta_title: "", meta_description: "", meta_keywords: [], og_image_url: "", author_name: "Marhaba DMC", category: "", tags: [] });
     setEditing(true);
   };
 
@@ -110,6 +132,8 @@ const BlogTab = () => {
       author_name: currentPost.author_name || "Marhaba DMC",
       reading_time_minutes,
       published_at: currentPost.status === "published" && !currentPost.published_at ? new Date().toISOString() : currentPost.published_at,
+      category: currentPost.category || null,
+      tags: currentPost.tags?.length ? currentPost.tags : [],
     };
 
     let error;
@@ -405,6 +429,38 @@ const BlogTab = () => {
                   onChange={(e) => setCurrentPost((p) => p ? { ...p, cover_image_url: e.target.value } : p)}
                   placeholder="https://…"
                 />
+              </div>
+              <div>
+                <Label>Category</Label>
+                <select
+                  value={currentPost?.category || ""}
+                  onChange={(e) => setCurrentPost((p) => p ? { ...p, category: e.target.value } : p)}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <option value="">No category</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.slug}>{c.name}</option>
+                  ))}
+                </select>
+                <div className="flex gap-1 mt-2">
+                  <Input value={newCategory} onChange={(e) => setNewCategory(e.target.value)} placeholder="New category" className="h-8 text-xs" />
+                  <Button variant="outline" size="sm" onClick={addCategory} className="h-8 px-2 text-xs">Add</Button>
+                </div>
+              </div>
+              <div>
+                <Label>Tags (comma-separated)</Label>
+                <Input
+                  value={(currentPost?.tags || []).join(", ")}
+                  onChange={(e) => setCurrentPost((p) => p ? { ...p, tags: e.target.value.split(",").map((t) => t.trim()).filter(Boolean) } : p)}
+                  placeholder="halal, dubai, luxury…"
+                />
+                {(currentPost?.tags?.length ?? 0) > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {currentPost?.tags?.map((tag) => (
+                      <Badge key={tag} variant="secondary" className="text-xs">{tag}</Badge>
+                    ))}
+                  </div>
+                )}
               </div>
               <div>
                 <Label>Author</Label>
