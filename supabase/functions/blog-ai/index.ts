@@ -6,7 +6,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SYSTEM_PROMPT = `You are a world-class SEO and GSO (Generative Search Optimization) content strategist and blog writer for Marhaba DMC — a leading B2B Destination Management Company specializing in halal-friendly travel, luxury hospitality, and technology-driven travel solutions across the Middle East, Turkey, Southeast Asia, and the Maldives.
+const BASE_SYSTEM_PROMPT = `You are a world-class SEO and GSO (Generative Search Optimization) content strategist and blog writer for Marhaba DMC — a leading B2B Destination Management Company specializing in halal-friendly travel, luxury hospitality, and technology-driven travel solutions across the Middle East, Turkey, Southeast Asia, and the Maldives.
 
 Your writing style:
 - Professional yet engaging, authoritative yet approachable
@@ -21,6 +21,30 @@ Your writing style:
 
 Topics you excel at: halal travel, Muslim-friendly destinations, luxury DMC services, B2B travel technology, destination guides, travel industry trends, hospitality tech, group travel, MICE tourism, cultural tourism.`;
 
+function buildSystemPrompt(brandConfig?: any): string {
+  let prompt = BASE_SYSTEM_PROMPT;
+
+  if (brandConfig) {
+    if (brandConfig.brand_tone) {
+      prompt += `\n\nBrand Voice & Tone: ${brandConfig.brand_tone}`;
+    }
+    if (brandConfig.target_audience?.length) {
+      prompt += `\n\nTarget Audience Personas:\n${brandConfig.target_audience.map((a: string) => `- ${a}`).join("\n")}`;
+    }
+    if (brandConfig.target_regions?.length) {
+      prompt += `\n\nPrimary Target Regions: ${brandConfig.target_regions.join(", ")}`;
+    }
+    if (brandConfig.brand_keywords?.length) {
+      prompt += `\n\nBrand Keywords to Incorporate: ${brandConfig.brand_keywords.join(", ")}`;
+    }
+    if (brandConfig.differentiators) {
+      prompt += `\n\nKey Differentiators: ${brandConfig.differentiators}`;
+    }
+  }
+
+  return prompt;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -32,24 +56,39 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const { action, title, content, topic } = await req.json();
-
+    const { action, title, content, topic, research, brandConfig } = await req.json();
+    const SYSTEM_PROMPT = buildSystemPrompt(brandConfig);
     let messages: { role: string; content: string }[] = [];
     let tools: any[] | undefined;
     let tool_choice: any | undefined;
 
     switch (action) {
-      case "generate_article":
+      case "generate_article": {
+        let researchContext = "";
+        if (research) {
+          if (research.serp_analysis?.content) {
+            researchContext += `\n\n## SERP & Competitor Analysis (from real-time research):\n${research.serp_analysis.content}`;
+          }
+          if (research.industry_trends?.content) {
+            researchContext += `\n\n## Industry Trends & Statistics:\n${research.industry_trends.content}`;
+          }
+          if (research.competitor_insights?.content) {
+            researchContext += `\n\n## Competitor Content Insights:\n${research.competitor_insights.content}`;
+          }
+          researchContext += `\n\nTarget Region: ${research.targetRegion || "Global"}`;
+          researchContext += `\nTarget Audience: ${research.targetAudience || "B2B travel agents"}`;
+        }
+
         messages = [
           { role: "system", content: SYSTEM_PROMPT },
           {
             role: "user",
-            content: `Write a comprehensive, SEO-optimized blog article about: "${title || topic}". 
-
+            content: `Write a comprehensive, SEO-optimized blog article about: "${title || topic}".
+${researchContext ? `\nUse the following real-time research to inform your writing — cite statistics, address content gaps identified, and differentiate from competitor angles:\n${researchContext}\n` : ""}
 Include:
 1. An engaging introduction with a hook
 2. Well-structured sections with H2/H3 headings (use ## and ### markdown)
-3. Practical tips, statistics, or examples where relevant
+3. Practical tips, statistics, or examples where relevant${research ? " (use the research data provided)" : ""}
 4. A FAQ section at the end with 3-5 questions and concise answers
 5. A compelling conclusion with a call to action
 
@@ -57,6 +96,7 @@ Make it 1500-2000 words. Use markdown formatting throughout.`,
           },
         ];
         break;
+      }
 
       case "improve_content":
         messages = [
