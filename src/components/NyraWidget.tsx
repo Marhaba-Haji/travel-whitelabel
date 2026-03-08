@@ -251,8 +251,13 @@ export default function NyraWidget() {
   const [hasAnimatedIn, setHasAnimatedIn] = useState(false);
 
   // Auto-scroll chat
+  // Track chat message count from responses
   useEffect(() => {
     if (chatEndRef.current) chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    // Count assistant messages for analytics
+    const assistantCount = chatMessages.filter(m => m.role === 'assistant').length;
+    const userCount = chatMessages.filter(m => m.role === 'user').length;
+    messageCountRef.current = userCount + assistantCount;
   }, [chatMessages]);
 
   // Track connection start time for analytics
