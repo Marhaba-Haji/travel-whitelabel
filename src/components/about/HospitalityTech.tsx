@@ -51,7 +51,7 @@ const HospitalityTech = () => {
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-14">
               <div className="inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 mb-5">
-                <div className="w-2 h-2 rounded-full bg-aurora-pink animate-ping" />
+                <div className="w-2 h-2 rounded-full bg-aurora-pink animate-pulse-soft" />
                 <span className="text-xs font-semibold text-aurora-pink uppercase tracking-[0.2em]">
                   Coming Soon
                 </span>
