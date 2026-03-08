@@ -43,7 +43,7 @@ const CompetitiveEdge = () => {
           ref={headerRef}
           className={`text-center mb-16 opacity-0 ${headerVisible ? "animate-fade-in" : ""}`}
         >
-          <Badge className="mb-4 bg-gold/10 text-gold hover:bg-gold/20 border-gold/20">
+          <Badge className="mb-4 bg-gold/8 text-gold hover:bg-gold/15 border-gold/15">
             ★ Your Unfair Advantage
           </Badge>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mt-2 mb-4">
