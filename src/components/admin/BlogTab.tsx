@@ -17,7 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Plus, Edit, Trash2, Eye, Sparkles, FileText, Tags, Lightbulb,
   BookOpen, Wand2, Loader2, ArrowLeft, Copy, Search, Globe, Users,
-  Settings, Target, TrendingUp, Link2, Image, AlertTriangle, Layers, Pin,
+  Settings, Target, TrendingUp, Link2, Image, AlertTriangle, Layers, Pin, Zap,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ReactMarkdown from "react-markdown";
@@ -122,6 +122,7 @@ const BlogTab = () => {
   const [interlinkLoading, setInterlinkLoading] = useState<string | null>(null);
   const [cannibalizationWarnings, setCannibalizationWarnings] = useState<CannibalizationOverlap[]>([]);
   const [imageGenLoading, setImageGenLoading] = useState(false);
+  const [pipelineStep, setPipelineStep] = useState<string | null>(null);
   const { toast } = useToast();
 
   const getExistingPostsCatalog = useCallback(() => {
@@ -365,6 +366,61 @@ const BlogTab = () => {
       setImageGenLoading(false);
     }
   };
+
+  const PIPELINE_STEPS = [
+    { key: "research", label: "Researching topic..." },
+    { key: "cannibalization", label: "Checking cannibalization..." },
+    { key: "generate_article", label: "Generating article..." },
+    { key: "generate_images", label: "Generating images..." },
+    { key: "generate_meta", label: "Generating meta tags..." },
+    { key: "generate_excerpt", label: "Generating excerpt..." },
+    { key: "interlink_posts", label: "Adding internal links..." },
+  ];
+
+  const runFullPipeline = async () => {
+    if (!currentPost?.title) {
+      toast({ title: "Enter a title first", variant: "destructive" });
+      return;
+    }
+    try {
+      // Step 1: Research
+      if (useResearch) {
+        setPipelineStep("research");
+        await runResearch();
+      }
+
+      // Step 2: Cannibalization check
+      setPipelineStep("cannibalization");
+      await checkCannibalization();
+
+      // Step 3: Generate article
+      setPipelineStep("generate_article");
+      await callAI("generate_article");
+
+      // Step 4: Generate images
+      setPipelineStep("generate_images");
+      await generateImages();
+
+      // Step 5: Generate meta
+      setPipelineStep("generate_meta");
+      await callAI("generate_meta");
+
+      // Step 6: Generate excerpt
+      setPipelineStep("generate_excerpt");
+      await callAI("generate_excerpt");
+
+      // Step 7: Internal links
+      setPipelineStep("interlink_posts");
+      await callAI("interlink_posts");
+
+      toast({ title: "🚀 Full pipeline complete!", description: "Article fully generated with images, meta, and internal links." });
+    } catch (e: any) {
+      toast({ title: "Pipeline error", description: e.message, variant: "destructive" });
+    } finally {
+      setPipelineStep(null);
+    }
+  };
+
 
   const addCluster = async () => {
     if (!newClusterName.trim() || !newClusterKeyword.trim()) return;
@@ -1253,6 +1309,41 @@ const BlogTab = () => {
                 </div>
               )}
               <div className="border-t border-border pt-2 space-y-2">
+                {/* Full Pipeline Button */}
+                <Button
+                  size="sm"
+                  className="w-full justify-start font-semibold"
+                  disabled={!!aiLoading || !!pipelineStep || !currentPost?.title || imageGenLoading}
+                  onClick={runFullPipeline}
+                >
+                  {pipelineStep ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      {PIPELINE_STEPS.find((s) => s.key === pipelineStep)?.label || "Processing..."}
+                    </>
+                  ) : (
+                    <>
+                      <Zap className="h-4 w-4 mr-2" />
+                      Full Pipeline (One-Click)
+                    </>
+                  )}
+                </Button>
+                {pipelineStep && (
+                  <div className="space-y-1 px-1">
+                    {PIPELINE_STEPS.map((step) => {
+                      const stepIdx = PIPELINE_STEPS.findIndex((s) => s.key === step.key);
+                      const currentIdx = PIPELINE_STEPS.findIndex((s) => s.key === pipelineStep);
+                      const isDone = stepIdx < currentIdx;
+                      const isCurrent = step.key === pipelineStep;
+                      return (
+                        <div key={step.key} className={`text-xs flex items-center gap-1.5 ${isDone ? "text-primary" : isCurrent ? "text-foreground font-medium" : "text-muted-foreground/50"}`}>
+                          {isDone ? "✓" : isCurrent ? <Loader2 className="h-3 w-3 animate-spin" /> : "○"} {step.label.replace("...", "")}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+                <div className="border-t border-border pt-2 space-y-2"></div>
                 <Button variant="outline" size="sm" className="w-full justify-start" disabled={!!aiLoading || !currentPost?.title} onClick={checkCannibalization}>
                   {aiLoading === "cannibalization" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <AlertTriangle className="h-4 w-4 mr-2" />}
                   Check Cannibalization
