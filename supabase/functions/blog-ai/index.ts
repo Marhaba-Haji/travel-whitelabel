@@ -214,6 +214,26 @@ Consider current travel industry trends and seasonal relevance.`,
         tool_choice = { type: "function", function: { name: "suggest_topics" } };
         break;
 
+      case "interlink_posts": {
+        if (!existingPosts?.length || !content || !title) {
+          return new Response(JSON.stringify({ error: "existingPosts, content, and title are required for interlinking" }), {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
+        const postsCatalog = existingPosts.map((p: any) => `- Title: "${p.title}" | Slug: /blog/${p.slug} | Excerpt: ${p.excerpt || "N/A"} | Tags: ${(p.tags || []).join(", ") || "N/A"}`).join("\n");
+
+        messages = [
+          { role: "system", content: `You are an SEO internal linking specialist. Your job is to analyze blog content and insert internal links to related articles where contextually relevant. Rules:\n- Add 3-7 internal links maximum\n- Use natural, descriptive anchor text (never "click here")\n- Only link where the context genuinely relates to the target article\n- Use markdown format: [anchor text](/blog/slug)\n- Do NOT change the meaning or structure of the content\n- Return the FULL updated content with links inserted` },
+          {
+            role: "user",
+            content: `Here is a blog post titled "${title}":\n\n${content}\n\n---\n\nHere are all available internal link targets:\n${postsCatalog}\n\nInsert relevant internal links into the content above. Return the complete updated content with links naturally woven in.`,
+          },
+        ];
+        break;
+      }
+
       default:
         return new Response(JSON.stringify({ error: "Invalid action" }), {
           status: 400,
