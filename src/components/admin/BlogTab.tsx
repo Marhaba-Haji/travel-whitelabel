@@ -496,9 +496,14 @@ const BlogTab = () => {
                         </TableCell>
                         <TableCell className="text-right space-x-1">
                           {post.status === "published" && (
-                            <Button variant="ghost" size="icon" asChild>
-                              <a href={`/blog/${post.slug}`} target="_blank" rel="noreferrer"><Eye className="h-4 w-4" /></a>
-                            </Button>
+                            <>
+                              <Button variant="ghost" size="icon" asChild>
+                                <a href={`/blog/${post.slug}`} target="_blank" rel="noreferrer"><Eye className="h-4 w-4" /></a>
+                              </Button>
+                              <Button variant="ghost" size="icon" onClick={() => interlinkPost(post)} disabled={!!interlinkLoading} title="Add internal links">
+                                {interlinkLoading === post.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Link2 className="h-4 w-4" />}
+                              </Button>
+                            </>
                           )}
                           <Button variant="ghost" size="icon" onClick={() => openEdit(post)}>
                             <Edit className="h-4 w-4" />
