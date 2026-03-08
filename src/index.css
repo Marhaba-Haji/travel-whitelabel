@@ -57,12 +57,12 @@
 
     --sidebar-background: 222 47% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 270 70% 58%;
+    --sidebar-primary: 270 60% 58%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 217 32% 22%;
     --sidebar-accent-foreground: 210 40% 98%;
     --sidebar-border: 217 32% 22%;
-    --sidebar-ring: 270 70% 58%;
+    --sidebar-ring: 270 60% 58%;
   }
 
   .light {
