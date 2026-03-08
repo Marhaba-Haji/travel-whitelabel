@@ -337,7 +337,7 @@ serve(async (req) => {
 
     // Fallback if we exhaust rounds
     return new Response(
-      JSON.stringify({ reply: "I'm having trouble processing that. Could you try rephrasing?", clientActions }),
+      JSON.stringify({ reply: "I'm having trouble processing that. Could you try rephrasing?", clientActions, toolCallCounts }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (e) {
