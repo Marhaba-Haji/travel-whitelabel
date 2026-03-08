@@ -447,14 +447,24 @@ const BlogPost = () => {
           {/* Cover */}
           {post.cover_image_url && (
             <div className="mb-8 rounded-lg overflow-hidden">
-              <img
-                src={post.cover_image_url}
-                alt={post.meta_description || post.title}
-                className="w-full h-auto max-h-96 object-cover"
-                loading="eager"
-                width={1200}
-                height={630}
-              />
+              {(() => {
+                const src = post.cover_image_url!;
+                const isBlogImage = src.includes("/blog-images/");
+                const base = src.replace(/-\d+w\.webp$/, "");
+                const hasSizes = isBlogImage && base !== src;
+                return (
+                  <img
+                    src={src}
+                    alt={post.meta_description || post.title}
+                    className="w-full h-auto max-h-96 object-cover"
+                    loading="eager"
+                    width={1200}
+                    height={630}
+                    sizes="(max-width: 480px) 100vw, (max-width: 768px) 100vw, 720px"
+                    {...(hasSizes ? { srcSet: `${base}-400w.webp 400w, ${base}-800w.webp 800w, ${base}-1200w.webp 1200w` } : {})}
+                  />
+                );
+              })()}
             </div>
           )}
 
