@@ -74,8 +74,15 @@ export function useNyraChat(
       if (data?.clientActions?.length) {
         for (const action of data.clientActions) {
           if (action._client_action && action.args) {
+            onToolCall?.(`update_itinerary:${action.action}`);
             onItineraryToolRef.current?.(action.action as string, action.args as Record<string, any>);
           }
+        }
+      }
+      // Track server-side tool calls
+      if (data?.toolCallCounts && typeof data.toolCallCounts === 'object') {
+        for (const [tool, count] of Object.entries(data.toolCallCounts)) {
+          for (let i = 0; i < (count as number); i++) onToolCall?.(tool);
         }
       }
 
