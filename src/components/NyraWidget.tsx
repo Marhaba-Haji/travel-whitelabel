@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Mic, Globe, PhoneCall, Loader2, X, PanelRightOpen, PanelRightClose, MessageSquare, Send, ArrowLeft } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import { useLiveAPI, ItineraryToolHandler, SessionContext, ItineraryStateGetter } from '@/hooks/useLiveAPI';
+import { useLiveAPI, ItineraryToolHandler, SessionContext, ItineraryStateGetter, ToolCallTracker } from '@/hooks/useLiveAPI';
 import { useNyraChat } from '@/hooks/useNyraChat';
 import { useItinerary } from '@/contexts/ItineraryContext';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -66,6 +66,11 @@ export default function NyraWidget() {
   const isMobile = useIsMobile();
   const { data: nyraConfig } = useNyraConfig();
   const [widgetMode, setWidgetMode] = useState<WidgetMode>('voice');
+
+  // Analytics tracking refs
+  const toolCallCountsRef = useRef<Record<string, number>>({});
+  const messageCountRef = useRef(0);
+  const connectedAtRef = useRef<string | null>(null);
 
   // Session persistence
   const [sessionId] = useState(() => getOrCreateSessionId());
@@ -139,6 +144,10 @@ export default function NyraWidget() {
 
   // Itinerary tool handler - returns generated item_id for add_item
   const handleItineraryTool: ItineraryToolHandler = useCallback((action: string, args: Record<string, any>): string | undefined => {
+    // Track tool call for analytics
+    const toolName = `update_itinerary:${action}`;
+    toolCallCountsRef.current[toolName] = (toolCallCountsRef.current[toolName] || 0) + 1;
+
     switch (action) {
       case 'set_trip_info':
         setTripInfo({
@@ -212,12 +221,18 @@ export default function NyraWidget() {
     } : null,
   }), [state]);
 
+  // Analytics: track tool calls from voice mode
+  const handleToolCallTrack: ToolCallTracker = useCallback((toolName: string) => {
+    toolCallCountsRef.current[toolName] = (toolCallCountsRef.current[toolName] || 0) + 1;
+  }, []);
+
   const { isConnected, isConnecting, error, isSpeaking, connect, disconnect } = useLiveAPI(
     systemInstruction,
     handleItineraryTool,
     sessionContext,
     communicationConfig,
     getItineraryState,
+    handleToolCallTrack,
   );
   const { messages: chatMessages, isLoading: isChatLoading, error: chatError, sendMessage, clearChat } = useNyraChat(
     systemInstruction,
@@ -225,6 +240,7 @@ export default function NyraWidget() {
     sessionContext,
     communicationConfig,
     getItineraryState,
+    handleToolCallTrack,
   );
   const [chatInput, setChatInput] = useState('');
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -235,9 +251,21 @@ export default function NyraWidget() {
   const [hasAnimatedIn, setHasAnimatedIn] = useState(false);
 
   // Auto-scroll chat
+  // Track chat message count from responses
   useEffect(() => {
     if (chatEndRef.current) chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    // Count assistant messages for analytics
+    const assistantCount = chatMessages.filter(m => m.role === 'assistant').length;
+    const userCount = chatMessages.filter(m => m.role === 'user').length;
+    messageCountRef.current = userCount + assistantCount;
   }, [chatMessages]);
+
+  // Track connection start time for analytics
+  useEffect(() => {
+    if (isConnected) {
+      connectedAtRef.current = new Date().toISOString();
+    }
+  }, [isConnected]);
 
   // Auto-expand when itinerary becomes active
   useEffect(() => {
@@ -267,7 +295,19 @@ export default function NyraWidget() {
     localStorage.setItem(TOOLTIP_STORAGE_KEY, 'true');
   };
 
+  // Persist analytics data to session
+  const persistAnalytics = useCallback((source: 'voice' | 'chat') => {
+    supabase.from("voice_ai_sessions").update({
+      source,
+      message_count: messageCountRef.current,
+      tool_calls: toolCallCountsRef.current as any,
+      connected_at: connectedAtRef.current || new Date().toISOString(),
+    }).eq("session_id", sessionId).then(() => {}, (err) => console.warn('Analytics persist failed:', err));
+  }, [sessionId]);
+
   const handleDisconnect = useCallback(async () => {
+    // Persist analytics before disconnecting
+    persistAnalytics('voice');
     disconnect();
     
     // Send post-call summary email (non-blocking)
@@ -297,10 +337,11 @@ export default function NyraWidget() {
     } catch (err) {
       console.warn('Failed to trigger post-call summary:', err);
     }
-  }, [disconnect, state, sessionId]);
+  }, [disconnect, state, sessionId, persistAnalytics]);
 
   const handleChatSend = () => {
     if (!chatInput.trim()) return;
+    messageCountRef.current += 1; // Track outgoing message
     sendMessage(chatInput);
     setChatInput('');
   };
@@ -352,7 +393,7 @@ export default function NyraWidget() {
                     <PanelRightClose size={14} className="text-muted-foreground" />
                   </button>
                   <button
-                    onClick={() => { setIsWidgetOpen(false); setIsExpanded(false); }}
+                    onClick={() => { if (widgetMode === 'chat' && chatMessages.length > 0) persistAnalytics('chat'); setIsWidgetOpen(false); setIsExpanded(false); }}
                     className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-muted transition-colors"
                   >
                     <X size={14} className="text-muted-foreground" />
@@ -516,7 +557,7 @@ export default function NyraWidget() {
                     <PanelRightOpen size={16} />
                   </button>
                 )}
-                <button onClick={() => setIsWidgetOpen(false)} className="hover:bg-nyra-foreground/20 p-2 rounded-full transition-colors">
+                <button onClick={() => { if (widgetMode === 'chat' && chatMessages.length > 0) persistAnalytics('chat'); setIsWidgetOpen(false); }} className="hover:bg-nyra-foreground/20 p-2 rounded-full transition-colors">
                   <X size={18} />
                 </button>
               </div>

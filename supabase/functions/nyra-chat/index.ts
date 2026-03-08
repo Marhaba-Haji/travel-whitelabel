@@ -255,6 +255,7 @@ serve(async (req) => {
     let maxRounds = 5;
     let toolCallResults: { role: string; tool_call_id: string; content: string }[] = [];
     let clientActions: Record<string, unknown>[] = [];
+    let toolCallCounts: Record<string, number> = {};
 
     while (maxRounds-- > 0) {
       const allMessages = [...aiMessages, ...toolCallResults];
@@ -300,7 +301,7 @@ serve(async (req) => {
       // If no tool calls, we have the final response
       if (!message.tool_calls || message.tool_calls.length === 0) {
         return new Response(
-          JSON.stringify({ reply: message.content || "", clientActions }),
+          JSON.stringify({ reply: message.content || "", clientActions, toolCallCounts }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
@@ -315,6 +316,7 @@ serve(async (req) => {
 
       for (const tc of message.tool_calls) {
         const fnName = tc.function.name;
+        toolCallCounts[fnName] = (toolCallCounts[fnName] || 0) + 1;
         let fnArgs: Record<string, any> = {};
         try { fnArgs = JSON.parse(tc.function.arguments); } catch {}
         
@@ -335,7 +337,7 @@ serve(async (req) => {
 
     // Fallback if we exhaust rounds
     return new Response(
-      JSON.stringify({ reply: "I'm having trouble processing that. Could you try rephrasing?", clientActions }),
+      JSON.stringify({ reply: "I'm having trouble processing that. Could you try rephrasing?", clientActions, toolCallCounts }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (e) {

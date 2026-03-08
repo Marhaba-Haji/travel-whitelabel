@@ -425,32 +425,44 @@ export type Database = {
       }
       voice_ai_sessions: {
         Row: {
+          connected_at: string | null
           conversation_summary: string | null
           created_at: string
           id: string
           itinerary_state: Json | null
           last_active_at: string
+          message_count: number
           session_id: string
+          source: string
+          tool_calls: Json
           visitor_email: string | null
           visitor_name: string | null
         }
         Insert: {
+          connected_at?: string | null
           conversation_summary?: string | null
           created_at?: string
           id?: string
           itinerary_state?: Json | null
           last_active_at?: string
+          message_count?: number
           session_id: string
+          source?: string
+          tool_calls?: Json
           visitor_email?: string | null
           visitor_name?: string | null
         }
         Update: {
+          connected_at?: string | null
           conversation_summary?: string | null
           created_at?: string
           id?: string
           itinerary_state?: Json | null
           last_active_at?: string
+          message_count?: number
           session_id?: string
+          source?: string
+          tool_calls?: Json
           visitor_email?: string | null
           visitor_name?: string | null
         }

@@ -168,6 +168,8 @@ registerProcessor('audio-capture-processor', AudioCaptureProcessor);
 
 export type ItineraryToolHandler = (action: string, args: Record<string, any>) => string | undefined;
 
+export type ToolCallTracker = (toolName: string) => void;
+
 export interface SessionContext {
   sessionId: string;
   previousSummary?: string;
@@ -241,6 +243,7 @@ export function useLiveAPI(
   sessionContext?: SessionContext,
   communicationConfig?: CommunicationConfig,
   getItineraryState?: ItineraryStateGetter,
+  onToolCall?: ToolCallTracker,
 ) {
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
@@ -263,6 +266,8 @@ export function useLiveAPI(
   communicationConfigRef.current = communicationConfig;
   const getItineraryStateRef = useRef(getItineraryState);
   getItineraryStateRef.current = getItineraryState;
+  const onToolCallRef = useRef(onToolCall);
+  onToolCallRef.current = onToolCall;
 
   // Audio playback buffer for smoother playback
   const audioChunkBufferRef = useRef<Float32Array[]>([]);
@@ -453,6 +458,8 @@ export function useLiveAPI(
               const responses: { id?: string; name?: string; response?: Record<string, unknown> }[] = [];
 
               for (const fc of toolCall.functionCalls) {
+                // Track tool call for analytics
+                onToolCallRef.current?.(fc.name);
                 if (fc.name === 'save_lead' && fc.args) {
                   const args = fc.args as any;
                   const leadName = (args.name || '').trim();
