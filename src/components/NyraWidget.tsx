@@ -65,6 +65,9 @@ export default function NyraWidget() {
   const { addItem, updateItem, removeItem, setTripInfo, setGuests, addGuest, state, dispatch } = useItinerary();
   const isMobile = useIsMobile();
   const { data: nyraConfig } = useNyraConfig();
+  const [widgetMode, setWidgetMode] = useState<WidgetMode>('voice');
+  const isMobile = useIsMobile();
+  const { data: nyraConfig } = useNyraConfig();
 
   // Session persistence
   const [sessionId] = useState(() => getOrCreateSessionId());
