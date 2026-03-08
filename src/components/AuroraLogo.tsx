@@ -35,6 +35,8 @@ const AuroraLogo = ({ size = "md", className = "" }: AuroraLogoProps) => {
       <img
         src="/assets/marhaba-logo-m.png"
         alt="Marhaba DMC"
+        width={56}
+        height={56}
         className={`${s.icon} w-auto object-contain flex-shrink-0 group-hover:scale-105 transition-transform duration-300`}
       />
       <div className={`flex flex-col ${s.leading}`}>
