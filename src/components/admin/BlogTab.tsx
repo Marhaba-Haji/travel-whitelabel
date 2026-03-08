@@ -286,39 +286,65 @@ const BlogTab = () => {
         return;
       }
 
-      // Step 3: Upload to Supabase storage and update content
+      // Step 3: Upload to Supabase storage with multi-size optimization
       let updatedContent = currentPost.content || "";
       let featuredUrl = currentPost.cover_image_url || "";
+
+      const resizeImage = (base64Url: string, maxWidth: number): Promise<Blob> => {
+        return new Promise((resolve, reject) => {
+          const img = new window.Image();
+          img.onload = () => {
+            const scale = Math.min(1, maxWidth / img.width);
+            const w = Math.round(img.width * scale);
+            const h = Math.round(img.height * scale);
+            const canvas = document.createElement("canvas");
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext("2d")!;
+            ctx.drawImage(img, 0, 0, w, h);
+            canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error("Canvas toBlob failed")), "image/webp", 0.82);
+          };
+          img.onerror = reject;
+          img.src = base64Url;
+        });
+      };
+
+      const SIZES = [
+        { suffix: "-1200w", width: 1200 },
+        { suffix: "-800w", width: 800 },
+        { suffix: "-400w", width: 400 },
+      ];
 
       for (const img of generatedImages) {
         if (!img.image_base64) continue;
 
-        // Convert base64 to blob
-        const base64Data = img.image_base64.replace(/^data:image\/\w+;base64,/, "");
-        const binaryStr = atob(base64Data);
-        const bytes = new Uint8Array(binaryStr.length);
-        for (let i = 0; i < binaryStr.length; i++) bytes[i] = binaryStr.charCodeAt(i);
-        const blob = new Blob([bytes], { type: "image/png" });
+        const baseName = `${currentPost.slug || "post"}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+        const uploadedUrls: Record<string, string> = {};
 
-        const fileName = `${currentPost.slug || "post"}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}.png`;
-        const { data: uploadData, error: uploadErr } = await supabase.storage
-          .from("blog-images")
-          .upload(fileName, blob, { contentType: "image/png", cacheControl: "31536000" });
-
-        if (uploadErr) {
-          console.error("Upload error:", uploadErr);
-          continue;
+        for (const size of SIZES) {
+          try {
+            const resizedBlob = await resizeImage(img.image_base64, size.width);
+            const fileName = `${baseName}${size.suffix}.webp`;
+            const { error: uploadErr } = await supabase.storage
+              .from("blog-images")
+              .upload(fileName, resizedBlob, { contentType: "image/webp", cacheControl: "31536000" });
+            if (uploadErr) { console.error(`Upload error (${size.suffix}):`, uploadErr); continue; }
+            const { data: urlData } = supabase.storage.from("blog-images").getPublicUrl(fileName);
+            uploadedUrls[size.suffix] = urlData.publicUrl;
+          } catch (e) {
+            console.error(`Resize error (${size.suffix}):`, e);
+          }
         }
 
-        const { data: urlData } = supabase.storage.from("blog-images").getPublicUrl(fileName);
-        const publicUrl = urlData.publicUrl;
+        const fullUrl = uploadedUrls["-1200w"] || uploadedUrls["-800w"] || uploadedUrls["-400w"];
+        if (!fullUrl) continue;
 
         if (img.type === "featured") {
-          featuredUrl = publicUrl;
+          featuredUrl = fullUrl;
         } else if (img.marker) {
-          // Replace the [IMAGE_N: ...] marker with actual image markdown
+          const altText = img.alt_text || "Blog image";
           const markerRegex = new RegExp(img.marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g");
-          updatedContent = updatedContent.replace(markerRegex, `![${img.alt_text || "Blog image"}](${publicUrl})`);
+          updatedContent = updatedContent.replace(markerRegex, `![${altText}](${fullUrl})`);
         }
       }
 
