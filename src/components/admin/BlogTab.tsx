@@ -517,6 +517,13 @@ const BlogTab = () => {
       toast({ title: "Save failed", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "Blog post saved!" });
+      // Auto-submit to search engines if published
+      if (currentPost.status === "published") {
+        const postUrl = `https://marhabadmc.lovable.app/blog/${currentPost.slug}`;
+        supabase.functions.invoke("indexnow", { body: { urls: [postUrl] } })
+          .then(() => toast({ title: "📡 Submitted to search engines for indexing" }))
+          .catch(() => {}); // silent fail
+      }
       setEditing(false);
       setCurrentPost(null);
       fetchPosts();
