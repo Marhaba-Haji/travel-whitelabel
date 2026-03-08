@@ -115,7 +115,7 @@ const WorkWithUs = () => {
               {visionAreas.map((area, index) => (
                 <div
                   key={area.text}
-                  className={`group glass rounded-2xl p-5 text-center hover:shadow-2xl hover:border-white/20 transition-all duration-300 opacity-0 ${
+                  className={`group glass rounded-2xl p-5 text-center hover:shadow-xl hover:border-white/20 transition-all duration-300 opacity-0 ${
                     isVisible ? "animate-scale-in" : ""
                   }`}
                   style={{ animationDelay: `${index * 0.1}s` }}
