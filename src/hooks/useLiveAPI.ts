@@ -266,6 +266,8 @@ export function useLiveAPI(
   communicationConfigRef.current = communicationConfig;
   const getItineraryStateRef = useRef(getItineraryState);
   getItineraryStateRef.current = getItineraryState;
+  const onToolCallRef = useRef(onToolCall);
+  onToolCallRef.current = onToolCall;
 
   // Audio playback buffer for smoother playback
   const audioChunkBufferRef = useRef<Float32Array[]>([]);
