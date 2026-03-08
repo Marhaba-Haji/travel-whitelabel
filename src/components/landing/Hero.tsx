@@ -62,7 +62,7 @@ const Hero = () => {
           {/* Hero illustration — screen blend makes dark bg invisible */}
           <div className="relative -mx-6 mb-4">
             <img
-              src="/assets/hero-globe-illustration.png"
+              src="/assets/hero-globe-illustration.webp"
               alt="3D globe with airplane, compass and suitcase"
               width={749}
               height={418}
@@ -199,7 +199,7 @@ const Hero = () => {
           {/* Right — Globe illustration, oversized for impact */}
           <div className="relative -mr-12 xl:-mr-16">
             <img
-              src="/assets/hero-globe-illustration.png"
+              src="/assets/hero-globe-illustration.webp"
               alt="3D globe with airplane, compass and suitcase"
               width={1376}
               height={768}
