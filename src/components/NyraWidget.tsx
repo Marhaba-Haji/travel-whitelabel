@@ -67,6 +67,11 @@ export default function NyraWidget() {
   const { data: nyraConfig } = useNyraConfig();
   const [widgetMode, setWidgetMode] = useState<WidgetMode>('voice');
 
+  // Analytics tracking refs
+  const toolCallCountsRef = useRef<Record<string, number>>({});
+  const messageCountRef = useRef(0);
+  const connectedAtRef = useRef<string | null>(null);
+
   // Session persistence
   const [sessionId] = useState(() => getOrCreateSessionId());
   const [previousSummary, setPreviousSummary] = useState<string | undefined>(undefined);
