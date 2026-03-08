@@ -199,6 +199,6 @@
   }
 
   .aurora-glow {
-    box-shadow: 0 0 30px hsl(var(--primary) / 0.2);
+    box-shadow: 0 0 30px hsl(var(--primary) / 0.15);
   }
 }
