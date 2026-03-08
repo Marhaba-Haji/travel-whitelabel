@@ -56,7 +56,7 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const { action, title, content, topic, research, brandConfig } = await req.json();
+    const { action, title, content, topic, research, brandConfig, existingPosts } = await req.json();
     const SYSTEM_PROMPT = buildSystemPrompt(brandConfig);
     let messages: { role: string; content: string }[] = [];
     let tools: any[] | undefined;
