@@ -41,11 +41,11 @@ const Testimonials = () => {
   return (
     <section className="py-24 relative overflow-hidden" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 800px' }}>
       {/* Aurora background */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_hsl(270_70%_58%_/_0.08),_transparent_50%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_hsl(210_100%_50%_/_0.06),_transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_hsl(270_70%_58%_/_0.05),_transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_hsl(210_100%_50%_/_0.04),_transparent_50%)]" />
 
-      <div className="absolute top-10 left-10 w-72 h-72 bg-aurora-purple/10 rounded-full blur-3xl animate-pulse-soft" />
-      <div className="absolute bottom-10 right-10 w-80 h-80 bg-aurora-blue/8 rounded-full blur-3xl animate-pulse-soft" style={{ animationDelay: "1.5s" }} />
+      <div className="absolute top-10 left-10 w-60 h-60 bg-aurora-purple/6 rounded-full blur-3xl animate-pulse-soft" />
+      <div className="absolute bottom-10 right-10 w-72 h-72 bg-aurora-blue/5 rounded-full blur-3xl animate-pulse-soft" style={{ animationDelay: "1.5s" }} />
 
       <div className="container mx-auto px-4 relative">
         <div
