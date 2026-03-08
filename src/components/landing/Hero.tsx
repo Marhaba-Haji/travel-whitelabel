@@ -62,12 +62,12 @@ const Hero = () => {
           {/* Hero illustration — screen blend makes dark bg invisible */}
           <div className="relative -mx-6 mb-4">
             <img
-              src="/assets/hero-globe-illustration.webp"
+              src="/assets/hero-globe-illustration.png"
               alt="3D globe with airplane, compass and suitcase"
               width={749}
               height={418}
               fetchPriority="high"
-              className="w-full max-w-lg mx-auto object-contain mix-blend-screen"
+              className="w-full max-w-lg mx-auto object-contain"
             />
           </div>
 
