@@ -35,3 +35,6 @@ verify_jwt = false
 
 [functions.nyra-chat]
 verify_jwt = false
+
+[functions.post-call-summary]
+verify_jwt = false

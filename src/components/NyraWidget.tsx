@@ -267,9 +267,37 @@ export default function NyraWidget() {
     localStorage.setItem(TOOLTIP_STORAGE_KEY, 'true');
   };
 
-  const handleDisconnect = () => {
+  const handleDisconnect = useCallback(async () => {
     disconnect();
-  };
+    
+    // Send post-call summary email (non-blocking)
+    try {
+      const itinerarySnapshot = {
+        tripInfo: state.tripInfo,
+        guests: state.guests,
+        days: state.days.map(d => ({
+          day: d.day,
+          date: d.date,
+          items: d.items.map(i => ({
+            title: i.title,
+            subtitle: i.subtitle,
+            type: i.type,
+            price: i.price,
+            time: i.time,
+            location: i.location,
+            details: i.details,
+            duration: i.duration,
+          })),
+        })),
+      };
+      
+      supabase.functions.invoke('post-call-summary', {
+        body: { session_id: sessionId, itinerary_state: itinerarySnapshot },
+      }).catch(err => console.warn('Post-call summary email failed:', err));
+    } catch (err) {
+      console.warn('Failed to trigger post-call summary:', err);
+    }
+  }, [disconnect, state, sessionId]);
 
   const handleChatSend = () => {
     if (!chatInput.trim()) return;
