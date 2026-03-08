@@ -178,6 +178,23 @@ const Blog = () => {
                 Search
               </Button>
             </form>
+            <div className="flex items-center justify-center gap-2 mt-3">
+              <span className="text-xs text-muted-foreground mr-1"><ArrowUpDown className="h-3 w-3 inline mr-1" />Sort:</span>
+              <Badge
+                variant={activeSort === "latest" ? "default" : "outline"}
+                className="cursor-pointer text-xs"
+                onClick={() => setFilter("sort", "")}
+              >
+                Latest
+              </Badge>
+              <Badge
+                variant={activeSort === "popular" ? "default" : "outline"}
+                className="cursor-pointer text-xs"
+                onClick={() => setFilter("sort", "popular")}
+              >
+                <TrendingUp className="h-3 w-3 mr-1" /> Most Popular
+              </Badge>
+            </div>
           </div>
 
           {/* Filters */}
