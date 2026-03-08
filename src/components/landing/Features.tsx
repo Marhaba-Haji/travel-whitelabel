@@ -1,6 +1,13 @@
 import { Badge } from "@/components/ui/badge";
-import { Plane, Hotel, FileText, MapPin, Globe, Palette, BadgeCheck, Bot } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+
+import flightIcon from "@/assets/icons/flight-api.png";
+import hotelIcon from "@/assets/icons/hotel-api.png";
+import aiBotIcon from "@/assets/icons/ai-bot.png";
+import visaIcon from "@/assets/icons/visa-api.png";
+import activitiesIcon from "@/assets/icons/activities-api.png";
+import domainIcon from "@/assets/icons/own-domain.png";
+import whiteLabelIcon from "@/assets/icons/white-label.png";
 
 const Features = () => {
   const { ref: headerRef, isVisible: headerVisible } = useScrollAnimation();
@@ -8,52 +15,45 @@ const Features = () => {
 
   const features = [
     {
-      icon: Plane,
+      icon: flightIcon,
       title: "Flight API",
       description: "Access real-time flight inventory from global GDS systems. Book domestic and international flights with instant confirmation.",
-      iconBg: "from-aurora-blue to-aurora-teal",
       highlight: true,
       badge: "Popular",
     },
     {
-      icon: Hotel,
+      icon: hotelIcon,
       title: "Hotel API",
       description: "Connect to 1M+ hotels worldwide. From budget stays to luxury resorts, offer your customers the best rates.",
-      iconBg: "from-aurora-teal to-emerald-500",
       highlight: true,
       badge: "Popular",
     },
     {
-      icon: Bot,
+      icon: aiBotIcon,
       title: "AI Sales Executive",
       description: "Multilingual chatbot and voicebot that converts visitors 24/7. Like a sales team that never sleeps — at a fraction of the cost.",
-      iconBg: "from-aurora-purple to-aurora-pink",
       highlight: true,
       badge: "Add-on",
     },
     {
-      icon: FileText,
+      icon: visaIcon,
       title: "Visa API",
       description: "Streamlined visa processing for 100+ countries. Digital applications, document management, and status tracking.",
-      iconBg: "from-aurora-blue/80 to-aurora-purple/60",
     },
     {
-      icon: MapPin,
+      icon: activitiesIcon,
       title: "Activities API",
       description: "Tours, experiences, and local activities. Give your customers access to thousands of curated experiences.",
-      iconBg: "from-aurora-teal/80 to-aurora-blue/60",
     },
     {
-      icon: Globe,
+      icon: domainIcon,
       title: "Own Domain",
       description: "Use your own custom domain. Your brand, your identity. No marhabaDMC branding visible to your customers.",
-      iconBg: "from-aurora-purple/70 to-aurora-blue/50",
     },
     {
-      icon: Palette,
+      icon: whiteLabelIcon,
       title: "White-Label Branding",
       description: "Complete customization with your logo, and available design themes. Make it truly yours with essential branding control.",
-      iconBg: "from-aurora-pink/70 to-aurora-purple/50",
     },
   ];
 
@@ -90,8 +90,8 @@ const Features = () => {
                 className={`group glass-card rounded-2xl p-6 hover:shadow-xl hover:border-white/20 transition-all duration-300 opacity-0 ${gridVisible ? "animate-scale-in" : ""}`}
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${feature.iconBg} flex items-center justify-center mb-5 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                  <feature.icon className="h-7 w-7 text-white" />
+                <div className="w-16 h-16 mb-5 group-hover:scale-110 transition-transform duration-300">
+                  <img src={feature.icon} alt={feature.title} className="w-full h-full object-contain" loading="lazy" />
                 </div>
                 <div className="flex items-center gap-2 mb-2">
                   <h3 className="text-lg font-bold text-foreground">{feature.title}</h3>
@@ -114,8 +114,8 @@ const Features = () => {
                 className={`group glass-card rounded-2xl p-5 hover:shadow-xl hover:border-white/20 transition-all duration-300 opacity-0 ${gridVisible ? "animate-scale-in" : ""}`}
                 style={{ animationDelay: `${(index + 3) * 0.1}s` }}
               >
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.iconBg} flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                  <feature.icon className="h-6 w-6 text-white" />
+                <div className="w-14 h-14 mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <img src={feature.icon} alt={feature.title} className="w-full h-full object-contain" loading="lazy" />
                 </div>
                 <h3 className="text-base font-bold text-foreground mb-1.5">{feature.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
