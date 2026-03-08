@@ -316,6 +316,7 @@ serve(async (req) => {
 
       for (const tc of message.tool_calls) {
         const fnName = tc.function.name;
+        toolCallCounts[fnName] = (toolCallCounts[fnName] || 0) + 1;
         let fnArgs: Record<string, any> = {};
         try { fnArgs = JSON.parse(tc.function.arguments); } catch {}
         
