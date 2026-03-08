@@ -480,6 +480,8 @@ export default function NyraWidget() {
               <img
                 src="/assets/nyra-avatar.png"
                 alt="Nyra"
+                width={104}
+                height={104}
                 className="w-[52px] h-[52px] rounded-full object-cover object-top"
               />
             )}
