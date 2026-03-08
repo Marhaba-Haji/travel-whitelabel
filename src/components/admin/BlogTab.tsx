@@ -114,7 +114,67 @@ const BlogTab = () => {
     setCategories((data as unknown as BlogCategory[]) || []);
   }, []);
 
-  useEffect(() => { fetchPosts(); fetchCategories(); }, [fetchPosts, fetchCategories]);
+  const fetchAIConfig = useCallback(async () => {
+    const { data } = await supabase
+      .from("site_settings")
+      .select("value")
+      .eq("key", "blog_ai_config")
+      .maybeSingle();
+    if (data?.value) {
+      setAiConfig({ ...DEFAULT_AI_CONFIG, ...(data.value as any) });
+    }
+  }, []);
+
+  useEffect(() => { fetchPosts(); fetchCategories(); fetchAIConfig(); }, [fetchPosts, fetchCategories, fetchAIConfig]);
+
+  const saveAIConfig = async () => {
+    setConfigLoading(true);
+    try {
+      const { data: existing } = await supabase
+        .from("site_settings")
+        .select("id")
+        .eq("key", "blog_ai_config")
+        .maybeSingle();
+
+      if (existing) {
+        await supabase.from("site_settings").update({ value: aiConfig as any }).eq("key", "blog_ai_config");
+      } else {
+        await supabase.from("site_settings").insert({ key: "blog_ai_config", value: aiConfig as any });
+      }
+      toast({ title: "Blog AI config saved!" });
+    } catch (e: any) {
+      toast({ title: "Error saving config", description: e.message, variant: "destructive" });
+    } finally {
+      setConfigLoading(false);
+    }
+  };
+
+  const runResearch = async () => {
+    if (!currentPost?.title) {
+      toast({ title: "Enter a title first", variant: "destructive" });
+      return;
+    }
+    setAiLoading("research");
+    try {
+      const { data, error } = await supabase.functions.invoke("blog-research", {
+        body: {
+          topic: currentPost.title,
+          competitors: aiConfig.competitor_urls.filter(Boolean),
+          targetRegion: aiConfig.target_regions.join(", "),
+          targetAudience: aiConfig.target_audience.join("; "),
+        },
+      });
+      if (error) throw error;
+      if (data?.research) {
+        setResearchData(data.research);
+        toast({ title: "Research complete!", description: "Real-time data gathered. Now generate your article." });
+      }
+    } catch (e: any) {
+      toast({ title: "Research failed", description: e.message, variant: "destructive" });
+    } finally {
+      setAiLoading(null);
+    }
+  };
 
   const addCategory = async () => {
     if (!newCategory.trim()) return;
