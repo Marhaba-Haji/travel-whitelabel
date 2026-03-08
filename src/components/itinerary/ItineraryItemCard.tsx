@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { motion } from 'motion/react';
 import { Plane, BedDouble, FileCheck, MapPin, Car, ArrowRightLeft, UtensilsCrossed, Shield, Pencil, Trash2, Check, X, ChevronDown, ChevronUp, GripVertical } from 'lucide-react';
 import type { ItineraryItem as IItem, ItemType } from '@/types/itinerary';
@@ -22,7 +22,7 @@ interface Props {
   sortable?: boolean;
 }
 
-export default function ItineraryItemCard({ item, index, sortable }: Props) {
+function ItineraryItemCard({ item, index, sortable }: Props) {
   const { updateItem, removeItem, state } = useItinerary();
   const [isEditing, setIsEditing] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -188,3 +188,8 @@ export default function ItineraryItemCard({ item, index, sortable }: Props) {
     </motion.div>
   );
 }
+
+// Memoize to prevent re-renders during rapid AI tool calls
+export default memo(ItineraryItemCard, (prev, next) => {
+  return prev.item === next.item && prev.index === next.index && prev.sortable === next.sortable;
+});
