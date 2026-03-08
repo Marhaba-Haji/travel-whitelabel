@@ -431,6 +431,38 @@ const BlogTab = () => {
                 />
               </div>
               <div>
+                <Label>Category</Label>
+                <select
+                  value={currentPost?.category || ""}
+                  onChange={(e) => setCurrentPost((p) => p ? { ...p, category: e.target.value } : p)}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <option value="">No category</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.slug}>{c.name}</option>
+                  ))}
+                </select>
+                <div className="flex gap-1 mt-2">
+                  <Input value={newCategory} onChange={(e) => setNewCategory(e.target.value)} placeholder="New category" className="h-8 text-xs" />
+                  <Button variant="outline" size="sm" onClick={addCategory} className="h-8 px-2 text-xs">Add</Button>
+                </div>
+              </div>
+              <div>
+                <Label>Tags (comma-separated)</Label>
+                <Input
+                  value={(currentPost?.tags || []).join(", ")}
+                  onChange={(e) => setCurrentPost((p) => p ? { ...p, tags: e.target.value.split(",").map((t) => t.trim()).filter(Boolean) } : p)}
+                  placeholder="halal, dubai, luxury…"
+                />
+                {(currentPost?.tags?.length ?? 0) > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {currentPost?.tags?.map((tag) => (
+                      <Badge key={tag} variant="secondary" className="text-xs">{tag}</Badge>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div>
                 <Label>Author</Label>
                 <Input
                   value={currentPost?.author_name || ""}
