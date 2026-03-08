@@ -302,6 +302,9 @@ const Blog = () => {
                             <span className="flex items-center gap-1">
                               <Clock className="h-3 w-3" /> {post.reading_time_minutes || 1} min
                             </span>
+                            <span className="flex items-center gap-1">
+                              <Eye className="h-3 w-3" /> {(post.views_count || 0).toLocaleString()}
+                            </span>
                           </div>
                           <span>{post.published_at ? new Date(post.published_at).toLocaleDateString() : ""}</span>
                         </div>
