@@ -422,6 +422,7 @@ const BlogTab = () => {
   };
 
 
+  const addCluster = async () => {
     if (!newClusterName.trim() || !newClusterKeyword.trim()) return;
     const { error } = await supabase.from("blog_clusters").insert({
       name: newClusterName.trim(),
