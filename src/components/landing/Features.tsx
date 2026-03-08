@@ -87,7 +87,7 @@ const Features = () => {
             {features.slice(0, 3).map((feature, index) => (
               <div
                 key={feature.title}
-                className={`group glass-card rounded-2xl p-6 hover:shadow-2xl hover:border-white/20 transition-all duration-300 opacity-0 ${gridVisible ? "animate-scale-in" : ""}`}
+                className={`group glass-card rounded-2xl p-6 hover:shadow-xl hover:border-white/20 transition-all duration-300 opacity-0 ${gridVisible ? "animate-scale-in" : ""}`}
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${feature.iconBg} flex items-center justify-center mb-5 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
