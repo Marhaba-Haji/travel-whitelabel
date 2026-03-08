@@ -342,70 +342,177 @@ const BlogTab = () => {
   if (!editing) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-semibold text-foreground">Blog Posts</h2>
-            <p className="text-sm text-muted-foreground">{posts.length} posts total</p>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => callAI("suggest_topics")} disabled={!!aiLoading}>
-              {aiLoading === "suggest_topics" ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Lightbulb className="h-4 w-4 mr-1" />}
-              Suggest Topics
-            </Button>
-            <Button size="sm" onClick={openNew}>
-              <Plus className="h-4 w-4 mr-1" /> New Post
-            </Button>
-          </div>
-        </div>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList>
+            <TabsTrigger value="posts"><FileText className="h-4 w-4 mr-1" />Posts</TabsTrigger>
+            <TabsTrigger value="config"><Settings className="h-4 w-4 mr-1" />AI Config</TabsTrigger>
+          </TabsList>
 
-        {loading ? (
-          <p className="text-muted-foreground">Loading…</p>
-        ) : posts.length === 0 ? (
-          <Card><CardContent className="py-12 text-center text-muted-foreground">No blog posts yet. Create your first one!</CardContent></Card>
-        ) : (
-          <div className="rounded-md border border-border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Reading Time</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {posts.map((post) => (
-                  <TableRow key={post.id}>
-                    <TableCell className="font-medium max-w-xs truncate">{post.title}</TableCell>
-                    <TableCell>
-                      <Badge variant={post.status === "published" ? "default" : "secondary"}>
-                        {post.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{post.reading_time_minutes} min</TableCell>
-                    <TableCell className="text-muted-foreground text-sm">
-                      {new Date(post.published_at || post.created_at).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell className="text-right space-x-1">
-                      {post.status === "published" && (
-                        <Button variant="ghost" size="icon" asChild>
-                          <a href={`/blog/${post.slug}`} target="_blank" rel="noreferrer"><Eye className="h-4 w-4" /></a>
-                        </Button>
-                      )}
-                      <Button variant="ghost" size="icon" onClick={() => openEdit(post)}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => deletePost(post.id)}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        )}
+          <TabsContent value="posts" className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-semibold text-foreground">Blog Posts</h2>
+                <p className="text-sm text-muted-foreground">{posts.length} posts total</p>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => callAI("suggest_topics")} disabled={!!aiLoading}>
+                  {aiLoading === "suggest_topics" ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Lightbulb className="h-4 w-4 mr-1" />}
+                  Suggest Topics
+                </Button>
+                <Button size="sm" onClick={openNew}>
+                  <Plus className="h-4 w-4 mr-1" /> New Post
+                </Button>
+              </div>
+            </div>
+
+            {loading ? (
+              <p className="text-muted-foreground">Loading…</p>
+            ) : posts.length === 0 ? (
+              <Card><CardContent className="py-12 text-center text-muted-foreground">No blog posts yet. Create your first one!</CardContent></Card>
+            ) : (
+              <div className="rounded-md border border-border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Title</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Reading Time</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {posts.map((post) => (
+                      <TableRow key={post.id}>
+                        <TableCell className="font-medium max-w-xs truncate">{post.title}</TableCell>
+                        <TableCell>
+                          <Badge variant={post.status === "published" ? "default" : "secondary"}>
+                            {post.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{post.reading_time_minutes} min</TableCell>
+                        <TableCell className="text-muted-foreground text-sm">
+                          {new Date(post.published_at || post.created_at).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell className="text-right space-x-1">
+                          {post.status === "published" && (
+                            <Button variant="ghost" size="icon" asChild>
+                              <a href={`/blog/${post.slug}`} target="_blank" rel="noreferrer"><Eye className="h-4 w-4" /></a>
+                            </Button>
+                          )}
+                          <Button variant="ghost" size="icon" onClick={() => openEdit(post)}>
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => deletePost(post.id)}>
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="config" className="space-y-6">
+            <div>
+              <h2 className="text-xl font-semibold text-foreground">Blog AI Configuration</h2>
+              <p className="text-sm text-muted-foreground">Configure brand voice, target audience, and competitor analysis for research-powered content generation.</p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center gap-2"><Target className="h-4 w-4" /> Brand Voice</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div>
+                    <Label className="text-xs">Brand Tone & Writing Style</Label>
+                    <Textarea
+                      value={aiConfig.brand_tone}
+                      onChange={(e) => setAiConfig((c) => ({ ...c, brand_tone: e.target.value }))}
+                      placeholder="Describe your brand's writing tone..."
+                      className="min-h-[80px]"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Key Differentiators</Label>
+                    <Textarea
+                      value={aiConfig.differentiators}
+                      onChange={(e) => setAiConfig((c) => ({ ...c, differentiators: e.target.value }))}
+                      placeholder="What makes your brand unique..."
+                      className="min-h-[60px]"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Brand Keywords (comma-separated)</Label>
+                    <Input
+                      value={aiConfig.brand_keywords.join(", ")}
+                      onChange={(e) => setAiConfig((c) => ({ ...c, brand_keywords: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) }))}
+                      placeholder="halal travel, DMC, luxury..."
+                    />
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {aiConfig.brand_keywords.map((k) => (
+                        <Badge key={k} variant="secondary" className="text-xs">{k}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center gap-2"><Users className="h-4 w-4" /> Target Audience</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div>
+                    <Label className="text-xs">Audience Personas (one per line)</Label>
+                    <Textarea
+                      value={aiConfig.target_audience.join("\n")}
+                      onChange={(e) => setAiConfig((c) => ({ ...c, target_audience: e.target.value.split("\n").filter(Boolean) }))}
+                      placeholder="B2B travel agents in GCC&#10;Umrah tour operators&#10;Luxury travel planners"
+                      className="min-h-[100px]"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Target Regions (comma-separated)</Label>
+                    <Input
+                      value={aiConfig.target_regions.join(", ")}
+                      onChange={(e) => setAiConfig((c) => ({ ...c, target_regions: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) }))}
+                      placeholder="Middle East, Turkey, SE Asia..."
+                    />
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {aiConfig.target_regions.map((r) => (
+                        <Badge key={r} variant="outline" className="text-xs"><Globe className="h-3 w-3 mr-1" />{r}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="lg:col-span-2">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center gap-2"><TrendingUp className="h-4 w-4" /> Competitor URLs</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <p className="text-xs text-muted-foreground">Add competitor blog URLs. The AI will analyze their content when generating articles to help you differentiate.</p>
+                  <Textarea
+                    value={aiConfig.competitor_urls.join("\n")}
+                    onChange={(e) => setAiConfig((c) => ({ ...c, competitor_urls: e.target.value.split("\n").filter(Boolean) }))}
+                    placeholder="https://competitor1.com/blog&#10;https://competitor2.com/blog"
+                    className="min-h-[80px] font-mono text-xs"
+                  />
+                </CardContent>
+              </Card>
+            </div>
+
+            <Button onClick={saveAIConfig} disabled={configLoading}>
+              {configLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Settings className="h-4 w-4 mr-2" />}
+              Save AI Configuration
+            </Button>
+          </TabsContent>
+        </Tabs>
 
         {/* Topics Dialog */}
         <Dialog open={topicsDialog} onOpenChange={setTopicsDialog}>
