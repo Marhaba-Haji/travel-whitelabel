@@ -265,7 +265,7 @@ export default function NyraWidget() {
               {/* Header bar */}
               <div className="flex items-center justify-between px-4 py-3 border-b border-border/50">
                 <div className="flex items-center gap-2">
-                  <img src="/assets/nyra-avatar.png" alt="Nyra" className="w-7 h-7 rounded-full object-cover object-top" />
+                  <img src="/assets/nyra-avatar.png" alt="Nyra" width={56} height={56} className="w-7 h-7 rounded-full object-cover object-top" />
                   <div>
                     <h3 className="text-sm font-bold text-foreground">Nyra</h3>
                     <p className="text-[9px] text-muted-foreground uppercase tracking-widest">Marhaba DMC</p>
@@ -363,7 +363,7 @@ export default function NyraWidget() {
             {/* Widget Header */}
             <div className="bg-nyra text-nyra-foreground p-4 flex justify-between items-center">
               <div className="flex items-center gap-3">
-                <img src="/assets/nyra-avatar.png" alt="Nyra" className="w-8 h-8 rounded-full object-cover object-top" />
+                <img src="/assets/nyra-avatar.png" alt="Nyra" width={64} height={64} className="w-8 h-8 rounded-full object-cover object-top" />
                 <div>
                   <h3 className="font-semibold text-sm tracking-wide">Nyra</h3>
                   <p className="text-[10px] text-nyra-foreground/80 uppercase tracking-wider">Marhaba DMC Agent</p>
@@ -480,6 +480,8 @@ export default function NyraWidget() {
               <img
                 src="/assets/nyra-avatar.png"
                 alt="Nyra"
+                width={104}
+                height={104}
                 className="w-[52px] h-[52px] rounded-full object-cover object-top"
               />
             )}
