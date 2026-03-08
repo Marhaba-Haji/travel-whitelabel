@@ -256,12 +256,16 @@ const BlogTab = () => {
   const callAI = async (action: string, extra: Record<string, string> = {}) => {
     setAiLoading(action);
     try {
+      const existingPosts = (action === "generate_article" || action === "interlink_posts")
+        ? getExistingPostsCatalog().filter((p) => p.slug !== currentPost?.slug)
+        : undefined;
       const body: any = {
         action,
         title: currentPost?.title,
         content: currentPost?.content,
         brandConfig: aiConfig,
         ...(useResearch && researchData ? { research: researchData } : {}),
+        ...(existingPosts?.length ? { existingPosts } : {}),
         ...extra,
       };
 
