@@ -458,6 +458,8 @@ export function useLiveAPI(
               const responses: { id?: string; name?: string; response?: Record<string, unknown> }[] = [];
 
               for (const fc of toolCall.functionCalls) {
+                // Track tool call for analytics
+                onToolCallRef.current?.(fc.name);
                 if (fc.name === 'save_lead' && fc.args) {
                   const args = fc.args as any;
                   const leadName = (args.name || '').trim();
