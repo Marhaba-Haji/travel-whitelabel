@@ -63,6 +63,7 @@ const BlogPost = () => {
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [newsletterLoading, setNewsletterLoading] = useState(false);
   const [newsletterDone, setNewsletterDone] = useState(false);
+  const [codeDark, setCodeDark] = useState(true);
   const articleRef = useRef<HTMLElement>(null);
   const { toast } = useToast();
 
