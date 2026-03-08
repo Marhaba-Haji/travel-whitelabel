@@ -233,6 +233,39 @@ export type Database = {
         }
         Relationships: []
       }
+      indexing_logs: {
+        Row: {
+          action: string
+          created_at: string
+          error: string | null
+          id: string
+          response: Json | null
+          service: string
+          status_code: number | null
+          url: string
+        }
+        Insert: {
+          action?: string
+          created_at?: string
+          error?: string | null
+          id?: string
+          response?: Json | null
+          service: string
+          status_code?: number | null
+          url: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          error?: string | null
+          id?: string
+          response?: Json | null
+          service?: string
+          status_code?: number | null
+          url?: string
+        }
+        Relationships: []
+      }
       newsletter_subscriptions: {
         Row: {
           email: string
