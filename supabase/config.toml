@@ -32,3 +32,6 @@ verify_jwt = false
 
 [functions.process-agent-document]
 verify_jwt = false
+
+[functions.nyra-chat]
+verify_jwt = false

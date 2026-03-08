@@ -1,13 +1,17 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Mic, Globe, PhoneCall, Loader2, X, PanelRightOpen, PanelRightClose } from 'lucide-react';
+import { Mic, Globe, PhoneCall, Loader2, X, PanelRightOpen, PanelRightClose, MessageSquare, Send, ArrowLeft } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import { useLiveAPI, ItineraryToolHandler, SessionContext, ItineraryStateGetter } from '@/hooks/useLiveAPI';
+import { useNyraChat } from '@/hooks/useNyraChat';
 import { useItinerary } from '@/contexts/ItineraryContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useNyraConfig } from '@/hooks/useNyraConfig';
 import { supabase } from '@/integrations/supabase/client';
 import ItineraryPanel from '@/components/itinerary/ItineraryPanel';
 import type { ItemType, Guest } from '@/types/itinerary';
+
+type WidgetMode = 'voice' | 'chat';
 
 const STICKY_CTA_THRESHOLD = 600;
 const STICKY_CTA_HEIGHT = 64;
@@ -61,6 +65,7 @@ export default function NyraWidget() {
   const { addItem, updateItem, removeItem, setTripInfo, setGuests, addGuest, state, dispatch } = useItinerary();
   const isMobile = useIsMobile();
   const { data: nyraConfig } = useNyraConfig();
+  const [widgetMode, setWidgetMode] = useState<WidgetMode>('voice');
 
   // Session persistence
   const [sessionId] = useState(() => getOrCreateSessionId());
@@ -214,11 +219,25 @@ export default function NyraWidget() {
     communicationConfig,
     getItineraryState,
   );
+  const { messages: chatMessages, isLoading: isChatLoading, error: chatError, sendMessage, clearChat } = useNyraChat(
+    systemInstruction,
+    handleItineraryTool,
+    sessionContext,
+    communicationConfig,
+    getItineraryState,
+  );
+  const [chatInput, setChatInput] = useState('');
+  const chatEndRef = useRef<HTMLDivElement>(null);
   const [isWidgetOpen, setIsWidgetOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [stickyCTAVisible, setStickyCTAVisible] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const [hasAnimatedIn, setHasAnimatedIn] = useState(false);
+
+  // Auto-scroll chat
+  useEffect(() => {
+    if (chatEndRef.current) chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+  }, [chatMessages]);
 
   // Auto-expand when itinerary becomes active
   useEffect(() => {
@@ -250,7 +269,12 @@ export default function NyraWidget() {
 
   const handleDisconnect = () => {
     disconnect();
-    // Don't reset itinerary — keep it visible for review
+  };
+
+  const handleChatSend = () => {
+    if (!chatInput.trim()) return;
+    sendMessage(chatInput);
+    setChatInput('');
   };
 
   const bottomOffset = stickyCTAVisible ? STICKY_CTA_HEIGHT + 16 : 24;
@@ -286,6 +310,13 @@ export default function NyraWidget() {
                 </div>
                 <div className="flex items-center gap-1.5">
                   <button
+                    onClick={() => setWidgetMode(widgetMode === 'voice' ? 'chat' : 'voice')}
+                    className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-muted transition-colors"
+                    title={widgetMode === 'voice' ? 'Switch to text chat' : 'Switch to voice call'}
+                  >
+                    {widgetMode === 'voice' ? <MessageSquare size={14} className="text-muted-foreground" /> : <Mic size={14} className="text-muted-foreground" />}
+                  </button>
+                  <button
                     onClick={() => setIsExpanded(false)}
                     className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-muted transition-colors"
                     title="Collapse panel"
@@ -301,47 +332,104 @@ export default function NyraWidget() {
                 </div>
               </div>
 
-              {/* Voice area */}
-              <div className="flex-1 flex flex-col items-center justify-center relative px-6">
-                <Globe size={isMobile ? 80 : 120} className="absolute opacity-[0.04] text-nyra" />
-
-                <div className="relative flex flex-col items-center z-10">
-                  {isSpeaking && (
-                    <motion.div
-                      className="absolute inset-0 bg-nyra rounded-full opacity-20"
-                      animate={{ scale: [1, 1.5, 1] }}
-                      transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-                      style={{ width: '100px', height: '100px', top: '50%', left: '50%', x: '-50%', y: '-50%' }}
-                    />
-                  )}
-
-                  <button
-                    onClick={isConnected ? handleDisconnect : connect}
-                    disabled={isConnecting}
-                    className={`relative z-10 w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg ${
-                      isConnected ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground' : 'bg-nyra hover:bg-nyra/90 text-nyra-foreground'
-                    } ${isConnecting ? 'opacity-80 cursor-not-allowed' : ''}`}
-                  >
-                    {isConnecting ? <Loader2 size={28} className="animate-spin" /> : isConnected ? <PhoneCall size={28} className="animate-pulse" /> : <Mic size={28} />}
-                  </button>
-
-                  <div className="mt-5 min-h-[2rem] text-center">
-                    {error ? (
-                      error.startsWith('RATE_LIMITED:') ? (
-                        <p className="text-amber-600 dark:text-amber-400 font-sans text-xs leading-relaxed">⏳ {error.replace('RATE_LIMITED:', '')}</p>
-                      ) : (
-                        <p className="text-destructive font-sans text-xs">{error}</p>
-                      )
-                    ) : isConnecting ? (
-                      <p className="text-nyra font-sans text-xs uppercase tracking-widest animate-pulse">Connecting...</p>
-                    ) : isConnected ? (
-                      <p className="text-nyra font-sans text-xs uppercase tracking-widest">{isSpeaking ? 'Nyra is speaking...' : 'Listening...'}</p>
-                    ) : (
-                      <p className="text-muted-foreground font-sans text-xs uppercase tracking-widest">Tap to speak</p>
+              {/* Voice/Chat area */}
+              {widgetMode === 'chat' ? (
+                <div className="flex-1 flex flex-col overflow-hidden">
+                  <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
+                    {chatMessages.length === 0 && !isChatLoading && (
+                      <div className="flex flex-col items-center justify-center h-full text-center px-4">
+                        <MessageSquare size={28} className="text-nyra/40 mb-2" />
+                        <p className="text-sm text-muted-foreground">Type a message to chat with Nyra</p>
+                      </div>
                     )}
+                    {chatMessages.map((msg) => (
+                      <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                        <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm ${
+                          msg.role === 'user'
+                            ? 'bg-nyra text-nyra-foreground rounded-br-md'
+                            : 'bg-muted text-foreground rounded-bl-md'
+                        }`}>
+                          {msg.role === 'assistant' ? (
+                            <div className="prose prose-sm dark:prose-invert max-w-none [&_p]:my-1 [&_ul]:my-1 [&_li]:my-0.5">
+                              <ReactMarkdown>{msg.content}</ReactMarkdown>
+                            </div>
+                          ) : (
+                            <p>{msg.content}</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                    {isChatLoading && (
+                      <div className="flex justify-start">
+                        <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-3">
+                          <div className="flex gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-nyra/40 animate-bounce" style={{ animationDelay: '0ms' }} />
+                            <span className="w-2 h-2 rounded-full bg-nyra/40 animate-bounce" style={{ animationDelay: '150ms' }} />
+                            <span className="w-2 h-2 rounded-full bg-nyra/40 animate-bounce" style={{ animationDelay: '300ms' }} />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    {chatError && <p className="text-destructive text-xs text-center">{chatError}</p>}
+                    <div ref={chatEndRef} />
+                  </div>
+                  <div className="border-t border-border/50 px-3 py-2.5 flex gap-2 items-end">
+                    <textarea
+                      value={chatInput}
+                      onChange={(e) => setChatInput(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleChatSend(); } }}
+                      placeholder="Type a message..."
+                      rows={1}
+                      className="flex-1 resize-none rounded-xl border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-nyra max-h-20"
+                    />
+                    <button
+                      onClick={handleChatSend}
+                      disabled={!chatInput.trim() || isChatLoading}
+                      className="h-9 w-9 rounded-full bg-nyra text-nyra-foreground flex items-center justify-center shrink-0 disabled:opacity-50 hover:bg-nyra/90 transition-colors"
+                    >
+                      <Send size={16} />
+                    </button>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="flex-1 flex flex-col items-center justify-center relative px-6">
+                  <Globe size={isMobile ? 80 : 120} className="absolute opacity-[0.04] text-nyra" />
+                  <div className="relative flex flex-col items-center z-10">
+                    {isSpeaking && (
+                      <motion.div
+                        className="absolute inset-0 bg-nyra rounded-full opacity-20"
+                        animate={{ scale: [1, 1.5, 1] }}
+                        transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                        style={{ width: '100px', height: '100px', top: '50%', left: '50%', x: '-50%', y: '-50%' }}
+                      />
+                    )}
+                    <button
+                      onClick={isConnected ? handleDisconnect : connect}
+                      disabled={isConnecting}
+                      className={`relative z-10 w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg ${
+                        isConnected ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground' : 'bg-nyra hover:bg-nyra/90 text-nyra-foreground'
+                      } ${isConnecting ? 'opacity-80 cursor-not-allowed' : ''}`}
+                    >
+                      {isConnecting ? <Loader2 size={28} className="animate-spin" /> : isConnected ? <PhoneCall size={28} className="animate-pulse" /> : <Mic size={28} />}
+                    </button>
+                    <div className="mt-5 min-h-[2rem] text-center">
+                      {error ? (
+                        error.startsWith('RATE_LIMITED:') ? (
+                          <p className="text-amber-600 dark:text-amber-400 font-sans text-xs leading-relaxed">⏳ {error.replace('RATE_LIMITED:', '')}</p>
+                        ) : (
+                          <p className="text-destructive font-sans text-xs">{error}</p>
+                        )
+                      ) : isConnecting ? (
+                        <p className="text-nyra font-sans text-xs uppercase tracking-widest animate-pulse">Connecting...</p>
+                      ) : isConnected ? (
+                        <p className="text-nyra font-sans text-xs uppercase tracking-widest">{isSpeaking ? 'Nyra is speaking...' : 'Listening...'}</p>
+                      ) : (
+                        <p className="text-muted-foreground font-sans text-xs uppercase tracking-widest">Tap to speak</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* RIGHT: Itinerary Panel */}
@@ -383,6 +471,14 @@ export default function NyraWidget() {
                 </div>
               </div>
               <div className="flex items-center gap-1">
+                {/* Mode toggle */}
+                <button
+                  onClick={() => setWidgetMode(widgetMode === 'voice' ? 'chat' : 'voice')}
+                  className="hover:bg-nyra-foreground/20 p-2 rounded-full transition-colors"
+                  title={widgetMode === 'voice' ? 'Switch to text chat' : 'Switch to voice call'}
+                >
+                  {widgetMode === 'voice' ? <MessageSquare size={16} /> : <Mic size={16} />}
+                </button>
                 {(state.isActive || isConnected) && (
                   <button
                     onClick={() => setIsExpanded(true)}
@@ -399,43 +495,110 @@ export default function NyraWidget() {
             </div>
 
             {/* Widget Content */}
-            <div className="p-8 flex flex-col items-center justify-center relative min-h-[280px] bg-gradient-to-b from-nyra/5 to-nyra-accent/5">
-              <Globe size={120} className="absolute opacity-[0.06] text-nyra" />
-              <div className="relative flex flex-col items-center z-10">
-                {isSpeaking && (
-                  <motion.div
-                    className="absolute inset-0 bg-nyra rounded-full opacity-25"
-                    animate={{ scale: [1, 1.4, 1] }}
-                    transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-                    style={{ width: '100px', height: '100px', top: '50%', left: '50%', x: '-50%', y: '-50%' }}
-                  />
-                )}
-                <button
-                  onClick={isConnected ? handleDisconnect : connect}
-                  disabled={isConnecting}
-                  className={`relative z-10 w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg ${
-                    isConnected ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground' : 'bg-nyra hover:bg-nyra/90 text-nyra-foreground'
-                  } ${isConnecting ? 'opacity-80 cursor-not-allowed' : ''}`}
-                >
-                  {isConnecting ? <Loader2 size={28} className="animate-spin" /> : isConnected ? <PhoneCall size={28} className="animate-pulse" /> : <Mic size={28} />}
-                </button>
-                <div className="mt-6 min-h-[2rem] text-center px-4">
-                  {error ? (
-                    error.startsWith('RATE_LIMITED:') ? (
-                      <p className="text-amber-600 dark:text-amber-400 font-sans text-xs leading-relaxed">⏳ {error.replace('RATE_LIMITED:', '')}</p>
-                    ) : (
-                      <p className="text-destructive font-sans text-xs">{error}</p>
-                    )
-                  ) : isConnecting ? (
-                    <p className="text-nyra font-sans text-xs uppercase tracking-widest animate-pulse">Connecting...</p>
-                  ) : isConnected ? (
-                    <p className="text-nyra font-sans text-xs uppercase tracking-widest">{isSpeaking ? 'Nyra is speaking...' : 'Listening...'}</p>
-                  ) : (
-                    <p className="text-muted-foreground font-sans text-xs uppercase tracking-widest">Tap to speak</p>
+            {widgetMode === 'chat' ? (
+              /* ── TEXT CHAT MODE ── */
+              <div className="flex flex-col h-[380px]">
+                {/* Messages */}
+                <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
+                  {chatMessages.length === 0 && !isChatLoading && (
+                    <div className="flex flex-col items-center justify-center h-full text-center px-4">
+                      <MessageSquare size={32} className="text-nyra/40 mb-3" />
+                      <p className="text-sm text-muted-foreground">Type a message to start chatting with Nyra</p>
+                      <p className="text-xs text-muted-foreground/60 mt-1">Ask about flights, hotels, packages, or visas</p>
+                    </div>
                   )}
+                  {chatMessages.map((msg) => (
+                    <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                      <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm ${
+                        msg.role === 'user'
+                          ? 'bg-nyra text-nyra-foreground rounded-br-md'
+                          : 'bg-muted text-foreground rounded-bl-md'
+                      }`}>
+                        {msg.role === 'assistant' ? (
+                          <div className="prose prose-sm dark:prose-invert max-w-none [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1 [&_li]:my-0.5 [&_h1]:text-base [&_h2]:text-sm [&_h3]:text-sm">
+                            <ReactMarkdown>{msg.content}</ReactMarkdown>
+                          </div>
+                        ) : (
+                          <p>{msg.content}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                  {isChatLoading && (
+                    <div className="flex justify-start">
+                      <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-3">
+                        <div className="flex gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-nyra/40 animate-bounce" style={{ animationDelay: '0ms' }} />
+                          <span className="w-2 h-2 rounded-full bg-nyra/40 animate-bounce" style={{ animationDelay: '150ms' }} />
+                          <span className="w-2 h-2 rounded-full bg-nyra/40 animate-bounce" style={{ animationDelay: '300ms' }} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {chatError && (
+                    <p className="text-destructive text-xs text-center px-2">{chatError}</p>
+                  )}
+                  <div ref={chatEndRef} />
+                </div>
+                {/* Input */}
+                <div className="border-t border-border px-3 py-2.5 flex gap-2 items-end">
+                  <textarea
+                    value={chatInput}
+                    onChange={(e) => setChatInput(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleChatSend(); } }}
+                    placeholder="Type a message..."
+                    rows={1}
+                    className="flex-1 resize-none rounded-xl border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-nyra max-h-20"
+                  />
+                  <button
+                    onClick={handleChatSend}
+                    disabled={!chatInput.trim() || isChatLoading}
+                    className="h-9 w-9 rounded-full bg-nyra text-nyra-foreground flex items-center justify-center shrink-0 disabled:opacity-50 hover:bg-nyra/90 transition-colors"
+                  >
+                    <Send size={16} />
+                  </button>
                 </div>
               </div>
-            </div>
+            ) : (
+              /* ── VOICE MODE ── */
+              <div className="p-8 flex flex-col items-center justify-center relative min-h-[280px] bg-gradient-to-b from-nyra/5 to-nyra-accent/5">
+                <Globe size={120} className="absolute opacity-[0.06] text-nyra" />
+                <div className="relative flex flex-col items-center z-10">
+                  {isSpeaking && (
+                    <motion.div
+                      className="absolute inset-0 bg-nyra rounded-full opacity-25"
+                      animate={{ scale: [1, 1.4, 1] }}
+                      transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                      style={{ width: '100px', height: '100px', top: '50%', left: '50%', x: '-50%', y: '-50%' }}
+                    />
+                  )}
+                  <button
+                    onClick={isConnected ? handleDisconnect : connect}
+                    disabled={isConnecting}
+                    className={`relative z-10 w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg ${
+                      isConnected ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground' : 'bg-nyra hover:bg-nyra/90 text-nyra-foreground'
+                    } ${isConnecting ? 'opacity-80 cursor-not-allowed' : ''}`}
+                  >
+                    {isConnecting ? <Loader2 size={28} className="animate-spin" /> : isConnected ? <PhoneCall size={28} className="animate-pulse" /> : <Mic size={28} />}
+                  </button>
+                  <div className="mt-6 min-h-[2rem] text-center px-4">
+                    {error ? (
+                      error.startsWith('RATE_LIMITED:') ? (
+                        <p className="text-amber-600 dark:text-amber-400 font-sans text-xs leading-relaxed">⏳ {error.replace('RATE_LIMITED:', '')}</p>
+                      ) : (
+                        <p className="text-destructive font-sans text-xs">{error}</p>
+                      )
+                    ) : isConnecting ? (
+                      <p className="text-nyra font-sans text-xs uppercase tracking-widest animate-pulse">Connecting...</p>
+                    ) : isConnected ? (
+                      <p className="text-nyra font-sans text-xs uppercase tracking-widest">{isSpeaking ? 'Nyra is speaking...' : 'Listening...'}</p>
+                    ) : (
+                      <p className="text-muted-foreground font-sans text-xs uppercase tracking-widest">Tap to speak</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
