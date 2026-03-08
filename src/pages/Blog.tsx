@@ -45,6 +45,17 @@ const Blog = () => {
     const meta = document.querySelector('meta[name="description"]');
     if (meta) meta.setAttribute("content", "Explore expert insights on halal-friendly travel, destination guides, travel technology, and hospitality trends from Marhaba DMC.");
 
+    // Add RSS link
+    let rssLink = document.querySelector('link[type="application/rss+xml"]');
+    if (!rssLink) {
+      rssLink = document.createElement("link");
+      rssLink.setAttribute("rel", "alternate");
+      rssLink.setAttribute("type", "application/rss+xml");
+      rssLink.setAttribute("title", "Marhaba DMC Blog RSS");
+      rssLink.setAttribute("href", `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/blog-rss`);
+      document.head.appendChild(rssLink);
+    }
+
     const fetchData = async () => {
       const [postsRes, catsRes] = await Promise.all([
         supabase
