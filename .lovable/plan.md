@@ -1,137 +1,83 @@
 
 
-## Plan: AI-Powered Blog Writer/Editor with Public Blog Pages
+# ChatGPT-Style Instruction Manager for AI Agent Config
 
-This is a large feature with three major parts: database schema, admin blog editor with AI writing assistance, and public-facing blog pages with SEO optimization.
+## Overview
+Redesign the AI Agent Configuration tab to have a modern, ChatGPT-like interface where admins can type instructions OR upload files (images, PDFs, Excel, Word docs). Uploaded files are processed by AI to extract text content, which is then saved as instruction entries in the appropriate category.
 
----
+## Architecture
 
-### 1. Database — New `blog_posts` table
+### New Edge Function: `process-agent-document`
+- Accepts a file (base64-encoded) along with its MIME type and target category
+- Uses the Lovable AI Gateway (`google/gemini-2.5-flash`) to extract/summarize content from the file
+- Returns extracted text that gets saved as instruction entries
+- Supports: images (JPEG, PNG, WebP), PDFs, Excel (.xlsx), Word (.docx)
+- For images: sends the image directly to Gemini's vision capability for text extraction
+- For PDFs/docs: converts base64 to text extraction prompt
 
-Create a migration with:
+### UI Redesign: `AIAgentConfigTab.tsx`
+Rebuild with a ChatGPT-style interface per category card:
 
-```sql
-CREATE TABLE public.blog_posts (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  title text NOT NULL,
-  slug text NOT NULL UNIQUE,
-  excerpt text,
-  content text NOT NULL DEFAULT '',
-  cover_image_url text,
-  status text NOT NULL DEFAULT 'draft',  -- draft | published
-  meta_title text,
-  meta_description text,
-  meta_keywords text[],
-  og_image_url text,
-  author_name text DEFAULT 'Marhaba DMC',
-  reading_time_minutes integer DEFAULT 1,
-  published_at timestamptz,
-  created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now()
-);
-
-ALTER TABLE public.blog_posts ENABLE ROW LEVEL SECURITY;
-
--- Public can read published posts
-CREATE POLICY "Anyone can read published blogs"
-  ON public.blog_posts FOR SELECT
-  USING (status = 'published');
-
--- Superadmins full access
-CREATE POLICY "Superadmins can manage blogs"
-  ON public.blog_posts FOR ALL
-  TO authenticated
-  USING (has_role(auth.uid(), 'superadmin'))
-  WITH CHECK (has_role(auth.uid(), 'superadmin'));
-
--- Auto-update updated_at
-CREATE TRIGGER update_blog_posts_updated_at
-  BEFORE UPDATE ON public.blog_posts
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
--- Index for slug lookups and listing
-CREATE INDEX idx_blog_posts_slug ON public.blog_posts(slug);
-CREATE INDEX idx_blog_posts_status_published ON public.blog_posts(status, published_at DESC);
+```text
++---------------------------------------------+
+| Knowledge Base                          [v]  |
+|---------------------------------------------|
+| [Saved entry 1]                        [x]  |
+| [Saved entry 2]                        [x]  |
+| [Saved entry 3 - from uploaded PDF]    [x]  |
+|---------------------------------------------|
+| [  Type instruction or upload a file...   ] |
+| [Paperclip icon]  [Send button]             |
++---------------------------------------------+
 ```
 
----
+Each category section will have:
+- A scrollable log of saved entries (existing behavior, kept)
+- A bottom input bar with a textarea, a file attachment button (paperclip icon), and a send/add button
+- File upload triggers processing via the edge function, then saves extracted text as a new entry
+- While processing, show a loading state with "Extracting content from [filename]..."
+- After extraction, the text is auto-added as an instruction entry (same save flow as today)
 
-### 2. Admin — Blog Management Tab
+### Supported File Types
+- Images: `image/jpeg`, `image/png`, `image/webp` -- processed via Gemini vision
+- PDF: `application/pdf` -- base64 sent to Gemini for extraction
+- Word: `.docx` (`application/vnd.openxmlformats-officedocument.wordprocessingml.document`)
+- Excel: `.xlsx` (`application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`)
 
-**New file: `src/components/admin/BlogTab.tsx`**
+## Technical Details
 
-Features:
-- **Blog list view**: Table of all posts (draft + published) with title, status, date, actions (edit/delete)
-- **Blog editor form**: Title, slug (auto-generated from title), excerpt, rich content textarea, cover image URL, status toggle (draft/published)
-- **AI Writing Assistant panel** — powered by Lovable AI via a new edge function:
-  - "Generate Full Article" — given a topic/title, generates SEO-optimized long-form content
-  - "Improve/Rewrite" — rewrites selected content for better SEO/readability
-  - "Generate Meta Tags" — auto-generates meta title, description, keywords from content
-  - "Generate Excerpt" — creates a compelling excerpt
-  - "Suggest Topics" — suggests blog topics relevant to halal travel/DMC industry
-- Content rendered with markdown preview (react-markdown already installed)
-- Reading time auto-calculated from word count
+### 1. Create `supabase/functions/process-agent-document/index.ts`
+- Accept POST with `{ fileBase64, mimeType, fileName, category }`
+- Use `LOVABLE_API_KEY` (already configured) to call the Lovable AI Gateway
+- For images: send as base64 image content part with a prompt like "Extract all text, data, and instructions from this image. Return them as clear, structured text."
+- For documents (PDF/DOCX/XLSX): send file content with extraction prompt
+- Return `{ extractedText: string }` 
+- Register in `supabase/config.toml`
 
-**New edge function: `supabase/functions/blog-ai/index.ts`**
+### 2. Redesign `AIAgentConfigTab.tsx`
+- Replace the current `InstructionLog` component with a new `InstructionChat` component
+- Bottom input area styled like a chat input bar:
+  - Textarea (auto-grows, placeholder: "Type an instruction or upload a file...")
+  - Paperclip/attachment button (opens file picker)
+  - Send button (arrow icon)
+- When a file is selected:
+  - Show a file preview chip above the input (filename + remove button)
+  - On send, read as base64 and call `process-agent-document` edge function
+  - Show processing indicator
+  - On success, add extracted text as an instruction entry
+- Keep the existing entries list with delete buttons above the input
+- Entries from files get a small file icon badge to indicate source
 
-- Uses Lovable AI gateway (`LOVABLE_API_KEY` already available)
-- Accepts `action` param: `generate_article`, `improve_content`, `generate_meta`, `generate_excerpt`, `suggest_topics`
-- System prompt tailored for travel/hospitality SEO content with GSO (Generative Search Optimization) best practices
-- Returns structured output via tool calling for meta tags, plain text for articles
+### 3. Update `supabase/config.toml`
+- Add `[functions.process-agent-document]` with `verify_jwt = false`
 
-**Add to admin sidebar and tab registry** in `AdminLayout.tsx` and `Admin.tsx`.
+### No database changes needed
+All data continues to be stored in `site_settings` as JSONB arrays -- extracted text from files becomes regular string entries in the arrays.
 
----
+## Files to Create
+1. `supabase/functions/process-agent-document/index.ts`
 
-### 3. Public Frontend — Blog Pages
-
-**New page: `src/pages/Blog.tsx`** — Blog listing page (`/blog`)
-- Grid of published blog posts with cover images, titles, excerpts, reading time
-- SEO meta tags in document head
-- Matches existing Aurora design system (dark theme, glass cards)
-- Pagination or infinite scroll
-
-**New page: `src/pages/BlogPost.tsx`** — Individual post (`/blog/:slug`)
-- Full article rendered with react-markdown
-- SEO: dynamic `<title>`, meta description, keywords, OG image via `document.title` and meta tag injection
-- Structured data (JSON-LD Article schema) for GSO
-- Reading time, author, published date display
-- "Back to Blog" navigation
-- Share buttons (copy link)
-
-**Router updates in `App.tsx`**:
-- Add `/blog` and `/blog/:slug` routes (lazy loaded)
-
-**Header updates in `Header.tsx`**:
-- Add "Blog" nav link pointing to `/blog`
-
----
-
-### 4. SEO & GSO Optimizations
-
-- JSON-LD structured data (`Article`, `BlogPosting`) injected per post
-- Dynamic meta tags (title, description, og:image, og:type, canonical URL)
-- Clean URL slugs (`/blog/halal-travel-guide-dubai`)
-- Sitemap-friendly structure
-- AI prompt engineering for GSO: content structured with clear headings, FAQ sections, concise answers that AI search engines can extract
-
----
-
-### 5. Config Updates
-
-- `supabase/config.toml`: Add `[functions.blog-ai]` with `verify_jwt = false`
-
----
-
-### Summary
-
-~8 new/modified files:
-1. Database migration (blog_posts table)
-2. `supabase/functions/blog-ai/index.ts` — AI edge function
-3. `src/components/admin/BlogTab.tsx` — Admin editor with AI tools
-4. `src/pages/Blog.tsx` — Public blog listing
-5. `src/pages/BlogPost.tsx` — Public blog post page
-6. `src/App.tsx` — New routes
-7. `src/components/landing/Header.tsx` — Blog nav link
-8. `src/components/admin/AdminLayout.tsx` + `Admin.tsx` — Blog tab in admin
+## Files to Modify
+1. `src/components/admin/AIAgentConfigTab.tsx` -- full UI redesign with chat-style input
+2. `supabase/config.toml` -- register new function
 

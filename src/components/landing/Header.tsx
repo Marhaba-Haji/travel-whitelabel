@@ -20,6 +20,7 @@ const Header = () => {
     { name: "Features", href: "#features" },
     { name: "Portals", href: "#portals" },
     { name: "About", href: "/about", isPage: true },
+    { name: "Blog", href: "/blog", isPage: true },
     { name: "Destinations", href: "/categories-destinations", isPage: true },
     { name: "Pricing", href: "#pricing" },
     { name: "FAQ", href: "#faq" },

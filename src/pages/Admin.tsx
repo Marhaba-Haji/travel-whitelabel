@@ -12,6 +12,7 @@ import PricingTab from "@/components/admin/PricingTab";
 import CouponsTab from "@/components/admin/CouponsTab";
 import AIAgentConfigTab from "@/components/admin/AIAgentConfigTab";
 import SiteSettingsTab from "@/components/admin/SiteSettingsTab";
+import BlogTab from "@/components/admin/BlogTab";
 
 const tabComponents: Record<string, React.FC> = {
   overview: OverviewTab,
@@ -24,6 +25,7 @@ const tabComponents: Record<string, React.FC> = {
   payments: PaymentsTab,
   pricing: PricingTab,
   coupons: CouponsTab,
+  blog: BlogTab,
   "ai-agent": AIAgentConfigTab,
   settings: SiteSettingsTab,
 };
