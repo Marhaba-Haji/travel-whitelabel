@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Clock, BookOpen, X, Search, ChevronLeft, ChevronRight, Rss } from "lucide-react";
+import { Clock, BookOpen, X, Search, ChevronLeft, ChevronRight, Rss, Eye } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
@@ -21,6 +21,7 @@ interface BlogPost {
   meta_keywords: string[] | null;
   category: string | null;
   tags: string[] | null;
+  views_count?: number;
 }
 
 interface BlogCategory {
@@ -60,7 +61,7 @@ const Blog = () => {
       const [postsRes, catsRes] = await Promise.all([
         supabase
           .from("blog_posts")
-          .select("id, title, slug, excerpt, cover_image_url, author_name, reading_time_minutes, published_at, meta_keywords, category, tags")
+          .select("id, title, slug, excerpt, cover_image_url, author_name, reading_time_minutes, published_at, meta_keywords, category, tags, views_count")
           .eq("status", "published")
           .order("published_at", { ascending: false }),
         supabase.from("blog_categories").select("id, name, slug").order("name"),
@@ -300,6 +301,9 @@ const Blog = () => {
                             <span>{post.author_name || "Marhaba DMC"}</span>
                             <span className="flex items-center gap-1">
                               <Clock className="h-3 w-3" /> {post.reading_time_minutes || 1} min
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Eye className="h-3 w-3" /> {(post.views_count || 0).toLocaleString()}
                             </span>
                           </div>
                           <span>{post.published_at ? new Date(post.published_at).toLocaleDateString() : ""}</span>

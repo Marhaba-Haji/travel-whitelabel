@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Clock, User, Calendar, Share2, Check, BookOpen, List, Mail, Loader2, Sun, Moon } from "lucide-react";
+import { ArrowLeft, Clock, User, Calendar, Share2, Check, BookOpen, List, Mail, Loader2, Sun, Moon, Eye } from "lucide-react";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
 import ReactMarkdown from "react-markdown";
@@ -31,6 +31,7 @@ interface BlogPostData {
   published_at: string | null;
   category: string | null;
   tags: string[] | null;
+  views_count?: number;
 }
 
 interface RelatedPost {
@@ -122,6 +123,9 @@ const BlogPost = () => {
       setLoading(false);
 
       if (postData) {
+        // Increment view count
+        supabase.rpc("increment_blog_views", { _slug: slug }).then();
+
         const { data: allPublished } = await supabase
           .from("blog_posts")
           .select("id, title, slug, excerpt, cover_image_url, reading_time_minutes, published_at, category, tags")
@@ -286,6 +290,7 @@ const BlogPost = () => {
                 </span>
               )}
               <span className="flex items-center gap-1"><Clock className="h-4 w-4" /> {post.reading_time_minutes || 1} min read</span>
+              <span className="flex items-center gap-1"><Eye className="h-4 w-4" /> {(post.views_count || 0).toLocaleString()} views</span>
               <div className="flex items-center gap-1 ml-auto">
                 <a
                   href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(post.title)}`}
