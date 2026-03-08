@@ -140,7 +140,7 @@ const AIPowered = () => {
                 {benefits.map((benefit, index) => (
                   <div
                     key={benefit.title}
-                    className={`group glass-card rounded-2xl p-4 hover:shadow-2xl hover:border-white/20 transition-all duration-300 opacity-0 ${
+                    className={`group glass-card rounded-2xl p-4 hover:shadow-xl hover:border-white/20 transition-all duration-300 opacity-0 ${
                       isVisible ? "animate-scale-in" : ""
                     }`}
                     style={{ animationDelay: `${index * 0.1}s` }}
