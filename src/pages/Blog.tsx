@@ -147,9 +147,14 @@ const Blog = () => {
             <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
               Insights & Inspiration
             </h1>
-            <p className="text-lg text-muted-foreground">
+            <p className="text-lg text-muted-foreground mb-4">
               Expert articles on halal travel, destination guides, travel technology, and hospitality industry trends.
             </p>
+            <Button variant="outline" size="sm" asChild>
+              <a href={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/blog-rss`} target="_blank" rel="noreferrer">
+                <Rss className="h-4 w-4 mr-1" /> RSS Feed
+              </a>
+            </Button>
           </div>
 
           {/* Search */}
