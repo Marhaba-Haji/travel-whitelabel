@@ -121,6 +121,13 @@
     <noscript><img height="1" width="1" style="display:none"
       src="https://www.facebook.com/tr?id=1955006625447985&ev=PageView&noscript=1"
     /></noscript>
+    <!-- Inline critical CSS for instant FCP before main stylesheet loads -->
+    <style>
+      :root{color-scheme:dark}
+      body{margin:0;font-family:Inter,system-ui,-apple-system,sans-serif;background:#0a0b14;color:#e2e8f0}
+      #root{min-height:100vh}
+      .dark{--background:230 25% 5%;--foreground:210 40% 90%}
+    </style>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

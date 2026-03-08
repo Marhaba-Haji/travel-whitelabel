@@ -202,6 +202,7 @@ const Hero = () => {
             <img
               src="/assets/hero-globe-illustration.webp"
               alt="3D globe with airplane, compass and suitcase"
+              fetchpriority="high"
               width={1376}
               height={768}
               fetchPriority="high"
