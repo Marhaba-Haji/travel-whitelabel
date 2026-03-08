@@ -22,6 +22,8 @@ interface BlogPost {
   category: string | null;
   tags: string[] | null;
   views_count?: number;
+  post_type?: string;
+  cluster_id?: string | null;
 }
 
 interface BlogCategory {
@@ -285,7 +287,10 @@ const Blog = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {paginatedPosts.map((post) => (
                   <Link key={post.id} to={`/blog/${post.slug}`} className="group">
-                    <Card className="overflow-hidden h-full hover:border-primary/30 transition-all duration-300 hover:shadow-lg">
+                    <Card className="overflow-hidden h-full hover:border-primary/30 transition-all duration-300 hover:shadow-lg relative">
+                      {post.post_type === "pillar" && (
+                        <Badge variant="default" className="absolute top-3 right-3 z-10 text-xs">📌 Pillar</Badge>
+                      )}
                       {post.cover_image_url ? (
                         <div className="h-48 overflow-hidden">
                           <img

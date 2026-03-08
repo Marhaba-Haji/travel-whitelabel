@@ -17,7 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Plus, Edit, Trash2, Eye, Sparkles, FileText, Tags, Lightbulb,
   BookOpen, Wand2, Loader2, ArrowLeft, Copy, Search, Globe, Users,
-  Settings, Target, TrendingUp, Link2,
+  Settings, Target, TrendingUp, Link2, Image, AlertTriangle, Layers, Pin,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ReactMarkdown from "react-markdown";
@@ -42,12 +42,24 @@ interface BlogPost {
   category: string | null;
   tags: string[] | null;
   views_count: number;
+  cluster_id: string | null;
+  post_type: string;
+  pillar_post_id: string | null;
 }
 
 interface BlogCategory {
   id: string;
   name: string;
   slug: string;
+}
+
+interface BlogCluster {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  target_keyword: string;
+  created_at: string;
 }
 
 interface BlogAIConfig {
@@ -57,6 +69,13 @@ interface BlogAIConfig {
   brand_keywords: string[];
   differentiators: string;
   competitor_urls: string[];
+}
+
+interface CannibalizationOverlap {
+  keyword: string;
+  competing_post: string;
+  severity: string;
+  suggestion: string;
 }
 
 const DEFAULT_AI_CONFIG: BlogAIConfig = {
@@ -82,6 +101,7 @@ const calcReadingTime = (text: string) =>
 const BlogTab = () => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [categories, setCategories] = useState<BlogCategory[]>([]);
+  const [clusters, setClusters] = useState<BlogCluster[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [currentPost, setCurrentPost] = useState<Partial<BlogPost> | null>(null);
@@ -89,19 +109,25 @@ const BlogTab = () => {
   const [aiLoading, setAiLoading] = useState<string | null>(null);
   const [topicsDialog, setTopicsDialog] = useState(false);
   const [suggestedTopics, setSuggestedTopics] = useState<any[]>([]);
+  const [clusterDialog, setClusterDialog] = useState(false);
+  const [suggestedCluster, setSuggestedCluster] = useState<any>(null);
   const [newCategory, setNewCategory] = useState("");
+  const [newClusterName, setNewClusterName] = useState("");
+  const [newClusterKeyword, setNewClusterKeyword] = useState("");
   const [activeTab, setActiveTab] = useState("posts");
   const [aiConfig, setAiConfig] = useState<BlogAIConfig>(DEFAULT_AI_CONFIG);
   const [configLoading, setConfigLoading] = useState(false);
   const [researchData, setResearchData] = useState<any>(null);
   const [useResearch, setUseResearch] = useState(true);
   const [interlinkLoading, setInterlinkLoading] = useState<string | null>(null);
+  const [cannibalizationWarnings, setCannibalizationWarnings] = useState<CannibalizationOverlap[]>([]);
+  const [imageGenLoading, setImageGenLoading] = useState(false);
   const { toast } = useToast();
 
   const getExistingPostsCatalog = useCallback(() => {
     return posts
       .filter((p) => p.status === "published")
-      .map((p) => ({ title: p.title, slug: p.slug, excerpt: p.excerpt, tags: p.tags, category: p.category }));
+      .map((p) => ({ title: p.title, slug: p.slug, excerpt: p.excerpt, tags: p.tags, category: p.category, meta_keywords: p.meta_keywords }));
   }, [posts]);
 
   const fetchPosts = useCallback(async () => {
@@ -122,6 +148,11 @@ const BlogTab = () => {
     setCategories((data as unknown as BlogCategory[]) || []);
   }, []);
 
+  const fetchClusters = useCallback(async () => {
+    const { data } = await supabase.from("blog_clusters").select("*").order("created_at", { ascending: false });
+    setClusters((data as unknown as BlogCluster[]) || []);
+  }, []);
+
   const fetchAIConfig = useCallback(async () => {
     const { data } = await supabase
       .from("site_settings")
@@ -133,7 +164,7 @@ const BlogTab = () => {
     }
   }, []);
 
-  useEffect(() => { fetchPosts(); fetchCategories(); fetchAIConfig(); }, [fetchPosts, fetchCategories, fetchAIConfig]);
+  useEffect(() => { fetchPosts(); fetchCategories(); fetchClusters(); fetchAIConfig(); }, [fetchPosts, fetchCategories, fetchClusters, fetchAIConfig]);
 
   const saveAIConfig = async () => {
     setConfigLoading(true);
@@ -184,6 +215,154 @@ const BlogTab = () => {
     }
   };
 
+  const checkCannibalization = async () => {
+    if (!currentPost?.title) return;
+    setAiLoading("cannibalization");
+    try {
+      const { data, error } = await supabase.functions.invoke("blog-ai", {
+        body: {
+          action: "check_cannibalization",
+          title: currentPost.title,
+          existingPosts: getExistingPostsCatalog().filter((p) => p.slug !== currentPost?.slug),
+          brandConfig: aiConfig,
+        },
+      });
+      if (error) throw error;
+      if (data?.result) {
+        setCannibalizationWarnings(data.result.overlaps || []);
+        if (data.result.safe) {
+          toast({ title: "✅ No cannibalization detected", description: "This topic is safe to target." });
+        } else {
+          toast({ title: "⚠️ Keyword overlaps found", description: `${data.result.overlaps.length} potential conflicts detected.`, variant: "destructive" });
+        }
+      }
+    } catch (e: any) {
+      toast({ title: "Check failed", description: e.message, variant: "destructive" });
+    } finally {
+      setAiLoading(null);
+    }
+  };
+
+  const generateImages = async () => {
+    if (!currentPost?.content || !currentPost?.title) {
+      toast({ title: "Generate article content first", variant: "destructive" });
+      return;
+    }
+    setImageGenLoading(true);
+    try {
+      // Step 1: Extract image prompts from content
+      const { data: promptData, error: promptErr } = await supabase.functions.invoke("blog-ai", {
+        body: {
+          action: "generate_image_prompts",
+          title: currentPost.title,
+          content: currentPost.content,
+          brandConfig: aiConfig,
+        },
+      });
+      if (promptErr) throw promptErr;
+
+      const imagePrompts = promptData?.result;
+      if (!imagePrompts) throw new Error("No image prompts generated");
+
+      // Step 2: Generate actual images
+      const allPrompts = [
+        { ...imagePrompts.featured, type: "featured" },
+        ...(imagePrompts.content_images || []).map((img: any) => ({ ...img, type: "content" })),
+      ];
+
+      toast({ title: "Generating images...", description: `Creating ${allPrompts.length} images. This may take a minute.` });
+
+      const { data: imgData, error: imgErr } = await supabase.functions.invoke("blog-ai", {
+        body: {
+          action: "generate_images",
+          prompts: allPrompts,
+        },
+      });
+      if (imgErr) throw imgErr;
+
+      const generatedImages = imgData?.result || [];
+      if (generatedImages.length === 0) {
+        toast({ title: "No images generated", variant: "destructive" });
+        return;
+      }
+
+      // Step 3: Upload to Supabase storage and update content
+      let updatedContent = currentPost.content || "";
+      let featuredUrl = currentPost.cover_image_url || "";
+
+      for (const img of generatedImages) {
+        if (!img.image_base64) continue;
+
+        // Convert base64 to blob
+        const base64Data = img.image_base64.replace(/^data:image\/\w+;base64,/, "");
+        const binaryStr = atob(base64Data);
+        const bytes = new Uint8Array(binaryStr.length);
+        for (let i = 0; i < binaryStr.length; i++) bytes[i] = binaryStr.charCodeAt(i);
+        const blob = new Blob([bytes], { type: "image/png" });
+
+        const fileName = `${currentPost.slug || "post"}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}.png`;
+        const { data: uploadData, error: uploadErr } = await supabase.storage
+          .from("blog-images")
+          .upload(fileName, blob, { contentType: "image/png", cacheControl: "31536000" });
+
+        if (uploadErr) {
+          console.error("Upload error:", uploadErr);
+          continue;
+        }
+
+        const { data: urlData } = supabase.storage.from("blog-images").getPublicUrl(fileName);
+        const publicUrl = urlData.publicUrl;
+
+        if (img.type === "featured") {
+          featuredUrl = publicUrl;
+        } else if (img.marker) {
+          // Replace the [IMAGE_N: ...] marker with actual image markdown
+          const markerRegex = new RegExp(img.marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g");
+          updatedContent = updatedContent.replace(markerRegex, `![${img.alt_text || "Blog image"}](${publicUrl})`);
+        }
+      }
+
+      // Also replace any remaining [IMAGE_N: ...] markers that weren't matched
+      updatedContent = updatedContent.replace(/\[IMAGE_\d+:\s*[^\]]+\]/g, "");
+
+      setCurrentPost((prev) => prev ? {
+        ...prev,
+        content: updatedContent,
+        cover_image_url: featuredUrl || prev.cover_image_url,
+        og_image_url: featuredUrl || prev.og_image_url,
+      } : prev);
+
+      toast({ title: "Images generated!", description: `${generatedImages.length} images created and uploaded.` });
+    } catch (e: any) {
+      toast({ title: "Image generation failed", description: e.message, variant: "destructive" });
+    } finally {
+      setImageGenLoading(false);
+    }
+  };
+
+  const addCluster = async () => {
+    if (!newClusterName.trim() || !newClusterKeyword.trim()) return;
+    const { error } = await supabase.from("blog_clusters").insert({
+      name: newClusterName.trim(),
+      slug: slugify(newClusterName.trim()),
+      target_keyword: newClusterKeyword.trim(),
+    } as any);
+    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+    else {
+      setNewClusterName("");
+      setNewClusterKeyword("");
+      fetchClusters();
+      toast({ title: "Cluster created!" });
+    }
+  };
+
+  const deleteCluster = async (id: string) => {
+    if (!confirm("Delete this cluster? Posts won't be deleted.")) return;
+    const { error } = await supabase.from("blog_clusters").delete().eq("id", id);
+    if (error) toast({ title: "Delete failed", description: error.message, variant: "destructive" });
+    else { fetchClusters(); toast({ title: "Cluster deleted" }); }
+  };
+
   const addCategory = async () => {
     if (!newCategory.trim()) return;
     const { error } = await supabase.from("blog_categories").insert({ name: newCategory.trim(), slug: slugify(newCategory.trim()) });
@@ -192,12 +371,14 @@ const BlogTab = () => {
   };
 
   const openNew = () => {
-    setCurrentPost({ title: "", slug: "", content: "", excerpt: "", status: "draft", cover_image_url: "", meta_title: "", meta_description: "", meta_keywords: [], og_image_url: "", author_name: "Marhaba DMC", category: "", tags: [] });
+    setCurrentPost({ title: "", slug: "", content: "", excerpt: "", status: "draft", cover_image_url: "", meta_title: "", meta_description: "", meta_keywords: [], og_image_url: "", author_name: "Marhaba DMC", category: "", tags: [], cluster_id: null, post_type: "standard", pillar_post_id: null });
+    setCannibalizationWarnings([]);
     setEditing(true);
   };
 
   const openEdit = (post: BlogPost) => {
     setCurrentPost({ ...post });
+    setCannibalizationWarnings([]);
     setEditing(true);
   };
 
@@ -227,6 +408,9 @@ const BlogTab = () => {
       published_at: currentPost.status === "published" && !currentPost.published_at ? new Date().toISOString() : currentPost.published_at,
       category: currentPost.category || null,
       tags: currentPost.tags?.length ? currentPost.tags : [],
+      cluster_id: currentPost.cluster_id || null,
+      post_type: currentPost.post_type || "standard",
+      pillar_post_id: currentPost.pillar_post_id || null,
     };
 
     let error;
@@ -252,6 +436,25 @@ const BlogTab = () => {
     else { toast({ title: "Post deleted" }); fetchPosts(); }
   };
 
+  // Build cluster context for AI
+  const getClusterContext = useCallback(() => {
+    if (!currentPost?.cluster_id) return undefined;
+    const cluster = clusters.find((c) => c.id === currentPost.cluster_id);
+    if (!cluster) return undefined;
+    const clusterPosts = posts
+      .filter((p) => p.cluster_id === cluster.id && p.id !== currentPost.id)
+      .map((p) => ({ title: p.title, slug: p.slug, post_type: p.post_type }));
+    const pillar = posts.find((p) => p.id === currentPost.pillar_post_id);
+    return {
+      cluster_name: cluster.name,
+      target_keyword: cluster.target_keyword,
+      post_type: currentPost.post_type,
+      pillar_title: pillar?.title,
+      pillar_slug: pillar?.slug,
+      cluster_posts: clusterPosts,
+    };
+  }, [currentPost, clusters, posts]);
+
   // AI helpers
   const callAI = async (action: string, extra: Record<string, string> = {}) => {
     setAiLoading(action);
@@ -259,6 +462,7 @@ const BlogTab = () => {
       const existingPosts = (action === "generate_article" || action === "interlink_posts")
         ? getExistingPostsCatalog().filter((p) => p.slug !== currentPost?.slug)
         : undefined;
+      const clusterInfo = action === "generate_article" ? getClusterContext() : undefined;
       const body: any = {
         action,
         title: currentPost?.title,
@@ -266,6 +470,7 @@ const BlogTab = () => {
         brandConfig: aiConfig,
         ...(useResearch && researchData ? { research: researchData } : {}),
         ...(existingPosts?.length ? { existingPosts } : {}),
+        ...(clusterInfo ? { clusterInfo } : {}),
         ...extra,
       };
 
@@ -321,7 +526,14 @@ const BlogTab = () => {
         }
         if (textBuffer.trim()) processBuffer();
 
-        toast({ title: action === "generate_article" ? "Article generated!" : "Content improved!" });
+        toast({ title: action === "generate_article" ? "Article generated!" : action === "interlink_posts" ? "Internal links added!" : "Content improved!" });
+      } else if (action === "suggest_cluster") {
+        const { data, error } = await supabase.functions.invoke("blog-ai", { body });
+        if (error) throw error;
+        if (data?.result) {
+          setSuggestedCluster(data.result);
+          setClusterDialog(true);
+        }
       } else {
         // Non-streaming
         const { data, error } = await supabase.functions.invoke("blog-ai", { body });
@@ -429,12 +641,31 @@ const BlogTab = () => {
     toast({ title: "All posts re-linked!" });
   };
 
+  const createClusterFromSuggestion = async () => {
+    if (!suggestedCluster) return;
+    const { error } = await supabase.from("blog_clusters").insert({
+      name: suggestedCluster.cluster_name,
+      slug: slugify(suggestedCluster.cluster_name),
+      target_keyword: suggestedCluster.target_keyword,
+      description: `Pillar: ${suggestedCluster.pillar.title}`,
+    } as any);
+    if (error) {
+      toast({ title: "Error creating cluster", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Cluster created!" });
+      fetchClusters();
+      setClusterDialog(false);
+    }
+  };
+
+  // ─── Posts List View ───
   if (!editing) {
     return (
       <div className="space-y-6">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList>
             <TabsTrigger value="posts"><FileText className="h-4 w-4 mr-1" />Posts</TabsTrigger>
+            <TabsTrigger value="clusters"><Layers className="h-4 w-4 mr-1" />Clusters</TabsTrigger>
             <TabsTrigger value="config"><Settings className="h-4 w-4 mr-1" />AI Config</TabsTrigger>
           </TabsList>
 
@@ -470,8 +701,8 @@ const BlogTab = () => {
                     <TableRow>
                       <TableHead>Title</TableHead>
                       <TableHead>Status</TableHead>
+                      <TableHead>Type</TableHead>
                       <TableHead>Views</TableHead>
-                      <TableHead>Reading Time</TableHead>
                       <TableHead>Date</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
@@ -479,18 +710,29 @@ const BlogTab = () => {
                   <TableBody>
                     {posts.map((post) => (
                       <TableRow key={post.id}>
-                        <TableCell className="font-medium max-w-xs truncate">{post.title}</TableCell>
+                        <TableCell className="font-medium max-w-xs truncate">
+                          {post.title}
+                          {post.cluster_id && (
+                            <Badge variant="outline" className="ml-2 text-xs">
+                              {clusters.find((c) => c.id === post.cluster_id)?.name || "Cluster"}
+                            </Badge>
+                          )}
+                        </TableCell>
                         <TableCell>
                           <Badge variant={post.status === "published" ? "default" : "secondary"}>
                             {post.status}
                           </Badge>
                         </TableCell>
                         <TableCell>
+                          {post.post_type === "pillar" && <Badge variant="default" className="text-xs">📌 Pillar</Badge>}
+                          {post.post_type === "supporting" && <Badge variant="secondary" className="text-xs">📎 Support</Badge>}
+                          {post.post_type === "standard" && <span className="text-xs text-muted-foreground">Standard</span>}
+                        </TableCell>
+                        <TableCell>
                           <span className="flex items-center gap-1 text-muted-foreground">
                             <Eye className="h-3.5 w-3.5" /> {(post.views_count || 0).toLocaleString()}
                           </span>
                         </TableCell>
-                        <TableCell>{post.reading_time_minutes} min</TableCell>
                         <TableCell className="text-muted-foreground text-sm">
                           {new Date(post.published_at || post.created_at).toLocaleDateString()}
                         </TableCell>
@@ -516,6 +758,84 @@ const BlogTab = () => {
                     ))}
                   </TableBody>
                 </Table>
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Clusters Tab */}
+          <TabsContent value="clusters" className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-semibold text-foreground">Content Clusters</h2>
+                <p className="text-sm text-muted-foreground">Organize posts into pillar + supporting article clusters for SEO.</p>
+              </div>
+              <Button variant="outline" size="sm" onClick={() => callAI("suggest_cluster", { topic: "halal travel" })} disabled={!!aiLoading}>
+                {aiLoading === "suggest_cluster" ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Sparkles className="h-4 w-4 mr-1" />}
+                AI Suggest Cluster
+              </Button>
+            </div>
+
+            {/* Create Cluster */}
+            <Card>
+              <CardHeader className="pb-3"><CardTitle className="text-base">Create Cluster</CardTitle></CardHeader>
+              <CardContent className="flex gap-2">
+                <Input value={newClusterName} onChange={(e) => setNewClusterName(e.target.value)} placeholder="Cluster name" className="flex-1" />
+                <Input value={newClusterKeyword} onChange={(e) => setNewClusterKeyword(e.target.value)} placeholder="Target keyword" className="flex-1" />
+                <Button onClick={addCluster} disabled={!newClusterName.trim() || !newClusterKeyword.trim()}>
+                  <Plus className="h-4 w-4 mr-1" /> Add
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Cluster List */}
+            {clusters.length === 0 ? (
+              <Card><CardContent className="py-8 text-center text-muted-foreground">No clusters yet. Create one above or use AI to suggest a cluster strategy.</CardContent></Card>
+            ) : (
+              <div className="space-y-4">
+                {clusters.map((cluster) => {
+                  const clusterPosts = posts.filter((p) => p.cluster_id === cluster.id);
+                  const pillarPost = clusterPosts.find((p) => p.post_type === "pillar");
+                  const supportPosts = clusterPosts.filter((p) => p.post_type === "supporting");
+                  return (
+                    <Card key={cluster.id}>
+                      <CardHeader className="pb-2">
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-base flex items-center gap-2">
+                            <Layers className="h-4 w-4" /> {cluster.name}
+                            <Badge variant="outline" className="text-xs font-normal">{cluster.target_keyword}</Badge>
+                          </CardTitle>
+                          <Button variant="ghost" size="icon" onClick={() => deleteCluster(cluster.id)}>
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2">
+                          {pillarPost ? (
+                            <div className="flex items-center gap-2 text-sm">
+                              <Pin className="h-3.5 w-3.5 text-primary" />
+                              <span className="font-medium text-foreground">{pillarPost.title}</span>
+                              <Badge variant={pillarPost.status === "published" ? "default" : "secondary"} className="text-xs">{pillarPost.status}</Badge>
+                            </div>
+                          ) : (
+                            <p className="text-sm text-muted-foreground italic">No pillar post assigned</p>
+                          )}
+                          {supportPosts.length > 0 && (
+                            <div className="pl-6 space-y-1">
+                              {supportPosts.map((sp) => (
+                                <div key={sp.id} className="flex items-center gap-2 text-sm text-muted-foreground">
+                                  <span>↳</span> {sp.title}
+                                  <Badge variant={sp.status === "published" ? "default" : "secondary"} className="text-xs">{sp.status}</Badge>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          <p className="text-xs text-muted-foreground">{clusterPosts.length} posts in cluster</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             )}
           </TabsContent>
@@ -626,7 +946,7 @@ const BlogTab = () => {
             <div className="space-y-3 max-h-[60vh] overflow-auto">
               {suggestedTopics.map((t, i) => (
                 <Card key={i} className="cursor-pointer hover:border-primary/40 transition-colors" onClick={() => {
-                  setCurrentPost({ title: t.title, slug: slugify(t.title), content: "", excerpt: "", status: "draft", meta_keywords: t.keywords, author_name: "Marhaba DMC" });
+                  setCurrentPost({ title: t.title, slug: slugify(t.title), content: "", excerpt: "", status: "draft", meta_keywords: t.keywords, author_name: "Marhaba DMC", post_type: "standard", cluster_id: null, pillar_post_id: null });
                   setTopicsDialog(false);
                   setEditing(true);
                 }}>
@@ -642,6 +962,40 @@ const BlogTab = () => {
                 </Card>
               ))}
             </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Cluster Suggestion Dialog */}
+        <Dialog open={clusterDialog} onOpenChange={setClusterDialog}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader><DialogTitle>AI-Suggested Content Cluster</DialogTitle></DialogHeader>
+            {suggestedCluster && (
+              <div className="space-y-4 max-h-[60vh] overflow-auto">
+                <div>
+                  <p className="font-semibold text-foreground">{suggestedCluster.cluster_name}</p>
+                  <Badge variant="outline" className="text-xs mt-1">{suggestedCluster.target_keyword}</Badge>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-foreground flex items-center gap-1"><Pin className="h-3.5 w-3.5" /> Pillar Post</p>
+                  <p className="text-sm text-muted-foreground">{suggestedCluster.pillar?.title}</p>
+                  <p className="text-xs text-muted-foreground">{suggestedCluster.pillar?.description}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-foreground">Supporting Posts ({suggestedCluster.supporting_posts?.length})</p>
+                  <div className="space-y-2 mt-1">
+                    {suggestedCluster.supporting_posts?.map((sp: any, i: number) => (
+                      <div key={i} className="text-sm">
+                        <p className="text-foreground">{sp.title}</p>
+                        <p className="text-xs text-muted-foreground">{sp.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <Button onClick={createClusterFromSuggestion} className="w-full">
+                  <Plus className="h-4 w-4 mr-1" /> Create This Cluster
+                </Button>
+              </div>
+            )}
           </DialogContent>
         </Dialog>
       </div>
@@ -671,6 +1025,24 @@ const BlogTab = () => {
             <Label>Slug</Label>
             <Input value={currentPost?.slug || ""} onChange={(e) => setCurrentPost((p) => p ? { ...p, slug: e.target.value } : p)} placeholder="url-friendly-slug" />
           </div>
+
+          {/* Cannibalization Warnings */}
+          {cannibalizationWarnings.length > 0 && (
+            <Card className="border-destructive/50">
+              <CardContent className="py-3 space-y-2">
+                <p className="text-sm font-medium text-destructive flex items-center gap-1"><AlertTriangle className="h-4 w-4" /> Keyword Cannibalization Detected</p>
+                {cannibalizationWarnings.map((w, i) => (
+                  <div key={i} className="text-xs text-muted-foreground pl-5">
+                    <span className={`font-medium ${w.severity === "high" ? "text-destructive" : w.severity === "medium" ? "text-yellow-500" : "text-muted-foreground"}`}>
+                      [{w.severity.toUpperCase()}]
+                    </span>{" "}
+                    "{w.keyword}" conflicts with "{w.competing_post}" — {w.suggestion}
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
+
           <div>
             <div className="flex items-center justify-between mb-1">
               <Label>Content (Markdown)</Label>
@@ -683,7 +1055,6 @@ const BlogTab = () => {
             </div>
             {previewing ? (
               <Card className="min-h-[400px] p-6 overflow-auto">
-                {/* Reading stats */}
                 {currentPost?.content && (
                   <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4 pb-3 border-b border-border">
                     <span className="flex items-center gap-1"><BookOpen className="h-3.5 w-3.5" /> {currentPost.content.split(/\s+/).filter(Boolean).length} words</span>
@@ -738,7 +1109,7 @@ const BlogTab = () => {
                 <Input
                   value={currentPost?.cover_image_url || ""}
                   onChange={(e) => setCurrentPost((p) => p ? { ...p, cover_image_url: e.target.value } : p)}
-                  placeholder="https://…"
+                  placeholder="https://… (or auto-generate below)"
                 />
               </div>
               <div>
@@ -758,6 +1129,53 @@ const BlogTab = () => {
                   <Button variant="outline" size="sm" onClick={addCategory} className="h-8 px-2 text-xs">Add</Button>
                 </div>
               </div>
+
+              {/* Cluster & Post Type */}
+              <div>
+                <Label>Content Cluster</Label>
+                <select
+                  value={currentPost?.cluster_id || ""}
+                  onChange={(e) => setCurrentPost((p) => p ? { ...p, cluster_id: e.target.value || null } : p)}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <option value="">No cluster</option>
+                  {clusters.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name} ({c.target_keyword})</option>
+                  ))}
+                </select>
+              </div>
+              {currentPost?.cluster_id && (
+                <>
+                  <div>
+                    <Label>Post Type</Label>
+                    <select
+                      value={currentPost?.post_type || "standard"}
+                      onChange={(e) => setCurrentPost((p) => p ? { ...p, post_type: e.target.value } : p)}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                      <option value="standard">Standard</option>
+                      <option value="pillar">📌 Pillar Post</option>
+                      <option value="supporting">📎 Supporting Post</option>
+                    </select>
+                  </div>
+                  {currentPost?.post_type === "supporting" && (
+                    <div>
+                      <Label>Pillar Post</Label>
+                      <select
+                        value={currentPost?.pillar_post_id || ""}
+                        onChange={(e) => setCurrentPost((p) => p ? { ...p, pillar_post_id: e.target.value || null } : p)}
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      >
+                        <option value="">Select pillar post</option>
+                        {posts.filter((p) => p.cluster_id === currentPost?.cluster_id && p.post_type === "pillar").map((p) => (
+                          <option key={p.id} value={p.id}>{p.title}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </>
+              )}
+
               <div>
                 <Label>Tags (comma-separated)</Label>
                 <Input
@@ -809,6 +1227,10 @@ const BlogTab = () => {
                 </div>
               )}
               <div className="border-t border-border pt-2 space-y-2">
+                <Button variant="outline" size="sm" className="w-full justify-start" disabled={!!aiLoading || !currentPost?.title} onClick={checkCannibalization}>
+                  {aiLoading === "cannibalization" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <AlertTriangle className="h-4 w-4 mr-2" />}
+                  Check Cannibalization
+                </Button>
                 <Button variant="outline" size="sm" className="w-full justify-start" disabled={!!aiLoading} onClick={() => callAI("generate_article")}>
                   {aiLoading === "generate_article" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Wand2 className="h-4 w-4 mr-2" />}
                   Generate Full Article{researchData && useResearch ? " (with research)" : ""}
@@ -816,6 +1238,10 @@ const BlogTab = () => {
                 <Button variant="outline" size="sm" className="w-full justify-start" disabled={!!aiLoading || !currentPost?.content} onClick={() => callAI("improve_content")}>
                   {aiLoading === "improve_content" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <BookOpen className="h-4 w-4 mr-2" />}
                   Improve for SEO
+                </Button>
+                <Button variant="outline" size="sm" className="w-full justify-start" disabled={!!aiLoading || !currentPost?.content || imageGenLoading} onClick={generateImages}>
+                  {imageGenLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Image className="h-4 w-4 mr-2" />}
+                  Generate Images (4)
                 </Button>
                 <Button variant="outline" size="sm" className="w-full justify-start" disabled={!!aiLoading || !currentPost?.content} onClick={() => callAI("generate_meta")}>
                   {aiLoading === "generate_meta" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Tags className="h-4 w-4 mr-2" />}

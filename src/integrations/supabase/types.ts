@@ -38,10 +38,38 @@ export type Database = {
         }
         Relationships: []
       }
+      blog_clusters: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          slug: string
+          target_keyword: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          slug: string
+          target_keyword: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          slug?: string
+          target_keyword?: string
+        }
+        Relationships: []
+      }
       blog_posts: {
         Row: {
           author_name: string | null
           category: string | null
+          cluster_id: string | null
           content: string
           cover_image_url: string | null
           created_at: string
@@ -51,6 +79,8 @@ export type Database = {
           meta_keywords: string[] | null
           meta_title: string | null
           og_image_url: string | null
+          pillar_post_id: string | null
+          post_type: string
           published_at: string | null
           reading_time_minutes: number | null
           slug: string
@@ -63,6 +93,7 @@ export type Database = {
         Insert: {
           author_name?: string | null
           category?: string | null
+          cluster_id?: string | null
           content?: string
           cover_image_url?: string | null
           created_at?: string
@@ -72,6 +103,8 @@ export type Database = {
           meta_keywords?: string[] | null
           meta_title?: string | null
           og_image_url?: string | null
+          pillar_post_id?: string | null
+          post_type?: string
           published_at?: string | null
           reading_time_minutes?: number | null
           slug: string
@@ -84,6 +117,7 @@ export type Database = {
         Update: {
           author_name?: string | null
           category?: string | null
+          cluster_id?: string | null
           content?: string
           cover_image_url?: string | null
           created_at?: string
@@ -93,6 +127,8 @@ export type Database = {
           meta_keywords?: string[] | null
           meta_title?: string | null
           og_image_url?: string | null
+          pillar_post_id?: string | null
+          post_type?: string
           published_at?: string | null
           reading_time_minutes?: number | null
           slug?: string
@@ -102,7 +138,22 @@ export type Database = {
           updated_at?: string
           views_count?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "blog_posts_cluster_id_fkey"
+            columns: ["cluster_id"]
+            isOneToOne: false
+            referencedRelation: "blog_clusters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blog_posts_pillar_post_id_fkey"
+            columns: ["pillar_post_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       contact_enquiries: {
         Row: {

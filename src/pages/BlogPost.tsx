@@ -32,6 +32,9 @@ interface BlogPostData {
   category: string | null;
   tags: string[] | null;
   views_count?: number;
+  cluster_id?: string | null;
+  post_type?: string;
+  pillar_post_id?: string | null;
 }
 
 interface RelatedPost {
@@ -50,6 +53,31 @@ interface TocItem {
   id: string;
   text: string;
   level: number;
+}
+
+interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+// Extract FAQ items from markdown content for structured data
+function extractFAQs(content: string): FAQItem[] {
+  const faqs: FAQItem[] = [];
+  // Look for ## Frequently Asked Questions section, then ### questions
+  const faqSectionMatch = content.match(/##\s*Frequently Asked Questions\s*\n([\s\S]*?)(?=\n## [^#]|$)/i);
+  if (!faqSectionMatch) return faqs;
+
+  const faqSection = faqSectionMatch[1];
+  const questionRegex = /###\s*(.+?)\??\s*\n([\s\S]*?)(?=\n### |$)/g;
+  let match;
+  while ((match = questionRegex.exec(faqSection)) !== null) {
+    const question = match[1].trim().replace(/\?$/, "") + "?";
+    const answer = match[2].trim();
+    if (question && answer) {
+      faqs.push({ question, answer });
+    }
+  }
+  return faqs;
 }
 
 const BlogPost = () => {
@@ -80,6 +108,12 @@ const BlogPost = () => {
       items.push({ id, text, level: match[1].length });
     }
     return items;
+  }, [post?.content]);
+
+  // Extract FAQs for schema
+  const faqs = useMemo(() => {
+    if (!post?.content) return [];
+    return extractFAQs(post.content);
   }, [post?.content]);
 
   // Reading progress bar
@@ -152,7 +186,7 @@ const BlogPost = () => {
     fetchPost();
   }, [slug]);
 
-  // SEO meta injection
+  // SEO meta + structured data injection
   useEffect(() => {
     if (!post) return;
     document.title = post.meta_title || `${post.title} | Marhaba DMC Blog`;
@@ -171,25 +205,103 @@ const BlogPost = () => {
     setMeta("og:type", "article", true);
     setMeta("og:url", window.location.href, true);
     if (post.og_image_url || post.cover_image_url) setMeta("og:image", post.og_image_url || post.cover_image_url!, true);
+    // Additional article meta
+    if (post.category) setMeta("article:section", post.category, true);
+    if (post.tags?.length) post.tags.forEach((tag) => setMeta("article:tag", tag, true));
+    if (post.published_at) setMeta("article:published_time", post.published_at, true);
 
-    const script = document.createElement("script");
-    script.type = "application/ld+json";
-    script.textContent = JSON.stringify({
+    const scripts: HTMLScriptElement[] = [];
+
+    // 1. Article + speakable JSON-LD
+    const articleSchema: any = {
       "@context": "https://schema.org",
-      "@type": "BlogPosting",
+      "@type": "Article",
       headline: post.title,
       description: post.meta_description || post.excerpt || "",
       image: post.og_image_url || post.cover_image_url || "",
-      author: { "@type": "Organization", name: post.author_name || "Marhaba DMC" },
-      publisher: { "@type": "Organization", name: "Marhaba DMC", url: "https://marhabadmc.lovable.app" },
+      author: { "@type": "Organization", name: post.author_name || "Marhaba DMC", url: "https://marhabadmc.lovable.app" },
+      publisher: {
+        "@type": "Organization",
+        name: "Marhaba DMC",
+        url: "https://marhabadmc.lovable.app",
+        logo: { "@type": "ImageObject", url: "https://marhabadmc.lovable.app/assets/marhaba-dmc-logo.png" },
+      },
       datePublished: post.published_at,
+      dateModified: post.published_at,
       url: window.location.href,
+      mainEntityOfPage: { "@type": "WebPage", "@id": window.location.href },
       wordCount: post.content.split(/\s+/).length,
       timeRequired: `PT${post.reading_time_minutes || 1}M`,
-    });
-    document.head.appendChild(script);
+      speakable: {
+        "@type": "SpeakableSpecification",
+        cssSelector: ["article h1", "article .prose p:first-of-type"],
+      },
+      keywords: post.meta_keywords?.join(", ") || "",
+    };
+    if (post.category) {
+      articleSchema.articleSection = post.category;
+    }
 
-    return () => { document.head.removeChild(script); };
+    const articleScript = document.createElement("script");
+    articleScript.type = "application/ld+json";
+    articleScript.textContent = JSON.stringify(articleSchema);
+    document.head.appendChild(articleScript);
+    scripts.push(articleScript);
+
+    // 2. BreadcrumbList JSON-LD
+    const breadcrumbSchema = {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: "https://marhabadmc.lovable.app" },
+        { "@type": "ListItem", position: 2, name: "Blog", item: "https://marhabadmc.lovable.app/blog" },
+        ...(post.category ? [{
+          "@type": "ListItem",
+          position: 3,
+          name: post.category,
+          item: `https://marhabadmc.lovable.app/blog?category=${post.category}`,
+        }] : []),
+        {
+          "@type": "ListItem",
+          position: post.category ? 4 : 3,
+          name: post.title,
+          item: window.location.href,
+        },
+      ],
+    };
+    const breadcrumbScript = document.createElement("script");
+    breadcrumbScript.type = "application/ld+json";
+    breadcrumbScript.textContent = JSON.stringify(breadcrumbSchema);
+    document.head.appendChild(breadcrumbScript);
+    scripts.push(breadcrumbScript);
+
+    // 3. FAQPage JSON-LD (if FAQ section exists)
+    const faqItems = extractFAQs(post.content);
+    if (faqItems.length > 0) {
+      const faqSchema = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: faqItems.map((faq) => ({
+          "@type": "Question",
+          name: faq.question,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: faq.answer,
+          },
+        })),
+      };
+      const faqScript = document.createElement("script");
+      faqScript.type = "application/ld+json";
+      faqScript.textContent = JSON.stringify(faqSchema);
+      document.head.appendChild(faqScript);
+      scripts.push(faqScript);
+    }
+
+    return () => {
+      scripts.forEach((s) => {
+        try { document.head.removeChild(s); } catch {}
+      });
+    };
   }, [post]);
 
   const share = async () => {
@@ -210,18 +322,6 @@ const BlogPost = () => {
       setTocOpen(false);
     }
   };
-
-  // Custom heading renderer to add IDs
-  const headingRenderer = useCallback(({ node, children, ...props }: any) => {
-    const text = String(children);
-    const id = text.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
-    const Tag = `h${props.node?.tagName?.replace("h", "") || "2"}` as keyof JSX.IntrinsicElements;
-    // Determine level from the node
-    const level = parseInt(node?.tagName?.replace("h", "") || "2", 10);
-    if (level === 2) return <h2 id={id} className="scroll-mt-24" {...props}>{children}</h2>;
-    if (level === 3) return <h3 id={id} className="scroll-mt-24" {...props}>{children}</h3>;
-    return <h2 id={id} className="scroll-mt-24" {...props}>{children}</h2>;
-  }, []);
 
   if (loading) {
     return (
@@ -268,11 +368,28 @@ const BlogPost = () => {
       <article className="pt-24 pb-20" ref={articleRef}>
         <div className="container mx-auto px-4 max-w-3xl">
           {/* Breadcrumb */}
-          <div className="mb-8">
-            <Link to="/blog" className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors">
-              <ArrowLeft className="h-4 w-4" /> Back to Blog
-            </Link>
-          </div>
+          <nav aria-label="breadcrumb" className="mb-8">
+            <ol className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
+              <li><Link to="/" className="hover:text-foreground transition-colors">Home</Link></li>
+              <li>/</li>
+              <li><Link to="/blog" className="hover:text-foreground transition-colors">Blog</Link></li>
+              {post.category && (
+                <>
+                  <li>/</li>
+                  <li><Link to={`/blog?category=${post.category}`} className="hover:text-foreground transition-colors">{post.category}</Link></li>
+                </>
+              )}
+              <li>/</li>
+              <li className="text-foreground font-medium truncate max-w-[200px]">{post.title}</li>
+            </ol>
+          </nav>
+
+          {/* Pillar/Supporting badge */}
+          {post.post_type && post.post_type !== "standard" && (
+            <Badge variant={post.post_type === "pillar" ? "default" : "secondary"} className="mb-3">
+              {post.post_type === "pillar" ? "📌 Pillar Guide" : "📎 Deep Dive"}
+            </Badge>
+          )}
 
           {/* Header */}
           <header className="mb-8">
@@ -330,7 +447,14 @@ const BlogPost = () => {
           {/* Cover */}
           {post.cover_image_url && (
             <div className="mb-8 rounded-lg overflow-hidden">
-              <img src={post.cover_image_url} alt={post.title} className="w-full h-auto max-h-96 object-cover" />
+              <img
+                src={post.cover_image_url}
+                alt={post.meta_description || post.title}
+                className="w-full h-auto max-h-96 object-cover"
+                loading="eager"
+                width={1200}
+                height={630}
+              />
             </div>
           )}
 
@@ -381,6 +505,15 @@ const BlogPost = () => {
                   const id = text.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
                   return <h3 id={id} className="scroll-mt-24" {...props}>{children}</h3>;
                 },
+                img: ({ node, ...props }) => (
+                  <img
+                    {...props}
+                    alt={props.alt || "Blog image"}
+                    loading="lazy"
+                    className="w-full h-auto rounded-lg my-6"
+                    sizes="(max-width: 768px) 100vw, 720px"
+                  />
+                ),
                 pre: ({ children }) => {
                   return <div className="relative group not-prose">{children}</div>;
                 },
