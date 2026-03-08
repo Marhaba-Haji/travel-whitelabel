@@ -39,7 +39,7 @@ const Testimonials = () => {
   ];
 
   return (
-    <section className="py-24 relative overflow-hidden">
+    <section className="py-24 relative overflow-hidden" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 800px' }}>
       {/* Aurora background */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_hsl(270_70%_58%_/_0.08),_transparent_50%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_hsl(210_100%_50%_/_0.06),_transparent_50%)]" />
