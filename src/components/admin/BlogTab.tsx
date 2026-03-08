@@ -526,7 +526,7 @@ const BlogTab = () => {
       toast({ title: "Blog post saved!" });
       // Auto-submit to search engines if published
       if (currentPost.status === "published") {
-        const postUrl = `https://marhabadmc.lovable.app/blog/${currentPost.slug}`;
+        const postUrl = `https://marhabadmc.com/blog/${currentPost.slug}`;
         supabase.functions.invoke("indexnow", { body: { urls: [postUrl] } })
           .then(() => toast({ title: "📡 Submitted to search engines for indexing" }))
           .catch(() => {}); // silent fail
