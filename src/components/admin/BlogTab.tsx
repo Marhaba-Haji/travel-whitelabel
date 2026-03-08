@@ -269,7 +269,7 @@ const BlogTab = () => {
         ...extra,
       };
 
-      if (action === "generate_article" || action === "improve_content") {
+      if (action === "generate_article" || action === "improve_content" || action === "interlink_posts") {
         // Streaming
         const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/blog-ai`;
         const resp = await fetch(url, {
