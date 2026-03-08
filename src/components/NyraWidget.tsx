@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Mic, Globe, PhoneCall, Loader2, X, PanelRightOpen, PanelRightClose, MessageSquare, Send, ArrowLeft } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import { useLiveAPI, ItineraryToolHandler, SessionContext, ItineraryStateGetter } from '@/hooks/useLiveAPI';
+import { useLiveAPI, ItineraryToolHandler, SessionContext, ItineraryStateGetter, ToolCallTracker } from '@/hooks/useLiveAPI';
 import { useNyraChat } from '@/hooks/useNyraChat';
 import { useItinerary } from '@/contexts/ItineraryContext';
 import { useIsMobile } from '@/hooks/use-mobile';
