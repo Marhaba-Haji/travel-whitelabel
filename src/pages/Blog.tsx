@@ -98,7 +98,12 @@ const Blog = () => {
     setSearchParams({}, { replace: true });
   };
 
-  const hasFilters = activeCategory || activeTag;
+  const hasFilters = activeCategory || activeTag || activeSearch;
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setFilter("q", searchQuery.trim());
+  };
 
   return (
     <div className="min-h-screen bg-background">

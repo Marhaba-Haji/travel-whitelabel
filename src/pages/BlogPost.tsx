@@ -3,13 +3,14 @@ import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Clock, User, Calendar, Share2, Check } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { ArrowLeft, Clock, User, Calendar, Share2, Check, BookOpen } from "lucide-react";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
 import ReactMarkdown from "react-markdown";
 import { useToast } from "@/hooks/use-toast";
 
-interface BlogPost {
+interface BlogPostData {
   id: string;
   title: string;
   slug: string;
@@ -24,11 +25,26 @@ interface BlogPost {
   author_name: string | null;
   reading_time_minutes: number | null;
   published_at: string | null;
+  category: string | null;
+  tags: string[] | null;
+}
+
+interface RelatedPost {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  cover_image_url: string | null;
+  reading_time_minutes: number | null;
+  published_at: string | null;
+  category: string | null;
+  tags: string[] | null;
 }
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
-  const [post, setPost] = useState<BlogPost | null>(null);
+  const [post, setPost] = useState<BlogPostData | null>(null);
+  const [relatedPosts, setRelatedPosts] = useState<RelatedPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
@@ -42,8 +58,35 @@ const BlogPost = () => {
         .eq("slug", slug)
         .eq("status", "published")
         .maybeSingle();
-      setPost(data as unknown as BlogPost | null);
+      const postData = data as unknown as BlogPostData | null;
+      setPost(postData);
       setLoading(false);
+
+      // Fetch related posts
+      if (postData) {
+        const { data: allPublished } = await supabase
+          .from("blog_posts")
+          .select("id, title, slug, excerpt, cover_image_url, reading_time_minutes, published_at, category, tags")
+          .eq("status", "published")
+          .neq("id", postData.id)
+          .order("published_at", { ascending: false })
+          .limit(20);
+
+        if (allPublished) {
+          const candidates = allPublished as unknown as RelatedPost[];
+          // Score by shared category + shared tags
+          const scored = candidates.map((c) => {
+            let score = 0;
+            if (postData.category && c.category === postData.category) score += 3;
+            const postTags = postData.tags || [];
+            const cTags = c.tags || [];
+            postTags.forEach((t) => { if (cTags.includes(t)) score += 1; });
+            return { ...c, score };
+          });
+          scored.sort((a, b) => b.score - a.score);
+          setRelatedPosts(scored.filter((s) => s.score > 0).slice(0, 3));
+        }
+      }
     };
     fetchPost();
   }, [slug]);
@@ -147,6 +190,11 @@ const BlogPost = () => {
 
           {/* Header */}
           <header className="mb-8">
+            {post.category && (
+              <Link to={`/blog?category=${post.category}`}>
+                <Badge variant="secondary" className="mb-3">{post.category}</Badge>
+              </Link>
+            )}
             <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">{post.title}</h1>
             <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
               <span className="flex items-center gap-1"><User className="h-4 w-4" /> {post.author_name || "Marhaba DMC"}</span>
@@ -175,16 +223,51 @@ const BlogPost = () => {
             <ReactMarkdown>{post.content}</ReactMarkdown>
           </div>
 
-          {/* Keywords */}
-          {post.meta_keywords?.length ? (
+          {/* Tags & Keywords */}
+          {((post.tags?.length ?? 0) > 0 || (post.meta_keywords?.length ?? 0) > 0) && (
             <div className="mt-10 pt-6 border-t border-border">
               <div className="flex flex-wrap gap-2">
-                {post.meta_keywords.map((kw) => (
+                {post.tags?.map((tag) => (
+                  <Link key={tag} to={`/blog?tag=${encodeURIComponent(tag)}`}>
+                    <Badge variant="secondary">{tag}</Badge>
+                  </Link>
+                ))}
+                {post.meta_keywords?.filter((kw) => !(post.tags || []).includes(kw)).map((kw) => (
                   <Badge key={kw} variant="outline">{kw}</Badge>
                 ))}
               </div>
             </div>
-          ) : null}
+          )}
+
+          {/* Related Posts */}
+          {relatedPosts.length > 0 && (
+            <div className="mt-16 pt-8 border-t border-border">
+              <h2 className="text-2xl font-bold text-foreground mb-6">Related Articles</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {relatedPosts.map((rp) => (
+                  <Link key={rp.id} to={`/blog/${rp.slug}`} className="group">
+                    <Card className="overflow-hidden h-full hover:border-primary/30 transition-all duration-300">
+                      {rp.cover_image_url ? (
+                        <div className="h-36 overflow-hidden">
+                          <img src={rp.cover_image_url} alt={rp.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                        </div>
+                      ) : (
+                        <div className="h-36 bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center">
+                          <BookOpen className="h-8 w-8 text-muted-foreground/30" />
+                        </div>
+                      )}
+                      <CardContent className="p-4">
+                        <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 text-sm">{rp.title}</h3>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2">
+                          <Clock className="h-3 w-3" /> {rp.reading_time_minutes || 1} min
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Back CTA */}
           <div className="mt-12 text-center">
