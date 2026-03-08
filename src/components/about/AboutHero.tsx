@@ -6,8 +6,8 @@ const AboutHero = () => {
   return (
     <section className="relative pt-32 pb-20 overflow-hidden min-h-[90vh] flex items-center">
       {/* Aurora Dynamic gradient background */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_hsl(270_70%_58%_/_0.12),_transparent_50%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_hsl(210_100%_50%_/_0.08),_transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_hsl(270_70%_58%_/_0.08),_transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_hsl(210_100%_50%_/_0.05),_transparent_50%)]" />
       
       {/* Floating glassmorphism blobs */}
       <div className="absolute top-20 left-10 w-72 h-72 bg-aurora-purple/15 rounded-full blur-3xl pointer-events-none animate-pulse-soft" />
