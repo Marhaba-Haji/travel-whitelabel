@@ -10,10 +10,10 @@
 @layer base {
   :root {
     /* Aurora Dynamic Color Palette */
-    --aurora-purple: 270 70% 58%;
-    --aurora-blue: 210 100% 50%;
-    --aurora-pink: 320 90% 60%;
-    --aurora-teal: 175 70% 45%;
+    --aurora-purple: 270 60% 58%;
+    --aurora-blue: 210 85% 50%;
+    --aurora-pink: 320 76% 60%;
+    --aurora-teal: 175 60% 45%;
 
     --background: 222 47% 11%;
     --foreground: 210 40% 98%;
@@ -24,7 +24,7 @@
     --popover: 222 47% 14%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 270 70% 58%;
+    --primary: 270 60% 58%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 217 32% 22%;
@@ -33,7 +33,7 @@
     --muted: 217 32% 18%;
     --muted-foreground: 215 20% 65%;
 
-    --accent: 210 100% 50%;
+    --accent: 210 85% 50%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
@@ -41,12 +41,12 @@
 
     --border: 217 32% 25%;
     --input: 217 32% 22%;
-    --ring: 270 70% 58%;
+    --ring: 270 60% 58%;
 
     --radius: 0.75rem;
 
     /* Aurora accent colors */
-    --gold: 320 90% 60%;
+    --gold: 320 76% 60%;
     --gold-foreground: 0 0% 100%;
 
     /* Nyra widget */
@@ -57,12 +57,12 @@
 
     --sidebar-background: 222 47% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 270 70% 58%;
+    --sidebar-primary: 270 60% 58%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 217 32% 22%;
     --sidebar-accent-foreground: 210 40% 98%;
     --sidebar-border: 217 32% 22%;
-    --sidebar-ring: 270 70% 58%;
+    --sidebar-ring: 270 60% 58%;
   }
 
   .light {
@@ -75,7 +75,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    --primary: 270 70% 48%;
+    --primary: 270 60% 48%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 214 32% 91%;
@@ -89,16 +89,16 @@
 
     --border: 214 32% 91%;
     --input: 214 32% 91%;
-    --ring: 270 70% 48%;
+    --ring: 270 60% 48%;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5% 26%;
-    --sidebar-primary: 270 70% 48%;
+    --sidebar-primary: 270 60% 48%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 270 70% 96%;
-    --sidebar-accent-foreground: 270 70% 40%;
+    --sidebar-accent: 270 60% 96%;
+    --sidebar-accent-foreground: 270 60% 40%;
     --sidebar-border: 214 32% 91%;
-    --sidebar-ring: 270 70% 48%;
+    --sidebar-ring: 270 60% 48%;
   }
 
   .dark {
@@ -111,7 +111,7 @@
     --popover: 222 47% 12%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 270 70% 62%;
+    --primary: 270 60% 62%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 217 32% 17%;
@@ -120,21 +120,21 @@
     --muted: 217 32% 15%;
     --muted-foreground: 215 20% 65%;
 
-    --accent: 210 100% 55%;
+    --accent: 210 85% 55%;
     --accent-foreground: 0 0% 100%;
 
     --border: 217 32% 20%;
     --input: 217 32% 17%;
-    --ring: 270 70% 62%;
+    --ring: 270 60% 62%;
 
     --sidebar-background: 222 47% 8%;
     --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 270 70% 62%;
+    --sidebar-primary: 270 60% 62%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 217 32% 18%;
     --sidebar-accent-foreground: 210 40% 98%;
     --sidebar-border: 217 32% 20%;
-    --sidebar-ring: 270 70% 62%;
+    --sidebar-ring: 270 60% 62%;
   }
 }
 
@@ -181,9 +181,9 @@
   .aurora-gradient {
     background: linear-gradient(
       135deg,
-      hsl(var(--aurora-purple) / 0.22) 0%,
-      hsl(var(--aurora-blue) / 0.15) 50%,
-      hsl(var(--aurora-pink) / 0.15) 100%
+      hsl(var(--aurora-purple) / 0.18) 0%,
+      hsl(var(--aurora-blue) / 0.12) 50%,
+      hsl(var(--aurora-pink) / 0.12) 100%
     );
   }
 
@@ -199,6 +199,6 @@
   }
 
   .aurora-glow {
-    box-shadow: 0 0 30px hsl(var(--primary) / 0.2);
+    box-shadow: 0 0 30px hsl(var(--primary) / 0.15);
   }
 }
