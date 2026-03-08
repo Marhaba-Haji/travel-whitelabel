@@ -122,6 +122,7 @@ const BlogTab = () => {
   const [interlinkLoading, setInterlinkLoading] = useState<string | null>(null);
   const [cannibalizationWarnings, setCannibalizationWarnings] = useState<CannibalizationOverlap[]>([]);
   const [imageGenLoading, setImageGenLoading] = useState(false);
+  const [pipelineStep, setPipelineStep] = useState<string | null>(null);
   const { toast } = useToast();
 
   const getExistingPostsCatalog = useCallback(() => {
