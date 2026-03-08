@@ -241,57 +241,92 @@ const Blog = () => {
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredPosts.map((post) => (
-                <Link key={post.id} to={`/blog/${post.slug}`} className="group">
-                  <Card className="overflow-hidden h-full hover:border-primary/30 transition-all duration-300 hover:shadow-lg">
-                    {post.cover_image_url ? (
-                      <div className="h-48 overflow-hidden">
-                        <img
-                          src={post.cover_image_url}
-                          alt={post.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          loading="lazy"
-                        />
-                      </div>
-                    ) : (
-                      <div className="h-48 bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center">
-                        <BookOpen className="h-12 w-12 text-muted-foreground/30" />
-                      </div>
-                    )}
-                    <CardContent className="p-5 space-y-3">
-                      {post.category && (
-                        <Badge variant="secondary" className="text-xs">
-                          {categories.find((c) => c.slug === post.category)?.name || post.category}
-                        </Badge>
-                      )}
-                      <h2 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2">
-                        {post.title}
-                      </h2>
-                      {post.excerpt && (
-                        <p className="text-sm text-muted-foreground line-clamp-3">{post.excerpt}</p>
-                      )}
-                      {(post.tags?.length ?? 0) > 0 && (
-                        <div className="flex flex-wrap gap-1">
-                          {post.tags!.slice(0, 3).map((tag) => (
-                            <Badge key={tag} variant="outline" className="text-xs">{tag}</Badge>
-                          ))}
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {paginatedPosts.map((post) => (
+                  <Link key={post.id} to={`/blog/${post.slug}`} className="group">
+                    <Card className="overflow-hidden h-full hover:border-primary/30 transition-all duration-300 hover:shadow-lg">
+                      {post.cover_image_url ? (
+                        <div className="h-48 overflow-hidden">
+                          <img
+                            src={post.cover_image_url}
+                            alt={post.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            loading="lazy"
+                          />
+                        </div>
+                      ) : (
+                        <div className="h-48 bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center">
+                          <BookOpen className="h-12 w-12 text-muted-foreground/30" />
                         </div>
                       )}
-                      <div className="flex items-center justify-between text-xs text-muted-foreground pt-2">
-                        <div className="flex items-center gap-3">
-                          <span>{post.author_name || "Marhaba DMC"}</span>
-                          <span className="flex items-center gap-1">
-                            <Clock className="h-3 w-3" /> {post.reading_time_minutes || 1} min
-                          </span>
+                      <CardContent className="p-5 space-y-3">
+                        {post.category && (
+                          <Badge variant="secondary" className="text-xs">
+                            {categories.find((c) => c.slug === post.category)?.name || post.category}
+                          </Badge>
+                        )}
+                        <h2 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2">
+                          {post.title}
+                        </h2>
+                        {post.excerpt && (
+                          <p className="text-sm text-muted-foreground line-clamp-3">{post.excerpt}</p>
+                        )}
+                        {(post.tags?.length ?? 0) > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {post.tags!.slice(0, 3).map((tag) => (
+                              <Badge key={tag} variant="outline" className="text-xs">{tag}</Badge>
+                            ))}
+                          </div>
+                        )}
+                        <div className="flex items-center justify-between text-xs text-muted-foreground pt-2">
+                          <div className="flex items-center gap-3">
+                            <span>{post.author_name || "Marhaba DMC"}</span>
+                            <span className="flex items-center gap-1">
+                              <Clock className="h-3 w-3" /> {post.reading_time_minutes || 1} min
+                            </span>
+                          </div>
+                          <span>{post.published_at ? new Date(post.published_at).toLocaleDateString() : ""}</span>
                         </div>
-                        <span>{post.published_at ? new Date(post.published_at).toLocaleDateString() : ""}</span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
-            </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-2 mt-12">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    disabled={activePage <= 1}
+                    onClick={() => goToPage(activePage - 1)}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <Button
+                      key={page}
+                      variant={page === activePage ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => goToPage(page)}
+                      className="min-w-[36px]"
+                    >
+                      {page}
+                    </Button>
+                  ))}
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    disabled={activePage >= totalPages}
+                    onClick={() => goToPage(activePage + 1)}
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </main>
