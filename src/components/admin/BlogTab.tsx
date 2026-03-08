@@ -682,26 +682,45 @@ const BlogTab = () => {
             </CardContent>
           </Card>
 
-          {/* AI Assistant */}
+          {/* AI Research & Assistant */}
           <Card>
-            <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><Sparkles className="h-4 w-4" /> AI Assistant</CardTitle></CardHeader>
-            <CardContent className="space-y-2">
-              <Button variant="outline" size="sm" className="w-full justify-start" disabled={!!aiLoading} onClick={() => callAI("generate_article")}>
-                {aiLoading === "generate_article" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Wand2 className="h-4 w-4 mr-2" />}
-                Generate Full Article
-              </Button>
-              <Button variant="outline" size="sm" className="w-full justify-start" disabled={!!aiLoading || !currentPost?.content} onClick={() => callAI("improve_content")}>
-                {aiLoading === "improve_content" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <BookOpen className="h-4 w-4 mr-2" />}
-                Improve for SEO
-              </Button>
-              <Button variant="outline" size="sm" className="w-full justify-start" disabled={!!aiLoading || !currentPost?.content} onClick={() => callAI("generate_meta")}>
-                {aiLoading === "generate_meta" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Tags className="h-4 w-4 mr-2" />}
-                Generate Meta Tags
-              </Button>
-              <Button variant="outline" size="sm" className="w-full justify-start" disabled={!!aiLoading || !currentPost?.content} onClick={() => callAI("generate_excerpt")}>
-                {aiLoading === "generate_excerpt" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
-                Generate Excerpt
-              </Button>
+            <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><Search className="h-4 w-4" /> Research & Generate</CardTitle></CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs">Use Web Research</Label>
+                <Switch checked={useResearch} onCheckedChange={setUseResearch} />
+              </div>
+              {useResearch && (
+                <Button variant="outline" size="sm" className="w-full justify-start" disabled={!!aiLoading || !currentPost?.title} onClick={runResearch}>
+                  {aiLoading === "research" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Globe className="h-4 w-4 mr-2" />}
+                  Research Topic
+                </Button>
+              )}
+              {researchData && (
+                <div className="rounded-md bg-muted/50 p-2">
+                  <p className="text-xs text-muted-foreground flex items-center gap-1">
+                    <TrendingUp className="h-3 w-3" /> Research ready — {new Date(researchData.researched_at).toLocaleTimeString()}
+                  </p>
+                </div>
+              )}
+              <div className="border-t border-border pt-2 space-y-2">
+                <Button variant="outline" size="sm" className="w-full justify-start" disabled={!!aiLoading} onClick={() => callAI("generate_article")}>
+                  {aiLoading === "generate_article" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Wand2 className="h-4 w-4 mr-2" />}
+                  Generate Full Article{researchData && useResearch ? " (with research)" : ""}
+                </Button>
+                <Button variant="outline" size="sm" className="w-full justify-start" disabled={!!aiLoading || !currentPost?.content} onClick={() => callAI("improve_content")}>
+                  {aiLoading === "improve_content" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <BookOpen className="h-4 w-4 mr-2" />}
+                  Improve for SEO
+                </Button>
+                <Button variant="outline" size="sm" className="w-full justify-start" disabled={!!aiLoading || !currentPost?.content} onClick={() => callAI("generate_meta")}>
+                  {aiLoading === "generate_meta" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Tags className="h-4 w-4 mr-2" />}
+                  Generate Meta Tags
+                </Button>
+                <Button variant="outline" size="sm" className="w-full justify-start" disabled={!!aiLoading || !currentPost?.content} onClick={() => callAI("generate_excerpt")}>
+                  {aiLoading === "generate_excerpt" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
+                  Generate Excerpt
+                </Button>
+              </div>
             </CardContent>
           </Card>
 
