@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Clock, User, Calendar, Share2, Check, BookOpen } from "lucide-react";
+import { ArrowLeft, Clock, User, Calendar, Share2, Check, BookOpen, List } from "lucide-react";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
 import ReactMarkdown from "react-markdown";
@@ -41,13 +41,64 @@ interface RelatedPost {
   tags: string[] | null;
 }
 
+interface TocItem {
+  id: string;
+  text: string;
+  level: number;
+}
+
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
   const [post, setPost] = useState<BlogPostData | null>(null);
   const [relatedPosts, setRelatedPosts] = useState<RelatedPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [readProgress, setReadProgress] = useState(0);
+  const [activeTocId, setActiveTocId] = useState("");
+  const [tocOpen, setTocOpen] = useState(false);
+  const articleRef = useRef<HTMLElement>(null);
   const { toast } = useToast();
+
+  // Extract TOC from markdown content
+  const toc = useMemo<TocItem[]>(() => {
+    if (!post?.content) return [];
+    const headingRegex = /^(#{2,3})\s+(.+)$/gm;
+    const items: TocItem[] = [];
+    let match;
+    while ((match = headingRegex.exec(post.content)) !== null) {
+      const text = match[2].trim();
+      const id = text.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
+      items.push({ id, text, level: match[1].length });
+    }
+    return items;
+  }, [post?.content]);
+
+  // Reading progress bar
+  useEffect(() => {
+    const handleScroll = () => {
+      const article = articleRef.current;
+      if (!article) return;
+      const rect = article.getBoundingClientRect();
+      const articleTop = rect.top + window.scrollY;
+      const articleHeight = rect.height;
+      const scrolled = window.scrollY - articleTop;
+      const viewportHeight = window.innerHeight;
+      const progress = Math.min(100, Math.max(0, (scrolled / (articleHeight - viewportHeight)) * 100));
+      setReadProgress(progress);
+
+      // Active TOC heading
+      if (toc.length > 0) {
+        const headings = toc.map((t) => document.getElementById(t.id)).filter(Boolean) as HTMLElement[];
+        let current = "";
+        for (const h of headings) {
+          if (h.getBoundingClientRect().top <= 100) current = h.id;
+        }
+        setActiveTocId(current);
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [toc]);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -62,7 +113,6 @@ const BlogPost = () => {
       setPost(postData);
       setLoading(false);
 
-      // Fetch related posts
       if (postData) {
         const { data: allPublished } = await supabase
           .from("blog_posts")
@@ -74,7 +124,6 @@ const BlogPost = () => {
 
         if (allPublished) {
           const candidates = allPublished as unknown as RelatedPost[];
-          // Score by shared category + shared tags
           const scored = candidates.map((c) => {
             let score = 0;
             if (postData.category && c.category === postData.category) score += 3;
@@ -111,7 +160,6 @@ const BlogPost = () => {
     setMeta("og:url", window.location.href, true);
     if (post.og_image_url || post.cover_image_url) setMeta("og:image", post.og_image_url || post.cover_image_url!, true);
 
-    // JSON-LD
     const script = document.createElement("script");
     script.type = "application/ld+json";
     script.textContent = JSON.stringify({
@@ -129,9 +177,7 @@ const BlogPost = () => {
     });
     document.head.appendChild(script);
 
-    return () => {
-      document.head.removeChild(script);
-    };
+    return () => { document.head.removeChild(script); };
   }, [post]);
 
   const share = async () => {
@@ -144,6 +190,26 @@ const BlogPost = () => {
       toast({ title: "Copy failed", variant: "destructive" });
     }
   };
+
+  const scrollToHeading = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      setTocOpen(false);
+    }
+  };
+
+  // Custom heading renderer to add IDs
+  const headingRenderer = useCallback(({ node, children, ...props }: any) => {
+    const text = String(children);
+    const id = text.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
+    const Tag = `h${props.node?.tagName?.replace("h", "") || "2"}` as keyof JSX.IntrinsicElements;
+    // Determine level from the node
+    const level = parseInt(node?.tagName?.replace("h", "") || "2", 10);
+    if (level === 2) return <h2 id={id} className="scroll-mt-24" {...props}>{children}</h2>;
+    if (level === 3) return <h3 id={id} className="scroll-mt-24" {...props}>{children}</h3>;
+    return <h2 id={id} className="scroll-mt-24" {...props}>{children}</h2>;
+  }, []);
 
   if (loading) {
     return (
@@ -178,8 +244,16 @@ const BlogPost = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Reading Progress Bar */}
+      <div className="fixed top-0 left-0 right-0 z-[60] h-1 bg-muted/30">
+        <div
+          className="h-full bg-gradient-to-r from-primary to-primary/70 transition-[width] duration-150 ease-out"
+          style={{ width: `${readProgress}%` }}
+        />
+      </div>
+
       <Header />
-      <article className="pt-24 pb-20">
+      <article className="pt-24 pb-20" ref={articleRef}>
         <div className="container mx-auto px-4 max-w-3xl">
           {/* Breadcrumb */}
           <div className="mb-8">
@@ -218,9 +292,57 @@ const BlogPost = () => {
             </div>
           )}
 
+          {/* Table of Contents */}
+          {toc.length > 2 && (
+            <div className="mb-8 border border-border rounded-lg overflow-hidden">
+              <button
+                onClick={() => setTocOpen(!tocOpen)}
+                className="w-full flex items-center justify-between px-5 py-3 bg-card hover:bg-muted/50 transition-colors"
+              >
+                <span className="flex items-center gap-2 text-sm font-medium text-foreground">
+                  <List className="h-4 w-4" /> Table of Contents
+                </span>
+                <span className="text-xs text-muted-foreground">{tocOpen ? "Hide" : "Show"}</span>
+              </button>
+              {tocOpen && (
+                <nav className="px-5 py-3 bg-card/50 border-t border-border">
+                  <ul className="space-y-1">
+                    {toc.map((item) => (
+                      <li key={item.id} style={{ paddingLeft: `${(item.level - 2) * 16}px` }}>
+                        <button
+                          onClick={() => scrollToHeading(item.id)}
+                          className={`text-sm py-1 text-left transition-colors hover:text-foreground w-full truncate ${
+                            activeTocId === item.id ? "text-primary font-medium" : "text-muted-foreground"
+                          }`}
+                        >
+                          {item.text}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </nav>
+              )}
+            </div>
+          )}
+
           {/* Content */}
           <div className="prose prose-invert max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-primary prose-strong:text-foreground prose-li:text-muted-foreground">
-            <ReactMarkdown>{post.content}</ReactMarkdown>
+            <ReactMarkdown
+              components={{
+                h2: ({ node, children, ...props }) => {
+                  const text = String(children);
+                  const id = text.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
+                  return <h2 id={id} className="scroll-mt-24" {...props}>{children}</h2>;
+                },
+                h3: ({ node, children, ...props }) => {
+                  const text = String(children);
+                  const id = text.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
+                  return <h3 id={id} className="scroll-mt-24" {...props}>{children}</h3>;
+                },
+              }}
+            >
+              {post.content}
+            </ReactMarkdown>
           </div>
 
           {/* Tags & Keywords */}
