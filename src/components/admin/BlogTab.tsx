@@ -89,6 +89,11 @@ const BlogTab = () => {
   const [topicsDialog, setTopicsDialog] = useState(false);
   const [suggestedTopics, setSuggestedTopics] = useState<any[]>([]);
   const [newCategory, setNewCategory] = useState("");
+  const [activeTab, setActiveTab] = useState("posts");
+  const [aiConfig, setAiConfig] = useState<BlogAIConfig>(DEFAULT_AI_CONFIG);
+  const [configLoading, setConfigLoading] = useState(false);
+  const [researchData, setResearchData] = useState<any>(null);
+  const [useResearch, setUseResearch] = useState(true);
   const { toast } = useToast();
 
   const fetchPosts = useCallback(async () => {
