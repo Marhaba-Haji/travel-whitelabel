@@ -168,6 +168,8 @@ registerProcessor('audio-capture-processor', AudioCaptureProcessor);
 
 export type ItineraryToolHandler = (action: string, args: Record<string, any>) => string | undefined;
 
+export type ToolCallTracker = (toolName: string) => void;
+
 export interface SessionContext {
   sessionId: string;
   previousSummary?: string;
