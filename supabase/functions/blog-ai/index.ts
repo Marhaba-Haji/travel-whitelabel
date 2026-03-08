@@ -63,17 +63,32 @@ serve(async (req) => {
     let tool_choice: any | undefined;
 
     switch (action) {
-      case "generate_article":
+      case "generate_article": {
+        let researchContext = "";
+        if (research) {
+          if (research.serp_analysis?.content) {
+            researchContext += `\n\n## SERP & Competitor Analysis (from real-time research):\n${research.serp_analysis.content}`;
+          }
+          if (research.industry_trends?.content) {
+            researchContext += `\n\n## Industry Trends & Statistics:\n${research.industry_trends.content}`;
+          }
+          if (research.competitor_insights?.content) {
+            researchContext += `\n\n## Competitor Content Insights:\n${research.competitor_insights.content}`;
+          }
+          researchContext += `\n\nTarget Region: ${research.targetRegion || "Global"}`;
+          researchContext += `\nTarget Audience: ${research.targetAudience || "B2B travel agents"}`;
+        }
+
         messages = [
           { role: "system", content: SYSTEM_PROMPT },
           {
             role: "user",
-            content: `Write a comprehensive, SEO-optimized blog article about: "${title || topic}". 
-
+            content: `Write a comprehensive, SEO-optimized blog article about: "${title || topic}".
+${researchContext ? `\nUse the following real-time research to inform your writing — cite statistics, address content gaps identified, and differentiate from competitor angles:\n${researchContext}\n` : ""}
 Include:
 1. An engaging introduction with a hook
 2. Well-structured sections with H2/H3 headings (use ## and ### markdown)
-3. Practical tips, statistics, or examples where relevant
+3. Practical tips, statistics, or examples where relevant${research ? " (use the research data provided)" : ""}
 4. A FAQ section at the end with 3-5 questions and concise answers
 5. A compelling conclusion with a call to action
 
@@ -81,6 +96,7 @@ Make it 1500-2000 words. Use markdown formatting throughout.`,
           },
         ];
         break;
+      }
 
       case "improve_content":
         messages = [
