@@ -290,6 +290,7 @@ const BlogPost = () => {
                 </span>
               )}
               <span className="flex items-center gap-1"><Clock className="h-4 w-4" /> {post.reading_time_minutes || 1} min read</span>
+              <span className="flex items-center gap-1"><Eye className="h-4 w-4" /> {(post.views_count || 0).toLocaleString()} views</span>
               <div className="flex items-center gap-1 ml-auto">
                 <a
                   href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(post.title)}`}
