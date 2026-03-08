@@ -6,7 +6,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const SITE_URL = "https://marhabadmc.lovable.app";
+const SITE_URL = "https://marhabadmc.com";
 const SITE_TITLE = "Marhaba DMC Blog";
 const SITE_DESCRIPTION = "Expert insights on halal-friendly travel, destination guides, travel technology, and hospitality trends from Marhaba DMC.";
 
