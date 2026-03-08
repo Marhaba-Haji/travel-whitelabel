@@ -1,13 +1,17 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Mic, Globe, PhoneCall, Loader2, X, PanelRightOpen, PanelRightClose } from 'lucide-react';
+import { Mic, Globe, PhoneCall, Loader2, X, PanelRightOpen, PanelRightClose, MessageSquare, Send, ArrowLeft } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import { useLiveAPI, ItineraryToolHandler, SessionContext, ItineraryStateGetter } from '@/hooks/useLiveAPI';
+import { useNyraChat } from '@/hooks/useNyraChat';
 import { useItinerary } from '@/contexts/ItineraryContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useNyraConfig } from '@/hooks/useNyraConfig';
 import { supabase } from '@/integrations/supabase/client';
 import ItineraryPanel from '@/components/itinerary/ItineraryPanel';
 import type { ItemType, Guest } from '@/types/itinerary';
+
+type WidgetMode = 'voice' | 'chat';
 
 const STICKY_CTA_THRESHOLD = 600;
 const STICKY_CTA_HEIGHT = 64;
