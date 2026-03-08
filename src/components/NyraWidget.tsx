@@ -240,6 +240,7 @@ export default function NyraWidget() {
     sessionContext,
     communicationConfig,
     getItineraryState,
+    handleToolCallTrack,
   );
   const [chatInput, setChatInput] = useState('');
   const chatEndRef = useRef<HTMLDivElement>(null);
