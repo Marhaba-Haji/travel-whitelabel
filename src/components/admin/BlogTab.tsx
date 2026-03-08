@@ -367,7 +367,61 @@ const BlogTab = () => {
     }
   };
 
-  const addCluster = async () => {
+  const PIPELINE_STEPS = [
+    { key: "research", label: "Researching topic..." },
+    { key: "cannibalization", label: "Checking cannibalization..." },
+    { key: "generate_article", label: "Generating article..." },
+    { key: "generate_images", label: "Generating images..." },
+    { key: "generate_meta", label: "Generating meta tags..." },
+    { key: "generate_excerpt", label: "Generating excerpt..." },
+    { key: "interlink_posts", label: "Adding internal links..." },
+  ];
+
+  const runFullPipeline = async () => {
+    if (!currentPost?.title) {
+      toast({ title: "Enter a title first", variant: "destructive" });
+      return;
+    }
+    try {
+      // Step 1: Research
+      if (useResearch) {
+        setPipelineStep("research");
+        await runResearch();
+      }
+
+      // Step 2: Cannibalization check
+      setPipelineStep("cannibalization");
+      await checkCannibalization();
+
+      // Step 3: Generate article
+      setPipelineStep("generate_article");
+      await callAI("generate_article");
+
+      // Step 4: Generate images
+      setPipelineStep("generate_images");
+      await generateImages();
+
+      // Step 5: Generate meta
+      setPipelineStep("generate_meta");
+      await callAI("generate_meta");
+
+      // Step 6: Generate excerpt
+      setPipelineStep("generate_excerpt");
+      await callAI("generate_excerpt");
+
+      // Step 7: Internal links
+      setPipelineStep("interlink_posts");
+      await callAI("interlink_posts");
+
+      toast({ title: "🚀 Full pipeline complete!", description: "Article fully generated with images, meta, and internal links." });
+    } catch (e: any) {
+      toast({ title: "Pipeline error", description: e.message, variant: "destructive" });
+    } finally {
+      setPipelineStep(null);
+    }
+  };
+
+
     if (!newClusterName.trim() || !newClusterKeyword.trim()) return;
     const { error } = await supabase.from("blog_clusters").insert({
       name: newClusterName.trim(),
