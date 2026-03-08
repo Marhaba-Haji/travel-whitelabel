@@ -1,15 +1,16 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-const NyraWidget = lazy(() => import("@/components/NyraWidget"));
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ItineraryProvider } from "@/contexts/ItineraryContext";
-import { lazy, Suspense } from "react";
 import Index from "./pages/Index";
 import ProtectedRoute from "./components/admin/ProtectedRoute";
 import PageLoader from "./components/PageLoader";
+
+const NyraWidget = lazy(() => import("@/components/NyraWidget"));
 
 const About = lazy(() => import("./pages/About"));
 const Login = lazy(() => import("./pages/Login"));
