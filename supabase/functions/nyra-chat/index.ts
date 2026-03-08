@@ -301,7 +301,7 @@ serve(async (req) => {
       // If no tool calls, we have the final response
       if (!message.tool_calls || message.tool_calls.length === 0) {
         return new Response(
-          JSON.stringify({ reply: message.content || "", clientActions }),
+          JSON.stringify({ reply: message.content || "", clientActions, toolCallCounts }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
