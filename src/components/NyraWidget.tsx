@@ -283,7 +283,19 @@ export default function NyraWidget() {
     localStorage.setItem(TOOLTIP_STORAGE_KEY, 'true');
   };
 
+  // Persist analytics data to session
+  const persistAnalytics = useCallback((source: 'voice' | 'chat') => {
+    supabase.from("voice_ai_sessions").update({
+      source,
+      message_count: messageCountRef.current,
+      tool_calls: toolCallCountsRef.current,
+      connected_at: connectedAtRef.current || new Date().toISOString(),
+    }).eq("session_id", sessionId).then(() => {}).catch(err => console.warn('Analytics persist failed:', err));
+  }, [sessionId]);
+
   const handleDisconnect = useCallback(async () => {
+    // Persist analytics before disconnecting
+    persistAnalytics('voice');
     disconnect();
     
     // Send post-call summary email (non-blocking)
@@ -313,10 +325,11 @@ export default function NyraWidget() {
     } catch (err) {
       console.warn('Failed to trigger post-call summary:', err);
     }
-  }, [disconnect, state, sessionId]);
+  }, [disconnect, state, sessionId, persistAnalytics]);
 
   const handleChatSend = () => {
     if (!chatInput.trim()) return;
+    messageCountRef.current += 1; // Track outgoing message
     sendMessage(chatInput);
     setChatInput('');
   };
