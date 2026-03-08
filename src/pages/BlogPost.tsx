@@ -372,6 +372,32 @@ const BlogPost = () => {
                   const id = text.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
                   return <h3 id={id} className="scroll-mt-24" {...props}>{children}</h3>;
                 },
+                pre: ({ children }) => {
+                  return <div className="relative group not-prose">{children}</div>;
+                },
+                code: ({ node, className, children, ...props }) => {
+                  const isInline = !className;
+                  if (isInline) {
+                    return <code className="bg-muted px-1.5 py-0.5 rounded text-sm text-foreground" {...props}>{children}</code>;
+                  }
+                  const codeStr = String(children).replace(/\n$/, "");
+                  return (
+                    <div className="relative">
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(codeStr);
+                          toast({ title: "Code copied!" });
+                        }}
+                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-muted hover:bg-accent text-muted-foreground hover:text-foreground rounded px-2 py-1 text-xs z-10"
+                      >
+                        Copy
+                      </button>
+                      <pre className="bg-muted/50 border border-border rounded-lg p-4 overflow-x-auto text-sm text-foreground">
+                        <code className={className} {...props}>{children}</code>
+                      </pre>
+                    </div>
+                  );
+                },
               }}
             >
               {post.content}
