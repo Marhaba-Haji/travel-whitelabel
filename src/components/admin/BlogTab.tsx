@@ -350,7 +350,85 @@ const BlogTab = () => {
     }
   };
 
-  // ─── List View ───
+  const interlinkPost = async (post: BlogPost) => {
+    setInterlinkLoading(post.id);
+    try {
+      const otherPosts = getExistingPostsCatalog().filter((p) => p.slug !== post.slug);
+      if (!otherPosts.length) {
+        toast({ title: "Need at least 2 published posts for interlinking", variant: "destructive" });
+        return;
+      }
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/blog-ai`;
+      const resp = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({
+          action: "interlink_posts",
+          title: post.title,
+          content: post.content,
+          existingPosts: otherPosts,
+          brandConfig: aiConfig,
+        }),
+      });
+      if (!resp.ok) throw new Error("Interlinking failed");
+
+      const reader = resp.body!.getReader();
+      const decoder = new TextDecoder();
+      let textBuffer = "";
+      let fullContent = "";
+      const processBuffer = () => {
+        let idx: number;
+        while ((idx = textBuffer.indexOf("\n")) !== -1) {
+          let line = textBuffer.slice(0, idx);
+          textBuffer = textBuffer.slice(idx + 1);
+          if (line.endsWith("\r")) line = line.slice(0, -1);
+          if (!line.startsWith("data: ") || line.trim() === "") continue;
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === "[DONE]") return;
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const c = parsed.choices?.[0]?.delta?.content;
+            if (c) fullContent += c;
+          } catch { break; }
+        }
+      };
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        textBuffer += decoder.decode(value, { stream: true });
+        processBuffer();
+      }
+      if (textBuffer.trim()) processBuffer();
+
+      if (fullContent.trim()) {
+        const { error } = await supabase.from("blog_posts").update({ content: fullContent }).eq("id", post.id);
+        if (error) throw error;
+        toast({ title: `Internal links added to "${post.title}"` });
+        fetchPosts();
+      }
+    } catch (e: any) {
+      toast({ title: "Interlink failed", description: e.message, variant: "destructive" });
+    } finally {
+      setInterlinkLoading(null);
+    }
+  };
+
+  const relinkAllPosts = async () => {
+    const published = posts.filter((p) => p.status === "published");
+    if (published.length < 2) {
+      toast({ title: "Need at least 2 published posts", variant: "destructive" });
+      return;
+    }
+    if (!confirm(`This will add internal links to all ${published.length} published posts. Continue?`)) return;
+    for (const post of published) {
+      await interlinkPost(post);
+    }
+    toast({ title: "All posts re-linked!" });
+  };
+
   if (!editing) {
     return (
       <div className="space-y-6">
