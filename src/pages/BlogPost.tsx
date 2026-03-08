@@ -518,11 +518,9 @@ const BlogPost = () => {
                 },
                 img: ({ node, ...props }) => {
                   const src = props.src || "";
-                  // Auto-generate srcset for blog-images stored with size suffixes
                   const isBlogImage = src.includes("/blog-images/");
                   let srcSet: string | undefined;
                   if (isBlogImage) {
-                    // Extract base by removing the size suffix (-1200w, -800w, -400w)
                     const base = src.replace(/-\d+w\.webp$/, "");
                     if (base !== src) {
                       srcSet = [
@@ -533,11 +531,11 @@ const BlogPost = () => {
                     }
                   }
                   return (
-                    <img
-                      {...props}
+                    <BlurImage
+                      src={src}
                       alt={props.alt || "Blog image"}
                       loading="lazy"
-                      className="w-full h-auto rounded-lg my-6"
+                      className="rounded-lg my-6"
                       sizes="(max-width: 480px) 100vw, (max-width: 768px) 100vw, 720px"
                       {...(srcSet ? { srcSet } : {})}
                     />
