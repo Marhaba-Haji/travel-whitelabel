@@ -21,6 +21,7 @@ interface BlogPost {
   meta_keywords: string[] | null;
   category: string | null;
   tags: string[] | null;
+  views_count?: number;
 }
 
 interface BlogCategory {
