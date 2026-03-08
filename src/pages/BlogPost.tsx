@@ -388,17 +388,26 @@ const BlogPost = () => {
                   const lang = className?.replace("language-", "") || "";
                   return (
                     <div className="relative">
-                      <button
-                        onClick={() => {
-                          navigator.clipboard.writeText(codeStr);
-                          toast({ title: "Code copied!" });
-                        }}
-                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-muted hover:bg-accent text-muted-foreground hover:text-foreground rounded px-2 py-1 text-xs z-10"
-                      >
-                        Copy
-                      </button>
+                      <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                        <button
+                          onClick={() => setCodeDark((d) => !d)}
+                          className="bg-muted hover:bg-accent text-muted-foreground hover:text-foreground rounded px-1.5 py-1 text-xs"
+                          aria-label="Toggle code theme"
+                        >
+                          {codeDark ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
+                        </button>
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(codeStr);
+                            toast({ title: "Code copied!" });
+                          }}
+                          className="bg-muted hover:bg-accent text-muted-foreground hover:text-foreground rounded px-2 py-1 text-xs"
+                        >
+                          Copy
+                        </button>
+                      </div>
                       <SyntaxHighlighter
-                        style={oneDark}
+                        style={codeDark ? oneDark : oneLight}
                         language={lang}
                         PreTag="div"
                         customStyle={{ margin: 0, borderRadius: "0.5rem", fontSize: "0.875rem" }}
