@@ -248,7 +248,14 @@ const BlogTab = () => {
   const callAI = async (action: string, extra: Record<string, string> = {}) => {
     setAiLoading(action);
     try {
-      const body = { action, title: currentPost?.title, content: currentPost?.content, ...extra };
+      const body: any = {
+        action,
+        title: currentPost?.title,
+        content: currentPost?.content,
+        brandConfig: aiConfig,
+        ...(useResearch && researchData ? { research: researchData } : {}),
+        ...extra,
+      };
 
       if (action === "generate_article" || action === "improve_content") {
         // Streaming
