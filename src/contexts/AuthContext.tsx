@@ -2,11 +2,18 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
+type AccessLevel = "none" | "view" | "edit";
+
 interface AuthContextType {
   session: Session | null;
   user: User | null;
   loading: boolean;
   isSuperadmin: boolean;
+  isAdmin: boolean;
+  mustChangePassword: boolean;
+  permissions: Record<string, AccessLevel>;
+  hasAccess: (module: string, level: AccessLevel) => boolean;
+  setMustChangePassword: (v: boolean) => void;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 }
@@ -18,22 +25,91 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSuperadmin, setIsSuperadmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [mustChangePassword, setMustChangePassword] = useState(false);
+  const [permissions, setPermissions] = useState<Record<string, AccessLevel>>({});
 
   const checkRoleAndFinishLoading = async (sessionData: Session | null) => {
     setSession(sessionData);
     setUser(sessionData?.user ?? null);
+
     if (sessionData?.user) {
-      const { data } = await supabase
+      const userId = sessionData.user.id;
+
+      // Check superadmin
+      const { data: saData } = await supabase
         .from("user_roles")
         .select("role")
-        .eq("user_id", sessionData.user.id)
+        .eq("user_id", userId)
         .eq("role", "superadmin")
         .maybeSingle();
-      setIsSuperadmin(!!data);
+      const sa = !!saData;
+      setIsSuperadmin(sa);
+
+      // Check admin role
+      const { data: adminRoleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .eq("role", "admin")
+        .maybeSingle();
+      const adm = !!adminRoleData;
+      setIsAdmin(adm);
+
+      if (adm && !sa) {
+        // Fetch admin_users record
+        const { data: adminUserData } = await supabase
+          .from("admin_users")
+          .select("id, is_active, must_change_password")
+          .eq("user_id", userId)
+          .maybeSingle();
+
+        if (adminUserData) {
+          setMustChangePassword(adminUserData.must_change_password);
+
+          // Fetch permissions
+          const { data: permData } = await supabase
+            .from("admin_user_permissions")
+            .select("module, access_level")
+            .eq("admin_user_id", adminUserData.id);
+
+          const permMap: Record<string, AccessLevel> = {};
+          if (permData) {
+            permData.forEach((p: any) => {
+              permMap[p.module] = p.access_level as AccessLevel;
+            });
+          }
+          setPermissions(permMap);
+
+          // If inactive, sign out
+          if (!adminUserData.is_active) {
+            await supabase.auth.signOut();
+            setSession(null);
+            setUser(null);
+            setIsAdmin(false);
+            setPermissions({});
+          }
+        }
+      } else {
+        setMustChangePassword(false);
+        setPermissions({});
+      }
     } else {
       setIsSuperadmin(false);
+      setIsAdmin(false);
+      setMustChangePassword(false);
+      setPermissions({});
     }
     setLoading(false);
+  };
+
+  const hasAccess = (module: string, level: AccessLevel): boolean => {
+    if (isSuperadmin) return true;
+    const userLevel = permissions[module];
+    if (!userLevel || userLevel === "none") return false;
+    if (level === "view") return userLevel === "view" || userLevel === "edit";
+    if (level === "edit") return userLevel === "edit";
+    return false;
   };
 
   useEffect(() => {
@@ -85,10 +161,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signOut = async () => {
     await supabase.auth.signOut();
     setIsSuperadmin(false);
+    setIsAdmin(false);
+    setPermissions({});
+    setMustChangePassword(false);
   };
 
   return (
-    <AuthContext.Provider value={{ session, user, loading, isSuperadmin, signIn, signOut }}>
+    <AuthContext.Provider value={{
+      session, user, loading, isSuperadmin, isAdmin, mustChangePassword,
+      permissions, hasAccess, setMustChangePassword, signIn, signOut,
+    }}>
       {children}
     </AuthContext.Provider>
   );

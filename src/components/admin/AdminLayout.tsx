@@ -4,10 +4,10 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, MessageSquare, Mail, Users, CreditCard,
-  DollarSign, Ticket, Settings, LogOut, Menu, X, Mic, Map, Bot, BarChart3, FileText, Globe
+  DollarSign, Ticket, Settings, LogOut, Menu, X, Mic, Map, Bot, BarChart3, FileText, Globe, UserCog
 } from "lucide-react";
 
-const tabs = [
+const allTabs = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
   { id: "analytics", label: "Analytics", icon: BarChart3 },
   { id: "enquiries", label: "Contact Enquiries", icon: MessageSquare },
@@ -31,17 +31,25 @@ interface AdminLayoutProps {
 }
 
 const AdminLayout = ({ activeTab, onTabChange, children }: AdminLayoutProps) => {
-  const { signOut, user } = useAuth();
+  const { signOut, user, isSuperadmin, hasAccess } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Filter tabs based on permissions
+  const visibleTabs = isSuperadmin
+    ? allTabs
+    : allTabs.filter((tab) => hasAccess(tab.id, "view"));
+
+  // Build full tab list with user management for superadmin
+  const tabs = isSuperadmin
+    ? [...visibleTabs, { id: "user-management", label: "User Management", icon: UserCog }]
+    : visibleTabs;
 
   return (
     <div className="min-h-screen flex bg-muted/30">
-      {/* Mobile overlay */}
       {sidebarOpen && (
         <div className="fixed inset-0 z-40 bg-foreground/60 md:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* Sidebar */}
       <aside className={cn(
         "fixed inset-y-0 left-0 z-50 w-64 bg-sidebar border-r border-sidebar-border flex flex-col transition-transform md:translate-x-0 md:static md:z-auto",
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
@@ -79,7 +87,6 @@ const AdminLayout = ({ activeTab, onTabChange, children }: AdminLayoutProps) => 
         </div>
       </aside>
 
-      {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0">
         <header className="h-14 border-b border-border bg-background flex items-center px-4 gap-4">
           <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setSidebarOpen(true)}>
@@ -88,6 +95,9 @@ const AdminLayout = ({ activeTab, onTabChange, children }: AdminLayoutProps) => 
           <h1 className="font-semibold text-foreground">
             {tabs.find((t) => t.id === activeTab)?.label ?? "Dashboard"}
           </h1>
+          {!isSuperadmin && (
+            <span className="ml-auto text-xs text-muted-foreground">Sub-admin</span>
+          )}
         </header>
         <main className="flex-1 p-4 md:p-6 overflow-auto">
           {children}

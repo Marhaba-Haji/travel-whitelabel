@@ -1,8 +1,9 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
+import ChangePasswordPrompt from "@/components/admin/ChangePasswordPrompt";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading, isSuperadmin } = useAuth();
+  const { user, loading, isSuperadmin, isAdmin, mustChangePassword, setMustChangePassword } = useAuth();
 
   if (loading) {
     return (
@@ -13,7 +14,12 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (!user) return <Navigate to="/admin/login" replace />;
-  if (!isSuperadmin) return <Navigate to="/" replace />;
+  if (!isSuperadmin && !isAdmin) return <Navigate to="/" replace />;
+
+  // Force password change for admin sub-users
+  if (isAdmin && !isSuperadmin && mustChangePassword) {
+    return <ChangePasswordPrompt onComplete={() => setMustChangePassword(false)} />;
+  }
 
   return <>{children}</>;
 };

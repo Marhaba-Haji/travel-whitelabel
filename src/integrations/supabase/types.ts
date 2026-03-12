@@ -14,6 +14,68 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_user_permissions: {
+        Row: {
+          access_level: string
+          admin_user_id: string
+          id: string
+          module: string
+        }
+        Insert: {
+          access_level?: string
+          admin_user_id: string
+          id?: string
+          module: string
+        }
+        Update: {
+          access_level?: string
+          admin_user_id?: string
+          id?: string
+          module?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_user_permissions_admin_user_id_fkey"
+            columns: ["admin_user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_users: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          is_active: boolean
+          must_change_password: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          is_active?: boolean
+          must_change_password?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          is_active?: boolean
+          must_change_password?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       blog_categories: {
         Row: {
           created_at: string

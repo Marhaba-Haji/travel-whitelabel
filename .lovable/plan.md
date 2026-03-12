@@ -1,88 +1,83 @@
 
 
-## Plan: Admin User Management System with Granular Module Permissions
+# ChatGPT-Style Instruction Manager for AI Agent Config
 
-### Overview
+## Overview
+Redesign the AI Agent Configuration tab to have a modern, ChatGPT-like interface where admins can type instructions OR upload files (images, PDFs, Excel, Word docs). Uploaded files are processed by AI to extract text content, which is then saved as instruction entries in the appropriate category.
 
-Build a complete sub-user management system where the superadmin can create users, assign per-module access levels (none / view / edit), and manage (edit, revoke, delete) those users. Sub-users log in via the same `/admin/login` page and see only the modules they have access to.
+## Architecture
 
-### Database Changes (2 new tables, 1 edge function)
+### New Edge Function: `process-agent-document`
+- Accepts a file (base64-encoded) along with its MIME type and target category
+- Uses the Lovable AI Gateway (`google/gemini-2.5-flash`) to extract/summarize content from the file
+- Returns extracted text that gets saved as instruction entries
+- Supports: images (JPEG, PNG, WebP), PDFs, Excel (.xlsx), Word (.docx)
+- For images: sends the image directly to Gemini's vision capability for text extraction
+- For PDFs/docs: converts base64 to text extraction prompt
 
-**1. `admin_users` table** — stores sub-user metadata:
-- `id` (uuid, PK)
-- `user_id` (uuid, references auth.users, unique) — the Supabase auth user
-- `full_name` (text)
-- `email` (text)
-- `is_active` (boolean, default true) — for revoking access
-- `must_change_password` (boolean, default true) — force password change on first login
-- `created_at`, `updated_at`
+### UI Redesign: `AIAgentConfigTab.tsx`
+Rebuild with a ChatGPT-style interface per category card:
 
-RLS: superadmin full access; authenticated users can SELECT their own row.
+```text
++---------------------------------------------+
+| Knowledge Base                          [v]  |
+|---------------------------------------------|
+| [Saved entry 1]                        [x]  |
+| [Saved entry 2]                        [x]  |
+| [Saved entry 3 - from uploaded PDF]    [x]  |
+|---------------------------------------------|
+| [  Type instruction or upload a file...   ] |
+| [Paperclip icon]  [Send button]             |
++---------------------------------------------+
+```
 
-**2. `admin_user_permissions` table** — per-module access:
-- `id` (uuid, PK)
-- `admin_user_id` (uuid, FK → admin_users)
-- `module` (text) — matches tab IDs: overview, analytics, enquiries, etc.
-- `access_level` (text) — `none`, `view`, `edit`
-- Unique constraint on (admin_user_id, module)
+Each category section will have:
+- A scrollable log of saved entries (existing behavior, kept)
+- A bottom input bar with a textarea, a file attachment button (paperclip icon), and a send/add button
+- File upload triggers processing via the edge function, then saves extracted text as a new entry
+- While processing, show a loading state with "Extracting content from [filename]..."
+- After extraction, the text is auto-added as an instruction entry (same save flow as today)
 
-RLS: superadmin full access; authenticated users can SELECT their own permissions.
+### Supported File Types
+- Images: `image/jpeg`, `image/png`, `image/webp` -- processed via Gemini vision
+- PDF: `application/pdf` -- base64 sent to Gemini for extraction
+- Word: `.docx` (`application/vnd.openxmlformats-officedocument.wordprocessingml.document`)
+- Excel: `.xlsx` (`application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`)
 
-**3. `create-admin-user` edge function** — securely creates the Supabase auth user (using service role key) with the provided email + password, inserts into `admin_users`, adds `admin` role to `user_roles`, and inserts default permissions.
+## Technical Details
 
-### Auth Changes
+### 1. Create `supabase/functions/process-agent-document/index.ts`
+- Accept POST with `{ fileBase64, mimeType, fileName, category }`
+- Use `LOVABLE_API_KEY` (already configured) to call the Lovable AI Gateway
+- For images: send as base64 image content part with a prompt like "Extract all text, data, and instructions from this image. Return them as clear, structured text."
+- For documents (PDF/DOCX/XLSX): send file content with extraction prompt
+- Return `{ extractedText: string }` 
+- Register in `supabase/config.toml`
 
-**`AuthContext.tsx`**:
-- Add `isAdmin` state (check for `admin` role in `user_roles`)
-- Add `permissions` map (module → access_level) fetched from `admin_user_permissions`
-- Add `mustChangePassword` flag from `admin_users`
-- Expose a helper `hasAccess(module, level)` function
+### 2. Redesign `AIAgentConfigTab.tsx`
+- Replace the current `InstructionLog` component with a new `InstructionChat` component
+- Bottom input area styled like a chat input bar:
+  - Textarea (auto-grows, placeholder: "Type an instruction or upload a file...")
+  - Paperclip/attachment button (opens file picker)
+  - Send button (arrow icon)
+- When a file is selected:
+  - Show a file preview chip above the input (filename + remove button)
+  - On send, read as base64 and call `process-agent-document` edge function
+  - Show processing indicator
+  - On success, add extracted text as an instruction entry
+- Keep the existing entries list with delete buttons above the input
+- Entries from files get a small file icon badge to indicate source
 
-**`ProtectedRoute.tsx`**:
-- Allow access if `isSuperadmin` OR `isAdmin` (with active status)
-- If `mustChangePassword`, redirect to a password change screen
+### 3. Update `supabase/config.toml`
+- Add `[functions.process-agent-document]` with `verify_jwt = false`
 
-### New Components
+### No database changes needed
+All data continues to be stored in `site_settings` as JSONB arrays -- extracted text from files becomes regular string entries in the arrays.
 
-**1. `UserManagementTab.tsx`** — new admin tab (superadmin-only):
-- Table listing all sub-users with name, email, status, created date
-- Actions: Edit permissions, toggle active/inactive, delete user
-- "Add User" dialog with name, email, initial password fields
-- Per-module permission matrix (checkboxes/selects for each of the 14 modules with none/view/edit)
+## Files to Create
+1. `supabase/functions/process-agent-document/index.ts`
 
-**2. `ChangePasswordPage.tsx`** — shown on first login:
-- Simple form: new password + confirm
-- Calls `supabase.auth.updateUser({ password })` then sets `must_change_password = false`
-
-### AdminLayout Changes
-
-- Add "User Management" tab (visible only to superadmin)
-- Filter sidebar tabs based on user's permissions — hide modules with `none` access
-- Pass `accessLevel` to tab components so they can disable editing for `view`-only users
-
-### Admin.tsx Changes
-
-- Add `UserManagementTab` to tab components map
-- Import permissions from AuthContext to conditionally render tabs
-
-### Security
-
-- User creation happens server-side via edge function with service role key — client never sees admin credentials
-- Module access enforced both in UI (sidebar filtering) and at data level (RLS policies check role)
-- Password change uses Supabase's built-in `updateUser` — secure and standard
-- Superadmin remains the only role that can manage users and permissions
-
-### Files to Create/Modify
-
-| File | Action |
-|------|--------|
-| Migration SQL | Create `admin_users` + `admin_user_permissions` tables |
-| `supabase/functions/create-admin-user/index.ts` | New edge function |
-| `supabase/config.toml` | Add function config |
-| `src/contexts/AuthContext.tsx` | Add admin role, permissions, mustChangePassword |
-| `src/components/admin/ProtectedRoute.tsx` | Allow admin role access |
-| `src/components/admin/UserManagementTab.tsx` | New component |
-| `src/components/admin/ChangePasswordPrompt.tsx` | New component |
-| `src/components/admin/AdminLayout.tsx` | Add tab, filter by permissions |
-| `src/pages/Admin.tsx` | Register new tab |
+## Files to Modify
+1. `src/components/admin/AIAgentConfigTab.tsx` -- full UI redesign with chat-style input
+2. `supabase/config.toml` -- register new function
 

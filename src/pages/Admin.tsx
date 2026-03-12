@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import AdminLayout from "@/components/admin/AdminLayout";
 import OverviewTab from "@/components/admin/OverviewTab";
 import AnalyticsTab from "@/components/admin/AnalyticsTab";
@@ -14,6 +15,7 @@ import AIAgentConfigTab from "@/components/admin/AIAgentConfigTab";
 import SiteSettingsTab from "@/components/admin/SiteSettingsTab";
 import BlogTab from "@/components/admin/BlogTab";
 import IndexingLogsTab from "@/components/admin/IndexingLogsTab";
+import UserManagementTab from "@/components/admin/UserManagementTab";
 
 const tabComponents: Record<string, React.FC> = {
   overview: OverviewTab,
@@ -30,11 +32,25 @@ const tabComponents: Record<string, React.FC> = {
   "ai-agent": AIAgentConfigTab,
   "indexing-logs": IndexingLogsTab,
   settings: SiteSettingsTab,
+  "user-management": UserManagementTab,
 };
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState("overview");
-  const TabComponent = tabComponents[activeTab] ?? OverviewTab;
+  const { isSuperadmin, hasAccess } = useAuth();
+
+  // Prevent accessing a module without permission
+  const canView = activeTab === "user-management"
+    ? isSuperadmin
+    : hasAccess(activeTab, "view");
+
+  const TabComponent = canView
+    ? (tabComponents[activeTab] ?? OverviewTab)
+    : () => (
+        <div className="flex items-center justify-center h-64 text-muted-foreground">
+          You don't have access to this module.
+        </div>
+      );
 
   return (
     <AdminLayout activeTab={activeTab} onTabChange={setActiveTab}>
