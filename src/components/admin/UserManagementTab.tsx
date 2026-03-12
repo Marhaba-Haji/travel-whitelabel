@@ -293,9 +293,9 @@ const UserManagementTab = () => {
                         onClick={() => handleToggleActive(u)}
                       >
                         {u.is_active ? (
-                          <ShieldOff className="h-4 w-4 text-amber-500" />
+                          <ShieldOff className="h-4 w-4 text-muted-foreground" />
                         ) : (
-                          <ShieldCheck className="h-4 w-4 text-green-500" />
+                          <ShieldCheck className="h-4 w-4 text-primary" />
                         )}
                       </Button>
                       <Button
