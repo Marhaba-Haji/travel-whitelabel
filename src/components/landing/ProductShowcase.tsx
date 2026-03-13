@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Settings, PackageOpen, Users, ShoppingCart, BarChart3, ArrowRight, Check } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { motion, AnimatePresence } from "framer-motion";
 
 const portals = [
   {
@@ -84,10 +85,33 @@ const portals = [
   },
 ];
 
-const DashboardMockup = ({ portal }: { portal: typeof portals[number] }) => (
+const tabContentVariants = {
+  hidden: { opacity: 0, y: 20, scale: 0.97 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] as const } },
+  exit: { opacity: 0, y: -10, scale: 0.97, transition: { duration: 0.2, ease: "easeIn" as const } },
+};
+
+const featureVariants = {
+  hidden: { opacity: 0, x: -16 },
+  visible: (i: number) => ({
+    opacity: 1,
+    x: 0,
+    transition: { delay: 0.15 + i * 0.07, duration: 0.35, ease: "easeOut" as const },
+  }),
+};
+
+const AnimatedBar = ({ height, color, index, isVisible }: { height: number; color: string; index: number; isVisible: boolean }) => (
+  <motion.div
+    className={`flex-1 rounded-t bg-gradient-to-t ${color} opacity-80`}
+    initial={{ height: 0 }}
+    animate={isVisible ? { height: `${height}%` } : { height: 0 }}
+    transition={{ duration: 0.6, delay: 0.1 + index * 0.07, ease: [0.22, 1, 0.36, 1] }}
+  />
+);
+
+const DashboardMockup = ({ portal, isVisible }: { portal: typeof portals[number]; isVisible: boolean }) => (
   <div className="relative">
     <div className="glass-card rounded-2xl overflow-hidden">
-      {/* Chrome bar */}
       <div className="flex items-center gap-3 px-4 py-3 border-b border-white/10">
         <div className="flex gap-1.5">
           <div className="w-2.5 h-2.5 rounded-full bg-red-400/60" />
@@ -100,7 +124,6 @@ const DashboardMockup = ({ portal }: { portal: typeof portals[number] }) => (
         <Badge className="text-[10px] bg-aurora-teal/20 text-aurora-teal border-aurora-teal/30">Live</Badge>
       </div>
 
-      {/* Dashboard content */}
       <div className="p-5 sm:p-6">
         <div className="flex items-center justify-between mb-5">
           <div>
@@ -112,17 +135,21 @@ const DashboardMockup = ({ portal }: { portal: typeof portals[number] }) => (
           </div>
         </div>
 
-        {/* Stats */}
         <div className="grid grid-cols-3 gap-3 mb-5">
           {portal.mockup.stats.map((stat, idx) => (
-            <div key={idx} className="glass rounded-xl p-3 text-center">
+            <motion.div
+              key={idx}
+              className="glass rounded-xl p-3 text-center"
+              initial={{ opacity: 0, y: 12 }}
+              animate={isVisible ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: 0.2 + idx * 0.1, duration: 0.4 }}
+            >
               <p className="text-[10px] text-muted-foreground mb-1">{stat.label}</p>
               <span className={`text-lg sm:text-xl font-bold ${stat.color}`}>{stat.value}</span>
-            </div>
+            </motion.div>
           ))}
         </div>
 
-        {/* Chart */}
         <div className="glass rounded-xl p-4">
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm font-medium text-foreground">Weekly Overview</span>
@@ -130,11 +157,7 @@ const DashboardMockup = ({ portal }: { portal: typeof portals[number] }) => (
           </div>
           <div className="flex items-end justify-between gap-2 h-20">
             {portal.mockup.chartBars.map((height, idx) => (
-              <div
-                key={idx}
-                className={`flex-1 rounded-t bg-gradient-to-t ${portal.color} opacity-80`}
-                style={{ height: `${height}%` }}
-              />
+              <AnimatedBar key={idx} height={height} color={portal.color} index={idx} isVisible={isVisible} />
             ))}
           </div>
           <div className="flex justify-between mt-2 text-[10px] text-muted-foreground">
@@ -146,7 +169,6 @@ const DashboardMockup = ({ portal }: { portal: typeof portals[number] }) => (
       </div>
     </div>
 
-    {/* Decorative glows */}
     <div className="absolute -top-6 -right-6 w-40 h-40 bg-aurora-purple/7 rounded-full blur-3xl pointer-events-none" />
     <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-aurora-blue/7 rounded-full blur-2xl pointer-events-none" />
   </div>
@@ -166,7 +188,6 @@ const ProductShowcase = () => {
         ref={sectionRef}
         className={`container mx-auto px-4 relative opacity-0 ${sectionVisible ? "animate-fade-in" : ""}`}
       >
-        {/* Centered header */}
         <div className="text-center mb-14">
           <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
             See It In Action
@@ -177,7 +198,6 @@ const ProductShowcase = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          {/* Centered tab switcher — above content */}
           <TabsList className="flex flex-wrap justify-center gap-2 bg-transparent h-auto mb-10">
             {portals.map((portal) => (
               <TabsTrigger
@@ -191,48 +211,71 @@ const ProductShowcase = () => {
             ))}
           </TabsList>
 
-          {/* Symmetric two-column layout */}
           <div className="grid lg:grid-cols-2 gap-10 items-center">
-            {/* Left — description & features */}
-            <div className="flex flex-col justify-center">
-              <div className={`inline-flex items-center gap-2 mb-4`}>
-                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${activePortal.color} flex items-center justify-center`}>
-                  <activePortal.icon className="h-5 w-5 text-white" />
+            {/* Left — animated features */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab + "-info"}
+                variants={tabContentVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="flex flex-col justify-center"
+              >
+                <div className="inline-flex items-center gap-2 mb-4">
+                  <motion.div
+                    className={`w-10 h-10 rounded-xl bg-gradient-to-br ${activePortal.color} flex items-center justify-center`}
+                    layoutId="portal-icon"
+                    transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                  >
+                    <activePortal.icon className="h-5 w-5 text-white" />
+                  </motion.div>
+                  <h3 className="text-2xl font-semibold text-foreground">{activePortal.name}</h3>
                 </div>
-                <h3 className="text-2xl font-semibold text-foreground">{activePortal.name}</h3>
-              </div>
 
-              <p className="text-muted-foreground mb-6 text-base leading-relaxed">
-                {activePortal.description}
-              </p>
+                <p className="text-muted-foreground mb-6 text-base leading-relaxed">
+                  {activePortal.description}
+                </p>
 
-              <ul className="space-y-3 mb-8">
-                {activePortal.features.map((feature) => (
-                  <li key={feature} className="flex items-center gap-3 text-muted-foreground">
-                    <div className={`w-5 h-5 rounded-full bg-gradient-to-br ${activePortal.color} flex items-center justify-center flex-shrink-0`}>
-                      <Check className="h-3 w-3 text-white" />
-                    </div>
-                    {feature}
-                  </li>
-                ))}
-              </ul>
+                <ul className="space-y-3 mb-8">
+                  {activePortal.features.map((feature, i) => (
+                    <motion.li
+                      key={feature}
+                      custom={i}
+                      variants={featureVariants}
+                      initial="hidden"
+                      animate="visible"
+                      className="flex items-center gap-3 text-muted-foreground"
+                    >
+                      <div className={`w-5 h-5 rounded-full bg-gradient-to-br ${activePortal.color} flex items-center justify-center flex-shrink-0`}>
+                        <Check className="h-3 w-3 text-white" />
+                      </div>
+                      {feature}
+                    </motion.li>
+                  ))}
+                </ul>
 
-              <Button asChild className="rounded-full px-6 group bg-gradient-to-r from-aurora-blue to-primary hover:shadow-[0_0_20px_hsl(210_100%_50%_/_0.3)] transition-shadow w-fit">
-                <a href="/signup">
-                  Get Started
-                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                </a>
-              </Button>
-            </div>
+                <Button asChild className="rounded-full px-6 group bg-gradient-to-r from-aurora-blue to-primary hover:shadow-[0_0_20px_hsl(210_100%_50%_/_0.3)] transition-shadow w-fit">
+                  <a href="/signup">
+                    Get Started
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </a>
+                </Button>
+              </motion.div>
+            </AnimatePresence>
 
-            {/* Right — mockup preview */}
-            <div>
-              {portals.map((portal) => (
-                <TabsContent key={portal.id} value={portal.id} className="mt-0">
-                  <DashboardMockup portal={portal} />
-                </TabsContent>
-              ))}
-            </div>
+            {/* Right — animated mockup */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab + "-mockup"}
+                variants={tabContentVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+              >
+                <DashboardMockup portal={activePortal} isVisible={sectionVisible} />
+              </motion.div>
+            </AnimatePresence>
           </div>
         </Tabs>
       </div>
