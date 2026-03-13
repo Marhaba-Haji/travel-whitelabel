@@ -28,16 +28,26 @@ const ChangePasswordPrompt = ({ onComplete }: ChangePasswordPromptProps) => {
 
     setLoading(true);
     try {
-      const { error } = await supabase.auth.updateUser({ password });
-      if (error) throw error;
-
-      // Mark must_change_password = false
+      // Get user first
       const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
+      if (!user) throw new Error("No user found");
+
+      // Update DB flag BEFORE changing password to avoid race condition
+      // (updateUser triggers onAuthStateChange which re-reads this flag)
+      await supabase
+        .from("admin_users")
+        .update({ must_change_password: false })
+        .eq("user_id", user.id);
+
+      // Now update the password (this triggers onAuthStateChange)
+      const { error } = await supabase.auth.updateUser({ password });
+      if (error) {
+        // Rollback DB flag if password update fails
         await supabase
           .from("admin_users")
-          .update({ must_change_password: false })
+          .update({ must_change_password: true })
           .eq("user_id", user.id);
+        throw error;
       }
 
       toast.success("Password updated successfully");
