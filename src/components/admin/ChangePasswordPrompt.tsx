@@ -43,6 +43,7 @@ const ChangePasswordPrompt = ({ onComplete }: ChangePasswordPromptProps) => {
           .from("admin_users")
           .update({ must_change_password: true })
           .eq("user_id", user.id);
+        // Note: rollback may fail due to RLS but that's acceptable - superadmin can fix
         throw error;
       }
 
