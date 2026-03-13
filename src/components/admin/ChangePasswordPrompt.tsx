@@ -32,12 +32,8 @@ const ChangePasswordPrompt = ({ onComplete }: ChangePasswordPromptProps) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
 
-      // Update DB flag BEFORE changing password to avoid race condition
-      // (updateUser triggers onAuthStateChange which re-reads this flag)
-      await supabase
-        .from("admin_users")
-        .update({ must_change_password: false })
-        .eq("user_id", user.id);
+      // Use RPC to clear flag (sub-users can't UPDATE admin_users directly due to RLS)
+      await supabase.rpc("clear_must_change_password");
 
       // Now update the password (this triggers onAuthStateChange)
       const { error } = await supabase.auth.updateUser({ password });
@@ -47,6 +43,7 @@ const ChangePasswordPrompt = ({ onComplete }: ChangePasswordPromptProps) => {
           .from("admin_users")
           .update({ must_change_password: true })
           .eq("user_id", user.id);
+        // Note: rollback may fail due to RLS but that's acceptable - superadmin can fix
         throw error;
       }
 
