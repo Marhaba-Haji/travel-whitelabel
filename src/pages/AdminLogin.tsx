@@ -16,10 +16,10 @@ const AdminLogin = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!authLoading && user && isSuperadmin) {
+    if (!authLoading && user && (isSuperadmin || isAdmin)) {
       navigate("/admin", { replace: true });
     }
-  }, [authLoading, user, isSuperadmin, navigate]);
+  }, [authLoading, user, isSuperadmin, isAdmin, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
