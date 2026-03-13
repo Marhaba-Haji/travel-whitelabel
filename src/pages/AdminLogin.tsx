@@ -12,14 +12,14 @@ const AdminLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const { signIn, user, isSuperadmin, loading: authLoading } = useAuth();
+  const { signIn, user, isSuperadmin, isAdmin, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!authLoading && user && isSuperadmin) {
+    if (!authLoading && user && (isSuperadmin || isAdmin)) {
       navigate("/admin", { replace: true });
     }
-  }, [authLoading, user, isSuperadmin, navigate]);
+  }, [authLoading, user, isSuperadmin, isAdmin, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
