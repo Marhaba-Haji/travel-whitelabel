@@ -264,7 +264,7 @@ const ProductShowcase = () => {
               </motion.div>
             </AnimatePresence>
 
-            {/* Right — animated mockup */}
+            {/* Right — animated mockup with parallax */}
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeTab + "-mockup"}
@@ -272,6 +272,7 @@ const ProductShowcase = () => {
                 initial="hidden"
                 animate="visible"
                 exit="exit"
+                style={{ y: mockupY }}
               >
                 <DashboardMockup portal={activePortal} isVisible={sectionVisible} />
               </motion.div>
