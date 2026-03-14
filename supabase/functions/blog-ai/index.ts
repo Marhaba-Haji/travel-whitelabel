@@ -160,9 +160,9 @@ Deno.serve(async (req) => {
   }
 
   try {
-    let body: Record<string, unknown>;
+    let reqBody: Record<string, any>;
     try {
-      body = (await req.json()) as Record<string, unknown>;
+      reqBody = (await req.json()) as Record<string, any>;
     } catch {
       return new Response(
         JSON.stringify({ error: "Invalid or missing request body" }),
