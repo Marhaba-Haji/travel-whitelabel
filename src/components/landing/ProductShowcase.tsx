@@ -177,6 +177,9 @@ const DashboardMockup = ({ portal, isVisible }: { portal: typeof portals[number]
 const ProductShowcase = () => {
   const { ref: sectionRef, isVisible: sectionVisible } = useScrollAnimation();
   const [activeTab, setActiveTab] = useState("admin");
+  const parallaxRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: parallaxRef, offset: ["start end", "end start"] });
+  const mockupY = useTransform(scrollYProgress, [0, 1], [40, -40]);
 
   const activePortal = portals.find((p) => p.id === activeTab) || portals[0];
 
