@@ -2,7 +2,11 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const SUPABASE_URL = "https://kofijegdzeshitunwddn.supabase.co";
+// In dev, use Vite proxy to avoid CORS with Edge Functions
+const SUPABASE_URL =
+  import.meta.env.DEV && typeof window !== "undefined"
+    ? `${window.location.origin}/supabase-proxy`
+    : "https://kofijegdzeshitunwddn.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtvZmlqZWdkemVzaGl0dW53ZGRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5MjQxNTIsImV4cCI6MjA4NjUwMDE1Mn0.knr8JAjauZWGl-3Wd4BbaMCEZLujxHR7veJs4rQEwVw";
 
 // Import the supabase client like this:

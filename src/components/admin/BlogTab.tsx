@@ -69,6 +69,10 @@ interface BlogAIConfig {
   brand_keywords: string[];
   differentiators: string;
   competitor_urls: string[];
+  // New: powerful research configuration
+  region_country_codes?: Record<string, string>;
+  authority_domains?: string[];
+  research_depth?: "quick" | "full";
 }
 
 interface CannibalizationOverlap {
@@ -85,6 +89,15 @@ const DEFAULT_AI_CONFIG: BlogAIConfig = {
   brand_keywords: ["halal travel", "DMC", "Muslim-friendly", "luxury hospitality", "travel technology"],
   differentiators: "AI-powered travel technology, halal-certified experiences, contracted inventory with best rates, white-label B2B platform",
   competitor_urls: [],
+  region_country_codes: {
+    "Middle East": "AE",
+    Turkey: "TR",
+    "Southeast Asia": "MY",
+    Maldives: "MV",
+    GCC: "SA",
+  },
+  authority_domains: ["unwto.org", "visitdubai.com", "statista.com"],
+  research_depth: "full",
 };
 
 const slugify = (text: string) =>
@@ -114,6 +127,9 @@ const BlogTab = () => {
   const [newCategory, setNewCategory] = useState("");
   const [newClusterName, setNewClusterName] = useState("");
   const [newClusterKeyword, setNewClusterKeyword] = useState("");
+  const [clusterNiche, setClusterNiche] = useState("halal travel");
+  const [fullStrategy, setFullStrategy] = useState<any>(null);
+  const [fullStrategyDialog, setFullStrategyDialog] = useState(false);
   const [activeTab, setActiveTab] = useState("posts");
   const [aiConfig, setAiConfig] = useState<BlogAIConfig>(DEFAULT_AI_CONFIG);
   const [configLoading, setConfigLoading] = useState(false);
@@ -248,6 +264,8 @@ const BlogTab = () => {
           competitors: aiConfig.competitor_urls.filter(Boolean),
           targetRegion: aiConfig.target_regions.join(", "),
           targetAudience: aiConfig.target_audience.join("; "),
+          brandConfig: aiConfig,
+          targetRegions: aiConfig.target_regions,
         },
       });
       if (error) throw error;
@@ -290,6 +308,21 @@ const BlogTab = () => {
     }
   };
 
+  const ensureImageMarkersInContent = (content: string): string => {
+    const existingMarkers = content.match(/\[IMAGE_\d+:\s*[^\]]+\]/g) || [];
+    const needed = Math.max(0, 3 - existingMarkers.length);
+    if (needed === 0) return content;
+    let h2Count = 0;
+    return content.replace(/^(##\s+.+)$/gm, (match) => {
+      h2Count++;
+      if (h2Count >= 2 && h2Count <= 1 + needed) {
+        const markerNum = existingMarkers.length + (h2Count - 1);
+        return `\n\n[IMAGE_${markerNum}: Section image]\n\n${match}`;
+      }
+      return match;
+    });
+  };
+
   const generateImages = async () => {
     if (!currentPost?.content || !currentPost?.title) {
       toast({ title: "Generate article content first", variant: "destructive" });
@@ -297,12 +330,16 @@ const BlogTab = () => {
     }
     setImageGenLoading(true);
     try {
+      const contentWithMarkers = ensureImageMarkersInContent(currentPost.content);
+      if (contentWithMarkers !== currentPost.content) {
+        setCurrentPost((prev) => prev ? { ...prev, content: contentWithMarkers } : prev);
+      }
       // Step 1: Extract image prompts from content
       const { data: promptData, error: promptErr } = await supabase.functions.invoke("blog-ai", {
         body: {
           action: "generate_image_prompts",
           title: currentPost.title,
-          content: currentPost.content,
+          content: contentWithMarkers,
           brandConfig: aiConfig,
         },
       });
@@ -334,7 +371,7 @@ const BlogTab = () => {
       }
 
       // Step 3: Upload to Supabase storage with multi-size optimization
-      let updatedContent = currentPost.content || "";
+      let updatedContent = contentWithMarkers;
       let featuredUrl = currentPost.cover_image_url || "";
 
       const resizeImage = (base64Url: string, maxWidth: number): Promise<Blob> => {
@@ -501,6 +538,15 @@ const BlogTab = () => {
     return `${baseSlug}-${i}`;
   };
 
+  const ensureUniquePostSlug = async (baseSlug: string): Promise<string> => {
+    const { data: existing } = await supabase.from("blog_posts").select("slug").ilike("slug", `${baseSlug}%`);
+    const slugs = new Set((existing || []).map((r) => r.slug));
+    if (!slugs.has(baseSlug)) return baseSlug;
+    let i = 2;
+    while (slugs.has(`${baseSlug}-${i}`)) i++;
+    return `${baseSlug}-${i}`;
+  };
+
   const addCluster = async () => {
     if (!newClusterName.trim() || !newClusterKeyword.trim()) return;
     const baseSlug = slugify(newClusterName.trim());
@@ -629,14 +675,14 @@ const BlogTab = () => {
   }, [currentPost, clusters, posts]);
 
   // AI helpers
-  const callAI = async (action: string, extra: Record<string, string> = {}) => {
+  const callAI = async (action: string, extra: Record<string, any> = {}) => {
     setAiLoading(action);
     try {
-      const needsExistingPosts = ["generate_article", "interlink_posts", "suggest_cluster", "suggest_topics"].includes(action);
+      const needsExistingPosts = ["generate_article", "interlink_posts", "suggest_cluster", "suggest_topics", "full_cluster_strategy"].includes(action);
       const existingPosts = needsExistingPosts
         ? getExistingPostsCatalog().filter((p) => p.slug !== currentPost?.slug)
         : undefined;
-      const existingClusters = (action === "suggest_cluster" || action === "suggest_topics")
+      const existingClusters = (action === "suggest_cluster" || action === "suggest_topics" || action === "full_cluster_strategy")
         ? getExistingClustersCatalog()
         : undefined;
       const clusterInfo = action === "generate_article" ? getClusterContext() : undefined;
@@ -654,10 +700,13 @@ const BlogTab = () => {
       };
 
       if (action === "generate_article" || action === "improve_content" || action === "interlink_posts") {
-        // Streaming
-        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://kofijegdzeshitunwddn.supabase.co";
+        // Streaming (use proxy in dev to avoid CORS)
+        const baseUrl =
+          import.meta.env.DEV && typeof window !== "undefined"
+            ? `${window.location.origin}/supabase-proxy`
+            : (import.meta.env.VITE_SUPABASE_URL || "https://kofijegdzeshitunwddn.supabase.co");
         const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtvZmlqZWdkemVzaGl0dW53ZGRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5MjQxNTIsImV4cCI6MjA4NjUwMDE1Mn0.knr8JAjauZWGl-3Wd4BbaMCEZLujxHR7veJs4rQEwVw";
-        const url = `${supabaseUrl}/functions/v1/blog-ai`;
+        const url = `${baseUrl}/functions/v1/blog-ai`;
         const resp = await fetch(url, {
           method: "POST",
           headers: {
@@ -715,6 +764,17 @@ const BlogTab = () => {
           setSuggestedCluster(data.result);
           setClusterDialog(true);
         }
+      } else if (action === "full_cluster_strategy") {
+        const { data, error } = await supabase.functions.invoke("blog-ai", { body });
+        if (error) throw error;
+        const clusters = data?.result?.clusters;
+        if (Array.isArray(clusters) && clusters.length > 0) {
+          setFullStrategy(data.result);
+          setFullStrategyDialog(true);
+          toast({ title: "Full cluster strategy ready", description: `${clusters.length} clusters generated.` });
+        } else {
+          toast({ title: "No clusters returned", description: "The AI did not return any clusters. Try again or use Quick AI Cluster.", variant: "destructive" });
+        }
       } else {
         // Non-streaming
         const { data, error } = await supabase.functions.invoke("blog-ai", { body });
@@ -756,9 +816,12 @@ const BlogTab = () => {
         toast({ title: "Need at least 2 published posts for interlinking", variant: "destructive" });
         return;
       }
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://kofijegdzeshitunwddn.supabase.co";
+      const baseUrl =
+        import.meta.env.DEV && typeof window !== "undefined"
+          ? `${window.location.origin}/supabase-proxy`
+          : (import.meta.env.VITE_SUPABASE_URL || "https://kofijegdzeshitunwddn.supabase.co");
       const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtvZmlqZWdkemVzaGl0dW53ZGRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5MjQxNTIsImV4cCI6MjA4NjUwMDE1Mn0.knr8JAjauZWGl-3Wd4BbaMCEZLujxHR7veJs4rQEwVw";
-      const url = `${supabaseUrl}/functions/v1/blog-ai`;
+      const url = `${baseUrl}/functions/v1/blog-ai`;
       const resp = await fetch(url, {
         method: "POST",
         headers: {
@@ -833,20 +896,78 @@ const BlogTab = () => {
     if (!suggestedCluster) return;
     const baseSlug = slugify(suggestedCluster.cluster_name);
     const slug = await ensureUniqueClusterSlug(baseSlug);
-    const { error } = await supabase.from("blog_clusters").insert({
-      name: suggestedCluster.cluster_name,
-      slug,
-      target_keyword: suggestedCluster.target_keyword,
-      description: `Pillar: ${suggestedCluster.pillar.title}`,
-    } as any);
-    if (error) {
-      const msg = error.code === "23505" ? "A cluster with this name already exists." : error.message;
+    const { data: newCluster, error: clusterError } = await supabase
+      .from("blog_clusters")
+      .insert({
+        name: suggestedCluster.cluster_name,
+        slug,
+        target_keyword: suggestedCluster.target_keyword,
+        description: `Pillar: ${suggestedCluster.pillar?.title || ""}`,
+      } as any)
+      .select("id")
+      .single();
+    if (clusterError) {
+      const msg = clusterError.code === "23505" ? "A cluster with this name already exists." : clusterError.message;
       toast({ title: "Error creating cluster", description: msg, variant: "destructive" });
-    } else {
-      toast({ title: "Cluster created!" });
-      fetchClusters();
-      setClusterDialog(false);
+      return;
     }
+    const clusterId = newCluster?.id;
+    if (!clusterId) {
+      toast({ title: "Error", description: "Cluster created but ID not returned.", variant: "destructive" });
+      return;
+    }
+
+    // Create pillar post (draft)
+    let pillarPostId: string | null = null;
+    if (suggestedCluster.pillar?.title) {
+      const pillarSlug = await ensureUniquePostSlug(slugify(suggestedCluster.pillar.title));
+      const { data: pillarPost } = await supabase
+        .from("blog_posts")
+        .insert({
+          title: suggestedCluster.pillar.title,
+          slug: pillarSlug,
+          excerpt: suggestedCluster.pillar.description || null,
+          content: "",
+          status: "draft",
+          author_name: "Marhaba DMC",
+          cluster_id: clusterId,
+          post_type: "pillar",
+          meta_keywords: suggestedCluster.pillar.keywords || [],
+          tags: suggestedCluster.pillar.keywords || [],
+        } as any)
+        .select("id")
+        .single();
+      pillarPostId = pillarPost?.id || null;
+    }
+
+    // Create supporting posts (drafts)
+    const supportingPosts = suggestedCluster.supporting_posts || [];
+    for (const sp of supportingPosts) {
+      if (!sp?.title) continue;
+      const spSlug = await ensureUniquePostSlug(slugify(sp.title));
+      await supabase.from("blog_posts").insert({
+        title: sp.title,
+        slug: spSlug,
+        excerpt: sp.description || null,
+        content: "",
+        status: "draft",
+        author_name: "Marhaba DMC",
+        cluster_id: clusterId,
+        post_type: "supporting",
+        pillar_post_id: pillarPostId,
+        meta_keywords: sp.keywords || [],
+        tags: sp.keywords || [],
+      } as any);
+    }
+
+    toast({
+      title: "Cluster created!",
+      description: `1 pillar + ${supportingPosts.length} supporting posts created as drafts.`,
+    });
+    fetchClusters();
+    fetchPosts();
+    setClusterDialog(false);
+    setSuggestedCluster(null);
   };
 
   // ─── Posts List View ───
@@ -958,12 +1079,60 @@ const BlogTab = () => {
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-semibold text-foreground">Content Clusters</h2>
-                <p className="text-sm text-muted-foreground">Organize posts into pillar + supporting article clusters for SEO.</p>
+                <p className="text-sm text-muted-foreground">Organize posts into pillar + supporting article clusters for SEO and GSO.</p>
               </div>
-              <Button variant="outline" size="sm" onClick={() => callAI("suggest_cluster", { topic: "halal travel" })} disabled={!!aiLoading}>
-                {aiLoading === "suggest_cluster" ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Sparkles className="h-4 w-4 mr-1" />}
-                AI Suggest Cluster
-              </Button>
+              <div className="flex items-center gap-2">
+                <Input
+                  value={clusterNiche}
+                  onChange={(e) => setClusterNiche(e.target.value)}
+                  placeholder="Cluster niche, e.g. halal travel"
+                  className="h-8 w-56 text-xs"
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => callAI("suggest_cluster", { topic: clusterNiche })}
+                  disabled={!!aiLoading}
+                >
+                  {aiLoading === "suggest_cluster" ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Sparkles className="h-4 w-4 mr-1" />}
+                  Quick AI Cluster
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={async () => {
+                    setAiLoading("full_cluster_strategy");
+                    try {
+                      let clusterResearch: any = null;
+                      try {
+                        const { data, error } = await supabase.functions.invoke("blog-cluster-research", {
+                          body: {
+                            niche: clusterNiche,
+                            brandConfig: aiConfig,
+                            targetRegions: aiConfig.target_regions,
+                          },
+                        });
+                        if (error) throw error;
+                        clusterResearch = data?.research;
+                      } catch (researchErr: any) {
+                        toast({ title: "Research skipped", description: "Proceeding without web research.", variant: "default" });
+                      }
+                      await callAI("full_cluster_strategy", {
+                        topic: clusterNiche,
+                        research: clusterResearch,
+                      });
+                    } catch (e: any) {
+                      toast({ title: "Full strategy failed", description: e.message, variant: "destructive" });
+                    } finally {
+                      setAiLoading(null);
+                    }
+                  }}
+                  disabled={!!aiLoading}
+                >
+                  {aiLoading === "full_cluster_strategy" ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Globe className="h-4 w-4 mr-1" />}
+                  Full Cluster Strategy
+                </Button>
+              </div>
             </div>
 
             {/* Create Cluster */}
@@ -1139,6 +1308,85 @@ const BlogTab = () => {
                   </Button>
                 </CardContent>
               </Card>
+
+              <Card className="lg:col-span-2">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center gap-2"><Search className="h-4 w-4" /> Research Settings</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-xs">Region → Country Codes</Label>
+                      <Textarea
+                        value={Object.entries(aiConfig.region_country_codes || {})
+                          .map(([region, code]) => `${region}=${code}`)
+                          .join("\n")}
+                        onChange={(e) =>
+                          setAiConfig((c) => ({
+                            ...c,
+                            region_country_codes: e.target.value
+                              .split("\n")
+                              .map((line) => line.trim())
+                              .filter(Boolean)
+                              .reduce<Record<string, string>>((acc, line) => {
+                                const [region, code] = line.split("=").map((s) => s.trim());
+                                if (region && code) acc[region] = code.toUpperCase();
+                                return acc;
+                              }, {}),
+                          }))
+                        }
+                        placeholder={"Middle East=AE\nTurkey=TR\nSoutheast Asia=MY\nMaldives=MV\nGCC=SA"}
+                        className="min-h-[96px] font-mono text-xs"
+                      />
+                      <p className="text-[11px] text-muted-foreground mt-1">
+                        Used for regional research via Perplexity&apos;s <code>user_location</code> filter.
+                      </p>
+                    </div>
+                    <div>
+                      <Label className="text-xs">Authority Domains (one per line)</Label>
+                      <Textarea
+                        value={(aiConfig.authority_domains || []).join("\n")}
+                        onChange={(e) =>
+                          setAiConfig((c) => ({
+                            ...c,
+                            authority_domains: e.target.value
+                              .split("\n")
+                              .map((s) => s.trim())
+                              .filter(Boolean),
+                          }))
+                        }
+                        placeholder={"unwto.org\nvisitdubai.com\nstatista.com"}
+                        className="min-h-[96px] font-mono text-xs"
+                      />
+                      <p className="text-[11px] text-muted-foreground mt-1">
+                        These domains are prioritized for industry trends and statistics.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 pt-2 border-t border-border/60 mt-2">
+                    <div className="flex-1">
+                      <Label className="text-xs">Research Depth</Label>
+                      <p className="text-[11px] text-muted-foreground">
+                        <span className="font-medium">Quick</span>: global SERP + trends + competitors.{" "}
+                        <span className="font-medium">Full</span>: adds regional and brand research.
+                      </p>
+                    </div>
+                    <select
+                      value={aiConfig.research_depth || "full"}
+                      onChange={(e) =>
+                        setAiConfig((c) => ({
+                          ...c,
+                          research_depth: e.target.value as "quick" | "full",
+                        }))
+                      }
+                      className="flex h-9 rounded-md border border-input bg-background px-2 py-1 text-xs ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                      <option value="quick">Quick</option>
+                      <option value="full">Full</option>
+                    </select>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
 
             <Button onClick={saveAIConfig} disabled={configLoading}>
@@ -1201,7 +1449,190 @@ const BlogTab = () => {
                   </div>
                 </div>
                 <Button onClick={createClusterFromSuggestion} className="w-full">
-                  <Plus className="h-4 w-4 mr-1" /> Create This Cluster
+                  <Plus className="h-4 w-4 mr-1" /> Create Cluster & Draft Posts
+                </Button>
+                <p className="text-xs text-muted-foreground text-center">
+                  Creates the cluster and {1 + (suggestedCluster.supporting_posts?.length || 0)} draft posts (1 pillar + {suggestedCluster.supporting_posts?.length || 0} supporting) ready for you to generate content.
+                </p>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Full Cluster Strategy Dialog */}
+        <Dialog open={fullStrategyDialog} onOpenChange={setFullStrategyDialog}>
+          <DialogContent className="max-w-3xl" aria-describedby={undefined}>
+            <DialogHeader><DialogTitle>Full Cluster Strategy</DialogTitle></DialogHeader>
+            {fullStrategy?.clusters && (
+              <div className="space-y-4 max-h-[70vh] overflow-auto text-sm">
+                {fullStrategy.clusters.map((cluster: any, idx: number) => (
+                  <Card key={idx} className="border-border/70">
+                    <CardHeader className="pb-2">
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-base flex items-center gap-2">
+                          <Layers className="h-4 w-4" /> {cluster.cluster_name}
+                          <Badge variant="outline" className="text-xs font-normal">{cluster.target_keyword}</Badge>
+                        </CardTitle>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      {cluster.description && (
+                        <p className="text-xs text-muted-foreground">{cluster.description}</p>
+                      )}
+                      {Array.isArray(cluster.paa_queries) && cluster.paa_queries.length > 0 && (
+                        <div>
+                          <p className="text-xs font-semibold mb-1">People Also Ask Targets</p>
+                          <ul className="list-disc list-inside text-xs text-muted-foreground space-y-0.5">
+                            {cluster.paa_queries.map((q: string, i: number) => (
+                              <li key={i}>{q}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      {Array.isArray(cluster.related_searches) && cluster.related_searches.length > 0 && (
+                        <div>
+                          <p className="text-xs font-semibold mb-1">Related Searches</p>
+                          <ul className="list-disc list-inside text-xs text-muted-foreground space-y-0.5">
+                            {cluster.related_searches.map((q: string, i: number) => (
+                              <li key={i}>{q}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      {Array.isArray(cluster.featured_snippet_targets) && cluster.featured_snippet_targets.length > 0 && (
+                        <div>
+                          <p className="text-xs font-semibold mb-1">Featured Snippet Targets</p>
+                          <ul className="list-disc list-inside text-xs text-muted-foreground space-y-0.5">
+                            {cluster.featured_snippet_targets.map((q: string, i: number) => (
+                              <li key={i}>{q}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      <div className="pt-1">
+                        <p className="text-xs font-semibold flex items-center gap-1">
+                          <Pin className="h-3 w-3" /> Pillar Post
+                        </p>
+                        <p className="text-sm text-foreground">{cluster.pillar?.title}</p>
+                        <p className="text-xs text-muted-foreground">{cluster.pillar?.description}</p>
+                      </div>
+                      {Array.isArray(cluster.supporting_posts) && cluster.supporting_posts.length > 0 && (
+                        <div className="pt-1">
+                          <p className="text-xs font-semibold">
+                            Supporting Posts ({cluster.supporting_posts.length})
+                          </p>
+                          <div className="space-y-1 mt-1">
+                            {cluster.supporting_posts.map((sp: any, i: number) => (
+                              <div key={i} className="border border-border/40 rounded px-2 py-1.5">
+                                <p className="text-sm text-foreground">{sp.title}</p>
+                                {sp.description && (
+                                  <p className="text-xs text-muted-foreground">{sp.description}</p>
+                                )}
+                                {(sp.paa_target || sp.snippet_type) && (
+                                  <div className="flex flex-wrap gap-1 mt-1">
+                                    {sp.paa_target && (
+                                      <Badge variant="outline" className="text-[10px]">PAA: {sp.paa_target}</Badge>
+                                    )}
+                                    {sp.snippet_type && (
+                                      <Badge variant="outline" className="text-[10px]">Snippet: {sp.snippet_type}</Badge>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+                <Button
+                  className="w-full"
+                  onClick={async () => {
+                    if (!fullStrategy?.clusters) return;
+                    try {
+                      for (const cluster of fullStrategy.clusters) {
+                        const baseSlug = slugify(cluster.cluster_name);
+                        const slug = await ensureUniqueClusterSlug(baseSlug);
+                        const { data: newCluster, error: clusterError } = await supabase
+                          .from("blog_clusters")
+                          .insert({
+                            name: cluster.cluster_name,
+                            slug,
+                            target_keyword: cluster.target_keyword,
+                            description: cluster.description || null,
+                            paa_queries: cluster.paa_queries || [],
+                            related_searches: cluster.related_searches || [],
+                            featured_snippet_targets: cluster.featured_snippet_targets || [],
+                          } as any)
+                          .select("id")
+                          .single();
+                        if (clusterError) {
+                          console.error("Cluster create error", clusterError);
+                          continue;
+                        }
+                        const clusterId = newCluster?.id;
+                        if (!clusterId) continue;
+
+                        // Pillar
+                        let pillarPostId: string | null = null;
+                        if (cluster.pillar?.title) {
+                          const pillarSlug = await ensureUniquePostSlug(slugify(cluster.pillar.title));
+                          const { data: pillarPost } = await supabase
+                            .from("blog_posts")
+                            .insert({
+                              title: cluster.pillar.title,
+                              slug: pillarSlug,
+                              excerpt: cluster.pillar.description || null,
+                              content: "",
+                              status: "draft",
+                              author_name: "Marhaba DMC",
+                              cluster_id: clusterId,
+                              post_type: "pillar",
+                              meta_keywords: cluster.pillar.keywords || [],
+                              tags: cluster.pillar.keywords || [],
+                            } as any)
+                            .select("id")
+                            .single();
+                          pillarPostId = pillarPost?.id || null;
+                        }
+
+                        // Supporting
+                        const supporting = cluster.supporting_posts || [];
+                        for (const sp of supporting) {
+                          if (!sp?.title) continue;
+                          const spSlug = await ensureUniquePostSlug(slugify(sp.title));
+                          await supabase.from("blog_posts").insert({
+                            title: sp.title,
+                            slug: spSlug,
+                            excerpt: sp.description || null,
+                            content: "",
+                            status: "draft",
+                            author_name: "Marhaba DMC",
+                            cluster_id: clusterId,
+                            post_type: "supporting",
+                            pillar_post_id: pillarPostId,
+                            meta_keywords: sp.keywords || [],
+                            tags: sp.keywords || [],
+                            paa_target: sp.paa_target || null,
+                            snippet_type: sp.snippet_type || null,
+                          } as any);
+                        }
+                      }
+                      toast({
+                        title: "Clusters created!",
+                        description: "All clusters and draft posts from the strategy have been created.",
+                      });
+                      setFullStrategyDialog(false);
+                      setFullStrategy(null);
+                      fetchClusters();
+                      fetchPosts();
+                    } catch (e: any) {
+                      toast({ title: "Create failed", description: e.message, variant: "destructive" });
+                    }
+                  }}
+                >
+                  <Plus className="h-4 w-4 mr-1" /> Create All Clusters & Draft Posts
                 </Button>
               </div>
             )}
@@ -1304,13 +1735,28 @@ const BlogTab = () => {
                 <Label>Published</Label>
                 <Switch
                   checked={currentPost?.status === "published"}
-                  onCheckedChange={(checked) =>
-                    setCurrentPost((p) => p ? {
-                      ...p,
+                  onCheckedChange={async (checked) => {
+                    const updated = currentPost ? {
+                      ...currentPost,
                       status: checked ? "published" : "draft",
-                      published_at: checked && !p.published_at ? new Date().toISOString() : p.published_at,
-                    } : p)
-                  }
+                      published_at: checked && !currentPost.published_at ? new Date().toISOString() : currentPost.published_at,
+                    } : null;
+                    if (!updated) return;
+                    setCurrentPost(updated);
+                    if (updated.id && updated.title && updated.slug) {
+                      const { error } = await supabase.from("blog_posts").update({
+                        status: updated.status,
+                        published_at: updated.status === "published" ? updated.published_at : null,
+                      }).eq("id", updated.id);
+                      if (error) {
+                        toast({ title: "Failed to update status", description: error.message, variant: "destructive" });
+                        setCurrentPost((p) => p ? { ...p, status: checked ? "draft" : "published" } : p);
+                      } else {
+                        toast({ title: checked ? "Post published!" : "Post set to draft." });
+                        fetchPosts();
+                      }
+                    }
+                  }}
                 />
               </div>
               <div>

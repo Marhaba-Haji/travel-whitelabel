@@ -1,7 +1,6 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
@@ -33,13 +32,13 @@ function buildSystemPrompt(brandConfig?: any): string {
     if (brandConfig.brand_tone) {
       prompt += `\n\nBrand Voice & Tone: ${brandConfig.brand_tone}`;
     }
-    if (brandConfig.target_audience?.length) {
+    if (Array.isArray(brandConfig.target_audience) && brandConfig.target_audience.length) {
       prompt += `\n\nTarget Audience Personas:\n${brandConfig.target_audience.map((a: string) => `- ${a}`).join("\n")}`;
     }
-    if (brandConfig.target_regions?.length) {
+    if (Array.isArray(brandConfig.target_regions) && brandConfig.target_regions.length) {
       prompt += `\n\nPrimary Target Regions: ${brandConfig.target_regions.join(", ")}`;
     }
-    if (brandConfig.brand_keywords?.length) {
+    if (Array.isArray(brandConfig.brand_keywords) && brandConfig.brand_keywords.length) {
       prompt += `\n\nBrand Keywords to Incorporate: ${brandConfig.brand_keywords.join(", ")}`;
     }
     if (brandConfig.differentiators) {
@@ -155,15 +154,36 @@ async function callAI(apiKey: string, body: any): Promise<Response> {
   });
 }
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response("ok", { status: 200, headers: corsHeaders });
   }
 
   try {
+    let body: Record<string, unknown>;
+    try {
+      body = (await req.json()) as Record<string, unknown>;
+    } catch {
+      return new Response(
+        JSON.stringify({ error: "Invalid or missing request body" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+    if (!body || typeof body.action !== "string") {
+      return new Response(
+        JSON.stringify({ error: "action is required and must be a string" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+      return new Response(
+        JSON.stringify({
+          error: "LOVABLE_API_KEY is not configured. Add it in Supabase Dashboard → Project Settings → Edge Functions → Secrets.",
+        }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
     }
 
     const {
@@ -179,7 +199,7 @@ serve(async (req) => {
       prompts,
       categories,
       clusters,
-    } = await req.json();
+    } = body;
     const SYSTEM_PROMPT = buildSystemPrompt(brandConfig);
     let messages: { role: string; content: string }[] = [];
     let tools: any[] | undefined;
@@ -197,6 +217,25 @@ serve(async (req) => {
           }
           if (research.competitor_insights?.content) {
             researchContext += `\n\n## Competitor Content Insights:\n${research.competitor_insights.content}`;
+          }
+          if (research.brand_positioning?.content) {
+            researchContext += `\n\n## Marhaba DMC Brand Positioning:\n${research.brand_positioning.content}`;
+          }
+          if (research.competition_landscape?.content) {
+            researchContext += `\n\n## Global Competition Landscape:\n${research.competition_landscape.content}`;
+          }
+          if (Array.isArray(research.regional_insights) && research.regional_insights.length > 0) {
+            researchContext += `\n\n## Regional Insights:\n`;
+            for (const regionInfo of research.regional_insights) {
+              if (!regionInfo?.region) continue;
+              researchContext += `\n### ${regionInfo.region}\n`;
+              if (regionInfo.serp_content) {
+                researchContext += `\n**Regional SERP & Content:**\n${regionInfo.serp_content}\n`;
+              }
+              if (regionInfo.market_content) {
+                researchContext += `\n**Regional Market & Demand:**\n${regionInfo.market_content}\n`;
+              }
+            }
           }
           researchContext += `\n\nTarget Region: ${research.targetRegion || "Global"}`;
           researchContext += `\nTarget Audience: ${research.targetAudience || "B2B travel agents"}`;
@@ -410,6 +449,7 @@ VERY IMPORTANT RULES:
         ];
         tool_choice = { type: "function", function: { name: "suggest_topics" } };
         break;
+      }
 
       case "suggest_cluster": {
         const cannibCtx = buildCannibalizationContext(existingPosts || []);
@@ -423,7 +463,9 @@ VERY IMPORTANT RULES:
           { role: "system", content: SYSTEM_PROMPT },
           {
             role: "user",
-            content: `Create a content cluster strategy for the topic: "${title || topic}".
+            content: `Create a content cluster strategy for the topic: "${
+              title || topic
+            }".
 Current year: ${yearCluster}. When topic titles include a year, use ${yearCluster} only — never use past years like 2024.
 ${clustersCtx}
 ${cannibCtx}
@@ -441,12 +483,19 @@ CRITICAL CONSTRAINTS:
             type: "function",
             function: {
               name: "suggest_cluster",
-              description: "Return a content cluster plan with pillar and supporting topics",
+              description:
+                "Return a content cluster plan with pillar and supporting topics",
               parameters: {
                 type: "object",
                 properties: {
-                  cluster_name: { type: "string", description: "Name for the content cluster" },
-                  target_keyword: { type: "string", description: "Primary keyword for the cluster" },
+                  cluster_name: {
+                    type: "string",
+                    description: "Name for the content cluster",
+                  },
+                  target_keyword: {
+                    type: "string",
+                    description: "Primary keyword for the cluster",
+                  },
                   pillar: {
                     type: "object",
                     properties: {
@@ -471,13 +520,202 @@ CRITICAL CONSTRAINTS:
                     },
                   },
                 },
-                required: ["cluster_name", "target_keyword", "pillar", "supporting_posts"],
+                required: [
+                  "cluster_name",
+                  "target_keyword",
+                  "pillar",
+                  "supporting_posts",
+                ],
                 additionalProperties: false,
               },
             },
           },
         ];
-        tool_choice = { type: "function", function: { name: "suggest_cluster" } };
+        tool_choice = {
+          type: "function",
+          function: { name: "suggest_cluster" },
+        };
+        break;
+      }
+
+      case "full_cluster_strategy": {
+        const cannibCtx = buildCannibalizationContext(existingPosts || []);
+        const clustersCtx = buildExistingClustersContext(
+          existingClusters || [],
+        );
+        const now = new Date();
+        const year = now.getFullYear();
+
+        let researchContext = "";
+        if (research) {
+          if (research.niche_serp?.content) {
+            researchContext +=
+              `\n\n## NICHE SERP & INTENT BUCKETS:\n${research.niche_serp.content}`;
+          }
+          if (research.featured_snippets?.content) {
+            researchContext +=
+              `\n\n## FEATURED SNIPPET PATTERNS:\n${research.featured_snippets.content}`;
+          }
+          if (research.gso_citations?.content) {
+            researchContext +=
+              `\n\n## GSO / AI CITATION PATTERNS:\n${research.gso_citations.content}`;
+          }
+          if (research.competitor_clusters?.content) {
+            researchContext +=
+              `\n\n## COMPETITOR CLUSTER STRUCTURES:\n${research.competitor_clusters.content}`;
+          }
+          if (
+            Array.isArray(research.regional_cluster_insights) &&
+            research.regional_cluster_insights.length > 0
+          ) {
+            researchContext += `\n\n## REGIONAL CLUSTER INSIGHTS:\n`;
+            for (const regionInfo of research.regional_cluster_insights) {
+              if (!regionInfo?.region) continue;
+              researchContext += `\n### ${regionInfo.region}\n`;
+              if (regionInfo.serp_content) {
+                researchContext +=
+                  `\n**Regional SERP & Cluster Nuance:**\n${regionInfo.serp_content}\n`;
+              }
+            }
+          }
+        }
+
+        const niche = topic || title || research?.niche || "your niche";
+
+        messages = [
+          { role: "system", content: SYSTEM_PROMPT },
+          {
+            role: "user",
+            content: `You are designing a COMPLETE content cluster architecture for the niche: "${niche}".
+Current year: ${year}. When topic titles include a year, use ${year} only — never use past years like 2024.
+
+Your goal is to create a non-overlapping set of clusters, pillar posts, and supporting posts that will establish #1 topical authority for this niche across:
+- Traditional Google search (including Featured Snippets, People Also Ask, Related Searches)
+- AI answer engines (ChatGPT, Gemini, Perplexity, Claude, etc.)
+
+Use the following research and existing content context to avoid duplication and keyword cannibalization:
+${researchContext}
+${clustersCtx}
+${cannibCtx}
+
+CRITICAL RULES:
+- Design ALL clusters in a single pass so you can avoid overlap between clusters and between posts.
+- Each cluster must target a distinct, clearly separable subtopic or intent bucket for the niche.
+- Within each cluster, the pillar post should be the authoritative hub, and supporting posts should cover well-defined long-tail or intent-specific queries.
+- You MUST explicitly assign People Also Ask / Related Search questions and Featured Snippet targets to specific posts, so there is no cannibalization.
+
+OUTPUT REQUIREMENTS:
+- Design between 4 and 8 clusters in total.
+- For each cluster, return:
+  - cluster_name
+  - target_keyword
+  - description
+  - paa_queries: a list of the top PAA-style questions that this cluster should own
+  - related_searches: a list of the most important related searches for this cluster
+  - featured_snippet_targets: a list of snippet opportunities (e.g. "What is halal travel? (definition)", "Halal travel checklist (list)", "Halal travel destinations table (table)")
+  - pillar: title, description, keywords
+  - supporting_posts: for each, return title, description, keywords, and optionally:
+    - paa_target: the specific question (from paa_queries or related_searches) this post is designed to answer
+    - snippet_type: one of "definition", "list", "table", "paragraph" if the post is optimized for a Featured Snippet.
+
+Make sure:
+- No two clusters use the same target_keyword or clearly overlapping primary angle.
+- No two posts (pillar or supporting) are clearly competing for the same primary keyword or question.
+- Prioritize coverage of commercially relevant and high-intent topics for a halal-friendly B2B DMC, while still covering important top-of-funnel educational content.`,
+          },
+        ];
+
+        tools = [
+          {
+            type: "function",
+            function: {
+              name: "full_cluster_strategy",
+              description:
+                "Return a complete multi-cluster content strategy with GSO targets",
+              parameters: {
+                type: "object",
+                properties: {
+                  clusters: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        cluster_name: { type: "string" },
+                        target_keyword: { type: "string" },
+                        description: { type: "string" },
+                        paa_queries: {
+                          type: "array",
+                          items: { type: "string" },
+                        },
+                        related_searches: {
+                          type: "array",
+                          items: { type: "string" },
+                        },
+                        featured_snippet_targets: {
+                          type: "array",
+                          items: { type: "string" },
+                        },
+                        pillar: {
+                          type: "object",
+                          properties: {
+                            title: { type: "string" },
+                            description: { type: "string" },
+                            keywords: {
+                              type: "array",
+                              items: { type: "string" },
+                            },
+                          },
+                          required: ["title", "description", "keywords"],
+                          additionalProperties: false,
+                        },
+                        supporting_posts: {
+                          type: "array",
+                          items: {
+                            type: "object",
+                            properties: {
+                              title: { type: "string" },
+                              description: { type: "string" },
+                              keywords: {
+                                type: "array",
+                                items: { type: "string" },
+                              },
+                              paa_target: { type: "string" },
+                              snippet_type: {
+                                type: "string",
+                                enum: [
+                                  "definition",
+                                  "list",
+                                  "table",
+                                  "paragraph",
+                                ],
+                              },
+                            },
+                            required: ["title", "description", "keywords"],
+                            additionalProperties: false,
+                          },
+                        },
+                      },
+                      required: [
+                        "cluster_name",
+                        "target_keyword",
+                        "description",
+                        "pillar",
+                        "supporting_posts",
+                      ],
+                      additionalProperties: false,
+                    },
+                  },
+                },
+                required: ["clusters"],
+                additionalProperties: false,
+              },
+            },
+          },
+        ];
+        tool_choice = {
+          type: "function",
+          function: { name: "full_cluster_strategy" },
+        };
         break;
       }
 
@@ -531,10 +769,10 @@ CRITICAL CONSTRAINTS:
 
       case "generate_image_prompts": {
         messages = [
-          { role: "system", content: "You extract image generation prompts from blog content. For each [IMAGE_N: description] marker found, create an optimized image generation prompt." },
+          { role: "system", content: "You extract and create image generation prompts from blog content. You MUST always return exactly 4 images: 1 featured + 3 content images. For content images, use the EXACT [IMAGE_N: ...] marker strings from the content when present. If fewer than 3 markers exist, create prompts for the missing positions and use marker strings that will be injected (e.g. [IMAGE_2: topic] for the second section)." },
           {
             role: "user",
-            content: `Extract and enhance image prompts from this blog content. Also generate a featured image prompt based on the title.\n\nTitle: ${title}\nContent: ${content?.substring(0, 3000)}\n\nReturn prompts for: 1 featured image + up to 3 in-content images found in [IMAGE_N:] markers.`,
+            content: `Extract and create image prompts from this blog content.\n\nTitle: ${title}\nContent: ${content?.substring(0, 4000)}\n\nReturn exactly 4 images:\n1. featured: Hero/cover image based on title and main topic\n2-4. content_images: Exactly 3 items. For each, use the EXACT [IMAGE_N: ...] marker from the content if it exists. If the content has fewer than 3 markers, create prompts for sections that need images and use marker format [IMAGE_1: topic], [IMAGE_2: topic], [IMAGE_3: topic] - the caller will ensure these markers exist.`,
           },
         ];
         tools = [
@@ -557,10 +795,12 @@ CRITICAL CONSTRAINTS:
                   },
                   content_images: {
                     type: "array",
+                    minItems: 3,
+                    maxItems: 3,
                     items: {
                       type: "object",
                       properties: {
-                        marker: { type: "string", description: "The original [IMAGE_N: ...] marker to replace" },
+                        marker: { type: "string", description: "The exact [IMAGE_N: ...] marker string from content to replace" },
                         prompt: { type: "string", description: "Image generation prompt" },
                         alt_text: { type: "string", description: "SEO-optimized alt text" },
                       },
@@ -580,12 +820,14 @@ CRITICAL CONSTRAINTS:
       }
 
       case "suggest_competitors": {
-        const regionsText = brandConfig?.target_regions?.length
-          ? brandConfig.target_regions.join(", ")
-          : "Middle East and Muslim-majority travel markets";
-        const keywordsText = brandConfig?.brand_keywords?.length
-          ? brandConfig.brand_keywords.join(", ")
-          : "halal travel, DMC, Muslim-friendly travel, luxury hospitality, travel technology";
+        const regionsText =
+          Array.isArray(brandConfig?.target_regions) && brandConfig.target_regions.length
+            ? brandConfig.target_regions.join(", ")
+            : "Middle East and Muslim-majority travel markets";
+        const keywordsText =
+          Array.isArray(brandConfig?.brand_keywords) && brandConfig.brand_keywords.length
+            ? brandConfig.brand_keywords.join(", ")
+            : "halal travel, DMC, Muslim-friendly travel, luxury hospitality, travel technology";
 
         messages = [
           { role: "system", content: SYSTEM_PROMPT },
@@ -679,10 +921,13 @@ Return ONLY their main blog or insights URLs as HTTPS links (one per entry).`,
       }
 
       default:
-        return new Response(JSON.stringify({ error: "Invalid action" }), {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        return new Response(
+          JSON.stringify({ error: "Invalid action", received: action }),
+          {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
     }
 
     const body: any = {
@@ -724,7 +969,7 @@ Return ONLY their main blog or insights URLs as HTTPS links (one per entry).`,
     // Handle plain text
     return new Response(
       JSON.stringify({ result: choice?.message?.content || "", action }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (e) {
     console.error("blog-ai error:", e);
