@@ -950,7 +950,7 @@ Return ONLY their main blog or insights URLs as HTTPS links (one per entry).`,
     }
 
     // Non-streaming for structured outputs
-    const response = await callAI(LOVABLE_API_KEY, body);
+    const response = await callAI(LOVABLE_API_KEY, aiBody);
 
     if (!response.ok) return handleError(response);
 
