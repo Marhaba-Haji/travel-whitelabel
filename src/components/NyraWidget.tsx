@@ -364,39 +364,39 @@ export default function NyraWidget() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className={`absolute inset-3 md:inset-6 rounded-2xl border border-border bg-card shadow-2xl overflow-hidden flex ${isMobile ? 'flex-col' : 'flex-row'}`}
+            className={`absolute inset-3 md:inset-6 rounded-2xl overflow-hidden flex ${isMobile ? 'flex-col' : 'flex-row'} glass-card shadow-2xl`}
           >
             {/* LEFT: Voice Panel */}
-            <div className={`${isMobile ? 'h-[35%]' : 'w-[35%]'} flex flex-col border-b md:border-b-0 md:border-r border-border/50 bg-gradient-to-br from-card to-muted/30`}>
+            <div className={`${isMobile ? 'h-[35%]' : 'w-[35%]'} flex flex-col border-b md:border-b-0 md:border-r border-white/10 bg-card/80`}>
               {/* Header bar */}
-              <div className="flex items-center justify-between px-4 py-3 border-b border-border/50">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-gradient-to-r from-primary/90 via-aurora-blue/80 to-primary/90">
                 <div className="flex items-center gap-2">
-                  <img src="/assets/nyra-avatar.png" alt="Nyra" width={56} height={56} className="w-7 h-7 rounded-full object-cover object-top" />
+                  <img src="/assets/nyra-avatar.png" alt="Nyra" width={56} height={56} className="w-7 h-7 rounded-full object-cover object-top ring-2 ring-white/20" />
                   <div>
-                    <h3 className="text-sm font-bold text-foreground">Nyra</h3>
-                    <p className="text-[9px] text-muted-foreground uppercase tracking-widest">Marhaba DMC</p>
+                    <h3 className="text-sm font-bold text-primary-foreground">Nyra</h3>
+                    <p className="text-[9px] text-primary-foreground/80 uppercase tracking-widest">Marhaba DMC</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <button
                     onClick={() => setWidgetMode(widgetMode === 'voice' ? 'chat' : 'voice')}
-                    className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-muted transition-colors"
+                    className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-primary-foreground/20 transition-colors text-primary-foreground"
                     title={widgetMode === 'voice' ? 'Switch to text chat' : 'Switch to voice call'}
                   >
-                    {widgetMode === 'voice' ? <MessageSquare size={14} className="text-muted-foreground" /> : <Mic size={14} className="text-muted-foreground" />}
+                    {widgetMode === 'voice' ? <MessageSquare size={14} /> : <Mic size={14} />}
                   </button>
                   <button
                     onClick={() => setIsExpanded(false)}
-                    className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-muted transition-colors"
+                    className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-primary-foreground/20 transition-colors text-primary-foreground"
                     title="Collapse panel"
                   >
-                    <PanelRightClose size={14} className="text-muted-foreground" />
+                    <PanelRightClose size={14} />
                   </button>
                   <button
                     onClick={() => { if (widgetMode === 'chat' && chatMessages.length > 0) persistAnalytics('chat'); setIsWidgetOpen(false); setIsExpanded(false); }}
-                    className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-muted transition-colors"
+                    className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-primary-foreground/20 transition-colors text-primary-foreground"
                   >
-                    <X size={14} className="text-muted-foreground" />
+                    <X size={14} />
                   </button>
                 </div>
               </div>
@@ -407,7 +407,7 @@ export default function NyraWidget() {
                   <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
                     {chatMessages.length === 0 && !isChatLoading && (
                       <div className="flex flex-col items-center justify-center h-full text-center px-4">
-                        <MessageSquare size={28} className="text-nyra/40 mb-2" />
+                        <MessageSquare size={28} className="text-primary/40 mb-2" />
                         <p className="text-sm text-muted-foreground">Type a message to chat with Nyra</p>
                       </div>
                     )}
@@ -415,7 +415,7 @@ export default function NyraWidget() {
                       <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                         <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm ${
                           msg.role === 'user'
-                            ? 'bg-nyra text-nyra-foreground rounded-br-md'
+                            ? 'bg-primary text-primary-foreground rounded-br-md'
                             : 'bg-muted text-foreground rounded-bl-md'
                         }`}>
                           {msg.role === 'assistant' ? (
@@ -432,9 +432,9 @@ export default function NyraWidget() {
                       <div className="flex justify-start">
                         <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-3">
                           <div className="flex gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-nyra/40 animate-bounce" style={{ animationDelay: '0ms' }} />
-                            <span className="w-2 h-2 rounded-full bg-nyra/40 animate-bounce" style={{ animationDelay: '150ms' }} />
-                            <span className="w-2 h-2 rounded-full bg-nyra/40 animate-bounce" style={{ animationDelay: '300ms' }} />
+                            <span className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '0ms' }} />
+                            <span className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '150ms' }} />
+                            <span className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '300ms' }} />
                           </div>
                         </div>
                       </div>
@@ -449,12 +449,12 @@ export default function NyraWidget() {
                       onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleChatSend(); } }}
                       placeholder="Type a message..."
                       rows={1}
-                      className="flex-1 resize-none rounded-xl border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-nyra max-h-20"
+                      className="flex-1 resize-none rounded-xl border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary max-h-20"
                     />
                     <button
                       onClick={handleChatSend}
                       disabled={!chatInput.trim() || isChatLoading}
-                      className="h-9 w-9 rounded-full bg-nyra text-nyra-foreground flex items-center justify-center shrink-0 disabled:opacity-50 hover:bg-nyra/90 transition-colors"
+                      className="h-9 w-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0 disabled:opacity-50 hover:bg-primary/90 transition-colors shadow-[0_0_20px_hsl(var(--primary)/0.3)]"
                     >
                       <Send size={16} />
                     </button>
@@ -462,11 +462,11 @@ export default function NyraWidget() {
                 </div>
               ) : (
                 <div className="flex-1 flex flex-col items-center justify-center relative px-6">
-                  <Globe size={isMobile ? 80 : 120} className="absolute opacity-[0.04] text-nyra" />
+                  <Globe size={isMobile ? 80 : 120} className="absolute opacity-[0.06] text-primary" />
                   <div className="relative flex flex-col items-center z-10">
                     {isSpeaking && (
                       <motion.div
-                        className="absolute inset-0 bg-nyra rounded-full opacity-20"
+                        className="absolute inset-0 bg-primary rounded-full opacity-20"
                         animate={{ scale: [1, 1.5, 1] }}
                         transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
                         style={{ width: '100px', height: '100px', top: '50%', left: '50%', x: '-50%', y: '-50%' }}
@@ -476,7 +476,7 @@ export default function NyraWidget() {
                       onClick={isConnected ? handleDisconnect : connect}
                       disabled={isConnecting}
                       className={`relative z-10 w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg ${
-                        isConnected ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground' : 'bg-nyra hover:bg-nyra/90 text-nyra-foreground'
+                        isConnected ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground' : 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_25px_hsl(var(--primary)/0.4)]'
                       } ${isConnecting ? 'opacity-80 cursor-not-allowed' : ''}`}
                     >
                       {isConnecting ? <Loader2 size={28} className="animate-spin" /> : isConnected ? <PhoneCall size={28} className="animate-pulse" /> : <Mic size={28} />}
@@ -489,9 +489,9 @@ export default function NyraWidget() {
                           <p className="text-destructive font-sans text-xs">{error}</p>
                         )
                       ) : isConnecting ? (
-                        <p className="text-nyra font-sans text-xs uppercase tracking-widest animate-pulse">Connecting...</p>
+                        <p className="text-primary font-sans text-xs uppercase tracking-widest animate-pulse">Connecting...</p>
                       ) : isConnected ? (
-                        <p className="text-nyra font-sans text-xs uppercase tracking-widest">{isSpeaking ? 'Nyra is speaking...' : 'Listening...'}</p>
+                        <p className="text-primary font-sans text-xs uppercase tracking-widest">{isSpeaking ? 'Nyra is speaking...' : 'Listening...'}</p>
                       ) : (
                         <p className="text-muted-foreground font-sans text-xs uppercase tracking-widest">Tap to speak</p>
                       )}
@@ -528,22 +528,22 @@ export default function NyraWidget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="mb-4 w-[340px] bg-card rounded-3xl shadow-2xl border border-border overflow-hidden flex flex-col ring-1 ring-nyra/20"
+            className="mb-4 w-[340px] rounded-3xl shadow-2xl overflow-hidden flex flex-col glass-card ring-1 ring-primary/20"
           >
             {/* Widget Header */}
-            <div className="bg-nyra text-nyra-foreground p-4 flex justify-between items-center">
+            <div className="bg-gradient-to-r from-primary/95 via-aurora-blue/90 to-primary/95 text-primary-foreground p-4 flex justify-between items-center border-b border-white/10">
               <div className="flex items-center gap-3">
-                <img src="/assets/nyra-avatar.png" alt="Nyra" width={64} height={64} className="w-8 h-8 rounded-full object-cover object-top" />
+                <img src="/assets/nyra-avatar.png" alt="Nyra" width={64} height={64} className="w-8 h-8 rounded-full object-cover object-top ring-2 ring-white/20" />
                 <div>
                   <h3 className="font-semibold text-sm tracking-wide">Nyra</h3>
-                  <p className="text-[10px] text-nyra-foreground/80 uppercase tracking-wider">Marhaba DMC Agent</p>
+                  <p className="text-[10px] text-primary-foreground/80 uppercase tracking-wider">Marhaba DMC Agent</p>
                 </div>
               </div>
               <div className="flex items-center gap-1">
                 {/* Mode toggle */}
                 <button
                   onClick={() => setWidgetMode(widgetMode === 'voice' ? 'chat' : 'voice')}
-                  className="hover:bg-nyra-foreground/20 p-2 rounded-full transition-colors"
+                  className="hover:bg-primary-foreground/20 p-2 rounded-full transition-colors"
                   title={widgetMode === 'voice' ? 'Switch to text chat' : 'Switch to voice call'}
                 >
                   {widgetMode === 'voice' ? <MessageSquare size={16} /> : <Mic size={16} />}
@@ -551,13 +551,13 @@ export default function NyraWidget() {
                 {(state.isActive || isConnected) && (
                   <button
                     onClick={() => setIsExpanded(true)}
-                    className="hover:bg-nyra-foreground/20 p-2 rounded-full transition-colors"
+                    className="hover:bg-primary-foreground/20 p-2 rounded-full transition-colors"
                     title="Expand itinerary view"
                   >
                     <PanelRightOpen size={16} />
                   </button>
                 )}
-                <button onClick={() => { if (widgetMode === 'chat' && chatMessages.length > 0) persistAnalytics('chat'); setIsWidgetOpen(false); }} className="hover:bg-nyra-foreground/20 p-2 rounded-full transition-colors">
+                <button onClick={() => { if (widgetMode === 'chat' && chatMessages.length > 0) persistAnalytics('chat'); setIsWidgetOpen(false); }} className="hover:bg-primary-foreground/20 p-2 rounded-full transition-colors">
                   <X size={18} />
                 </button>
               </div>
@@ -571,7 +571,7 @@ export default function NyraWidget() {
                 <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
                   {chatMessages.length === 0 && !isChatLoading && (
                     <div className="flex flex-col items-center justify-center h-full text-center px-4">
-                      <MessageSquare size={32} className="text-nyra/40 mb-3" />
+                      <MessageSquare size={32} className="text-primary/40 mb-3" />
                       <p className="text-sm text-muted-foreground">Type a message to start chatting with Nyra</p>
                       <p className="text-xs text-muted-foreground/60 mt-1">Ask about flights, hotels, packages, or visas</p>
                     </div>
@@ -580,7 +580,7 @@ export default function NyraWidget() {
                     <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                       <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm ${
                         msg.role === 'user'
-                          ? 'bg-nyra text-nyra-foreground rounded-br-md'
+                          ? 'bg-primary text-primary-foreground rounded-br-md'
                           : 'bg-muted text-foreground rounded-bl-md'
                       }`}>
                         {msg.role === 'assistant' ? (
@@ -597,9 +597,9 @@ export default function NyraWidget() {
                     <div className="flex justify-start">
                       <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-3">
                         <div className="flex gap-1.5">
-                          <span className="w-2 h-2 rounded-full bg-nyra/40 animate-bounce" style={{ animationDelay: '0ms' }} />
-                          <span className="w-2 h-2 rounded-full bg-nyra/40 animate-bounce" style={{ animationDelay: '150ms' }} />
-                          <span className="w-2 h-2 rounded-full bg-nyra/40 animate-bounce" style={{ animationDelay: '300ms' }} />
+                          <span className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '0ms' }} />
+                          <span className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '150ms' }} />
+                          <span className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '300ms' }} />
                         </div>
                       </div>
                     </div>
@@ -617,12 +617,12 @@ export default function NyraWidget() {
                     onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleChatSend(); } }}
                     placeholder="Type a message..."
                     rows={1}
-                    className="flex-1 resize-none rounded-xl border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-nyra max-h-20"
+                    className="flex-1 resize-none rounded-xl border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary max-h-20"
                   />
                   <button
                     onClick={handleChatSend}
                     disabled={!chatInput.trim() || isChatLoading}
-                    className="h-9 w-9 rounded-full bg-nyra text-nyra-foreground flex items-center justify-center shrink-0 disabled:opacity-50 hover:bg-nyra/90 transition-colors"
+                    className="h-9 w-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0 disabled:opacity-50 hover:bg-primary/90 transition-colors shadow-[0_0_20px_hsl(var(--primary)/0.3)]"
                   >
                     <Send size={16} />
                   </button>
@@ -630,12 +630,12 @@ export default function NyraWidget() {
               </div>
             ) : (
               /* ── VOICE MODE ── */
-              <div className="p-8 flex flex-col items-center justify-center relative min-h-[280px] bg-gradient-to-b from-nyra/5 to-nyra-accent/5">
-                <Globe size={120} className="absolute opacity-[0.06] text-nyra" />
+              <div className="p-8 flex flex-col items-center justify-center relative min-h-[280px] aurora-gradient border-t border-white/5">
+                <Globe size={120} className="absolute opacity-[0.06] text-primary" />
                 <div className="relative flex flex-col items-center z-10">
                   {isSpeaking && (
                     <motion.div
-                      className="absolute inset-0 bg-nyra rounded-full opacity-25"
+                      className="absolute inset-0 bg-primary rounded-full opacity-25"
                       animate={{ scale: [1, 1.4, 1] }}
                       transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
                       style={{ width: '100px', height: '100px', top: '50%', left: '50%', x: '-50%', y: '-50%' }}
@@ -645,7 +645,7 @@ export default function NyraWidget() {
                     onClick={isConnected ? handleDisconnect : connect}
                     disabled={isConnecting}
                     className={`relative z-10 w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg ${
-                      isConnected ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground' : 'bg-nyra hover:bg-nyra/90 text-nyra-foreground'
+                      isConnected ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground' : 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_25px_hsl(var(--primary)/0.4)]'
                     } ${isConnecting ? 'opacity-80 cursor-not-allowed' : ''}`}
                   >
                     {isConnecting ? <Loader2 size={28} className="animate-spin" /> : isConnected ? <PhoneCall size={28} className="animate-pulse" /> : <Mic size={28} />}
@@ -658,9 +658,9 @@ export default function NyraWidget() {
                         <p className="text-destructive font-sans text-xs">{error}</p>
                       )
                     ) : isConnecting ? (
-                      <p className="text-nyra font-sans text-xs uppercase tracking-widest animate-pulse">Connecting...</p>
+                      <p className="text-primary font-sans text-xs uppercase tracking-widest animate-pulse">Connecting...</p>
                     ) : isConnected ? (
-                      <p className="text-nyra font-sans text-xs uppercase tracking-widest">{isSpeaking ? 'Nyra is speaking...' : 'Listening...'}</p>
+                      <p className="text-primary font-sans text-xs uppercase tracking-widest">{isSpeaking ? 'Nyra is speaking...' : 'Listening...'}</p>
                     ) : (
                       <p className="text-muted-foreground font-sans text-xs uppercase tracking-widest">Tap to speak</p>
                     )}
@@ -681,11 +681,11 @@ export default function NyraWidget() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 8 }}
               transition={{ duration: 0.25 }}
-              className="absolute bottom-full right-0 mb-3 w-64 rounded-xl bg-nyra text-nyra-foreground px-4 py-3 shadow-xl border border-nyra/30"
+              className="absolute bottom-full right-0 mb-3 w-64 rounded-xl glass-card px-4 py-3 shadow-xl ring-1 ring-primary/30"
             >
-              <p className="text-sm">Hi! I&apos;m Nyra, your AI travel assistant. Tap to talk about flights, hotels, or holiday packages.</p>
-              <button onClick={dismissTooltip} className="mt-2 text-xs text-nyra-foreground/80 underline hover:text-nyra-foreground">Got it</button>
-              <div className="absolute -bottom-2 right-6 h-0 w-0 border-l-8 border-r-8 border-t-8 border-transparent border-t-nyra" />
+              <p className="text-sm text-foreground">Hi! I&apos;m Nyra, your AI travel assistant. Tap to talk about flights, hotels, or holiday packages.</p>
+              <button onClick={dismissTooltip} className="mt-2 text-xs text-primary underline hover:text-primary/90">Got it</button>
+              <div className="absolute -bottom-2 right-6 h-0 w-0 border-l-8 border-r-8 border-t-8 border-transparent border-t-white/[0.07]" />
             </motion.div>
           )}
         </AnimatePresence>
@@ -693,14 +693,14 @@ export default function NyraWidget() {
           initial={{ opacity: 0 }}
           animate={{ opacity: hasAnimatedIn ? 1 : 0 }}
           transition={{ delay: 0.3 }}
-          className="text-xs font-medium text-nyra uppercase tracking-wider"
+          className="text-xs font-medium text-primary uppercase tracking-wider"
         >
           Talk to Nyra
         </motion.span>
         <div className="relative">
           {showIdlePulse && (
             <motion.div
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-nyra"
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-primary"
               animate={{ scale: [1, 1.2, 1], opacity: [0.4, 0, 0.4] }}
               transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
               style={{ width: 72, height: 72 }}
@@ -713,10 +713,10 @@ export default function NyraWidget() {
               setIsWidgetOpen(!isWidgetOpen);
               if (showTooltip) dismissTooltip();
             }}
-            className={`relative w-[72px] h-[72px] rounded-full flex items-center justify-center transition-colors shadow-xl ring-4 ring-nyra/40 ${
+            className={`relative w-[72px] h-[72px] rounded-full flex items-center justify-center transition-colors shadow-xl ring-4 ring-primary/30 ${
               isWidgetOpen
                 ? 'bg-muted text-foreground hover:bg-muted/90 border-2 border-border'
-                : 'bg-nyra text-nyra-foreground hover:bg-nyra/90 shadow-[0_8px_30px_hsl(var(--nyra)/0.45)]'
+                : 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_8px_30px_hsl(var(--primary)/0.45)] aurora-glow'
             }`}
           >
             {isWidgetOpen ? (
@@ -730,7 +730,7 @@ export default function NyraWidget() {
                 className="w-[52px] h-[52px] rounded-full object-cover object-top"
               />
             )}
-            <span className={`absolute -top-1 -right-1 rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider ring-2 ring-background bg-nyra-accent text-nyra-accent-foreground`}>
+            <span className="absolute -top-1 -right-1 rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider ring-2 ring-background bg-accent text-accent-foreground">
               AI
             </span>
           </motion.button>

@@ -1,14 +1,10 @@
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Handshake, 
-  Bot, 
-  Check, 
+import {
+  Handshake,
+  Bot,
+  Check,
   TrendingUp,
-  MessageSquare,
-  Languages,
-  Clock,
-  IndianRupee
+  IndianRupee,
 } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
@@ -31,189 +27,231 @@ const CompetitiveEdge = () => {
   ];
 
   return (
-    <section className="py-20 bg-gradient-to-b from-background via-accent/15 to-background relative overflow-hidden" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 800px' }}>
-      {/* Background decoration */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gold/3 via-transparent to-transparent" />
-      <div className="absolute top-1/2 right-0 w-80 h-80 bg-primary/3 rounded-full blur-3xl -translate-y-1/2" />
-      <div className="absolute top-1/4 left-0 w-60 h-60 bg-gold/3 rounded-full blur-3xl" />
-      
+    <section
+      className="py-24 relative overflow-hidden"
+      style={{ contentVisibility: "auto", containIntrinsicSize: "auto 800px" }}
+    >
+      {/* Aurora background */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_hsl(270_70%_58%_/_0.05),_transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_hsl(210_100%_50%_/_0.04),_transparent_50%)]" />
+
       <div className="container mx-auto px-4 relative">
         {/* Header */}
         <div
           ref={headerRef}
           className={`text-center mb-16 opacity-0 ${headerVisible ? "animate-fade-in" : ""}`}
         >
-          <Badge className="mb-4 bg-gold/8 text-gold hover:bg-gold/15 border-gold/15">
-            ★ Your Unfair Advantage
-          </Badge>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mt-2 mb-4">
-            What Sets <span className="text-primary">marhabaDMC</span> Apart
+          <span className="inline-block text-aurora-teal font-semibold text-xs uppercase tracking-[0.2em] glass px-4 py-1.5 rounded-full mb-5">
+            Your Unfair Advantage
+          </span>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
+            What Sets{" "}
+            <span className="aurora-gradient-text animate-text-shimmer bg-[length:200%_auto]">
+              marhabaDMC
+            </span>{" "}
+            Apart
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            These aren't just features — they're your competitive weapons that help you win more deals and earn higher profits.
+            These aren't just features — they're your competitive weapons that
+            help you win more deals and earn higher profits.
           </p>
         </div>
 
         {/* Two Main Cards */}
         <div
           ref={cardsRef}
-          className={`grid md:grid-cols-2 gap-8 max-w-5xl mx-auto opacity-0 ${cardsVisible ? "animate-fade-in" : ""}`}
+          className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto"
         >
           {/* Card 1: Exclusive Contracted Rates */}
-          <Card className="relative border-2 border-gold/20 bg-gradient-to-br from-card via-card to-gold/3 hover:shadow-lg transition-all duration-300 group overflow-hidden">
-            {/* Exclusive Badge */}
+          <div
+            className={`relative glass-card rounded-2xl p-6 md:p-8 hover:shadow-xl hover:border-white/20 transition-all duration-300 group overflow-hidden opacity-0 ${cardsVisible ? "animate-scale-in" : ""}`}
+            style={{ animationDelay: "0.1s" }}
+          >
             <div className="absolute -top-1 -right-1">
-              <Badge className="bg-gradient-to-r from-gold to-gold/80 text-gold-foreground px-3 py-1 rounded-bl-lg rounded-tr-lg shadow-lg">
+              <Badge className="bg-aurora-teal/10 text-aurora-teal border-aurora-teal/25 px-3 py-1 rounded-bl-lg rounded-tr-lg shadow-lg text-xs">
                 Exclusive
               </Badge>
             </div>
 
-            <CardContent className="p-8">
-              {/* Icon */}
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-gold to-gold/70 flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform">
-                <Handshake className="w-8 h-8 text-gold-foreground" />
-              </div>
+            {/* Icon */}
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-aurora-teal to-emerald-500 flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
+              <Handshake className="w-8 h-8 text-white" />
+            </div>
 
-              {/* Title & Subtitle */}
-              <h3 className="text-2xl font-bold text-foreground mb-2">
-                Exclusive Contracted Rates
-              </h3>
-              <p className="text-primary font-semibold mb-4">
-                Higher Margins, Better Conversions
+            {/* Title & Subtitle */}
+            <h3 className="text-2xl font-bold text-foreground mb-2">
+              Exclusive Contracted Rates
+            </h3>
+            <p className="text-aurora-teal font-semibold mb-4">
+              Higher Margins, Better Conversions
+            </p>
+
+            {/* Description */}
+            <p className="text-muted-foreground mb-6">
+              Access hotels and flights we've negotiated at special rates. Your
+              customers get better prices, you keep more profit — everyone wins.
+            </p>
+
+            {/* Visual: Rate Comparison */}
+            <div className="glass rounded-xl p-4 mb-6">
+              <p className="text-xs text-muted-foreground mb-3 font-medium uppercase tracking-wider">
+                Example Savings
               </p>
-
-              {/* Description */}
-              <p className="text-muted-foreground mb-6">
-                Access hotels and flights we've negotiated at special rates. Your customers get better prices, you keep more profit — everyone wins.
-              </p>
-
-              {/* Visual: Rate Comparison */}
-              <div className="bg-background/50 rounded-xl p-4 mb-6 border border-border">
-                <p className="text-xs text-muted-foreground mb-3 font-medium uppercase tracking-wider">Example Savings</p>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Market Rate:</span>
-                    <span className="text-sm line-through text-muted-foreground">₹5,000</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-foreground">Your Rate:</span>
-                    <span className="text-lg font-bold text-gold">₹4,200</span>
-                  </div>
-                  <div className="flex items-center justify-between pt-2 border-t border-border">
-                    <span className="text-sm font-semibold text-foreground flex items-center gap-1">
-                      <TrendingUp className="w-4 h-4 text-primary" />
-                      Your Extra Profit:
-                    </span>
-                    <span className="text-lg font-bold text-primary">₹800/booking</span>
-                  </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">
+                    Market Rate:
+                  </span>
+                  <span className="text-sm line-through text-muted-foreground">
+                    ₹5,000
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-foreground">
+                    Your Rate:
+                  </span>
+                  <span className="text-lg font-bold text-aurora-teal">
+                    ₹4,200
+                  </span>
+                </div>
+                <div className="flex items-center justify-between pt-2 border-t border-white/10">
+                  <span className="text-sm font-semibold text-foreground flex items-center gap-1">
+                    <TrendingUp className="w-4 h-4 text-aurora-teal" />
+                    Your Extra Profit:
+                  </span>
+                  <span className="text-lg font-bold text-aurora-teal">
+                    ₹800/booking
+                  </span>
                 </div>
               </div>
+            </div>
 
-              {/* Benefits List */}
-              <ul className="space-y-3">
-                {contractedRateBenefits.map((benefit) => (
-                  <li key={benefit} className="flex items-center gap-3">
-                    <div className="w-5 h-5 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0">
-                      <Check className="w-3 h-3 text-gold" />
-                    </div>
-                    <span className="text-sm text-foreground">{benefit}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
+            {/* Benefits List */}
+            <ul className="space-y-3">
+              {contractedRateBenefits.map((benefit) => (
+                <li key={benefit} className="flex items-center gap-3">
+                  <div className="w-5 h-5 rounded-full bg-aurora-teal/20 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-3 h-3 text-aurora-teal" />
+                  </div>
+                  <span className="text-sm text-foreground">{benefit}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
 
           {/* Card 2: AI Sales Assistant */}
-          <Card className="relative border-2 border-primary/20 bg-gradient-to-br from-card via-card to-primary/3 hover:shadow-lg transition-all duration-300 group overflow-hidden">
-            {/* NEW Badge without animation */}
+          <div
+            className={`relative glass-card rounded-2xl p-6 md:p-8 hover:shadow-xl hover:border-white/20 transition-all duration-300 group overflow-hidden opacity-0 ${cardsVisible ? "animate-scale-in" : ""}`}
+            style={{ animationDelay: "0.2s" }}
+          >
             <div className="absolute -top-1 -right-1">
-              <Badge className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-3 py-1 rounded-bl-lg rounded-tr-lg shadow-lg">
+              <Badge className="bg-aurora-purple/10 text-aurora-purple border-aurora-purple/25 px-3 py-1 rounded-bl-lg rounded-tr-lg shadow-lg text-xs">
                 Add-on
               </Badge>
             </div>
 
-            <CardContent className="p-8">
-              {/* Icon */}
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform">
-                <Bot className="w-8 h-8 text-primary-foreground" />
-              </div>
+            {/* Icon */}
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-aurora-purple to-aurora-blue flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
+              <Bot className="w-8 h-8 text-white" />
+            </div>
 
-              {/* Title & Subtitle */}
-              <h3 className="text-2xl font-bold text-foreground mb-2">
-                AI Sales Executive
-              </h3>
-              <p className="text-primary font-semibold mb-4">
-                24/7 Multilingual Sales Power
+            {/* Title & Subtitle */}
+            <h3 className="text-2xl font-bold text-foreground mb-2">
+              AI Sales Executive
+            </h3>
+            <p className="text-aurora-purple font-semibold mb-4">
+              24/7 Multilingual Sales Power
+            </p>
+
+            {/* Description */}
+            <p className="text-muted-foreground mb-6">
+              Like having a tireless sales executive who speaks multiple
+              languages, never sleeps, and costs less than your morning tea.
+            </p>
+
+            {/* Visual: Chat Mockup */}
+            <div className="glass rounded-xl p-4 mb-6">
+              <p className="text-xs text-muted-foreground mb-3 font-medium uppercase tracking-wider">
+                Live 24/7
               </p>
 
-              {/* Description */}
-              <p className="text-muted-foreground mb-6">
-                Like having a tireless sales executive who speaks multiple languages, never sleeps, and costs less than your morning tea.
-              </p>
-
-              {/* Visual: Chat Mockup */}
-              <div className="bg-background/50 rounded-xl p-4 mb-6 border border-border">
-                <p className="text-xs text-muted-foreground mb-3 font-medium uppercase tracking-wider">Live 24/7</p>
-                
-                {/* Chat bubbles */}
-                <div className="space-y-3">
-                  <div className="flex gap-2">
-                    <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-xs">
-                      👤
-                    </div>
-                    <div className="bg-muted rounded-lg rounded-tl-none px-3 py-2 text-xs max-w-[80%]">
-                      Hi, I need a Dubai package for 4 people
-                    </div>
+              {/* Chat bubbles */}
+              <div className="space-y-3">
+                <div className="flex gap-2">
+                  <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-xs">
+                    👤
                   </div>
-                  <div className="flex gap-2 justify-end">
-                    <div className="bg-primary text-primary-foreground rounded-lg rounded-tr-none px-3 py-2 text-xs max-w-[80%]">
-                      Great choice! I have 3 options starting from ₹45,000. Would you like to see them? 🌟
-                    </div>
-                    <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
-                      <Bot className="w-3 h-3 text-primary-foreground" />
-                    </div>
+                  <div className="bg-muted rounded-lg rounded-tl-none px-3 py-2 text-xs max-w-[80%]">
+                    Hi, I need a Dubai package for 4 people
                   </div>
                 </div>
-
-                {/* Cost comparison */}
-                <div className="mt-4 pt-3 border-t border-border">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground">Human sales exec:</span>
-                    <span className="line-through text-muted-foreground">₹25,000/month</span>
+                <div className="flex gap-2 justify-end">
+                  <div className="bg-aurora-purple text-white rounded-lg rounded-tr-none px-3 py-2 text-xs max-w-[80%]">
+                    Great choice! I have 3 options starting from ₹45,000. Would you
+                    like to see them? 🌟
                   </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="font-medium text-foreground">AI Assistant:</span>
-                    <span className="font-bold text-primary">From ₹6/minute</span>
+                  <div className="w-6 h-6 rounded-full bg-aurora-purple flex items-center justify-center">
+                    <Bot className="w-3 h-3 text-white" />
                   </div>
                 </div>
               </div>
 
-              {/* Benefits List */}
-              <ul className="space-y-3">
-                {aiBotBenefits.map((benefit) => (
-                  <li key={benefit} className="flex items-center gap-3">
-                    <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                      <Check className="w-3 h-3 text-primary" />
-                    </div>
-                    <span className="text-sm text-foreground">{benefit}</span>
-                  </li>
-                ))}
-              </ul>
-
-              {/* Pricing note */}
-              <div className="mt-6 flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 px-3 py-2 rounded-lg">
-                <IndianRupee className="w-3 h-3" />
-                <span>Consumption-based billing • Only pay when customers chat</span>
+              {/* Cost comparison */}
+              <div className="mt-4 pt-3 border-t border-white/10">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">
+                    Human sales exec:
+                  </span>
+                  <span className="line-through text-muted-foreground">
+                    ₹25,000/month
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-medium text-foreground">
+                    AI Assistant:
+                  </span>
+                  <span className="font-bold text-aurora-purple">
+                    From ₹6/minute
+                  </span>
+                </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+
+            {/* Benefits List */}
+            <ul className="space-y-3">
+              {aiBotBenefits.map((benefit) => (
+                <li key={benefit} className="flex items-center gap-3">
+                  <div className="w-5 h-5 rounded-full bg-aurora-purple/20 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-3 h-3 text-aurora-purple" />
+                  </div>
+                  <span className="text-sm text-foreground">{benefit}</span>
+                </li>
+              ))}
+            </ul>
+
+            {/* Pricing note */}
+            <div className="mt-6 flex items-center gap-2 text-xs text-muted-foreground glass px-3 py-2 rounded-lg">
+              <IndianRupee className="w-3 h-3" />
+              <span>
+                Consumption-based billing • Only pay when customers chat
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* Bottom tagline */}
-        <div className={`text-center mt-12 opacity-0 ${cardsVisible ? "animate-fade-in" : ""}`} style={{ animationDelay: "0.3s" }}>
+        <div
+          className={`text-center mt-12 opacity-0 ${cardsVisible ? "animate-fade-in" : ""}`}
+          style={{ animationDelay: "0.3s" }}
+        >
           <p className="text-muted-foreground">
-            <span className="text-foreground font-semibold">Why compete on price</span> when you can{" "}
-            <span className="text-primary font-semibold">WIN on price?</span>
+            <span className="text-foreground font-semibold">
+              Why compete on price
+            </span>{" "}
+            when you can{" "}
+            <span className="aurora-gradient-text font-semibold bg-[length:200%_auto] animate-text-shimmer">
+              WIN on price?
+            </span>
           </p>
         </div>
       </div>

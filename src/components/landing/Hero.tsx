@@ -136,7 +136,7 @@ const Hero = () => {
               <div className="flex items-center gap-2 glass-card px-3 py-2 rounded-xl">
                 <TrendingUp className="w-4 h-4 text-primary" />
                 <span className="text-sm font-medium">
-                  ₹<AnimatedCounter end={5} className="text-primary font-bold" /><span className="text-primary font-bold">Cr+</span> Booked
+                  <span className="text-primary font-bold">₹</span><AnimatedCounter end={5} className="text-primary font-bold" /><span className="text-primary font-bold">Cr+</span> Booked
                 </span>
               </div>
               <div className="flex items-center gap-2 glass-card px-3 py-2 rounded-xl">

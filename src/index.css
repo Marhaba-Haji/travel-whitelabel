@@ -49,11 +49,11 @@
     --gold: 320 76% 60%;
     --gold-foreground: 0 0% 100%;
 
-    /* Nyra widget */
-    --nyra: 348 58% 42%;
+    /* Nyra widget – aligned with Aurora / primary theme */
+    --nyra: 270 60% 58%;
     --nyra-foreground: 0 0% 100%;
-    --nyra-accent: 42 98% 55%;
-    --nyra-accent-foreground: 25 95% 15%;
+    --nyra-accent: 210 85% 50%;
+    --nyra-accent-foreground: 0 0% 100%;
 
     --sidebar-background: 222 47% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;

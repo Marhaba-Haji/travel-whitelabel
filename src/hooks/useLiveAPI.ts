@@ -383,7 +383,7 @@ export function useLiveAPI(
         const base64Data = btoa(String.fromCharCode(...new Uint8Array(int16Data.buffer)));
         if (sessionPromise) {
           sessionPromise.then(session => {
-            session.sendRealtimeInput({ media: { data: base64Data, mimeType: 'audio/pcm;rate=16000' } });
+            session.sendRealtimeInput({ audio: { data: base64Data, mimeType: 'audio/pcm;rate=16000' } });
           }).catch(() => {});
         }
       };
@@ -412,7 +412,7 @@ export function useLiveAPI(
       }
 
       sessionPromise = ai.live.connect({
-        model: "gemini-2.5-flash-native-audio-preview",
+        model: "gemini-2.5-flash-native-audio-preview-12-2025",
         config: {
           responseModalities: [Modality.AUDIO],
           speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Kore" } } },
