@@ -1856,7 +1856,7 @@ const BlogTab = () => {
               <p className="text-xs text-muted-foreground">
                 Reading time: ~{calcReadingTime(currentPost?.content || "")} min
               </p>
-              <Button className="w-full" onClick={save}>Save Post</Button>
+              <Button className="w-full" onClick={() => save()}>Save Post</Button>
             </CardContent>
           </Card>
 
