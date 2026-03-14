@@ -169,7 +169,7 @@ Deno.serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
-    if (!body || typeof body.action !== "string") {
+    if (!reqBody || typeof reqBody.action !== "string") {
       return new Response(
         JSON.stringify({ error: "action is required and must be a string" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
