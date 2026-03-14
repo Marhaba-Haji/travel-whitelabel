@@ -104,24 +104,33 @@ export type Database = {
         Row: {
           created_at: string
           description: string | null
+          featured_snippet_targets: string[] | null
           id: string
           name: string
+          paa_queries: string[] | null
+          related_searches: string[] | null
           slug: string
           target_keyword: string
         }
         Insert: {
           created_at?: string
           description?: string | null
+          featured_snippet_targets?: string[] | null
           id?: string
           name: string
+          paa_queries?: string[] | null
+          related_searches?: string[] | null
           slug: string
           target_keyword: string
         }
         Update: {
           created_at?: string
           description?: string | null
+          featured_snippet_targets?: string[] | null
           id?: string
           name?: string
+          paa_queries?: string[] | null
+          related_searches?: string[] | null
           slug?: string
           target_keyword?: string
         }
@@ -141,11 +150,13 @@ export type Database = {
           meta_keywords: string[] | null
           meta_title: string | null
           og_image_url: string | null
+          paa_target: string | null
           pillar_post_id: string | null
           post_type: string
           published_at: string | null
           reading_time_minutes: number | null
           slug: string
+          snippet_type: string | null
           status: string
           tags: string[] | null
           title: string
@@ -165,11 +176,13 @@ export type Database = {
           meta_keywords?: string[] | null
           meta_title?: string | null
           og_image_url?: string | null
+          paa_target?: string | null
           pillar_post_id?: string | null
           post_type?: string
           published_at?: string | null
           reading_time_minutes?: number | null
           slug: string
+          snippet_type?: string | null
           status?: string
           tags?: string[] | null
           title: string
@@ -189,11 +202,13 @@ export type Database = {
           meta_keywords?: string[] | null
           meta_title?: string | null
           og_image_url?: string | null
+          paa_target?: string | null
           pillar_post_id?: string | null
           post_type?: string
           published_at?: string | null
           reading_time_minutes?: number | null
           slug?: string
+          snippet_type?: string | null
           status?: string
           tags?: string[] | null
           title?: string

@@ -160,16 +160,16 @@ Deno.serve(async (req) => {
   }
 
   try {
-    let body: Record<string, unknown>;
+    let reqBody: Record<string, any>;
     try {
-      body = (await req.json()) as Record<string, unknown>;
+      reqBody = (await req.json()) as Record<string, any>;
     } catch {
       return new Response(
         JSON.stringify({ error: "Invalid or missing request body" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
-    if (!body || typeof body.action !== "string") {
+    if (!reqBody || typeof reqBody.action !== "string") {
       return new Response(
         JSON.stringify({ error: "action is required and must be a string" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
@@ -199,7 +199,7 @@ Deno.serve(async (req) => {
       prompts,
       categories,
       clusters,
-    } = body;
+    } = reqBody as Record<string, any>;
     const SYSTEM_PROMPT = buildSystemPrompt(brandConfig);
     let messages: { role: string; content: string }[] = [];
     let tools: any[] | undefined;
@@ -930,17 +930,17 @@ Return ONLY their main blog or insights URLs as HTTPS links (one per entry).`,
         );
     }
 
-    const body: any = {
+    const aiBody: any = {
       model: "google/gemini-3-flash-preview",
       messages,
     };
-    if (tools) body.tools = tools;
-    if (tool_choice) body.tool_choice = tool_choice;
+    if (tools) aiBody.tools = tools;
+    if (tool_choice) aiBody.tool_choice = tool_choice;
 
     // For article generation, use streaming
     if (action === "generate_article" || action === "improve_content" || action === "interlink_posts") {
-      body.stream = true;
-      const response = await callAI(LOVABLE_API_KEY, body);
+      aiBody.stream = true;
+      const response = await callAI(LOVABLE_API_KEY, aiBody);
 
       if (!response.ok) return handleError(response);
 
@@ -950,7 +950,7 @@ Return ONLY their main blog or insights URLs as HTTPS links (one per entry).`,
     }
 
     // Non-streaming for structured outputs
-    const response = await callAI(LOVABLE_API_KEY, body);
+    const response = await callAI(LOVABLE_API_KEY, aiBody);
 
     if (!response.ok) return handleError(response);
 
