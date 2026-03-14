@@ -80,24 +80,7 @@ const Pricing = () => {
           </p>
         </div>
 
-        {/* ── 2. Core Infrastructure Block ── */}
-        <div className={`max-w-4xl mx-auto mb-14 opacity-0 ${isVisible ? "animate-fade-in" : ""}`} style={{ animationDelay: "0.1s" }}>
-          <div className="bg-card border border-border rounded-2xl p-8">
-            <h3 className="text-lg font-semibold text-foreground mb-6 text-center">
-              Core Infrastructure — Included in All Plans
-            </h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {coreInfrastructure.map((item) => (
-                <div key={item} className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-primary flex-shrink-0" />
-                  <span className="text-sm text-muted-foreground">{item}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* ── 3. Three-Plan Comparison Grid ── */}
+        {/* ── 2. Three-Plan Comparison Grid ── */}
         <div className={`max-w-5xl mx-auto mb-14 opacity-0 ${isVisible ? "animate-fade-in" : ""}`} style={{ animationDelay: "0.2s" }}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
 

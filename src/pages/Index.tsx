@@ -12,7 +12,6 @@ const Stats = lazy(() => import("@/components/landing/Stats"));
 const Features = lazy(() => import("@/components/landing/Features"));
 const CompetitiveEdge = lazy(() => import("@/components/landing/CompetitiveEdge"));
 const ProductShowcase = lazy(() => import("@/components/landing/ProductShowcase"));
-const Portals = lazy(() => import("@/components/landing/Portals"));
 const HowItWorks = lazy(() => import("@/components/landing/HowItWorks"));
 const Pricing = lazy(() => import("@/components/landing/Pricing"));
 const Testimonials = lazy(() => import("@/components/landing/Testimonials"));
@@ -46,7 +45,6 @@ const Index = () => {
           <Features />
           <CompetitiveEdge />
           <ProductShowcase />
-          <Portals />
           <HowItWorks />
           <Pricing />
           <Testimonials />

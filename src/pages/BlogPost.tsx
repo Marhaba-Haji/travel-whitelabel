@@ -11,9 +11,7 @@ import Footer from "@/components/landing/Footer";
 import ReactMarkdown from "react-markdown";
 import BlurImage from "@/components/BlurImage";
 import { useToast } from "@/hooks/use-toast";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { Highlight, themes } from "prism-react-renderer";
 
 interface BlogPostData {
   id: string;
@@ -571,14 +569,31 @@ const BlogPost = () => {
                           Copy
                         </button>
                       </div>
-                      <SyntaxHighlighter
-                        style={codeDark ? oneDark : oneLight}
-                        language={lang}
-                        PreTag="div"
-                        customStyle={{ margin: 0, borderRadius: "0.5rem", fontSize: "0.875rem" }}
+                      <Highlight
+                        theme={codeDark ? themes.vsDark : themes.github}
+                        code={codeStr}
+                        language={lang || "text"}
                       >
-                        {codeStr}
-                      </SyntaxHighlighter>
+                        {({ className, style, tokens, getLineProps, getTokenProps }) => (
+                          <pre
+                            className={className}
+                            style={{
+                              ...style,
+                              margin: 0,
+                              borderRadius: "0.5rem",
+                              fontSize: "0.875rem",
+                            }}
+                          >
+                            {tokens.map((line, i) => (
+                              <div key={i} {...getLineProps({ line })}>
+                                {line.map((token, key) => (
+                                  <span key={key} {...getTokenProps({ token })} />
+                                ))}
+                              </div>
+                            ))}
+                          </pre>
+                        )}
+                      </Highlight>
                     </div>
                   );
                 },

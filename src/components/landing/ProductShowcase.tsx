@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Settings, PackageOpen, Users, ShoppingCart, BarChart3, ArrowRight, Check } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
 
 const portals = [
   {
@@ -109,9 +109,40 @@ const AnimatedBar = ({ height, color, index, isVisible }: { height: number; colo
   />
 );
 
-const DashboardMockup = ({ portal, isVisible }: { portal: typeof portals[number]; isVisible: boolean }) => (
-  <div className="relative">
-    <div className="glass-card rounded-2xl overflow-hidden">
+const TILT_MAX = 8;
+
+const DashboardMockup = ({ portal, isVisible }: { portal: typeof portals[number]; isVisible: boolean }) => {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const rotateX = useMotionValue(0);
+  const rotateY = useMotionValue(0);
+  const smoothRotateX = useSpring(rotateX, { stiffness: 400, damping: 30 });
+  const smoothRotateY = useSpring(rotateY, { stiffness: 400, damping: 30 });
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const x = (e.clientX - centerX) / (rect.width / 2);
+    const y = (e.clientY - centerY) / (rect.height / 2);
+    rotateY.set(x * TILT_MAX);
+    rotateX.set(-y * TILT_MAX);
+  };
+
+  const handleMouseLeave = () => {
+    rotateX.set(0);
+    rotateY.set(0);
+  };
+
+  return (
+  <div className="relative" ref={cardRef} onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave} style={{ perspective: 1000 }}>
+    <motion.div
+      className="glass-card rounded-2xl overflow-hidden"
+      style={{
+        rotateX: smoothRotateX,
+        rotateY: smoothRotateY,
+      }}
+    >
       <div className="flex items-center gap-3 px-4 py-3 border-b border-white/10">
         <div className="flex gap-1.5">
           <div className="w-2.5 h-2.5 rounded-full bg-red-400/60" />
@@ -167,12 +198,13 @@ const DashboardMockup = ({ portal, isVisible }: { portal: typeof portals[number]
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
 
     <div className="absolute -top-6 -right-6 w-40 h-40 bg-aurora-purple/7 rounded-full blur-3xl pointer-events-none" />
     <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-aurora-blue/7 rounded-full blur-2xl pointer-events-none" />
   </div>
-);
+  );
+};
 
 const ProductShowcase = () => {
   const { ref: sectionRef, isVisible: sectionVisible } = useScrollAnimation();
