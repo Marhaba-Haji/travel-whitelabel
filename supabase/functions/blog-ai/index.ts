@@ -930,7 +930,7 @@ Return ONLY their main blog or insights URLs as HTTPS links (one per entry).`,
         );
     }
 
-    const body: any = {
+    const aiBody: any = {
       model: "google/gemini-3-flash-preview",
       messages,
     };
