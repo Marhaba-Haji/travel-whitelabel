@@ -199,7 +199,7 @@ Deno.serve(async (req) => {
       prompts,
       categories,
       clusters,
-    } = body;
+    } = reqBody as Record<string, any>;
     const SYSTEM_PROMPT = buildSystemPrompt(brandConfig);
     let messages: { role: string; content: string }[] = [];
     let tools: any[] | undefined;
