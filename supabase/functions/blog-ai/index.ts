@@ -934,13 +934,13 @@ Return ONLY their main blog or insights URLs as HTTPS links (one per entry).`,
       model: "google/gemini-3-flash-preview",
       messages,
     };
-    if (tools) body.tools = tools;
-    if (tool_choice) body.tool_choice = tool_choice;
+    if (tools) aiBody.tools = tools;
+    if (tool_choice) aiBody.tool_choice = tool_choice;
 
     // For article generation, use streaming
     if (action === "generate_article" || action === "improve_content" || action === "interlink_posts") {
-      body.stream = true;
-      const response = await callAI(LOVABLE_API_KEY, body);
+      aiBody.stream = true;
+      const response = await callAI(LOVABLE_API_KEY, aiBody);
 
       if (!response.ok) return handleError(response);
 
