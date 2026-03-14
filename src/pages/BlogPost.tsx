@@ -356,63 +356,110 @@ const BlogPost = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Reading Progress Bar */}
-      <div className="fixed top-0 left-0 right-0 z-[60] h-1 bg-muted/30">
+      <div className="fixed top-0 left-0 right-0 z-[60] h-0.5 bg-muted/20">
         <div
-          className="h-full bg-gradient-to-r from-primary to-primary/70 transition-[width] duration-150 ease-out"
+          className="h-full bg-gradient-to-r from-primary via-primary/90 to-primary/70 transition-[width] duration-200 ease-out aurora-glow"
           style={{ width: `${readProgress}%` }}
         />
       </div>
 
       <Header />
-      <article className="pt-24 pb-20" ref={articleRef}>
-        <div className="container mx-auto px-4 max-w-3xl">
+      <article className="pt-24 pb-24" ref={articleRef}>
+        <div className="container mx-auto px-4 max-w-7xl">
           {/* Breadcrumb */}
-          <nav aria-label="breadcrumb" className="mb-8">
-            <ol className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
+          <nav aria-label="breadcrumb" className="mb-6">
+            <ol className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
               <li><Link to="/" className="hover:text-foreground transition-colors">Home</Link></li>
-              <li>/</li>
+              <li className="opacity-50">/</li>
               <li><Link to="/blog" className="hover:text-foreground transition-colors">Blog</Link></li>
               {post.category && (
                 <>
-                  <li>/</li>
+                  <li className="opacity-50">/</li>
                   <li><Link to={`/blog?category=${post.category}`} className="hover:text-foreground transition-colors">{post.category}</Link></li>
                 </>
               )}
-              <li>/</li>
-              <li className="text-foreground font-medium truncate max-w-[200px]">{post.title}</li>
+              <li className="opacity-50">/</li>
+              <li className="text-foreground font-medium truncate max-w-[240px]">{post.title}</li>
             </ol>
           </nav>
 
-          {/* Pillar/Supporting badge */}
-          {post.post_type && post.post_type !== "standard" && (
-            <Badge variant={post.post_type === "pillar" ? "default" : "secondary"} className="mb-3">
-              {post.post_type === "pillar" ? "📌 Pillar Guide" : "📎 Deep Dive"}
-            </Badge>
-          )}
-
-          {/* Header */}
-          <header className="mb-8">
-            {post.category && (
-              <Link to={`/blog?category=${post.category}`}>
-                <Badge variant="secondary" className="mb-3">{post.category}</Badge>
-              </Link>
-            )}
-            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">{post.title}</h1>
-            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1"><User className="h-4 w-4" /> {post.author_name || "Marhaba DMC"}</span>
-              {post.published_at && (
-                <span className="flex items-center gap-1">
-                  <Calendar className="h-4 w-4" /> {new Date(post.published_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
-                </span>
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-12 lg:gap-16">
+            {/* Main content column */}
+            <div className="min-w-0">
+              {/* Hero cover with overlay */}
+              {post.cover_image_url && (
+                <div className="mb-10 -mx-4 sm:mx-0 rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/5">
+                  <div className="relative h-[220px] sm:h-[280px] md:h-[340px] bg-muted/30">
+                    {(() => {
+                      const src = post.cover_image_url!;
+                      const isBlogImage = src.includes("/blog-images/");
+                      const base = src.replace(/-\d+w\.webp$/, "");
+                      const hasSizes = isBlogImage && base !== src;
+                      return (
+                        <>
+                          <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/30 to-transparent z-10 pointer-events-none" />
+                          <BlurImage
+                            src={src}
+                            alt={post.meta_description || post.title}
+                            className="absolute inset-0 w-full h-full [&>img]:!w-full [&>img]:!h-full [&>img]:!object-cover"
+                            loading="eager"
+                            width={1200}
+                            height={630}
+                            sizes="(max-width: 480px) 100vw, (max-width: 768px) 100vw, 900px"
+                            {...(hasSizes ? { srcSet: `${base}-400w.webp 400w, ${base}-800w.webp 800w, ${base}-1200w.webp 1200w` } : {})}
+                          />
+                        </>
+                      );
+                    })()}
+                  </div>
+                </div>
               )}
-              <span className="flex items-center gap-1"><Clock className="h-4 w-4" /> {post.reading_time_minutes || 1} min read</span>
-              <span className="flex items-center gap-1"><Eye className="h-4 w-4" /> {(post.views_count || 0).toLocaleString()} views</span>
-              <div className="flex items-center gap-1 ml-auto">
+
+              {/* Article header */}
+              <header className="mb-10">
+                <div className="flex flex-wrap items-center gap-2 mb-4">
+                  {post.post_type && post.post_type !== "standard" && (
+                    <Badge variant={post.post_type === "pillar" ? "default" : "secondary"} className="text-xs">
+                      {post.post_type === "pillar" ? "📌 Pillar Guide" : "📎 Deep Dive"}
+                    </Badge>
+                  )}
+                  {post.category && (
+                    <Link to={`/blog?category=${post.category}`}>
+                      <Badge variant="secondary" className="text-xs hover:bg-primary/20 transition-colors">{post.category}</Badge>
+                    </Link>
+                  )}
+                </div>
+                <h1 className="text-3xl md:text-4xl lg:text-[2.75rem] font-bold text-foreground leading-tight tracking-tight mb-6">
+                  {post.title}
+                </h1>
+                <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
+                  <span className="flex items-center gap-2">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                      <User className="h-4 w-4" />
+                    </span>
+                    {post.author_name || "Marhaba DMC"}
+                  </span>
+                  {post.published_at && (
+                    <span className="flex items-center gap-1.5">
+                      <Calendar className="h-4 w-4 opacity-70" />
+                      {new Date(post.published_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+                    </span>
+                  )}
+                  <span className="flex items-center gap-1.5">
+                    <Clock className="h-4 w-4 opacity-70" />
+                    {post.reading_time_minutes || 1} min read
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <Eye className="h-4 w-4 opacity-70" />
+                    {(post.views_count || 0).toLocaleString()} views
+                  </span>
+                  <div className="flex items-center gap-1 ml-auto">
+                    <span className="text-xs text-muted-foreground/80 mr-1 hidden sm:inline">Share:</span>
                 <a
                   href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(post.title)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center h-9 w-9 rounded-md hover:bg-accent transition-colors"
+                  className="inline-flex items-center justify-center h-8 w-8 rounded-lg hover:bg-accent/80 transition-colors"
                   aria-label="Share on Twitter"
                 >
                   <svg className="h-4 w-4 text-muted-foreground" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
@@ -421,7 +468,7 @@ const BlogPost = () => {
                   href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center h-9 w-9 rounded-md hover:bg-accent transition-colors"
+                  className="inline-flex items-center justify-center h-8 w-8 rounded-lg hover:bg-accent/80 transition-colors"
                   aria-label="Share on LinkedIn"
                 >
                   <svg className="h-4 w-4 text-muted-foreground" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
@@ -430,78 +477,54 @@ const BlogPost = () => {
                   href={`https://wa.me/?text=${encodeURIComponent(post.title + " " + window.location.href)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center h-9 w-9 rounded-md hover:bg-accent transition-colors"
+                  className="inline-flex items-center justify-center h-8 w-8 rounded-lg hover:bg-accent/80 transition-colors"
                   aria-label="Share on WhatsApp"
                 >
                   <svg className="h-4 w-4 text-muted-foreground" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                 </a>
-                <Button variant="ghost" size="sm" onClick={share}>
-                  {copied ? <Check className="h-4 w-4 mr-1" /> : <Share2 className="h-4 w-4 mr-1" />}
-                  {copied ? "Copied" : "Copy"}
-                </Button>
-              </div>
-            </div>
-          </header>
+                <Button variant="ghost" size="sm" onClick={share} className="h-8 px-2">
+                      {copied ? <Check className="h-4 w-4 mr-1" /> : <Share2 className="h-4 w-4 mr-1" />}
+                      {copied ? "Copied" : "Copy"}
+                    </Button>
+                  </div>
+                </div>
+              </header>
 
-          {/* Cover */}
-          {post.cover_image_url && (
-            <div className="mb-8 rounded-lg overflow-hidden">
-              {(() => {
-                const src = post.cover_image_url!;
-                const isBlogImage = src.includes("/blog-images/");
-                const base = src.replace(/-\d+w\.webp$/, "");
-                const hasSizes = isBlogImage && base !== src;
-                return (
-                  <BlurImage
-                    src={src}
-                    alt={post.meta_description || post.title}
-                    className="rounded-lg max-h-96"
-                    loading="eager"
-                    width={1200}
-                    height={630}
-                    sizes="(max-width: 480px) 100vw, (max-width: 768px) 100vw, 720px"
-                    {...(hasSizes ? { srcSet: `${base}-400w.webp 400w, ${base}-800w.webp 800w, ${base}-1200w.webp 1200w` } : {})}
-                  />
-                );
-              })()}
-            </div>
-          )}
-
-          {/* Table of Contents */}
-          {toc.length > 2 && (
-            <div className="mb-8 border border-border rounded-lg overflow-hidden">
-              <button
-                onClick={() => setTocOpen(!tocOpen)}
-                className="w-full flex items-center justify-between px-5 py-3 bg-card hover:bg-muted/50 transition-colors"
-              >
-                <span className="flex items-center gap-2 text-sm font-medium text-foreground">
-                  <List className="h-4 w-4" /> Table of Contents
-                </span>
-                <span className="text-xs text-muted-foreground">{tocOpen ? "Hide" : "Show"}</span>
-              </button>
-              {tocOpen && (
-                <nav className="px-5 py-3 bg-card/50 border-t border-border">
-                  <ul className="space-y-1">
-                    {toc.map((item) => (
-                      <li key={item.id} style={{ paddingLeft: `${(item.level - 2) * 16}px` }}>
-                        <button
-                          onClick={() => scrollToHeading(item.id)}
-                          className={`text-sm py-1 text-left transition-colors hover:text-foreground w-full truncate ${
-                            activeTocId === item.id ? "text-primary font-medium" : "text-muted-foreground"
-                          }`}
-                        >
-                          {item.text}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </nav>
+              {/* Mobile TOC (collapsible) */}
+              {toc.length > 2 && (
+                <div className="mb-10 lg:hidden glass-card rounded-xl overflow-hidden">
+                  <button
+                    onClick={() => setTocOpen(!tocOpen)}
+                    className="w-full flex items-center justify-between px-5 py-4 hover:bg-white/5 transition-colors"
+                  >
+                    <span className="flex items-center gap-2 text-sm font-medium text-foreground">
+                      <List className="h-4 w-4 text-primary" /> Table of Contents
+                    </span>
+                    <span className="text-xs text-muted-foreground">{tocOpen ? "Hide" : "Show"}</span>
+                  </button>
+                  {tocOpen && (
+                    <nav className="px-5 pb-4 border-t border-white/10">
+                      <ul className="space-y-1 pt-3">
+                        {toc.map((item) => (
+                          <li key={item.id} style={{ paddingLeft: `${(item.level - 2) * 14}px` }}>
+                            <button
+                              onClick={() => scrollToHeading(item.id)}
+                              className={`text-sm py-1.5 text-left transition-colors hover:text-foreground w-full truncate ${
+                                activeTocId === item.id ? "text-primary font-medium" : "text-muted-foreground"
+                              }`}
+                            >
+                              {item.text}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </nav>
+                  )}
+                </div>
               )}
-            </div>
-          )}
 
-          {/* Content */}
-          <div className="prose prose-invert max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-primary prose-strong:text-foreground prose-li:text-muted-foreground">
+              {/* Content */}
+              <div className="blog-prose max-w-none">
             <ReactMarkdown
               components={{
                 h2: ({ node, children, ...props }) => {
@@ -529,11 +552,12 @@ const BlogPost = () => {
                     }
                   }
                   return (
-                    <BlurImage
+                    <img
                       src={src}
                       alt={props.alt || "Blog image"}
                       loading="lazy"
-                      className="rounded-lg my-6"
+                      decoding="async"
+                      className="rounded-xl my-6 shadow-lg w-full h-auto"
                       sizes="(max-width: 480px) 100vw, (max-width: 768px) 100vw, 720px"
                       {...(srcSet ? { srcSet } : {})}
                     />
@@ -605,15 +629,16 @@ const BlogPost = () => {
 
           {/* Tags & Keywords */}
           {((post.tags?.length ?? 0) > 0 || (post.meta_keywords?.length ?? 0) > 0) && (
-            <div className="mt-10 pt-6 border-t border-border">
+            <div className="mt-12 pt-8 border-t border-border/60">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Topics</p>
               <div className="flex flex-wrap gap-2">
                 {post.tags?.map((tag) => (
                   <Link key={tag} to={`/blog?tag=${encodeURIComponent(tag)}`}>
-                    <Badge variant="secondary">{tag}</Badge>
+                    <Badge variant="secondary" className="hover:bg-primary/20 hover:text-primary transition-colors">{tag}</Badge>
                   </Link>
                 ))}
                 {post.meta_keywords?.filter((kw) => !(post.tags || []).includes(kw)).map((kw) => (
-                  <Badge key={kw} variant="outline">{kw}</Badge>
+                  <Badge key={kw} variant="outline" className="text-muted-foreground">{kw}</Badge>
                 ))}
               </div>
             </div>
@@ -621,25 +646,25 @@ const BlogPost = () => {
 
           {/* Related Posts */}
           {relatedPosts.length > 0 && (
-            <div className="mt-16 pt-8 border-t border-border">
-              <h2 className="text-2xl font-bold text-foreground mb-6">Related Articles</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="mt-16 pt-10 border-t border-border/60">
+              <h2 className="text-xl font-bold text-foreground mb-6">Related Articles</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {relatedPosts.map((rp) => (
                   <Link key={rp.id} to={`/blog/${rp.slug}`} className="group">
-                    <Card className="overflow-hidden h-full hover:border-primary/30 transition-all duration-300">
+                    <Card className="overflow-hidden h-full glass-card hover:border-primary/30 transition-all duration-300 group-hover:shadow-xl">
                       {rp.cover_image_url ? (
-                        <div className="h-36 overflow-hidden">
+                        <div className="h-40 overflow-hidden rounded-t-lg">
                           <img src={rp.cover_image_url} alt={rp.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
                         </div>
                       ) : (
-                        <div className="h-36 bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center">
-                          <BookOpen className="h-8 w-8 text-muted-foreground/30" />
+                        <div className="h-40 bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+                          <BookOpen className="h-10 w-10 text-primary/30" />
                         </div>
                       )}
-                      <CardContent className="p-4">
-                        <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 text-sm">{rp.title}</h3>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2">
-                          <Clock className="h-3 w-3" /> {rp.reading_time_minutes || 1} min
+                      <CardContent className="p-5">
+                        <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2">{rp.title}</h3>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-3">
+                          <Clock className="h-3.5 w-3.5" /> {rp.reading_time_minutes || 1} min read
                         </div>
                       </CardContent>
                     </Card>
@@ -650,54 +675,89 @@ const BlogPost = () => {
           )}
 
           {/* Newsletter */}
-          <div className="mt-16 pt-8 border-t border-border">
-            <Card className="bg-card border-border">
-              <CardContent className="p-6 md:p-8 text-center">
-                <Mail className="h-8 w-8 text-primary mx-auto mb-3" />
-                <h3 className="text-lg font-semibold text-foreground mb-1">Enjoyed this article?</h3>
-                <p className="text-sm text-muted-foreground mb-4">Get the latest travel insights delivered to your inbox.</p>
-                {newsletterDone ? (
-                  <p className="text-sm text-primary font-medium flex items-center justify-center gap-1"><Check className="h-4 w-4" /> You're subscribed!</p>
-                ) : (
-                  <form
-                    onSubmit={async (e) => {
-                      e.preventDefault();
-                      if (!newsletterEmail.trim()) return;
-                      setNewsletterLoading(true);
-                      const { error } = await supabase.from("newsletter_subscriptions").insert({ email: newsletterEmail.trim() });
-                      setNewsletterLoading(false);
-                      if (error) {
-                        toast({ title: error.code === "23505" ? "Already subscribed!" : "Something went wrong", variant: error.code === "23505" ? "default" : "destructive" });
-                        if (error.code === "23505") setNewsletterDone(true);
-                      } else {
-                        setNewsletterDone(true);
-                        toast({ title: "Subscribed!" });
-                      }
-                    }}
-                    className="flex gap-2 max-w-sm mx-auto"
-                  >
-                    <Input
-                      type="email"
-                      required
-                      placeholder="you@example.com"
-                      value={newsletterEmail}
-                      onChange={(e) => setNewsletterEmail(e.target.value)}
-                      className="flex-1"
-                    />
-                    <Button type="submit" disabled={newsletterLoading} size="sm">
-                      {newsletterLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Subscribe"}
-                    </Button>
-                  </form>
-                )}
-              </CardContent>
+          <div className="mt-16 pt-10 border-t border-border/60">
+            <Card className="glass-card border-white/10 overflow-hidden">
+              <div className="aurora-gradient p-1">
+                <CardContent className="p-6 md:p-8 text-center bg-card/95 backdrop-blur">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/20 text-primary mx-auto mb-4">
+                    <Mail className="h-6 w-6" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-foreground mb-1">Enjoyed this article?</h3>
+                  <p className="text-sm text-muted-foreground mb-5 max-w-sm mx-auto">Get the latest travel insights and B2B tips delivered to your inbox.</p>
+                  {newsletterDone ? (
+                    <p className="text-sm text-primary font-medium flex items-center justify-center gap-2"><Check className="h-4 w-4" /> You're subscribed!</p>
+                  ) : (
+                    <form
+                      onSubmit={async (e) => {
+                        e.preventDefault();
+                        if (!newsletterEmail.trim()) return;
+                        setNewsletterLoading(true);
+                        const { error } = await supabase.from("newsletter_subscriptions").insert({ email: newsletterEmail.trim() });
+                        setNewsletterLoading(false);
+                        if (error) {
+                          toast({ title: error.code === "23505" ? "Already subscribed!" : "Something went wrong", variant: error.code === "23505" ? "default" : "destructive" });
+                          if (error.code === "23505") setNewsletterDone(true);
+                        } else {
+                          setNewsletterDone(true);
+                          toast({ title: "Subscribed!" });
+                        }
+                      }}
+                      className="flex gap-2 max-w-sm mx-auto"
+                    >
+                      <Input
+                        type="email"
+                        required
+                        placeholder="you@example.com"
+                        value={newsletterEmail}
+                        onChange={(e) => setNewsletterEmail(e.target.value)}
+                        className="flex-1 bg-background/50"
+                      />
+                      <Button type="submit" disabled={newsletterLoading} size="sm">
+                        {newsletterLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Subscribe"}
+                      </Button>
+                    </form>
+                  )}
+                </CardContent>
+              </div>
             </Card>
           </div>
 
           {/* Back CTA */}
-          <div className="mt-12 text-center">
-            <Button asChild variant="outline">
+          <div className="mt-12 flex justify-center">
+            <Button asChild variant="outline" size="lg" className="rounded-xl">
               <Link to="/blog"><ArrowLeft className="h-4 w-4 mr-2" /> More Articles</Link>
             </Button>
+          </div>
+            </div>
+
+            {/* Sticky TOC Sidebar (desktop) */}
+            {toc.length > 2 && (
+              <aside className="hidden lg:block">
+                <div className="sticky top-28">
+                  <div className="glass-card rounded-xl p-5">
+                    <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
+                      <List className="h-4 w-4 text-primary" /> On this page
+                    </h3>
+                    <nav>
+                      <ul className="space-y-1.5">
+                        {toc.map((item) => (
+                          <li key={item.id} style={{ paddingLeft: `${(item.level - 2) * 12}px` }}>
+                            <button
+                              onClick={() => scrollToHeading(item.id)}
+                              className={`text-sm py-1 text-left transition-colors hover:text-foreground w-full truncate block ${
+                                activeTocId === item.id ? "text-primary font-medium" : "text-muted-foreground"
+                              }`}
+                            >
+                              {item.text}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </nav>
+                  </div>
+                </div>
+              </aside>
+            )}
           </div>
         </div>
       </article>

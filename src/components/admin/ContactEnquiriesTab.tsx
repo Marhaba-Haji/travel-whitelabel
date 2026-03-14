@@ -57,7 +57,7 @@ const ContactEnquiriesTab = () => {
                   <DialogTrigger asChild>
                     <button className="text-left truncate block w-full hover:text-primary">{row.message}</button>
                   </DialogTrigger>
-                  <DialogContent>
+                  <DialogContent aria-describedby={undefined}>
                     <DialogHeader><DialogTitle>Message from {row.name}</DialogTitle></DialogHeader>
                     <p className="text-sm whitespace-pre-wrap">{row.message}</p>
                   </DialogContent>

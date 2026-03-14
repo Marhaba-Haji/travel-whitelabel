@@ -202,3 +202,63 @@
     box-shadow: 0 0 30px hsl(var(--primary) / 0.15);
   }
 }
+
+/* Blog article prose – applied dynamically to all blog content */
+.blog-prose {
+  @apply text-[1.0625rem] leading-[1.75];
+}
+.blog-prose h1 {
+  @apply text-2xl md:text-3xl font-bold text-foreground mt-10 mb-4 scroll-mt-24;
+}
+.blog-prose h2 {
+  @apply text-xl md:text-2xl font-bold text-foreground mt-12 mb-4 pb-2 border-b border-border/60 scroll-mt-24;
+}
+.blog-prose h3 {
+  @apply text-lg md:text-xl font-semibold text-foreground mt-8 mb-3 scroll-mt-24;
+}
+.blog-prose p {
+  @apply text-muted-foreground mb-5 leading-relaxed;
+}
+.blog-prose a {
+  @apply text-primary hover:underline underline-offset-2 font-medium;
+}
+.blog-prose strong {
+  @apply text-foreground font-semibold;
+}
+.blog-prose ul, .blog-prose ol {
+  @apply my-6 pl-6 space-y-2;
+}
+.blog-prose li {
+  @apply text-muted-foreground leading-relaxed;
+}
+.blog-prose li::marker {
+  @apply text-primary/70;
+}
+.blog-prose hr {
+  @apply my-10 border-border/60;
+}
+.blog-prose blockquote {
+  @apply border-l-4 border-primary/60 pl-6 my-6 italic text-muted-foreground;
+}
+.blog-prose img {
+  @apply rounded-xl shadow-lg;
+}
+.blog-prose code {
+  @apply bg-muted/80 px-1.5 py-0.5 rounded text-sm text-foreground;
+  font-family: ui-monospace, monospace;
+}
+.blog-prose pre {
+  @apply rounded-xl overflow-hidden;
+}
+.blog-prose table {
+  @apply w-full border-collapse my-6;
+}
+.blog-prose th, .blog-prose td {
+  @apply border border-border px-4 py-3 text-left;
+}
+.blog-prose th {
+  @apply bg-muted/50 font-semibold text-foreground;
+}
+.blog-prose td {
+  @apply text-muted-foreground;
+}

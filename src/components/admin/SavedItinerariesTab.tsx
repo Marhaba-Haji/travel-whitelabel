@@ -72,7 +72,7 @@ const SavedItinerariesTab = () => {
                           <Users size={12} /> {guests.length}
                         </button>
                       </DialogTrigger>
-                      <DialogContent>
+                      <DialogContent aria-describedby={undefined}>
                         <DialogHeader>
                           <DialogTitle>Guests</DialogTitle>
                         </DialogHeader>
@@ -97,7 +97,7 @@ const SavedItinerariesTab = () => {
                         <CalendarDays size={12} /> {days.length}
                       </button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-lg max-h-[70vh] overflow-y-auto">
+                    <DialogContent className="max-w-lg max-h-[70vh] overflow-y-auto" aria-describedby={undefined}>
                       <DialogHeader>
                         <DialogTitle>{row.title || "Itinerary"} — Details</DialogTitle>
                       </DialogHeader>

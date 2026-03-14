@@ -60,6 +60,55 @@ function buildCannibalizationContext(existingPosts: any[]): string {
   return `\n\n## KEYWORD CANNIBALIZATION PREVENTION\nThe following keywords are already targeted by existing posts. You MUST differentiate this article's primary keywords and avoid directly competing with these:\n${keywordMap}\nChoose unique long-tail keywords and angles not covered by the existing content.`;
 }
 
+function buildExistingClustersContext(existingClusters: any[]): string {
+  if (!existingClusters?.length) return "";
+
+  const clusterBlocks = existingClusters.map((cluster) => {
+    const name = cluster.name;
+    const target = cluster.target_keyword;
+    const description = cluster.description;
+    const posts = cluster.posts || [];
+
+    const pillar = posts.find((p: any) => p.post_type === "pillar");
+    const supporting = posts.filter((p: any) => p.post_type === "supporting");
+
+    const allKeywords = Array.from(
+      new Set(
+        posts.flatMap((p: any) => [
+          ...(p.meta_keywords || []),
+          ...(p.tags || []),
+        ]),
+      ),
+    );
+
+    const lines: string[] = [];
+    lines.push(`Cluster "${name}" (target keyword: ${target})`);
+    if (description) {
+      lines.push(`  - Description: ${description}`);
+    }
+    if (pillar) {
+      lines.push(`  - Pillar: "${pillar.title}"`);
+    }
+    if (supporting.length) {
+      lines.push(
+        `  - Supporting posts: ${supporting
+          .map((p: any) => `"${p.title}"`)
+          .join(", ")}`,
+      );
+    }
+    if (allKeywords.length) {
+      lines.push(
+        `  - Keywords already targeted: ${allKeywords.join(", ")}`,
+      );
+    }
+    return lines.join("\n");
+  });
+
+  return `\n\n## EXISTING CONTENT CLUSTERS (DO NOT DUPLICATE)\nYou are designing new content clusters/topics.\nYou MUST avoid duplicating existing cluster names, target keywords, or topics that clearly overlap with the clusters below.\nTreat keyword matches in a case-insensitive way and consider close variants (e.g. "halal travel guide" vs "guide to halal travel") as overlapping.\n\n${clusterBlocks.join(
+    "\n\n",
+  )}\n\nWhen suggesting new clusters or topics, prefer to:\n- Fill clear topical gaps\n- Suggest angles and long-tail keywords not already covered\n- Indicate when a proposed topic fits best into an EXISTING cluster instead of creating a new overlapping cluster.`;
+}
+
 function buildClusterContext(clusterInfo?: any): string {
   if (!clusterInfo) return "";
   let ctx = `\n\n## CONTENT CLUSTER CONTEXT`;
@@ -117,7 +166,20 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const { action, title, content, topic, research, brandConfig, existingPosts, clusterInfo, prompts } = await req.json();
+    const {
+      action,
+      title,
+      content,
+      topic,
+      research,
+      brandConfig,
+      existingPosts,
+      existingClusters,
+      clusterInfo,
+      prompts,
+      categories,
+      clusters,
+    } = await req.json();
     const SYSTEM_PROMPT = buildSystemPrompt(brandConfig);
     let messages: { role: string; content: string }[] = [];
     let tools: any[] | undefined;
@@ -154,17 +216,37 @@ serve(async (req) => {
             role: "user",
             content: `Write a comprehensive, SEO-optimized blog article about: "${title || topic}".
 ${researchContext ? `\nUse the following real-time research to inform your writing — cite statistics, address content gaps identified, and differentiate from competitor angles:\n${researchContext}\n` : ""}${internalLinksContext}${cannibalizationCtx}${clusterCtx}
-Include:
-1. An engaging introduction with a hook
-2. Well-structured sections with H2/H3 headings (use ## and ### markdown)
-3. Practical tips, statistics, or examples where relevant${research ? " (use the research data provided)" : ""}
-4. 5-10 high-authority external links to credible sources (government tourism sites, industry organizations, Wikipedia)
-5. 3 image placement markers: [IMAGE_1: description], [IMAGE_2: description], [IMAGE_3: description] — placed after key sections
-6. A FAQ section at the end with 3-5 questions formatted as ### headings under a ## Frequently Asked Questions section
-7. A compelling conclusion with a call to action
-${existingPosts?.length ? "8. 3-7 internal links to existing blog posts where contextually relevant" : ""}
-Make it 1500-2500 words. Use markdown formatting throughout.
-Write content optimized for Google Featured Snippets, People Also Ask boxes, and AI search engines (ChatGPT, Gemini, Perplexity, Claude).`,
+
+## REQUIRED ARTICLE STRUCTURE (follow this order for optimal UX and SEO)
+
+1. **Introduction** (2-3 short paragraphs)
+   - Open with a hook (question, statistic, or compelling claim)
+   - State what the reader will learn and why it matters
+   - Include the primary keyword naturally in the first 100 words
+
+2. **Key Takeaways** (optional but recommended for articles over 1200 words)
+   - Add a brief bullet list of 3-5 main points right after the intro
+   - Format: ## Key Takeaways followed by - bullet points
+   - Helps scanners and improves time-on-page
+
+3. **Main body** (well-structured sections)
+   - Use descriptive H2 headings (##) that include target keywords where natural
+   - Use H3 (###) for subsections
+   - Keep paragraphs short (2-4 sentences max) for scannability
+   - Include 3 image placement markers: [IMAGE_1: description], [IMAGE_2: description], [IMAGE_3: description] — place after key sections, not all at the end
+   - 5-10 high-authority external links to credible sources (government tourism sites, unwto.org, Wikipedia)
+   ${existingPosts?.length ? "- 3-7 internal links to existing blog posts where contextually relevant" : ""}
+
+4. **Frequently Asked Questions**
+   - ## Frequently Asked Questions
+   - 3-5 questions as ### headings with concise answers (optimized for Featured Snippets and PAA)
+   - Use question format people actually search for
+
+5. **Conclusion**
+   - Summarize key points
+   - Clear call to action (e.g. contact, sign up, explore more)
+
+Make it 1500-2500 words. Use markdown throughout. Optimize for Featured Snippets, People Also Ask, and AI search.`,
           },
         ];
         break;
@@ -191,17 +273,32 @@ Return the improved version in markdown format.`,
         ];
         break;
 
-      case "generate_meta":
+      case "generate_meta": {
+        const categoriesList = categories?.length
+          ? `\n\nAvailable categories (pick the best-matching slug): ${categories.map((c: any) => `${c.name} (slug: ${c.slug})`).join(", ")}`
+          : "";
+        const clustersList = clusters?.length
+          ? `\n\nAvailable content clusters (pick the best-matching cluster name if this article fits): ${clusters.map((c: any) => c.name).join(", ")}`
+          : "";
+
         messages = [
           { role: "system", content: SYSTEM_PROMPT },
           {
             role: "user",
-            content: `Based on this blog content, generate optimized SEO meta tags:
+            content: `Based on this blog content, generate full SEO metadata and taxonomy:
 
 Title: ${title}
-Content: ${content?.substring(0, 2000)}
+Content: ${content?.substring(0, 2500)}
+${categoriesList}
+${clustersList}
 
-Generate a meta title (under 60 chars), meta description (under 160 chars), and 5-8 relevant keywords.`,
+Return:
+1. meta_title (under 60 chars)
+2. meta_description (under 160 chars)
+3. meta_keywords (5-8 relevant SEO keywords)
+4. category_slug: the slug of the best-matching category from the list above, or empty string if none fit
+5. tags: 5-10 topic tags for filtering and discovery (can overlap with meta_keywords but add broader terms)
+6. suggested_cluster_name: the name of the best-matching content cluster from the list above, or empty string if none fit`,
           },
         ];
         tools = [
@@ -209,7 +306,7 @@ Generate a meta title (under 60 chars), meta description (under 160 chars), and 
             type: "function",
             function: {
               name: "set_meta_tags",
-              description: "Set the SEO meta tags for the blog post",
+              description: "Set full SEO metadata and taxonomy for the blog post",
               parameters: {
                 type: "object",
                 properties: {
@@ -220,8 +317,15 @@ Generate a meta title (under 60 chars), meta description (under 160 chars), and 
                     items: { type: "string" },
                     description: "5-8 relevant SEO keywords",
                   },
+                  category_slug: { type: "string", description: "Slug of best-matching category, or empty if none fit" },
+                  tags: {
+                    type: "array",
+                    items: { type: "string" },
+                    description: "5-10 topic tags for filtering",
+                  },
+                  suggested_cluster_name: { type: "string", description: "Name of best-matching content cluster, or empty if none fit" },
                 },
-                required: ["meta_title", "meta_description", "meta_keywords"],
+                required: ["meta_title", "meta_description", "meta_keywords", "category_slug", "tags", "suggested_cluster_name"],
                 additionalProperties: false,
               },
             },
@@ -229,6 +333,7 @@ Generate a meta title (under 60 chars), meta description (under 160 chars), and 
         ];
         tool_choice = { type: "function", function: { name: "set_meta_tags" } };
         break;
+      }
 
       case "generate_excerpt":
         messages = [
@@ -246,15 +351,34 @@ The excerpt should hook the reader and include a primary keyword naturally. Retu
         break;
 
       case "suggest_topics":
-        messages = [
-          { role: "system", content: SYSTEM_PROMPT },
-          {
-            role: "user",
-            content: `Suggest 5 trending, SEO-friendly blog topics for Marhaba DMC's blog. Each topic should be highly searchable and relevant to halal travel, DMC services, or travel technology.
+        {
+          const cannibCtx = buildCannibalizationContext(existingPosts || []);
+          const clustersCtx = buildExistingClustersContext(
+            existingClusters || [],
+          );
+          const now = new Date();
+          const currentYear = now.getFullYear();
+          const currentMonth = now.toLocaleString("en-US", { month: "long" });
 
-Consider current travel industry trends and seasonal relevance.`,
-          },
-        ];
+          messages = [
+            { role: "system", content: SYSTEM_PROMPT },
+            {
+              role: "user",
+              content: `Suggest 5 trending, SEO-friendly blog topics for Marhaba DMC's blog. Each topic should be highly searchable and relevant to halal travel, DMC services, or travel technology.
+
+TODAY'S DATE: ${currentMonth} ${currentYear}. When suggesting topics that include a year or month (e.g. "Best Destinations 2025", "March Travel Guide"), ALWAYS use ${currentYear} and ${currentMonth} or the current/upcoming season. Do NOT use 2024 or any past year.
+
+Consider current travel industry trends and seasonal relevance for ${currentMonth} ${currentYear}.
+
+${clustersCtx}
+${cannibCtx}
+
+VERY IMPORTANT RULES:
+- Do NOT suggest topics that meaningfully overlap with existing clusters or posts above.
+- Avoid keyword cannibalization: if a primary keyword (or close variant) is already targeted, choose a different angle or long-tail variation.
+- Prefer topics that clearly fill gaps in the current content portfolio, introduce new subtopics, or serve distinct search intents.`,
+            },
+          ];
         tools = [
           {
             type: "function",
@@ -288,14 +412,28 @@ Consider current travel industry trends and seasonal relevance.`,
         break;
 
       case "suggest_cluster": {
-        const cannibCtx = buildCannibalizationContext(existingPosts);
+        const cannibCtx = buildCannibalizationContext(existingPosts || []);
+        const clustersCtx = buildExistingClustersContext(
+          existingClusters || [],
+        );
+        const nowCluster = new Date();
+        const yearCluster = nowCluster.getFullYear();
+
         messages = [
           { role: "system", content: SYSTEM_PROMPT },
           {
             role: "user",
             content: `Create a content cluster strategy for the topic: "${title || topic}".
+Current year: ${yearCluster}. When topic titles include a year, use ${yearCluster} only — never use past years like 2024.
+${clustersCtx}
 ${cannibCtx}
-Return a pillar post topic and 5-8 supporting post topics. Each supporting post should target a specific long-tail keyword that supports the pillar's main keyword.`,
+
+Return a pillar post topic and 5-8 supporting post topics. Each supporting post should target a specific long-tail keyword that supports the pillar's main keyword.
+
+CRITICAL CONSTRAINTS:
+- Do NOT propose a new cluster whose name or target keyword is the same as, or clearly overlapping with, any existing cluster.
+- Do NOT propose pillar or supporting topics that substantially duplicate existing topics or obviously compete for the same primary keyword.
+- If the best strategy is to add new supporting topics under an EXISTING cluster instead of creating a new overlapping cluster, you should still propose a cluster plan but make sure the pillar/supporting topics are differentiated by angle, audience, or long-tail keyword.`,
           },
         ];
         tools = [
@@ -438,6 +576,56 @@ Return a pillar post topic and 5-8 supporting post topics. Each supporting post 
           },
         ];
         tool_choice = { type: "function", function: { name: "extract_image_prompts" } };
+        break;
+      }
+
+      case "suggest_competitors": {
+        const regionsText = brandConfig?.target_regions?.length
+          ? brandConfig.target_regions.join(", ")
+          : "Middle East and Muslim-majority travel markets";
+        const keywordsText = brandConfig?.brand_keywords?.length
+          ? brandConfig.brand_keywords.join(", ")
+          : "halal travel, DMC, Muslim-friendly travel, luxury hospitality, travel technology";
+
+        messages = [
+          { role: "system", content: SYSTEM_PROMPT },
+          {
+            role: "user",
+            content: `Based on Marhaba DMC's positioning as a B2B halal-friendly Destination Management Company and the following configuration:
+
+- Target regions: ${regionsText}
+- Brand / service focus keywords: ${keywordsText}
+
+Identify 5-10 relevant competitor companies whose BLOGS are useful benchmarks for content and SEO. These should be:
+- B2B travel agencies, DMCs, or wholesalers
+- Strong in halal travel, Muslim-friendly travel, or luxury/MICE travel for the same regions
+- With active blogs or insights sections
+
+Return ONLY their main blog or insights URLs as HTTPS links (one per entry).`,
+          },
+        ];
+        tools = [
+          {
+            type: "function",
+            function: {
+              name: "suggest_competitors",
+              description: "Return competitor blog URLs for research",
+              parameters: {
+                type: "object",
+                properties: {
+                  urls: {
+                    type: "array",
+                    items: { type: "string" },
+                    description: "List of competitor blog URLs (https://...)",
+                  },
+                },
+                required: ["urls"],
+                additionalProperties: false,
+              },
+            },
+          },
+        ];
+        tool_choice = { type: "function", function: { name: "suggest_competitors" } };
         break;
       }
 

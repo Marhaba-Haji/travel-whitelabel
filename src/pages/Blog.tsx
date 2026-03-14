@@ -56,7 +56,7 @@ const Blog = () => {
       rssLink.setAttribute("rel", "alternate");
       rssLink.setAttribute("type", "application/rss+xml");
       rssLink.setAttribute("title", "Marhaba DMC Blog RSS");
-      rssLink.setAttribute("href", `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/blog-rss`);
+      rssLink.setAttribute("href", `${(import.meta.env.VITE_SUPABASE_URL || "https://kofijegdzeshitunwddn.supabase.co")}/functions/v1/blog-rss`);
       document.head.appendChild(rssLink);
     }
 
@@ -160,7 +160,7 @@ const Blog = () => {
               Expert articles on halal travel, destination guides, travel technology, and hospitality industry trends.
             </p>
             <Button variant="outline" size="sm" asChild>
-              <a href={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/blog-rss`} target="_blank" rel="noreferrer">
+              <a href={`${(import.meta.env.VITE_SUPABASE_URL || "https://kofijegdzeshitunwddn.supabase.co")}/functions/v1/blog-rss`} target="_blank" rel="noreferrer">
                 <Rss className="h-4 w-4 mr-1" /> RSS Feed
               </a>
             </Button>

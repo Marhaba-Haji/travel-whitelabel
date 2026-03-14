@@ -124,6 +124,8 @@ const BlogTab = () => {
   const [imageGenLoading, setImageGenLoading] = useState(false);
   const [pipelineStep, setPipelineStep] = useState<string | null>(null);
   const pipelineCancelledRef = useRef(false);
+  const currentPostRef = useRef(currentPost);
+  currentPostRef.current = currentPost;
   const { toast } = useToast();
 
   const getExistingPostsCatalog = useCallback(() => {
@@ -168,6 +170,25 @@ const BlogTab = () => {
 
   useEffect(() => { fetchPosts(); fetchCategories(); fetchClusters(); fetchAIConfig(); }, [fetchPosts, fetchCategories, fetchClusters, fetchAIConfig]);
 
+  const getExistingClustersCatalog = useCallback(() => {
+    return clusters.map((cluster) => {
+      const clusterPosts = posts.filter((p) => p.cluster_id === cluster.id);
+      return {
+        id: cluster.id,
+        name: cluster.name,
+        target_keyword: cluster.target_keyword,
+        description: cluster.description,
+        posts: clusterPosts.map((p) => ({
+          title: p.title,
+          slug: p.slug,
+          post_type: p.post_type,
+          meta_keywords: p.meta_keywords,
+          tags: p.tags,
+        })),
+      };
+    });
+  }, [clusters, posts]);
+
   const saveAIConfig = async () => {
     setConfigLoading(true);
     try {
@@ -185,6 +206,30 @@ const BlogTab = () => {
       toast({ title: "Blog AI config saved!" });
     } catch (e: any) {
       toast({ title: "Error saving config", description: e.message, variant: "destructive" });
+    } finally {
+      setConfigLoading(false);
+    }
+  };
+
+  const autoFetchCompetitors = async () => {
+    try {
+      setConfigLoading(true);
+      const { data, error } = await supabase.functions.invoke("blog-ai", {
+        body: {
+          action: "suggest_competitors",
+          brandConfig: aiConfig,
+        },
+      });
+      if (error) throw error;
+      const urls: string[] = data?.result?.urls || [];
+      if (!urls.length) {
+        toast({ title: "No competitors found", description: "AI did not return any URLs. Try again with broader regions or keywords.", variant: "destructive" });
+        return;
+      }
+      setAiConfig((c) => ({ ...c, competitor_urls: urls.filter(Boolean) }));
+      toast({ title: "Competitors fetched", description: `Added ${urls.length} competitor blog URLs.` });
+    } catch (e: any) {
+      toast({ title: "Auto-fetch failed", description: e.message, variant: "destructive" });
     } finally {
       setConfigLoading(false);
     }
@@ -373,9 +418,10 @@ const BlogTab = () => {
     { key: "cannibalization", label: "Checking cannibalization..." },
     { key: "generate_article", label: "Generating article..." },
     { key: "generate_images", label: "Generating images..." },
-    { key: "generate_meta", label: "Generating meta tags..." },
+    { key: "generate_meta", label: "Generating meta, category, tags..." },
     { key: "generate_excerpt", label: "Generating excerpt..." },
     { key: "interlink_posts", label: "Adding internal links..." },
+    { key: "saving", label: "Saving post..." },
   ];
 
   const runFullPipeline = async () => {
@@ -415,7 +461,12 @@ const BlogTab = () => {
       setPipelineStep("interlink_posts");
       await callAI("interlink_posts");
 
-      toast({ title: "🚀 Full pipeline complete!", description: "Article fully generated with images, meta, and internal links." });
+      // Auto-save so all generated fields (cover image, category, cluster, tags, og image, meta) are persisted
+      setPipelineStep("saving");
+      await new Promise((r) => setTimeout(r, 100)); // Allow React to flush state updates
+      await save(true);
+
+      toast({ title: "🚀 Full pipeline complete!", description: "Article generated, saved with images, meta, category, tags, and internal links." });
       // Auto-submit to search engines after pipeline
       if (currentPost?.slug && currentPost?.status === "published") {
         const postUrl = `https://marhabadmc.com/blog/${currentPost.slug}`;
@@ -441,15 +492,28 @@ const BlogTab = () => {
   };
 
 
+  const ensureUniqueClusterSlug = async (baseSlug: string): Promise<string> => {
+    const { data: existing } = await supabase.from("blog_clusters").select("slug").ilike("slug", `${baseSlug}%`);
+    const slugs = new Set((existing || []).map((r) => r.slug));
+    if (!slugs.has(baseSlug)) return baseSlug;
+    let i = 2;
+    while (slugs.has(`${baseSlug}-${i}`)) i++;
+    return `${baseSlug}-${i}`;
+  };
+
   const addCluster = async () => {
     if (!newClusterName.trim() || !newClusterKeyword.trim()) return;
+    const baseSlug = slugify(newClusterName.trim());
+    const slug = await ensureUniqueClusterSlug(baseSlug);
     const { error } = await supabase.from("blog_clusters").insert({
       name: newClusterName.trim(),
-      slug: slugify(newClusterName.trim()),
+      slug,
       target_keyword: newClusterKeyword.trim(),
     } as any);
-    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-    else {
+    if (error) {
+      const msg = error.code === "23505" ? "A cluster with this name already exists." : error.message;
+      toast({ title: "Error", description: msg, variant: "destructive" });
+    } else {
       setNewClusterName("");
       setNewClusterKeyword("");
       fetchClusters();
@@ -487,36 +551,37 @@ const BlogTab = () => {
     setCurrentPost((prev) => prev ? { ...prev, title, slug: prev.id ? prev.slug : slugify(title) } : prev);
   };
 
-  const save = async () => {
-    if (!currentPost?.title || !currentPost.slug) {
+  const save = async (useLatestRef = false) => {
+    const post = useLatestRef ? currentPostRef.current : currentPost;
+    if (!post?.title || !post.slug) {
       toast({ title: "Title and slug are required", variant: "destructive" });
       return;
     }
-    const reading_time_minutes = calcReadingTime(currentPost.content || "");
+    const reading_time_minutes = calcReadingTime(post.content || "");
     const payload: any = {
-      title: currentPost.title,
-      slug: currentPost.slug,
-      excerpt: currentPost.excerpt || null,
-      content: currentPost.content || "",
-      cover_image_url: currentPost.cover_image_url || null,
-      status: currentPost.status || "draft",
-      meta_title: currentPost.meta_title || null,
-      meta_description: currentPost.meta_description || null,
-      meta_keywords: currentPost.meta_keywords?.length ? currentPost.meta_keywords : null,
-      og_image_url: currentPost.og_image_url || null,
-      author_name: currentPost.author_name || "Marhaba DMC",
+      title: post.title,
+      slug: post.slug,
+      excerpt: post.excerpt || null,
+      content: post.content || "",
+      cover_image_url: post.cover_image_url || null,
+      status: post.status || "draft",
+      meta_title: post.meta_title || null,
+      meta_description: post.meta_description || null,
+      meta_keywords: post.meta_keywords?.length ? post.meta_keywords : null,
+      og_image_url: post.og_image_url || null,
+      author_name: post.author_name || "Marhaba DMC",
       reading_time_minutes,
-      published_at: currentPost.status === "published" && !currentPost.published_at ? new Date().toISOString() : currentPost.published_at,
-      category: currentPost.category || null,
-      tags: currentPost.tags?.length ? currentPost.tags : [],
-      cluster_id: currentPost.cluster_id || null,
-      post_type: currentPost.post_type || "standard",
-      pillar_post_id: currentPost.pillar_post_id || null,
+      published_at: post.status === "published" && !post.published_at ? new Date().toISOString() : post.published_at,
+      category: post.category || null,
+      tags: post.tags?.length ? post.tags : [],
+      cluster_id: post.cluster_id || null,
+      post_type: post.post_type || "standard",
+      pillar_post_id: post.pillar_post_id || null,
     };
 
     let error;
-    if (currentPost.id) {
-      ({ error } = await supabase.from("blog_posts").update(payload).eq("id", currentPost.id));
+    if (post.id) {
+      ({ error } = await supabase.from("blog_posts").update(payload).eq("id", post.id));
     } else {
       ({ error } = await supabase.from("blog_posts").insert(payload));
     }
@@ -525,8 +590,8 @@ const BlogTab = () => {
     } else {
       toast({ title: "Blog post saved!" });
       // Auto-submit to search engines if published
-      if (currentPost.status === "published") {
-        const postUrl = `https://marhabadmc.com/blog/${currentPost.slug}`;
+      if (post.status === "published") {
+        const postUrl = `https://marhabadmc.com/blog/${post.slug}`;
         supabase.functions.invoke("indexnow", { body: { urls: [postUrl] } })
           .then(() => toast({ title: "📡 Submitted to search engines for indexing" }))
           .catch(() => {}); // silent fail
@@ -567,8 +632,12 @@ const BlogTab = () => {
   const callAI = async (action: string, extra: Record<string, string> = {}) => {
     setAiLoading(action);
     try {
-      const existingPosts = (action === "generate_article" || action === "interlink_posts")
+      const needsExistingPosts = ["generate_article", "interlink_posts", "suggest_cluster", "suggest_topics"].includes(action);
+      const existingPosts = needsExistingPosts
         ? getExistingPostsCatalog().filter((p) => p.slug !== currentPost?.slug)
+        : undefined;
+      const existingClusters = (action === "suggest_cluster" || action === "suggest_topics")
+        ? getExistingClustersCatalog()
         : undefined;
       const clusterInfo = action === "generate_article" ? getClusterContext() : undefined;
       const body: any = {
@@ -578,18 +647,22 @@ const BlogTab = () => {
         brandConfig: aiConfig,
         ...(useResearch && researchData ? { research: researchData } : {}),
         ...(existingPosts?.length ? { existingPosts } : {}),
+        ...(existingClusters?.length ? { existingClusters } : {}),
         ...(clusterInfo ? { clusterInfo } : {}),
+        ...(action === "generate_meta" ? { categories: categories.map((c) => ({ name: c.name, slug: c.slug })), clusters: clusters.map((c) => ({ id: c.id, name: c.name })) } : {}),
         ...extra,
       };
 
       if (action === "generate_article" || action === "improve_content" || action === "interlink_posts") {
         // Streaming
-        const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/blog-ai`;
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://kofijegdzeshitunwddn.supabase.co";
+        const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtvZmlqZWdkemVzaGl0dW53ZGRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5MjQxNTIsImV4cCI6MjA4NjUwMDE1Mn0.knr8JAjauZWGl-3Wd4BbaMCEZLujxHR7veJs4rQEwVw";
+        const url = `${supabaseUrl}/functions/v1/blog-ai`;
         const resp = await fetch(url, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            Authorization: `Bearer ${supabaseKey}`,
           },
           body: JSON.stringify(body),
         });
@@ -648,13 +721,18 @@ const BlogTab = () => {
         if (error) throw error;
 
         if (action === "generate_meta" && data.result) {
+          const r = data.result;
+          const clusterMatch = r.suggested_cluster_name && clusters.find((c) => c.name.toLowerCase() === (r.suggested_cluster_name || "").toLowerCase());
           setCurrentPost((prev) => prev ? {
             ...prev,
-            meta_title: data.result.meta_title,
-            meta_description: data.result.meta_description,
-            meta_keywords: data.result.meta_keywords,
+            meta_title: r.meta_title,
+            meta_description: r.meta_description,
+            meta_keywords: r.meta_keywords ?? prev.meta_keywords,
+            category: r.category_slug ?? prev.category,
+            tags: (r.tags && r.tags.length) ? r.tags : (prev.tags ?? []),
+            cluster_id: clusterMatch?.id ?? prev.cluster_id,
           } : prev);
-          toast({ title: "Meta tags generated!" });
+          toast({ title: "Meta tags generated!", description: r.category_slug || r.suggested_cluster_name ? "Category, tags, and cluster applied." : undefined });
         } else if (action === "generate_excerpt" && data.result) {
           setCurrentPost((prev) => prev ? { ...prev, excerpt: data.result } : prev);
           toast({ title: "Excerpt generated!" });
@@ -678,12 +756,14 @@ const BlogTab = () => {
         toast({ title: "Need at least 2 published posts for interlinking", variant: "destructive" });
         return;
       }
-      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/blog-ai`;
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://kofijegdzeshitunwddn.supabase.co";
+      const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtvZmlqZWdkemVzaGl0dW53ZGRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5MjQxNTIsImV4cCI6MjA4NjUwMDE1Mn0.knr8JAjauZWGl-3Wd4BbaMCEZLujxHR7veJs4rQEwVw";
+      const url = `${supabaseUrl}/functions/v1/blog-ai`;
       const resp = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          Authorization: `Bearer ${supabaseKey}`,
         },
         body: JSON.stringify({
           action: "interlink_posts",
@@ -751,14 +831,17 @@ const BlogTab = () => {
 
   const createClusterFromSuggestion = async () => {
     if (!suggestedCluster) return;
+    const baseSlug = slugify(suggestedCluster.cluster_name);
+    const slug = await ensureUniqueClusterSlug(baseSlug);
     const { error } = await supabase.from("blog_clusters").insert({
       name: suggestedCluster.cluster_name,
-      slug: slugify(suggestedCluster.cluster_name),
+      slug,
       target_keyword: suggestedCluster.target_keyword,
       description: `Pillar: ${suggestedCluster.pillar.title}`,
     } as any);
     if (error) {
-      toast({ title: "Error creating cluster", description: error.message, variant: "destructive" });
+      const msg = error.code === "23505" ? "A cluster with this name already exists." : error.message;
+      toast({ title: "Error creating cluster", description: msg, variant: "destructive" });
     } else {
       toast({ title: "Cluster created!" });
       fetchClusters();
@@ -1003,7 +1086,13 @@ const BlogTab = () => {
                     <Label className="text-xs">Audience Personas (one per line)</Label>
                     <Textarea
                       value={aiConfig.target_audience.join("\n")}
-                      onChange={(e) => setAiConfig((c) => ({ ...c, target_audience: e.target.value.split("\n").filter(Boolean) }))}
+                      onChange={(e) =>
+                        setAiConfig((c) => ({
+                          ...c,
+                          // Preserve empty trailing lines so pressing Enter creates a visible new line
+                          target_audience: e.target.value.split("\n"),
+                        }))
+                      }
                       placeholder="B2B travel agents in GCC&#10;Umrah tour operators&#10;Luxury travel planners"
                       className="min-h-[100px]"
                     />
@@ -1029,13 +1118,25 @@ const BlogTab = () => {
                   <CardTitle className="text-base flex items-center gap-2"><TrendingUp className="h-4 w-4" /> Competitor URLs</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <p className="text-xs text-muted-foreground">Add competitor blog URLs. The AI will analyze their content when generating articles to help you differentiate.</p>
+                  <p className="text-xs text-muted-foreground">
+                    Add competitor blog URLs. The AI will analyze their content when generating articles to help you differentiate.
+                    You can also auto-fetch a starting list based on your brand info and regions.
+                  </p>
                   <Textarea
                     value={aiConfig.competitor_urls.join("\n")}
                     onChange={(e) => setAiConfig((c) => ({ ...c, competitor_urls: e.target.value.split("\n").filter(Boolean) }))}
                     placeholder="https://competitor1.com/blog&#10;https://competitor2.com/blog"
                     className="min-h-[80px] font-mono text-xs"
                   />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={autoFetchCompetitors}
+                    disabled={configLoading}
+                  >
+                    {configLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Globe className="h-4 w-4 mr-2" />}
+                    Auto-fetch competitor URLs
+                  </Button>
                 </CardContent>
               </Card>
             </div>
@@ -1049,7 +1150,7 @@ const BlogTab = () => {
 
         {/* Topics Dialog */}
         <Dialog open={topicsDialog} onOpenChange={setTopicsDialog}>
-          <DialogContent className="max-w-lg">
+          <DialogContent className="max-w-lg" aria-describedby={undefined}>
             <DialogHeader><DialogTitle>AI-Suggested Blog Topics</DialogTitle></DialogHeader>
             <div className="space-y-3 max-h-[60vh] overflow-auto">
               {suggestedTopics.map((t, i) => (
@@ -1075,7 +1176,7 @@ const BlogTab = () => {
 
         {/* Cluster Suggestion Dialog */}
         <Dialog open={clusterDialog} onOpenChange={setClusterDialog}>
-          <DialogContent className="max-w-lg">
+          <DialogContent className="max-w-lg" aria-describedby={undefined}>
             <DialogHeader><DialogTitle>AI-Suggested Content Cluster</DialogTitle></DialogHeader>
             {suggestedCluster && (
               <div className="space-y-4 max-h-[60vh] overflow-auto">

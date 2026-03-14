@@ -92,7 +92,7 @@ const CouponsTab = () => {
           <DialogTrigger asChild>
             <Button><Plus className="h-4 w-4 mr-2" /> New Coupon</Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent aria-describedby={undefined}>
             <DialogHeader><DialogTitle>Create Coupon</DialogTitle></DialogHeader>
             <div className="space-y-4">
               <div><Label>Code</Label><Input value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} placeholder="e.g. SAVE20" /></div>

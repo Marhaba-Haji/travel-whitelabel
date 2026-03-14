@@ -48,7 +48,7 @@ const VoiceAILeadsTab = () => {
                         {row.notes}
                       </button>
                     </DialogTrigger>
-                    <DialogContent>
+                    <DialogContent aria-describedby={undefined}>
                       <DialogHeader>
                         <DialogTitle>Notes from {row.name}</DialogTitle>
                       </DialogHeader>

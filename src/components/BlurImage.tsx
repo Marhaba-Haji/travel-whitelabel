@@ -50,7 +50,7 @@ const BlurImage = ({ src, alt, className, blurSize = 20, ...props }: BlurImagePr
   }, [src]);
 
   return (
-    <div className={`relative overflow-hidden ${className || ""}`} style={{ isolation: "isolate" }}>
+    <span className={`relative overflow-hidden block ${className || ""}`} style={{ isolation: "isolate" }}>
       {/* Blur placeholder */}
       {placeholder && !loaded && (
         <img
@@ -68,9 +68,9 @@ const BlurImage = ({ src, alt, className, blurSize = 20, ...props }: BlurImagePr
         src={src}
         alt={alt}
         onLoad={() => setLoaded(true)}
-        className={`w-full h-auto transition-opacity duration-500 ${loaded ? "opacity-100" : "opacity-0"}`}
+        className={`w-full h-auto ${loaded ? "opacity-100" : "opacity-0 transition-opacity duration-500"}`}
       />
-    </div>
+    </span>
   );
 };
 
