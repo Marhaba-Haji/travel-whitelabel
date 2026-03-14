@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Settings, PackageOpen, Users, ShoppingCart, BarChart3, ArrowRight, Check } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 
 const portals = [
   {
@@ -177,11 +177,14 @@ const DashboardMockup = ({ portal, isVisible }: { portal: typeof portals[number]
 const ProductShowcase = () => {
   const { ref: sectionRef, isVisible: sectionVisible } = useScrollAnimation();
   const [activeTab, setActiveTab] = useState("admin");
+  const parallaxRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: parallaxRef, offset: ["start end", "end start"] });
+  const mockupY = useTransform(scrollYProgress, [0, 1], [40, -40]);
 
   const activePortal = portals.find((p) => p.id === activeTab) || portals[0];
 
   return (
-    <section className="py-24 relative overflow-hidden" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 900px' }}>
+    <section ref={parallaxRef} className="py-24 relative overflow-hidden" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 900px' }}>
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center_left,_hsl(270_70%_58%_/_0.04),_transparent_50%)]" />
 
       <div
@@ -264,7 +267,7 @@ const ProductShowcase = () => {
               </motion.div>
             </AnimatePresence>
 
-            {/* Right — animated mockup */}
+            {/* Right — animated mockup with parallax */}
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeTab + "-mockup"}
@@ -272,6 +275,7 @@ const ProductShowcase = () => {
                 initial="hidden"
                 animate="visible"
                 exit="exit"
+                style={{ y: mockupY }}
               >
                 <DashboardMockup portal={activePortal} isVisible={sectionVisible} />
               </motion.div>
