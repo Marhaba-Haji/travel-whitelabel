@@ -627,6 +627,10 @@ const BlogTab = () => {
       cluster_id: post.cluster_id || null,
       post_type: post.post_type || "standard",
       pillar_post_id: post.pillar_post_id || null,
+      snippet_type: post.snippet_type || null,
+      paa_target: post.paa_target || null,
+      search_intent: post.search_intent || "informational",
+      primary_keyword: post.primary_keyword || null,
     };
 
     let error;
