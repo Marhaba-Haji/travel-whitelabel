@@ -1858,6 +1858,58 @@ const BlogTab = () => {
                   </div>
                 )}
               </div>
+
+              {/* SEO Optimization Fields */}
+              <div className="border-t border-border pt-3 space-y-3">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">SEO Optimization</p>
+                <div>
+                  <Label className="text-xs">Primary Keyword</Label>
+                  <Input
+                    value={currentPost?.primary_keyword || ""}
+                    onChange={(e) => setCurrentPost((p) => p ? { ...p, primary_keyword: e.target.value } : p)}
+                    placeholder="e.g. halal travel guide"
+                    className="h-8 text-xs"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs">Search Intent</Label>
+                  <select
+                    value={currentPost?.search_intent || "informational"}
+                    onChange={(e) => setCurrentPost((p) => p ? { ...p, search_intent: e.target.value } : p)}
+                    className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <option value="informational">Informational</option>
+                    <option value="commercial">Commercial</option>
+                    <option value="navigational">Navigational</option>
+                    <option value="transactional">Transactional</option>
+                  </select>
+                </div>
+                <div>
+                  <Label className="text-xs">Snippet Type Target</Label>
+                  <select
+                    value={currentPost?.snippet_type || ""}
+                    onChange={(e) => setCurrentPost((p) => p ? { ...p, snippet_type: e.target.value || null } : p)}
+                    className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <option value="">Auto-detect</option>
+                    <option value="paragraph">Paragraph</option>
+                    <option value="list">List</option>
+                    <option value="table">Table</option>
+                    <option value="definition">Definition</option>
+                    <option value="video">Video</option>
+                  </select>
+                </div>
+                <div>
+                  <Label className="text-xs">PAA Target Question</Label>
+                  <Input
+                    value={currentPost?.paa_target || ""}
+                    onChange={(e) => setCurrentPost((p) => p ? { ...p, paa_target: e.target.value } : p)}
+                    placeholder="What is halal travel?"
+                    className="h-8 text-xs"
+                  />
+                </div>
+              </div>
+
               <div>
                 <Label>Author</Label>
                 <Input
