@@ -67,7 +67,6 @@ interface FAQItem {
 // Extract FAQ items from markdown content for structured data
 function extractFAQs(content: string): FAQItem[] {
   const faqs: FAQItem[] = [];
-  // Look for ## Frequently Asked Questions section, then ### questions
   const faqSectionMatch = content.match(/##\s*Frequently Asked Questions\s*\n([\s\S]*?)(?=\n## [^#]|$)/i);
   if (!faqSectionMatch) return faqs;
 
@@ -82,6 +81,32 @@ function extractFAQs(content: string): FAQItem[] {
     }
   }
   return faqs;
+}
+
+// Extract HowTo steps from "How to..." sections
+function extractHowToSteps(content: string): { name: string; text: string }[] | null {
+  const howtoMatch = content.match(/##\s*How to .+?\n([\s\S]*?)(?=\n## [^#]|$)/i);
+  if (!howtoMatch) return null;
+  const steps: { name: string; text: string }[] = [];
+  const stepRegex = /(?:^|\n)\d+\.\s+\*\*(.+?)\*\*[:\s]*(.+?)(?=\n\d+\.|$)/gs;
+  let m;
+  while ((m = stepRegex.exec(howtoMatch[1])) !== null) {
+    steps.push({ name: m[1].trim(), text: m[2].trim() });
+  }
+  return steps.length >= 2 ? steps : null;
+}
+
+// Extract numbered list items for ItemList schema
+function extractItemList(content: string): string[] | null {
+  const listMatch = content.match(/##\s*.+?\n((?:\d+\.\s+.+\n?){3,})/);
+  if (!listMatch) return null;
+  const items: string[] = [];
+  const itemRegex = /\d+\.\s+\*?\*?(.+?)(?:\*?\*?\n|$)/g;
+  let m;
+  while ((m = itemRegex.exec(listMatch[1])) !== null) {
+    items.push(m[1].replace(/\*\*/g, "").trim());
+  }
+  return items.length >= 3 ? items : null;
 }
 
 const BlogPost = () => {
