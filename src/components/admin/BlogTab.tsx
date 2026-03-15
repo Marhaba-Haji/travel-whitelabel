@@ -791,8 +791,12 @@ const BlogTab = () => {
             category: r.category_slug ?? prev.category,
             tags: (r.tags && r.tags.length) ? r.tags : (prev.tags ?? []),
             cluster_id: clusterMatch?.id ?? prev.cluster_id,
+            snippet_type: r.snippet_type || prev.snippet_type || null,
+            paa_target: r.paa_target || prev.paa_target || null,
+            search_intent: r.search_intent || prev.search_intent || null,
+            primary_keyword: r.primary_keyword || prev.primary_keyword || null,
           } : prev);
-          toast({ title: "Meta tags generated!", description: r.category_slug || r.suggested_cluster_name ? "Category, tags, and cluster applied." : undefined });
+          toast({ title: "Meta tags generated!", description: "Category, tags, snippet type, search intent, and primary keyword applied." });
         } else if (action === "generate_excerpt" && data.result) {
           setCurrentPost((prev) => prev ? { ...prev, excerpt: data.result } : prev);
           toast({ title: "Excerpt generated!" });
