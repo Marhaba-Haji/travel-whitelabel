@@ -1,83 +1,100 @@
 
 
-# ChatGPT-Style Instruction Manager for AI Agent Config
+# Plan: Supercharge the AI Blog Writer for Maximum Search Visibility
 
-## Overview
-Redesign the AI Agent Configuration tab to have a modern, ChatGPT-like interface where admins can type instructions OR upload files (images, PDFs, Excel, Word docs). Uploaded files are processed by AI to extract text content, which is then saved as instruction entries in the appropriate category.
+## Current State Assessment
 
-## Architecture
+Your blog engine is already strong — it has Perplexity-powered research, cluster strategy, cannibalization checks, image generation, internal linking, and structured data (Article, FAQ, Breadcrumb, Speakable). Here's what's missing to dominate across Google, ChatGPT, Gemini, Claude, and featured snippets.
 
-### New Edge Function: `process-agent-document`
-- Accepts a file (base64-encoded) along with its MIME type and target category
-- Uses the Lovable AI Gateway (`google/gemini-2.5-flash`) to extract/summarize content from the file
-- Returns extracted text that gets saved as instruction entries
-- Supports: images (JPEG, PNG, WebP), PDFs, Excel (.xlsx), Word (.docx)
-- For images: sends the image directly to Gemini's vision capability for text extraction
-- For PDFs/docs: converts base64 to text extraction prompt
+---
 
-### UI Redesign: `AIAgentConfigTab.tsx`
-Rebuild with a ChatGPT-style interface per category card:
+## Changes Overview
 
-```text
-+---------------------------------------------+
-| Knowledge Base                          [v]  |
-|---------------------------------------------|
-| [Saved entry 1]                        [x]  |
-| [Saved entry 2]                        [x]  |
-| [Saved entry 3 - from uploaded PDF]    [x]  |
-|---------------------------------------------|
-| [  Type instruction or upload a file...   ] |
-| [Paperclip icon]  [Send button]             |
-+---------------------------------------------+
-```
+### 1. Upgrade the Article Generation Prompt (blog-ai edge function)
 
-Each category section will have:
-- A scrollable log of saved entries (existing behavior, kept)
-- A bottom input bar with a textarea, a file attachment button (paperclip icon), and a send/add button
-- File upload triggers processing via the edge function, then saves extracted text as a new entry
-- While processing, show a loading state with "Extracting content from [filename]..."
-- After extraction, the text is auto-added as an instruction entry (same save flow as today)
+The `generate_article` action prompt will be enhanced with:
 
-### Supported File Types
-- Images: `image/jpeg`, `image/png`, `image/webp` -- processed via Gemini vision
-- PDF: `application/pdf` -- base64 sent to Gemini for extraction
-- Word: `.docx` (`application/vnd.openxmlformats-officedocument.wordprocessingml.document`)
-- Excel: `.xlsx` (`application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`)
+- **Snippet-first writing instructions**: Require a direct, concise answer (40-60 words) immediately after each H2 — this is the paragraph Google pulls for featured snippets.
+- **PAA-optimized FAQ**: Instead of generic FAQs, require questions derived from the research's PAA data (`research.serp_analysis`) and format answers in the exact snippet-winning length (40-50 words).
+- **Entity-rich writing**: Instruct the AI to explicitly mention named entities (brands, destinations, standards like "UNWTO", "Saudi Tourism Authority") so AI search engines can ground citations.
+- **Comparison tables**: Require at least one markdown table per article (e.g., destination comparison, package comparison) — tables win table snippets and are heavily cited by AI engines.
+- **Definition boxes**: For key terms, use a "What is X?" H2 pattern with a 1-2 sentence answer — this wins definition snippets.
+- **"TL;DR" / Key Takeaways**: Make this mandatory (not optional), formatted as a bullet list right after intro — AI engines extract these as summaries.
+- **Increase word count target**: 2500-4000 words for pillar posts (longer content ranks better for competitive queries).
+- **Cite research sources inline**: Instruct AI to use the Perplexity citations as inline references `[Source](url)` for E-E-A-T signals.
+
+### 2. Upgrade the `improve_content` / "Improve for SEO" Action
+
+Currently it's a generic "improve SEO" prompt. Enhance it to:
+
+- **Audit and fix snippet structure**: Check every H2 has a direct answer paragraph beneath it.
+- **Audit entity density**: Ensure named entities (destinations, organizations, standards) appear frequently.
+- **Add missing comparison tables** if none exist.
+- **Strengthen FAQ answers** to be snippet-length (40-60 words per answer).
+- **Add "Related:" cross-references** between sections for better topical coverage signals.
+- **Inject schema-hint patterns**: Ensure content has "What is...", "How to...", "Best..." patterns that trigger snippet selection.
+
+### 3. Upgrade Metadata Generation (`generate_meta` action)
+
+Enhance the tool call schema and prompt:
+
+- **Add `snippet_type`** field: AI assigns which snippet format this post should target (definition, list, table, paragraph, video).
+- **Add `paa_target`** field: The primary PAA question this post answers.
+- **Add `primary_keyword`** and **`secondary_keywords`** (separate from tags).
+- **Add `search_intent`** classification: informational, commercial, navigational, transactional.
+- **Generate `canonical_url`** suggestion.
+- **Generate Twitter Card meta** fields (twitter:title, twitter:description).
+
+### 4. Upgrade Dynamic Structured Data (BlogPost.tsx)
+
+Currently you have Article, BreadcrumbList, FAQPage, and Speakable. Add:
+
+- **HowTo schema**: Auto-detect "How to..." content sections and generate HowTo JSON-LD with steps.
+- **ItemList schema**: For listicle posts (detect numbered lists), generate ItemList JSON-LD.
+- **Table schema**: For comparison tables, wrap in structured data.
+- **VideoObject schema**: If embedded video URLs are detected.
+- **WebPage schema** with `speakable` for the intro paragraph (AI engines use this).
+- **`dateModified`** from `updated_at` instead of `published_at` (currently both use `published_at`).
+- **`inLanguage`** field on Article schema.
+- **`isPartOf`** linking to the blog cluster pillar page (for cluster posts).
+- **`about`** and **`mentions`** entity arrays extracted from meta_keywords/tags.
+- **Twitter Card meta tags** (twitter:card, twitter:title, twitter:description, twitter:image).
+- **`robots` meta** with `max-snippet:-1, max-image-preview:large, max-video-preview:-1` to allow Google maximum snippet extraction.
+
+### 5. Upgrade Research Pipeline (blog-research edge function)
+
+Add two new research queries:
+
+- **PAA & Featured Snippet extraction**: A dedicated Perplexity query that returns the exact PAA questions and current featured snippet holders for the topic, so the article can directly answer them.
+- **AI Engine citation analysis**: A query asking "What do ChatGPT/Gemini/Perplexity cite when answering about [topic]?" to understand what content structure gets cited.
+
+Feed these back into the article generation prompt.
+
+### 6. Add `snippet_type` and `paa_target` to Blog Posts Table
+
+Add two new columns to `blog_posts`:
+- `search_intent` (text, default 'informational')
+- `primary_keyword` (text, nullable)
+
+These are already partially present (`snippet_type`, `paa_target` columns exist). Add `search_intent` and `primary_keyword` via migration.
+
+### 7. Sitemap Enhancement
+
+Update `sitemap/index.ts` to:
+- Add `<lastmod>` using `updated_at` instead of `now()` for static pages.
+- Add `<news:news>` entries for posts published in the last 48 hours (Google News sitemap).
+
+---
 
 ## Technical Details
 
-### 1. Create `supabase/functions/process-agent-document/index.ts`
-- Accept POST with `{ fileBase64, mimeType, fileName, category }`
-- Use `LOVABLE_API_KEY` (already configured) to call the Lovable AI Gateway
-- For images: send as base64 image content part with a prompt like "Extract all text, data, and instructions from this image. Return them as clear, structured text."
-- For documents (PDF/DOCX/XLSX): send file content with extraction prompt
-- Return `{ extractedText: string }` 
-- Register in `supabase/config.toml`
+### Files to modify:
+1. **`supabase/functions/blog-ai/index.ts`** — Enhanced prompts for `generate_article`, `improve_content`, `generate_meta` actions
+2. **`supabase/functions/blog-research/index.ts`** — Add PAA/snippet and AI citation research queries
+3. **`src/pages/BlogPost.tsx`** — Enhanced structured data (HowTo, ItemList, twitter cards, robots meta, dateModified fix, entity mentions)
+4. **`src/components/admin/BlogTab.tsx`** — Surface new meta fields (search_intent, primary_keyword) in the editor UI
+5. **`supabase/functions/sitemap/index.ts`** — Use `updated_at` for lastmod, news sitemap entries
+6. **New migration** — Add `search_intent` and `primary_keyword` columns to `blog_posts`
 
-### 2. Redesign `AIAgentConfigTab.tsx`
-- Replace the current `InstructionLog` component with a new `InstructionChat` component
-- Bottom input area styled like a chat input bar:
-  - Textarea (auto-grows, placeholder: "Type an instruction or upload a file...")
-  - Paperclip/attachment button (opens file picker)
-  - Send button (arrow icon)
-- When a file is selected:
-  - Show a file preview chip above the input (filename + remove button)
-  - On send, read as base64 and call `process-agent-document` edge function
-  - Show processing indicator
-  - On success, add extracted text as an instruction entry
-- Keep the existing entries list with delete buttons above the input
-- Entries from files get a small file icon badge to indicate source
-
-### 3. Update `supabase/config.toml`
-- Add `[functions.process-agent-document]` with `verify_jwt = false`
-
-### No database changes needed
-All data continues to be stored in `site_settings` as JSONB arrays -- extracted text from files becomes regular string entries in the arrays.
-
-## Files to Create
-1. `supabase/functions/process-agent-document/index.ts`
-
-## Files to Modify
-1. `src/components/admin/AIAgentConfigTab.tsx` -- full UI redesign with chat-style input
-2. `supabase/config.toml` -- register new function
+### Estimated scope: ~6 files, focused on prompt engineering + schema enrichment
 
