@@ -1037,6 +1037,10 @@ const BlogTab = () => {
                 <p className="text-sm text-muted-foreground">{posts.length} posts total</p>
               </div>
               <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={reindexEntireSite} disabled={reindexLoading}>
+                  {reindexLoading ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <RefreshCw className="h-4 w-4 mr-1" />}
+                  Re-index Entire Site
+                </Button>
                 <Button variant="outline" size="sm" onClick={relinkAllPosts} disabled={!!interlinkLoading || posts.filter(p => p.status === "published").length < 2}>
                   {interlinkLoading ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Link2 className="h-4 w-4 mr-1" />}
                   Re-link All
