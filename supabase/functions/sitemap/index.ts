@@ -46,7 +46,7 @@ serve(async (req) => {
 
     const { data: posts } = await supabase
       .from("blog_posts")
-      .select("slug, updated_at, post_type, cover_image_url, title")
+      .select("slug, updated_at, published_at, post_type, cover_image_url, title")
       .eq("status", "published")
       .order("updated_at", { ascending: false });
 
@@ -73,11 +73,31 @@ serve(async (req) => {
   </url>`;
     }).join("\n");
 
+    // Google News sitemap entries for posts published in last 48 hours
+    const twoDaysAgo = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+    const recentPosts = (posts || []).filter((post: any) => 
+      post.published_at && post.published_at > twoDaysAgo
+    );
+    
+    const newsEntries = recentPosts.map((post: any) => `  <url>
+    <loc>${SITE_URL}/blog/${escapeXml(post.slug)}</loc>
+    <news:news>
+      <news:publication>
+        <news:name>Marhaba DMC</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>${post.published_at}</news:publication_date>
+      <news:title>${escapeXml(post.title)}</news:title>
+    </news:news>
+  </url>`).join("\n");
+
     const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
 ${staticEntries}
 ${blogEntries}
+${newsEntries}
 </urlset>`;
 
     return new Response(sitemap, {

@@ -153,8 +153,10 @@ export type Database = {
           paa_target: string | null
           pillar_post_id: string | null
           post_type: string
+          primary_keyword: string | null
           published_at: string | null
           reading_time_minutes: number | null
+          search_intent: string | null
           slug: string
           snippet_type: string | null
           status: string
@@ -179,8 +181,10 @@ export type Database = {
           paa_target?: string | null
           pillar_post_id?: string | null
           post_type?: string
+          primary_keyword?: string | null
           published_at?: string | null
           reading_time_minutes?: number | null
+          search_intent?: string | null
           slug: string
           snippet_type?: string | null
           status?: string
@@ -205,8 +209,10 @@ export type Database = {
           paa_target?: string | null
           pillar_post_id?: string | null
           post_type?: string
+          primary_keyword?: string | null
           published_at?: string | null
           reading_time_minutes?: number | null
+          search_intent?: string | null
           slug?: string
           snippet_type?: string | null
           status?: string

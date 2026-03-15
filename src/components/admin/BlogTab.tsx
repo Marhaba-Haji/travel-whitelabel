@@ -45,6 +45,10 @@ interface BlogPost {
   cluster_id: string | null;
   post_type: string;
   pillar_post_id: string | null;
+  snippet_type: string | null;
+  paa_target: string | null;
+  search_intent: string | null;
+  primary_keyword: string | null;
 }
 
 interface BlogCategory {
@@ -582,7 +586,7 @@ const BlogTab = () => {
   };
 
   const openNew = () => {
-    setCurrentPost({ title: "", slug: "", content: "", excerpt: "", status: "draft", cover_image_url: "", meta_title: "", meta_description: "", meta_keywords: [], og_image_url: "", author_name: "Marhaba DMC", category: "", tags: [], cluster_id: null, post_type: "standard", pillar_post_id: null });
+    setCurrentPost({ title: "", slug: "", content: "", excerpt: "", status: "draft", cover_image_url: "", meta_title: "", meta_description: "", meta_keywords: [], og_image_url: "", author_name: "Marhaba DMC", category: "", tags: [], cluster_id: null, post_type: "standard", pillar_post_id: null, snippet_type: null, paa_target: null, search_intent: null, primary_keyword: null });
     setCannibalizationWarnings([]);
     setEditing(true);
   };
@@ -623,6 +627,10 @@ const BlogTab = () => {
       cluster_id: post.cluster_id || null,
       post_type: post.post_type || "standard",
       pillar_post_id: post.pillar_post_id || null,
+      snippet_type: post.snippet_type || null,
+      paa_target: post.paa_target || null,
+      search_intent: post.search_intent || "informational",
+      primary_keyword: post.primary_keyword || null,
     };
 
     let error;
@@ -791,8 +799,12 @@ const BlogTab = () => {
             category: r.category_slug ?? prev.category,
             tags: (r.tags && r.tags.length) ? r.tags : (prev.tags ?? []),
             cluster_id: clusterMatch?.id ?? prev.cluster_id,
+            snippet_type: r.snippet_type || prev.snippet_type || null,
+            paa_target: r.paa_target || prev.paa_target || null,
+            search_intent: r.search_intent || prev.search_intent || null,
+            primary_keyword: r.primary_keyword || prev.primary_keyword || null,
           } : prev);
-          toast({ title: "Meta tags generated!", description: r.category_slug || r.suggested_cluster_name ? "Category, tags, and cluster applied." : undefined });
+          toast({ title: "Meta tags generated!", description: "Category, tags, snippet type, search intent, and primary keyword applied." });
         } else if (action === "generate_excerpt" && data.result) {
           setCurrentPost((prev) => prev ? { ...prev, excerpt: data.result } : prev);
           toast({ title: "Excerpt generated!" });
@@ -1846,6 +1858,58 @@ const BlogTab = () => {
                   </div>
                 )}
               </div>
+
+              {/* SEO Optimization Fields */}
+              <div className="border-t border-border pt-3 space-y-3">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">SEO Optimization</p>
+                <div>
+                  <Label className="text-xs">Primary Keyword</Label>
+                  <Input
+                    value={currentPost?.primary_keyword || ""}
+                    onChange={(e) => setCurrentPost((p) => p ? { ...p, primary_keyword: e.target.value } : p)}
+                    placeholder="e.g. halal travel guide"
+                    className="h-8 text-xs"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs">Search Intent</Label>
+                  <select
+                    value={currentPost?.search_intent || "informational"}
+                    onChange={(e) => setCurrentPost((p) => p ? { ...p, search_intent: e.target.value } : p)}
+                    className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <option value="informational">Informational</option>
+                    <option value="commercial">Commercial</option>
+                    <option value="navigational">Navigational</option>
+                    <option value="transactional">Transactional</option>
+                  </select>
+                </div>
+                <div>
+                  <Label className="text-xs">Snippet Type Target</Label>
+                  <select
+                    value={currentPost?.snippet_type || ""}
+                    onChange={(e) => setCurrentPost((p) => p ? { ...p, snippet_type: e.target.value || null } : p)}
+                    className="flex h-8 w-full rounded-md border border-input bg-background px-2 py-1 text-xs ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <option value="">Auto-detect</option>
+                    <option value="paragraph">Paragraph</option>
+                    <option value="list">List</option>
+                    <option value="table">Table</option>
+                    <option value="definition">Definition</option>
+                    <option value="video">Video</option>
+                  </select>
+                </div>
+                <div>
+                  <Label className="text-xs">PAA Target Question</Label>
+                  <Input
+                    value={currentPost?.paa_target || ""}
+                    onChange={(e) => setCurrentPost((p) => p ? { ...p, paa_target: e.target.value } : p)}
+                    placeholder="What is halal travel?"
+                    className="h-8 text-xs"
+                  />
+                </div>
+              </div>
+
               <div>
                 <Label>Author</Label>
                 <Input

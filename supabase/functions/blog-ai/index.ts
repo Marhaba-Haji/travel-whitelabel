@@ -17,11 +17,18 @@ Your writing style:
   ### Question here?
   Answer here.
 - Use markdown formatting for all content
-- Target 1500-2500 words for full articles
+- Target 2500-4000 words for pillar posts, 1500-2500 for supporting/standard posts
 - Include 5-10 high-authority external links to credible sources (government tourism boards like visitdubai.com, unwto.org, Wikipedia for factual claims, industry reports). Use markdown links: [anchor text](url)
 - Focus on E-E-A-T (Experience, Expertise, Authoritativeness, Trustworthiness)
 - Include image placement markers in the content: [IMAGE_1: descriptive prompt for image], [IMAGE_2: ...], [IMAGE_3: ...] — place them at natural breakpoints after key sections
 - Write content that is structured to appear in Google Featured Snippets, People Also Ask, and AI-generated search answers
+
+## SNIPPET-FIRST WRITING RULES (Critical for Featured Snippets & AI Citations)
+- Immediately after EVERY H2, write a direct, concise answer paragraph of 40-60 words. This is the paragraph Google pulls for Featured Snippets.
+- Use "What is X?" H2 patterns for key terms — follow with a 1-2 sentence definition. This wins definition snippets.
+- Include at least ONE markdown comparison table per article (e.g., destination comparison, package comparison, feature comparison). Tables win table snippets and are heavily cited by AI engines.
+- Use numbered lists for "How to..." or "Steps to..." sections — these win list snippets.
+- Write entity-rich content: explicitly mention named entities (brands, destinations, organizations like "UNWTO", "Saudi Tourism Authority", "Visit Dubai") so AI search engines can ground citations.
 
 Topics you excel at: halal travel, Muslim-friendly destinations, luxury DMC services, B2B travel technology, destination guides, travel industry trends, hospitality tech, group travel, MICE tourism, cultural tourism.`;
 
@@ -224,6 +231,14 @@ Deno.serve(async (req) => {
           if (research.competition_landscape?.content) {
             researchContext += `\n\n## Global Competition Landscape:\n${research.competition_landscape.content}`;
           }
+          // New: PAA & snippet data
+          if (research.paa_snippets?.content) {
+            researchContext += `\n\n## People Also Ask & Featured Snippet Data:\n${research.paa_snippets.content}`;
+          }
+          // New: AI engine citation patterns
+          if (research.ai_citations?.content) {
+            researchContext += `\n\n## AI Engine Citation Patterns (what ChatGPT/Gemini/Claude cite):\n${research.ai_citations.content}`;
+          }
           if (Array.isArray(research.regional_insights) && research.regional_insights.length > 0) {
             researchContext += `\n\n## Regional Insights:\n`;
             for (const regionInfo of research.regional_insights) {
@@ -239,6 +254,17 @@ Deno.serve(async (req) => {
           }
           researchContext += `\n\nTarget Region: ${research.targetRegion || "Global"}`;
           researchContext += `\nTarget Audience: ${research.targetAudience || "B2B travel agents"}`;
+
+          // Include citation URLs for inline references
+          const allCitations: string[] = [];
+          for (const key of ["serp_analysis", "industry_trends", "competitor_insights", "brand_positioning", "paa_snippets", "ai_citations"]) {
+            if (research[key]?.citations?.length) {
+              allCitations.push(...research[key].citations);
+            }
+          }
+          if (allCitations.length > 0) {
+            researchContext += `\n\n## Source URLs for Inline Citations (use these as [Source](url) references in the article for E-E-A-T):\n${[...new Set(allCitations)].slice(0, 15).map((u: string) => `- ${u}`).join("\n")}`;
+          }
         }
 
         let internalLinksContext = "";
@@ -254,38 +280,43 @@ Deno.serve(async (req) => {
           {
             role: "user",
             content: `Write a comprehensive, SEO-optimized blog article about: "${title || topic}".
-${researchContext ? `\nUse the following real-time research to inform your writing — cite statistics, address content gaps identified, and differentiate from competitor angles:\n${researchContext}\n` : ""}${internalLinksContext}${cannibalizationCtx}${clusterCtx}
+${researchContext ? `\nUse the following real-time research to inform your writing — cite statistics, address content gaps identified, and differentiate from competitor angles. Use the source URLs provided to add inline citations [Source](url) for E-E-A-T signals:\n${researchContext}\n` : ""}${internalLinksContext}${cannibalizationCtx}${clusterCtx}
 
-## REQUIRED ARTICLE STRUCTURE (follow this order for optimal UX and SEO)
+## REQUIRED ARTICLE STRUCTURE (follow this order for optimal UX, SEO, and AI citation)
 
 1. **Introduction** (2-3 short paragraphs)
    - Open with a hook (question, statistic, or compelling claim)
    - State what the reader will learn and why it matters
    - Include the primary keyword naturally in the first 100 words
 
-2. **Key Takeaways** (optional but recommended for articles over 1200 words)
-   - Add a brief bullet list of 3-5 main points right after the intro
+2. **Key Takeaways** (MANDATORY for all articles)
+   - Add a brief bullet list of 4-6 main points right after the intro
    - Format: ## Key Takeaways followed by - bullet points
-   - Helps scanners and improves time-on-page
+   - AI engines extract these as summaries — make them specific and data-rich
 
 3. **Main body** (well-structured sections)
    - Use descriptive H2 headings (##) that include target keywords where natural
+   - CRITICAL: Immediately after EVERY H2, write a direct answer paragraph (40-60 words) — this is what Google pulls for Featured Snippets
+   - Use "What is X?" H2 pattern for at least one key term definition
    - Use H3 (###) for subsections
    - Keep paragraphs short (2-4 sentences max) for scannability
-   - Include 3 image placement markers: [IMAGE_1: description], [IMAGE_2: description], [IMAGE_3: description] — place after key sections, not all at the end
-   - 5-10 high-authority external links to credible sources (government tourism sites, unwto.org, Wikipedia)
+   - Include at least ONE markdown comparison table (e.g. | Feature | Option A | Option B |)
+   - Include 3 image placement markers: [IMAGE_1: description], [IMAGE_2: description], [IMAGE_3: description]
+   - 5-10 high-authority external links with inline citations [Source Name](url)
    ${existingPosts?.length ? "- 3-7 internal links to existing blog posts where contextually relevant" : ""}
+   - Mention specific named entities (organizations, destinations, standards) for AI grounding
 
 4. **Frequently Asked Questions**
    - ## Frequently Asked Questions
-   - 3-5 questions as ### headings with concise answers (optimized for Featured Snippets and PAA)
-   - Use question format people actually search for
+   - 3-5 questions as ### headings — use EXACT questions people search for (from PAA data if available)
+   - Each answer must be 40-60 words (snippet-optimized length)
+   - Format answers as direct, factual responses
 
 5. **Conclusion**
-   - Summarize key points
+   - Summarize key points in 2-3 sentences
    - Clear call to action (e.g. contact, sign up, explore more)
 
-Make it 1500-2500 words. Use markdown throughout. Optimize for Featured Snippets, People Also Ask, and AI search.`,
+Make it ${clusterInfo?.post_type === "pillar" ? "2500-4000" : "1500-2500"} words. Use markdown throughout. Optimize for Featured Snippets, People Also Ask, and AI search engines (ChatGPT, Gemini, Claude, Perplexity).`,
           },
         ];
         break;
@@ -296,18 +327,34 @@ Make it 1500-2500 words. Use markdown throughout. Optimize for Featured Snippets
           { role: "system", content: SYSTEM_PROMPT },
           {
             role: "user",
-            content: `Improve the following blog content for better SEO, readability, and engagement. Maintain the core message but enhance the structure, add relevant keywords naturally, improve transitions, and ensure it follows GSO best practices.
+            content: `You are an SEO and GSO optimization specialist. Audit and improve the following blog content for maximum visibility in Google Featured Snippets, People Also Ask, and AI search engines (ChatGPT, Gemini, Claude).
 
-Ensure the content includes:
-- 5-10 high-authority external links to credible sources
-- Image placement markers [IMAGE_1: description], [IMAGE_2: description], [IMAGE_3: description] if not already present
-- An FAQ section formatted with ### headings if not already present
-- Content structured for Featured Snippets and People Also Ask
+## AUDIT CHECKLIST — Fix ALL of these:
+
+1. **Snippet Structure Audit**: Check every H2 heading. If it does NOT have a direct answer paragraph (40-60 words) immediately after it, ADD one. This is the #1 factor for Featured Snippet selection.
+
+2. **Key Takeaways**: If missing, add a "## Key Takeaways" section with 4-6 bullet points right after the introduction. AI engines extract these as summaries.
+
+3. **Entity Density Audit**: Ensure named entities (destinations, organizations like UNWTO, government tourism bodies, standards, brands) appear frequently. Add specific names where the content uses generic terms.
+
+4. **Comparison Table**: If no markdown table exists, ADD at least one comparison or data table. Tables win table snippets and are heavily cited by AI engines.
+
+5. **FAQ Optimization**: Ensure FAQ answers are exactly 40-60 words each (snippet-winning length). Rephrase questions to match how people actually search.
+
+6. **Definition Patterns**: Ensure content includes at least one "What is X?" pattern with a 1-2 sentence definition for key terms.
+
+7. **External Links**: Ensure 5-10 high-authority external links to credible sources exist. Add missing ones.
+
+8. **Image Markers**: Ensure [IMAGE_1], [IMAGE_2], [IMAGE_3] markers are present at natural breakpoints.
+
+9. **Cross-references**: Add "Related:" mentions between sections for better topical coverage signals.
+
+10. **Inline Citations**: Where statistics or data points are mentioned, add source references as [Source](url).
 
 Current content:
 ${content}
 
-Return the improved version in markdown format.`,
+Return the COMPLETE improved version in markdown format. Do not explain changes — just return the improved content.`,
           },
         ];
         break;
@@ -324,20 +371,24 @@ Return the improved version in markdown format.`,
           { role: "system", content: SYSTEM_PROMPT },
           {
             role: "user",
-            content: `Based on this blog content, generate full SEO metadata and taxonomy:
+            content: `Based on this blog content, generate comprehensive SEO metadata, taxonomy, and search optimization fields:
 
 Title: ${title}
-Content: ${content?.substring(0, 2500)}
+Content: ${content?.substring(0, 3000)}
 ${categoriesList}
 ${clustersList}
 
-Return:
-1. meta_title (under 60 chars)
-2. meta_description (under 160 chars)
+Return ALL of the following:
+1. meta_title (under 60 chars, include primary keyword)
+2. meta_description (under 160 chars, include CTA and keyword)
 3. meta_keywords (5-8 relevant SEO keywords)
-4. category_slug: the slug of the best-matching category from the list above, or empty string if none fit
-5. tags: 5-10 topic tags for filtering and discovery (can overlap with meta_keywords but add broader terms)
-6. suggested_cluster_name: the name of the best-matching content cluster from the list above, or empty string if none fit`,
+4. category_slug: the slug of the best-matching category from the list above, or empty string
+5. tags: 5-10 topic tags for filtering and discovery
+6. suggested_cluster_name: best-matching content cluster name, or empty string
+7. snippet_type: which Featured Snippet format this post should target — one of "definition", "list", "table", "paragraph", "video"
+8. paa_target: the primary People Also Ask question this post directly answers
+9. search_intent: classify as "informational", "commercial", "navigational", or "transactional"
+10. primary_keyword: the single most important keyword this post targets`,
           },
         ];
         tools = [
@@ -345,7 +396,7 @@ Return:
             type: "function",
             function: {
               name: "set_meta_tags",
-              description: "Set full SEO metadata and taxonomy for the blog post",
+              description: "Set comprehensive SEO metadata, taxonomy, and search optimization fields",
               parameters: {
                 type: "object",
                 properties: {
@@ -363,8 +414,12 @@ Return:
                     description: "5-10 topic tags for filtering",
                   },
                   suggested_cluster_name: { type: "string", description: "Name of best-matching content cluster, or empty if none fit" },
+                  snippet_type: { type: "string", enum: ["definition", "list", "table", "paragraph", "video"], description: "Target Featured Snippet format" },
+                  paa_target: { type: "string", description: "Primary People Also Ask question this post answers" },
+                  search_intent: { type: "string", enum: ["informational", "commercial", "navigational", "transactional"], description: "Search intent classification" },
+                  primary_keyword: { type: "string", description: "The single most important keyword this post targets" },
                 },
-                required: ["meta_title", "meta_description", "meta_keywords", "category_slug", "tags", "suggested_cluster_name"],
+                required: ["meta_title", "meta_description", "meta_keywords", "category_slug", "tags", "suggested_cluster_name", "snippet_type", "paa_target", "search_intent", "primary_keyword"],
                 additionalProperties: false,
               },
             },

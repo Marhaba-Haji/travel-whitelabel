@@ -28,12 +28,17 @@ interface BlogPostData {
   author_name: string | null;
   reading_time_minutes: number | null;
   published_at: string | null;
+  updated_at?: string | null;
   category: string | null;
   tags: string[] | null;
   views_count?: number;
   cluster_id?: string | null;
   post_type?: string;
   pillar_post_id?: string | null;
+  snippet_type?: string | null;
+  paa_target?: string | null;
+  search_intent?: string | null;
+  primary_keyword?: string | null;
 }
 
 interface RelatedPost {
@@ -62,7 +67,6 @@ interface FAQItem {
 // Extract FAQ items from markdown content for structured data
 function extractFAQs(content: string): FAQItem[] {
   const faqs: FAQItem[] = [];
-  // Look for ## Frequently Asked Questions section, then ### questions
   const faqSectionMatch = content.match(/##\s*Frequently Asked Questions\s*\n([\s\S]*?)(?=\n## [^#]|$)/i);
   if (!faqSectionMatch) return faqs;
 
@@ -77,6 +81,32 @@ function extractFAQs(content: string): FAQItem[] {
     }
   }
   return faqs;
+}
+
+// Extract HowTo steps from "How to..." sections
+function extractHowToSteps(content: string): { name: string; text: string }[] | null {
+  const howtoMatch = content.match(/##\s*How to .+?\n([\s\S]*?)(?=\n## [^#]|$)/i);
+  if (!howtoMatch) return null;
+  const steps: { name: string; text: string }[] = [];
+  const stepRegex = /(?:^|\n)\d+\.\s+\*\*(.+?)\*\*[:\s]*(.+?)(?=\n\d+\.|$)/gs;
+  let m;
+  while ((m = stepRegex.exec(howtoMatch[1])) !== null) {
+    steps.push({ name: m[1].trim(), text: m[2].trim() });
+  }
+  return steps.length >= 2 ? steps : null;
+}
+
+// Extract numbered list items for ItemList schema
+function extractItemList(content: string): string[] | null {
+  const listMatch = content.match(/##\s*.+?\n((?:\d+\.\s+.+\n?){3,})/);
+  if (!listMatch) return null;
+  const items: string[] = [];
+  const itemRegex = /\d+\.\s+\*?\*?(.+?)(?:\*?\*?\n|$)/g;
+  let m;
+  while ((m = itemRegex.exec(listMatch[1])) !== null) {
+    items.push(m[1].replace(/\*\*/g, "").trim());
+  }
+  return items.length >= 3 ? items : null;
 }
 
 const BlogPost = () => {
@@ -199,19 +229,32 @@ const BlogPost = () => {
 
     if (post.meta_description) setMeta("description", post.meta_description);
     if (post.meta_keywords?.length) setMeta("keywords", post.meta_keywords.join(", "));
+    
+    // Robots meta for maximum snippet extraction
+    setMeta("robots", "max-snippet:-1, max-image-preview:large, max-video-preview:-1");
+    
+    // Open Graph
     setMeta("og:title", post.meta_title || post.title, true);
     if (post.meta_description) setMeta("og:description", post.meta_description, true);
     setMeta("og:type", "article", true);
     setMeta("og:url", window.location.href, true);
     if (post.og_image_url || post.cover_image_url) setMeta("og:image", post.og_image_url || post.cover_image_url!, true);
-    // Additional article meta
+    
+    // Twitter Card meta
+    setMeta("twitter:card", "summary_large_image");
+    setMeta("twitter:title", post.meta_title || post.title);
+    if (post.meta_description) setMeta("twitter:description", post.meta_description);
+    if (post.og_image_url || post.cover_image_url) setMeta("twitter:image", post.og_image_url || post.cover_image_url!);
+    
+    // Article meta
     if (post.category) setMeta("article:section", post.category, true);
     if (post.tags?.length) post.tags.forEach((tag) => setMeta("article:tag", tag, true));
     if (post.published_at) setMeta("article:published_time", post.published_at, true);
+    if (post.updated_at) setMeta("article:modified_time", post.updated_at, true);
 
     const scripts: HTMLScriptElement[] = [];
 
-    // 1. Article + speakable JSON-LD
+    // 1. Article + speakable JSON-LD with enhanced fields
     const articleSchema: any = {
       "@context": "https://schema.org",
       "@type": "Article",
@@ -226,11 +269,12 @@ const BlogPost = () => {
         logo: { "@type": "ImageObject", url: "https://marhabadmc.com/assets/marhaba-dmc-logo.png" },
       },
       datePublished: post.published_at,
-      dateModified: post.published_at,
+      dateModified: post.updated_at || post.published_at,
       url: window.location.href,
       mainEntityOfPage: { "@type": "WebPage", "@id": window.location.href },
       wordCount: post.content.split(/\s+/).length,
       timeRequired: `PT${post.reading_time_minutes || 1}M`,
+      inLanguage: "en",
       speakable: {
         "@type": "SpeakableSpecification",
         cssSelector: ["article h1", "article .prose p:first-of-type"],
@@ -239,6 +283,12 @@ const BlogPost = () => {
     };
     if (post.category) {
       articleSchema.articleSection = post.category;
+    }
+    // Entity mentions from tags/keywords
+    if (post.tags?.length || post.meta_keywords?.length) {
+      const entities = [...new Set([...(post.tags || []), ...(post.meta_keywords || [])])];
+      articleSchema.about = entities.slice(0, 5).map((e) => ({ "@type": "Thing", name: e }));
+      articleSchema.mentions = entities.slice(0, 10).map((e) => ({ "@type": "Thing", name: e }));
     }
 
     const articleScript = document.createElement("script");
@@ -295,6 +345,71 @@ const BlogPost = () => {
       document.head.appendChild(faqScript);
       scripts.push(faqScript);
     }
+
+    // 4. HowTo JSON-LD (auto-detect "How to..." sections)
+    const howToSteps = extractHowToSteps(post.content);
+    if (howToSteps) {
+      const howToMatch = post.content.match(/##\s*(How to .+?)(?:\n|$)/i);
+      const howToSchema = {
+        "@context": "https://schema.org",
+        "@type": "HowTo",
+        name: howToMatch?.[1] || post.title,
+        description: post.meta_description || post.excerpt || "",
+        step: howToSteps.map((s, i) => ({
+          "@type": "HowToStep",
+          position: i + 1,
+          name: s.name,
+          text: s.text,
+        })),
+      };
+      const howToScript = document.createElement("script");
+      howToScript.type = "application/ld+json";
+      howToScript.textContent = JSON.stringify(howToSchema);
+      document.head.appendChild(howToScript);
+      scripts.push(howToScript);
+    }
+
+    // 5. ItemList JSON-LD (for listicle posts with numbered lists)
+    const listItems = extractItemList(post.content);
+    if (listItems) {
+      const itemListSchema = {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        name: post.title,
+        numberOfItems: listItems.length,
+        itemListElement: listItems.map((item, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          name: item,
+        })),
+      };
+      const itemListScript = document.createElement("script");
+      itemListScript.type = "application/ld+json";
+      itemListScript.textContent = JSON.stringify(itemListSchema);
+      document.head.appendChild(itemListScript);
+      scripts.push(itemListScript);
+    }
+
+    // 6. WebPage schema with speakable
+    const webPageSchema = {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      name: post.meta_title || post.title,
+      description: post.meta_description || post.excerpt || "",
+      url: window.location.href,
+      inLanguage: "en",
+      isPartOf: { "@type": "WebSite", name: "Marhaba DMC", url: "https://marhabadmc.com" },
+      speakable: {
+        "@type": "SpeakableSpecification",
+        cssSelector: ["article h1", "article .blog-prose > p:first-of-type"],
+      },
+      primaryImageOfPage: post.cover_image_url ? { "@type": "ImageObject", url: post.cover_image_url } : undefined,
+    };
+    const webPageScript = document.createElement("script");
+    webPageScript.type = "application/ld+json";
+    webPageScript.textContent = JSON.stringify(webPageSchema);
+    document.head.appendChild(webPageScript);
+    scripts.push(webPageScript);
 
     return () => {
       scripts.forEach((s) => {
