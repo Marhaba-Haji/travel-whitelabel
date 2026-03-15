@@ -81,7 +81,27 @@ serve(async (req) => {
       });
     }
 
-    // 4. Brand & competition landscape (full mode)
+    // NEW: 4. PAA & Featured Snippet extraction
+    queries.push({
+      key: "paa_snippets",
+      ...buildPAASnippetQuery(topic),
+      options: {
+        search_recency_filter: "month",
+        web_search_options: { search_context_size: "high" },
+      },
+    });
+
+    // NEW: 5. AI Engine citation analysis
+    queries.push({
+      key: "ai_citations",
+      ...buildAICitationQuery(topic),
+      options: {
+        search_recency_filter: "month",
+        web_search_options: { search_context_size: "high" },
+      },
+    });
+
+    // 6. Brand & competition landscape (full mode)
     if (researchDepth === "full") {
       queries.push({
         key: "brand_positioning",
@@ -161,6 +181,8 @@ serve(async (req) => {
     let competitor_insights: any = null;
     let brand_positioning: any = null;
     let competition_landscape: any = null;
+    let paa_snippets: any = null;
+    let ai_citations: any = null;
     const regionalInsightsMap: Record<
       string,
       { region: string; country_code?: string; serp_content?: string; market_content?: string }
@@ -185,6 +207,12 @@ serve(async (req) => {
           break;
         case "competition_landscape":
           competition_landscape = value;
+          break;
+        case "paa_snippets":
+          paa_snippets = value;
+          break;
+        case "ai_citations":
+          ai_citations = value;
           break;
         case "regional_serp":
         case "regional_market": {
@@ -216,6 +244,8 @@ serve(async (req) => {
       regional_insights,
       brand_positioning,
       competition_landscape,
+      paa_snippets,
+      ai_citations,
       topic,
       targetRegion: targetRegion || "Global",
       targetAudience: targetAudience || "B2B travel agents and tour operators",
@@ -279,6 +309,47 @@ Provide:
 3. What keywords do they target?
 4. What are their content strengths and weaknesses?
 5. How can Marhaba DMC differentiate its content to stand out?`,
+  };
+}
+
+function buildPAASnippetQuery(topic: string) {
+  return {
+    systemPrompt:
+      "You are a Google SERP feature specialist. Your job is to extract the exact People Also Ask questions, Featured Snippet content, and Related Searches for a given topic. Be specific and data-driven.",
+    query: `For the topic "${topic}", provide a comprehensive analysis of Google SERP features:
+
+1. **People Also Ask (PAA)**: List the exact 8-12 PAA questions that appear when searching for this topic and closely related queries. Format each as the exact question.
+
+2. **Current Featured Snippets**: For each PAA question and the main topic query, describe:
+   - What type of snippet currently appears (paragraph, list, table, or none)
+   - Which website currently holds the snippet
+   - The approximate length and format of the winning snippet
+
+3. **Related Searches**: List the 8-10 "Related Searches" that appear at the bottom of Google results for this topic.
+
+4. **Snippet Opportunities**: Identify which questions/queries have WEAK or MISSING featured snippets that a well-structured article could win.
+
+5. **Optimal Answer Format**: For each snippet opportunity, specify the ideal format (40-60 word paragraph, numbered list, comparison table, or definition) to win that snippet.`,
+  };
+}
+
+function buildAICitationQuery(topic: string) {
+  return {
+    systemPrompt:
+      "You are an AI search optimization specialist who analyzes how AI-powered search engines (ChatGPT, Google Gemini, Claude, Perplexity) answer questions and which sources they cite. Provide actionable insights for content that gets cited by AI engines.",
+    query: `Analyze how AI search engines currently answer questions about "${topic}":
+
+1. **AI Answer Patterns**: When users ask ChatGPT, Gemini, or Perplexity about "${topic}", what structure do the AI responses typically follow? (e.g., definition first, then list, then comparison)
+
+2. **Cited Sources**: What types of content and which specific websites do AI engines tend to cite when answering about this topic? List specific domains and content types.
+
+3. **Content Characteristics**: What characteristics make content more likely to be cited by AI engines? (e.g., clear definitions, structured data, comparison tables, FAQ sections, authoritative tone)
+
+4. **Entity Mentions**: What specific named entities (organizations, standards, certifications, destinations) do AI engines consistently mention when discussing this topic?
+
+5. **Citation-Winning Structure**: Recommend the optimal article structure (headings, sections, data formats) that would maximize the chance of being cited as a source by ChatGPT, Gemini, Claude, and Perplexity when users ask about this topic.
+
+6. **Gap Analysis**: What information about this topic do AI engines currently struggle to answer well or provide incomplete answers for? These are opportunities for new authoritative content.`,
   };
 }
 
