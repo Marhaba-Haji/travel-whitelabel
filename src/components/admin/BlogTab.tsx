@@ -586,7 +586,7 @@ const BlogTab = () => {
   };
 
   const openNew = () => {
-    setCurrentPost({ title: "", slug: "", content: "", excerpt: "", status: "draft", cover_image_url: "", meta_title: "", meta_description: "", meta_keywords: [], og_image_url: "", author_name: "Marhaba DMC", category: "", tags: [], cluster_id: null, post_type: "standard", pillar_post_id: null });
+    setCurrentPost({ title: "", slug: "", content: "", excerpt: "", status: "draft", cover_image_url: "", meta_title: "", meta_description: "", meta_keywords: [], og_image_url: "", author_name: "Marhaba DMC", category: "", tags: [], cluster_id: null, post_type: "standard", pillar_post_id: null, snippet_type: null, paa_target: null, search_intent: null, primary_keyword: null });
     setCannibalizationWarnings([]);
     setEditing(true);
   };
