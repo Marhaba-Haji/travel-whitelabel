@@ -17,7 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Plus, Edit, Trash2, Eye, Sparkles, FileText, Tags, Lightbulb,
   BookOpen, Wand2, Loader2, ArrowLeft, Copy, Search, Globe, Users,
-  Settings, Target, TrendingUp, Link2, Image, AlertTriangle, Layers, Pin, Zap,
+  Settings, Target, TrendingUp, Link2, Image, AlertTriangle, Layers, Pin, Zap, Send, RefreshCw,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ReactMarkdown from "react-markdown";
@@ -143,6 +143,8 @@ const BlogTab = () => {
   const [cannibalizationWarnings, setCannibalizationWarnings] = useState<CannibalizationOverlap[]>([]);
   const [imageGenLoading, setImageGenLoading] = useState(false);
   const [pipelineStep, setPipelineStep] = useState<string | null>(null);
+  const [reindexLoading, setReindexLoading] = useState(false);
+  const [submitIndexLoading, setSubmitIndexLoading] = useState<string | null>(null);
   const pipelineCancelledRef = useRef(false);
   const currentPostRef = useRef(currentPost);
   currentPostRef.current = currentPost;
@@ -663,6 +665,41 @@ const BlogTab = () => {
     else { toast({ title: "Post deleted" }); fetchPosts(); }
   };
 
+  const reindexEntireSite = async () => {
+    setReindexLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("indexnow", {
+        body: { action: "bulk" },
+      });
+      if (error) throw error;
+      const r = data?.results;
+      toast({
+        title: "🌐 Full site re-index submitted!",
+        description: `${r?.total_urls || 0} URLs sent to Google, Bing, Yandex + sitemap pinged.`,
+      });
+    } catch (e: any) {
+      toast({ title: "Re-index failed", description: e.message, variant: "destructive" });
+    } finally {
+      setReindexLoading(false);
+    }
+  };
+
+  const submitPostToSearchEngines = async (post: BlogPost) => {
+    setSubmitIndexLoading(post.id);
+    try {
+      const postUrl = `https://marhabadmc.com/blog/${post.slug}`;
+      const { data, error } = await supabase.functions.invoke("indexnow", {
+        body: { urls: [postUrl] },
+      });
+      if (error) throw error;
+      toast({ title: "📡 Submitted to search engines", description: `${post.title} sent to Google + Bing for indexing.` });
+    } catch (e: any) {
+      toast({ title: "Submit failed", description: e.message, variant: "destructive" });
+    } finally {
+      setSubmitIndexLoading(null);
+    }
+  };
+
   // Build cluster context for AI
   const getClusterContext = useCallback(() => {
     if (!currentPost?.cluster_id) return undefined;
@@ -1000,6 +1037,10 @@ const BlogTab = () => {
                 <p className="text-sm text-muted-foreground">{posts.length} posts total</p>
               </div>
               <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={reindexEntireSite} disabled={reindexLoading}>
+                  {reindexLoading ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <RefreshCw className="h-4 w-4 mr-1" />}
+                  Re-index Entire Site
+                </Button>
                 <Button variant="outline" size="sm" onClick={relinkAllPosts} disabled={!!interlinkLoading || posts.filter(p => p.status === "published").length < 2}>
                   {interlinkLoading ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Link2 className="h-4 w-4 mr-1" />}
                   Re-link All
@@ -1068,6 +1109,9 @@ const BlogTab = () => {
                               </Button>
                               <Button variant="ghost" size="icon" onClick={() => interlinkPost(post)} disabled={!!interlinkLoading} title="Add internal links">
                                 {interlinkLoading === post.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Link2 className="h-4 w-4" />}
+                              </Button>
+                              <Button variant="ghost" size="icon" onClick={() => submitPostToSearchEngines(post)} disabled={!!submitIndexLoading} title="Submit to search engines">
+                                {submitIndexLoading === post.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                               </Button>
                             </>
                           )}
