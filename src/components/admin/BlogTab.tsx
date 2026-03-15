@@ -143,6 +143,8 @@ const BlogTab = () => {
   const [cannibalizationWarnings, setCannibalizationWarnings] = useState<CannibalizationOverlap[]>([]);
   const [imageGenLoading, setImageGenLoading] = useState(false);
   const [pipelineStep, setPipelineStep] = useState<string | null>(null);
+  const [reindexLoading, setReindexLoading] = useState(false);
+  const [submitIndexLoading, setSubmitIndexLoading] = useState<string | null>(null);
   const pipelineCancelledRef = useRef(false);
   const currentPostRef = useRef(currentPost);
   currentPostRef.current = currentPost;
