@@ -665,6 +665,41 @@ const BlogTab = () => {
     else { toast({ title: "Post deleted" }); fetchPosts(); }
   };
 
+  const reindexEntireSite = async () => {
+    setReindexLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("indexnow", {
+        body: { action: "bulk" },
+      });
+      if (error) throw error;
+      const r = data?.results;
+      toast({
+        title: "🌐 Full site re-index submitted!",
+        description: `${r?.total_urls || 0} URLs sent to Google, Bing, Yandex + sitemap pinged.`,
+      });
+    } catch (e: any) {
+      toast({ title: "Re-index failed", description: e.message, variant: "destructive" });
+    } finally {
+      setReindexLoading(false);
+    }
+  };
+
+  const submitPostToSearchEngines = async (post: BlogPost) => {
+    setSubmitIndexLoading(post.id);
+    try {
+      const postUrl = `https://marhabadmc.com/blog/${post.slug}`;
+      const { data, error } = await supabase.functions.invoke("indexnow", {
+        body: { urls: [postUrl] },
+      });
+      if (error) throw error;
+      toast({ title: "📡 Submitted to search engines", description: `${post.title} sent to Google + Bing for indexing.` });
+    } catch (e: any) {
+      toast({ title: "Submit failed", description: e.message, variant: "destructive" });
+    } finally {
+      setSubmitIndexLoading(null);
+    }
+  };
+
   // Build cluster context for AI
   const getClusterContext = useCallback(() => {
     if (!currentPost?.cluster_id) return undefined;
