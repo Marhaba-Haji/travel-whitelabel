@@ -45,6 +45,10 @@ interface BlogPost {
   cluster_id: string | null;
   post_type: string;
   pillar_post_id: string | null;
+  snippet_type: string | null;
+  paa_target: string | null;
+  search_intent: string | null;
+  primary_keyword: string | null;
 }
 
 interface BlogCategory {
