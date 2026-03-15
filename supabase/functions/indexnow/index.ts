@@ -7,6 +7,12 @@ const corsHeaders = {
 };
 
 const SITE_URL = "https://marhabadmc.com";
+const SITEMAP_URL = `${Deno.env.get("SUPABASE_URL")}/functions/v1/sitemap`;
+
+const STATIC_PAGES = [
+  "/", "/about", "/blog", "/signup", "/categories-destinations",
+  "/privacy-policy", "/terms-of-service", "/refund-policy",
+];
 
 function getSupabaseServiceClient() {
   return createClient(
@@ -78,14 +84,124 @@ async function getGoogleAccessToken(saKey: any): Promise<string> {
   return tokenBody.access_token;
 }
 
+// Ping search engines with sitemap URL
+async function pingSitemap(supabase: any): Promise<Record<string, any>> {
+  const pingResults: Record<string, any> = {};
+  const targets = [
+    { name: "google", url: `https://www.google.com/ping?sitemap=${encodeURIComponent(SITEMAP_URL)}` },
+    { name: "bing", url: `https://www.bing.com/ping?sitemap=${encodeURIComponent(SITEMAP_URL)}` },
+    { name: "yandex", url: `https://yandex.com/ping?sitemap=${encodeURIComponent(SITEMAP_URL)}` },
+  ];
+
+  for (const target of targets) {
+    try {
+      const res = await fetch(target.url);
+      pingResults[target.name] = { status: res.status, ok: res.ok };
+      await logIndexing(supabase, SITEMAP_URL, `${target.name}_sitemap_ping`, "sitemap_ping", res.status, { ok: res.ok });
+    } catch (e: any) {
+      pingResults[target.name] = { error: e.message };
+      await logIndexing(supabase, SITEMAP_URL, `${target.name}_sitemap_ping`, "sitemap_ping", undefined, undefined, e.message);
+    }
+  }
+  return pingResults;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { urls, action = "updated" } = await req.json();
+    const body = await req.json();
+    const { urls, action = "updated" } = body;
+    const supabase = getSupabaseServiceClient();
 
+    // --- BULK MODE: fetch all published URLs and submit everything ---
+    if (action === "bulk") {
+      const { data: posts } = await supabase
+        .from("blog_posts")
+        .select("slug")
+        .eq("status", "published");
+
+      const allUrls = [
+        ...STATIC_PAGES.map((p) => `${SITE_URL}${p}`),
+        ...((posts || []).map((p: any) => `${SITE_URL}/blog/${p.slug}`)),
+      ];
+
+      // Submit all to IndexNow + Google + sitemap ping
+      const results: any = { total_urls: allUrls.length, indexnow: null, google: null, sitemap_ping: null };
+
+      // IndexNow (supports bulk array natively)
+      const indexNowKey = Deno.env.get("INDEXNOW_KEY");
+      if (indexNowKey) {
+        try {
+          const res = await fetch("https://api.indexnow.org/indexnow", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              host: new URL(SITE_URL).host,
+              key: indexNowKey,
+              keyLocation: `${SITE_URL}/${indexNowKey}.txt`,
+              urlList: allUrls,
+            }),
+          });
+          results.indexnow = { status: res.status, ok: res.ok, url_count: allUrls.length };
+          for (const url of allUrls) {
+            await logIndexing(supabase, url, "indexnow", "bulk", res.status, { ok: res.ok });
+          }
+        } catch (e: any) {
+          results.indexnow = { error: e.message };
+        }
+      }
+
+      // Google Indexing API (one by one, rate limited)
+      const googleSaKeyStr = Deno.env.get("GOOGLE_INDEXING_SA_KEY");
+      if (googleSaKeyStr) {
+        try {
+          const saKey = JSON.parse(googleSaKeyStr);
+          const accessToken = await getGoogleAccessToken(saKey);
+          let submitted = 0;
+          let errors = 0;
+          for (const url of allUrls) {
+            try {
+              const res = await fetch("https://indexing.googleapis.com/v3/urlNotifications:publish", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${accessToken}`,
+                },
+                body: JSON.stringify({ url, type: "URL_UPDATED" }),
+              });
+              const respBody = await res.json();
+              await logIndexing(supabase, url, "google", "bulk", res.status, respBody, res.ok ? undefined : JSON.stringify(respBody));
+              if (res.ok) submitted++; else errors++;
+            } catch {
+              errors++;
+            }
+          }
+          results.google = { submitted, errors, total: allUrls.length };
+        } catch (e: any) {
+          results.google = { error: e.message };
+        }
+      }
+
+      // Sitemap ping
+      results.sitemap_ping = await pingSitemap(supabase);
+
+      return new Response(JSON.stringify({ success: true, results }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // --- SITEMAP PING ONLY MODE ---
+    if (action === "sitemap_ping") {
+      const pingResults = await pingSitemap(supabase);
+      return new Response(JSON.stringify({ success: true, results: { sitemap_ping: pingResults } }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // --- STANDARD MODE: submit specific URLs ---
     if (!urls?.length) {
       return new Response(JSON.stringify({ error: "No URLs provided" }), {
         status: 400,
@@ -93,8 +209,7 @@ serve(async (req) => {
       });
     }
 
-    const supabase = getSupabaseServiceClient();
-    const results: any = { indexnow: null, google: null };
+    const results: any = { indexnow: null, google: null, sitemap_ping: null };
 
     // --- IndexNow (Bing/Yandex) ---
     const indexNowKey = Deno.env.get("INDEXNOW_KEY");
@@ -110,11 +225,11 @@ serve(async (req) => {
             urlList: urls,
           }),
         });
-        const body = await res.text();
+        const resBody = await res.text();
         results.indexnow = { status: res.status, ok: res.ok };
 
         for (const url of urls) {
-          await logIndexing(supabase, url, "indexnow", action, res.status, { ok: res.ok, body }, undefined);
+          await logIndexing(supabase, url, "indexnow", action, res.status, { ok: res.ok, body: resBody }, undefined);
         }
       } catch (e: any) {
         console.error("IndexNow error:", e);
@@ -145,9 +260,9 @@ serve(async (req) => {
             },
             body: JSON.stringify({ url, type }),
           });
-          const body = await res.json();
-          googleResults.push({ url, status: res.status, response: body });
-          await logIndexing(supabase, url, "google", action, res.status, body, res.ok ? undefined : JSON.stringify(body));
+          const respBody = await res.json();
+          googleResults.push({ url, status: res.status, response: respBody });
+          await logIndexing(supabase, url, "google", action, res.status, respBody, res.ok ? undefined : JSON.stringify(respBody));
         }
         results.google = googleResults;
       } catch (e: any) {
@@ -160,6 +275,9 @@ serve(async (req) => {
     } else {
       results.google = { skipped: "GOOGLE_INDEXING_SA_KEY not configured" };
     }
+
+    // --- Always ping sitemap after URL submissions ---
+    results.sitemap_ping = await pingSitemap(supabase);
 
     return new Response(JSON.stringify({ success: true, results }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
