@@ -28,12 +28,17 @@ interface BlogPostData {
   author_name: string | null;
   reading_time_minutes: number | null;
   published_at: string | null;
+  updated_at?: string | null;
   category: string | null;
   tags: string[] | null;
   views_count?: number;
   cluster_id?: string | null;
   post_type?: string;
   pillar_post_id?: string | null;
+  snippet_type?: string | null;
+  paa_target?: string | null;
+  search_intent?: string | null;
+  primary_keyword?: string | null;
 }
 
 interface RelatedPost {
