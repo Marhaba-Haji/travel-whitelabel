@@ -1110,6 +1110,9 @@ const BlogTab = () => {
                               <Button variant="ghost" size="icon" onClick={() => interlinkPost(post)} disabled={!!interlinkLoading} title="Add internal links">
                                 {interlinkLoading === post.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Link2 className="h-4 w-4" />}
                               </Button>
+                              <Button variant="ghost" size="icon" onClick={() => submitPostToSearchEngines(post)} disabled={!!submitIndexLoading} title="Submit to search engines">
+                                {submitIndexLoading === post.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                              </Button>
                             </>
                           )}
                           <Button variant="ghost" size="icon" onClick={() => openEdit(post)}>
