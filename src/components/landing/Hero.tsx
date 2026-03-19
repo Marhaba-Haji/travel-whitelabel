@@ -8,16 +8,16 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import TypewriterText from "@/components/TypewriterText";
 import AnimatedCounter from "@/components/AnimatedCounter";
+import RotatingHeroHeadline from "@/components/landing/RotatingHeroHeadline";
 
-const ROTATING_BENEFITS = [
-  "Be Your Own Boss",
-  "Earning Potential: ₹50,000+/mo",
-  "Travel at Insider Rates",
-  "Work From Anywhere",
-  "Launch-Ready in 24 Hours",
-  "Build Your Dream Business",
+const HERO_SUBLINE = "White-label platform. Zero setup cost. Real inventory.";
+
+const HERO_HEADLINE_ROTATIONS: { before: string; highlight: string; after: string }[] = [
+  { before: "Start Your Own", highlight: "Travel Agency", after: "in 24 Hours" },
+  { before: "Scale Your", highlight: "Travel Agency", after: "Without the Overhead" },
+  { before: "Launch Your", highlight: "Travel Brand", after: "in 24 Hours" },
+  { before: "Grow Your", highlight: "Agency Revenue", after: "On One Platform" },
 ];
 
 const Hero = () => {
@@ -40,24 +40,11 @@ const Hero = () => {
       >
         {/* =========== MOBILE LAYOUT (centered, single column) =========== */}
         <div className="flex flex-col items-center text-center lg:hidden">
-          <h1 className="text-[2.5rem] md:text-5xl font-bold text-foreground leading-[1.1] mb-3">
-            Start Your Own
-            <span className="block aurora-gradient-text animate-gradient-shift bg-[length:200%_auto] italic py-1">
-              Travel Agency
-            </span>
-            in 24 Hours
-          </h1>
+          <RotatingHeroHeadline headlines={HERO_HEADLINE_ROTATIONS} variant="mobile" />
 
-          <div className="text-lg text-muted-foreground mb-6 min-h-[1.75rem] flex items-center justify-center">
-            <TypewriterText
-              words={ROTATING_BENEFITS}
-              className="text-muted-foreground font-medium"
-              typingSpeed={80}
-              deletingSpeed={40}
-              pauseDuration={3000}
-              pausePerChar={100}
-            />
-          </div>
+          <p className="text-lg text-muted-foreground -mt-0.5 mb-6 font-medium">
+            {HERO_SUBLINE}
+          </p>
 
           {/* Hero illustration — screen blend makes dark bg invisible */}
           <div className="relative -mx-6 mb-4">
@@ -106,24 +93,11 @@ const Hero = () => {
         <div className="hidden lg:grid lg:grid-cols-[1fr_1.1fr] gap-8 xl:gap-12 items-center">
           {/* Left — Text & CTA */}
           <div className="text-left">
-            <h1 className="text-6xl xl:text-7xl font-bold text-foreground leading-[1.08] mb-4">
-              Start Your Own
-              <span className="block aurora-gradient-text animate-gradient-shift bg-[length:200%_auto] italic py-1">
-                Travel Agency
-              </span>
-              in 24 Hours
-            </h1>
+            <RotatingHeroHeadline headlines={HERO_HEADLINE_ROTATIONS} variant="desktop" />
 
-            <div className="text-xl text-muted-foreground mb-8 min-h-[2rem] flex items-center">
-              <TypewriterText
-                words={ROTATING_BENEFITS}
-                className="text-muted-foreground font-medium"
-                typingSpeed={80}
-                deletingSpeed={40}
-                pauseDuration={3000}
-                pausePerChar={100}
-              />
-            </div>
+            <p className="text-xl text-muted-foreground -mt-0.5 mb-8 font-medium">
+              {HERO_SUBLINE}
+            </p>
 
             {/* Trust stats row */}
             <div className="flex flex-wrap items-center gap-4 mb-8">

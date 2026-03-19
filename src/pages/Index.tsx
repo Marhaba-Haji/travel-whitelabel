@@ -7,6 +7,7 @@ import Header from "@/components/landing/Header";
 import Hero from "@/components/landing/Hero";
 
 // Below-the-fold: lazy load to reduce initial JS bundle and improve TTI
+const HeroBenefits = lazy(() => import("@/components/landing/HeroBenefits"));
 const TrustedBy = lazy(() => import("@/components/landing/TrustedBy"));
 const Stats = lazy(() => import("@/components/landing/Stats"));
 const Features = lazy(() => import("@/components/landing/Features"));
@@ -42,6 +43,7 @@ const Index = () => {
         <Suspense fallback={null}>
           <TrustedBy />
           <Stats />
+          <HeroBenefits />
           <Features />
           <CompetitiveEdge />
           <ProductShowcase />
