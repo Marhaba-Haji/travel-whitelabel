@@ -33,9 +33,6 @@ const Signup = () => {
     <div className="min-h-screen flex items-center justify-center relative overflow-x-hidden bg-background">
       {/* Aurora Dynamic gradient background */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_hsl(270_70%_58%_/_0.1),_transparent_50%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_hsl(210_100%_50%_/_0.06),_transparent_50%)]" />
-      <div className="absolute top-20 right-10 w-72 h-72 bg-aurora-purple/15 rounded-full blur-3xl animate-pulse-soft pointer-events-none" />
-      <div className="absolute bottom-20 left-10 w-96 h-96 bg-aurora-blue/10 rounded-full blur-3xl animate-pulse-soft pointer-events-none" style={{ animationDelay: "1s" }} />
 
       <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start min-w-0">

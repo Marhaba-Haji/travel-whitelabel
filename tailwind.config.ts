@@ -42,10 +42,6 @@ export default {
           DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",
         },
-        gold: {
-          DEFAULT: "hsl(var(--gold))",
-          foreground: "hsl(var(--gold-foreground))",
-        },
         aurora: {
           purple: "hsl(var(--aurora-purple))",
           blue: "hsl(var(--aurora-blue))",

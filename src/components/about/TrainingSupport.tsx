@@ -2,13 +2,7 @@ import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { Button } from "@/components/ui/button";
 import { GraduationCap, Briefcase, Monitor, TrendingUp, Megaphone, Award, CheckCircle2, ArrowRight } from "lucide-react";
 
-const STEP_GRADIENTS = [
-  "from-aurora-blue to-aurora-teal",
-  "from-aurora-purple to-aurora-blue",
-  "from-aurora-teal to-emerald-500",
-  "from-aurora-pink to-aurora-purple",
-  "from-aurora-blue to-aurora-purple",
-];
+import { getAuroraGradient } from "@/lib/design-tokens";
 
 const TrainingSupport = () => {
   const { ref, isVisible } = useScrollAnimation();
@@ -25,10 +19,6 @@ const TrainingSupport = () => {
     <section className="py-24 relative overflow-hidden">
       {/* Aurora background */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_hsl(175_70%_45%_/_0.05),_transparent_50%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_hsl(270_70%_58%_/_0.04),_transparent_50%)]" />
-
-      <div className="absolute top-10 left-20 w-60 h-60 bg-aurora-teal/7 rounded-full blur-3xl pointer-events-none animate-pulse-soft" />
-      <div className="absolute bottom-10 right-10 w-72 h-72 bg-aurora-purple/5 rounded-full blur-3xl pointer-events-none animate-pulse-soft" style={{ animationDelay: "1.5s" }} />
 
       <div className="container mx-auto px-4 relative z-10">
         <div
@@ -63,10 +53,10 @@ const TrainingSupport = () => {
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
                   <div className="group glass-card rounded-2xl p-6 text-center hover:shadow-xl hover:border-white/20 transition-all duration-300">
-                    <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${STEP_GRADIENTS[index]} text-white text-sm font-bold flex items-center justify-center mx-auto mb-4 shadow-lg`}>
+                    <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${getAuroraGradient(index)} text-white text-sm font-bold flex items-center justify-center mx-auto mb-4 shadow-lg`}>
                       {training.step}
                     </div>
-                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${STEP_GRADIENTS[index]} flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${getAuroraGradient(index)} flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                       <training.icon className="w-6 h-6 text-white" />
                     </div>
                     <h3 className="font-bold text-foreground mb-2 text-sm">{training.title}</h3>
@@ -80,7 +70,7 @@ const TrainingSupport = () => {
           {/* Certification Badge */}
           <div className="glass-card rounded-2xl p-8 mb-10">
             <div className="flex items-center justify-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-aurora-pink to-aurora-purple flex items-center justify-center shadow-lg">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-aurora-purple to-aurora-blue flex items-center justify-center shadow-lg">
                 <Award className="w-5 h-5 text-white" />
               </div>
               <h3 className="text-xl font-bold text-foreground">Certification Program</h3>
@@ -107,7 +97,7 @@ const TrainingSupport = () => {
             <div className="glass-card rounded-2xl p-8 max-w-3xl mx-auto">
               <p className="text-foreground text-lg font-medium mb-2">
                 Our goal is not just to provide tools—but to ensure partners can
-                <span className="aurora-gradient-text animate-text-shimmer bg-[length:200%_auto] font-semibold"> use them effectively</span>.
+                <span className="aurora-gradient-text-static font-semibold"> use them effectively</span>.
               </p>
               <p className="text-muted-foreground text-sm">
                 Every partner receives personalized onboarding, ongoing support, and access to our knowledge base.
@@ -119,7 +109,7 @@ const TrainingSupport = () => {
             <Button
               size="lg"
               asChild
-              className="rounded-full px-8 bg-gradient-to-r from-aurora-blue via-primary to-aurora-blue bg-[length:200%_auto] animate-gradient-shift shadow-[0_0_20px_hsl(210_100%_50%_/_0.2)] hover:shadow-[0_0_30px_hsl(210_100%_50%_/_0.3)] transition-shadow"
+              className="rounded-full px-8 bg-gradient-to-r from-aurora-blue via-primary to-aurora-blue shadow-[0_0_20px_hsl(210_100%_50%_/_0.2)] hover:shadow-[0_0_30px_hsl(210_100%_50%_/_0.3)] transition-shadow"
             >
               <a href="/signup">
                 Apply for Partner Access

@@ -28,11 +28,9 @@ const Hero = () => {
       {/* Aurora gradient background */}
       <div className="absolute inset-0 bg-gradient-to-b from-[hsl(230,40%,10%)] via-background to-background" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_center,_hsl(220_80%_40%_/_0.25),_transparent_60%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_center,_hsl(270_70%_58%_/_0.1),_transparent_50%)]" />
 
-      {/* Floating ambient blobs */}
-      <div className="absolute top-10 left-5 w-60 h-60 bg-aurora-blue/20 rounded-full blur-3xl animate-pulse-soft" />
-      <div className="absolute bottom-32 right-5 w-72 h-72 bg-aurora-purple/15 rounded-full blur-3xl animate-pulse-soft" style={{ animationDelay: "1s" }} />
+      {/* Ambient blob - single orb kept for hero */}
+      <div className="absolute bottom-32 right-5 w-72 h-72 bg-aurora-purple/15 rounded-full blur-3xl animate-pulse-soft" />
 
       <div
         ref={heroRef}
@@ -182,7 +180,7 @@ const Hero = () => {
             />
 
             {/* Floating metric card */}
-            <div className="absolute top-[8%] right-[8%] glass-card rounded-xl p-4 aurora-glow animate-float z-10">
+            <div className="absolute top-[8%] right-[8%] glass-card rounded-xl p-4 aurora-glow z-10">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                   <CheckCircle className="w-5 h-5 text-primary" />

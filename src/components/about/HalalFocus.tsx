@@ -3,11 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Globe, Map, Heart, CheckCircle2, TrendingUp, Shield, ArrowRight } from "lucide-react";
 import AnimatedCounter from "@/components/AnimatedCounter";
 
-const FOCUS_GRADIENTS = [
-  "from-aurora-blue to-aurora-teal",
-  "from-aurora-purple to-aurora-blue",
-  "from-aurora-pink to-aurora-purple",
-];
+import { getAuroraGradient } from "@/lib/design-tokens";
 
 const HalalFocus = () => {
   const { ref, isVisible } = useScrollAnimation();
@@ -32,10 +28,6 @@ const HalalFocus = () => {
     <section className="py-24 relative overflow-hidden">
       {/* Aurora background */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_hsl(270_70%_58%_/_0.05),_transparent_50%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_hsl(175_70%_45%_/_0.04),_transparent_50%)]" />
-
-      <div className="absolute top-20 left-10 w-60 h-60 bg-aurora-teal/7 rounded-full blur-3xl pointer-events-none animate-pulse-soft" />
-      <div className="absolute bottom-20 right-10 w-72 h-72 bg-aurora-purple/5 rounded-full blur-3xl pointer-events-none animate-pulse-soft" style={{ animationDelay: "1.5s" }} />
 
       <div className="container mx-auto px-4 relative z-10">
         <div
@@ -47,7 +39,7 @@ const HalalFocus = () => {
           </span>
           <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
             Our Focus:{" "}
-            <span className="aurora-gradient-text animate-text-shimmer bg-[length:200%_auto]">
+            <span className="aurora-gradient-text-static">
               Halal Tourism
             </span>
           </h2>
@@ -64,13 +56,13 @@ const HalalFocus = () => {
                 <TrendingUp className="w-6 h-6 text-white" />
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold aurora-gradient-text animate-text-shimmer bg-[length:200%_auto] mb-1">
+                <div className="text-3xl font-bold aurora-gradient-text-static mb-1">
                   $238<span className="text-xl">B</span>
                 </div>
                 <div className="text-sm text-muted-foreground">Global Halal Tourism Market Size</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold aurora-gradient-text animate-text-shimmer bg-[length:200%_auto] mb-1">
+                <div className="text-3xl font-bold aurora-gradient-text-static mb-1">
                   <AnimatedCounter end={25} suffix="%" />
                 </div>
                 <div className="text-sm text-muted-foreground">Annual Growth Rate</div>
@@ -88,10 +80,10 @@ const HalalFocus = () => {
               }`}
               style={{ animationDelay: `${index * 0.1}s` }}
             >
-              <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${FOCUS_GRADIENTS[index]} flex items-center justify-center mx-auto mb-5 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+              <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${getAuroraGradient(index)} flex items-center justify-center mx-auto mb-5 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                 <area.icon className="w-7 h-7 text-white" />
               </div>
-              <div className="text-2xl font-bold aurora-gradient-text animate-text-shimmer bg-[length:200%_auto] mb-1">{area.metric}</div>
+              <div className="text-2xl font-bold aurora-gradient-text-static mb-1">{area.metric}</div>
               <div className="text-xs text-muted-foreground mb-3">{area.metricLabel}</div>
               <h3 className="text-lg font-bold text-foreground mb-3">{area.title}</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">{area.description}</p>
@@ -161,7 +153,7 @@ const HalalFocus = () => {
           <Button
             size="lg"
             asChild
-            className="rounded-full px-8 bg-gradient-to-r from-aurora-blue via-primary to-aurora-blue bg-[length:200%_auto] animate-gradient-shift shadow-[0_0_20px_hsl(210_100%_50%_/_0.2)] hover:shadow-[0_0_30px_hsl(210_100%_50%_/_0.3)] transition-shadow"
+            className="rounded-full px-8 bg-gradient-to-r from-aurora-blue via-primary to-aurora-blue shadow-[0_0_20px_hsl(210_100%_50%_/_0.2)] hover:shadow-[0_0_30px_hsl(210_100%_50%_/_0.3)] transition-shadow"
           >
             <a href="#contact">
               Learn More About Our Halal Standards

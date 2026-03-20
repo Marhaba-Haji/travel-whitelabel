@@ -2,11 +2,7 @@ import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { Button } from "@/components/ui/button";
 import { Plane, Building2, Car, Globe, TrendingDown, ArrowRight, CheckCircle2 } from "lucide-react";
 
-const PILLAR_GRADIENTS = [
-  "from-aurora-blue to-aurora-teal",
-  "from-aurora-purple to-aurora-blue",
-  "from-aurora-teal to-emerald-500",
-];
+import { getAuroraGradient } from "@/lib/design-tokens";
 
 const ContractedInventory = () => {
   const { ref, isVisible } = useScrollAnimation();
@@ -30,10 +26,6 @@ const ContractedInventory = () => {
     <section className="py-24 relative overflow-hidden">
       {/* Aurora background */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_hsl(210_100%_50%_/_0.05),_transparent_50%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_hsl(270_70%_58%_/_0.04),_transparent_50%)]" />
-
-      <div className="absolute top-20 left-10 w-60 h-60 bg-aurora-blue/7 rounded-full blur-3xl pointer-events-none animate-pulse-soft" />
-      <div className="absolute bottom-10 right-10 w-72 h-72 bg-aurora-teal/5 rounded-full blur-3xl pointer-events-none animate-pulse-soft" style={{ animationDelay: "1.5s" }} />
 
       <div className="container mx-auto px-4 relative z-10">
         <div
@@ -46,7 +38,7 @@ const ContractedInventory = () => {
             </span>
             <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
               Contracted Global{" "}
-              <span className="aurora-gradient-text animate-text-shimmer bg-[length:200%_auto]">
+              <span className="aurora-gradient-text-static">
                 Inventory Access
               </span>
             </h2>
@@ -62,7 +54,7 @@ const ContractedInventory = () => {
                 className={`group glass-card rounded-2xl p-8 text-center hover:shadow-xl hover:border-white/20 transition-all duration-300 opacity-0 ${isVisible ? "animate-scale-in" : ""}`}
                 style={{ animationDelay: `${index * 0.12}s` }}
               >
-                <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${PILLAR_GRADIENTS[index]} flex items-center justify-center mx-auto mb-5 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${getAuroraGradient(index)} flex items-center justify-center mx-auto mb-5 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                   <pillar.icon className="w-8 h-8 text-white" />
                 </div>
                 <div className="text-3xl font-bold aurora-gradient-text animate-text-shimmer bg-[length:200%_auto] mb-1">{pillar.metric}</div>
@@ -106,7 +98,7 @@ const ContractedInventory = () => {
             </div>
             <p className="text-foreground text-lg font-medium max-w-3xl mx-auto mb-4">
               These rates enable agents to{" "}
-              <span className="aurora-gradient-text animate-text-shimmer bg-[length:200%_auto] font-semibold">price competitively</span>{" "}
+              <span className="aurora-gradient-text-static font-semibold">price competitively</span>{" "}
               while maintaining margin discipline and predictability.
             </p>
             <p className="text-muted-foreground">
@@ -118,7 +110,7 @@ const ContractedInventory = () => {
             <Button
               size="lg"
               asChild
-              className="rounded-full px-8 bg-gradient-to-r from-aurora-blue via-primary to-aurora-blue bg-[length:200%_auto] animate-gradient-shift shadow-[0_0_20px_hsl(210_100%_50%_/_0.2)] hover:shadow-[0_0_30px_hsl(210_100%_50%_/_0.3)] transition-shadow"
+              className="rounded-full px-8 bg-gradient-to-r from-aurora-blue via-primary to-aurora-blue shadow-[0_0_20px_hsl(210_100%_50%_/_0.2)] hover:shadow-[0_0_30px_hsl(210_100%_50%_/_0.3)] transition-shadow"
             >
               <a href="/signup">
                 Get Partner Access

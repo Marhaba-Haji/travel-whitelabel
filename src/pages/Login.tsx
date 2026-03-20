@@ -23,7 +23,7 @@ const Login = () => {
 
   const trustIndicators = [
     { icon: Users, text: "5000+ travelers looking for travel agents online every hour", color: "text-primary" },
-    { icon: TrendingUp, text: "Earning potential of ₹50,000+/month", color: "text-gold" },
+    { icon: TrendingUp, text: "Earning potential of ₹50,000+/month", color: "text-aurora-pink" },
     { icon: Shield, text: "Secure & Trusted", color: "text-primary" },
   ];
 
@@ -31,13 +31,9 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-background">
       {/* Aurora Dynamic gradient background */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_hsl(270_70%_58%_/_0.12),_transparent_50%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_hsl(210_100%_50%_/_0.08),_transparent_50%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_hsl(320_90%_60%_/_0.06),_transparent_70%)]" />
       
-      {/* Floating glassmorphism blobs */}
-      <div className="absolute top-20 right-10 w-72 h-72 bg-aurora-purple/15 rounded-full blur-3xl animate-pulse-soft" />
-      <div className="absolute bottom-20 left-10 w-96 h-96 bg-aurora-blue/10 rounded-full blur-3xl animate-pulse-soft" style={{ animationDelay: "1s" }} />
-      <div className="absolute top-1/2 right-1/4 w-48 h-48 bg-aurora-pink/10 rounded-full blur-2xl animate-float-slow" />
+      {/* Ambient blob - single orb kept for login */}
+      <div className="absolute bottom-20 left-10 w-96 h-96 bg-aurora-blue/10 rounded-full blur-3xl animate-pulse-soft" />
 
       <div className="container mx-auto px-4 py-12 relative z-10">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center max-w-6xl mx-auto">
@@ -105,8 +101,8 @@ const Login = () => {
                       <div className="w-32 h-32 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-2xl animate-glow-pulse">
                         <Shield className="h-16 w-16 text-primary-foreground" />
                       </div>
-                      <div className="absolute -top-2 -right-2 w-8 h-8 bg-gold rounded-full flex items-center justify-center animate-bounce-subtle">
-                        <Shield className="h-4 w-4 text-gold-foreground" />
+                      <div className="absolute -top-2 -right-2 w-8 h-8 bg-aurora-pink rounded-full flex items-center justify-center">
+                        <Shield className="h-4 w-4 text-white" />
                       </div>
                     </div>
                   </div>
@@ -141,9 +137,6 @@ const Login = () => {
                 </div>
               </div>
 
-              {/* Floating decorative elements */}
-              <div className="absolute -top-8 -right-8 w-32 h-32 bg-aurora-purple/20 rounded-full blur-2xl animate-float" />
-              <div className="absolute -bottom-8 -left-8 w-40 h-40 bg-aurora-blue/15 rounded-full blur-3xl animate-float-slow" />
             </div>
           </div>
         </div>

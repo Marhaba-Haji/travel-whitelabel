@@ -185,26 +185,24 @@ const CategoriesDestinations = () => {
         <section className="pt-24 pb-16 md:pt-32 md:pb-24 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-accent via-background to-background" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
-          <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse-soft" />
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse-soft" style={{ animationDelay: "1s" }} />
-          <div className="absolute top-1/2 left-1/4 w-48 h-48 bg-primary/5 rounded-full blur-2xl animate-float-slow" />
+          <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse-soft" />
           
           <div className="container mx-auto px-4 relative">
             <div
               ref={heroRef}
               className={`text-center max-w-4xl mx-auto opacity-0 ${heroVisible ? "animate-fade-in" : ""}`}
             >
-              <Badge className="mb-4 bg-primary/10 text-primary hover:bg-primary/20 border-primary/20 animate-bounce-subtle">
+              <Badge className="mb-4 bg-primary/10 text-primary hover:bg-primary/20 border-primary/20">
                 <Sparkles className="h-3 w-3 mr-1.5" />
                 Destination Coverage
               </Badge>
               
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mt-2 mb-6 leading-tight">
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary to-gold animate-gradient-shift bg-[length:200%_auto]">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary to-aurora-pink">
                   Halal Tourism
                 </span>{" "}
                 Destinations Organized by{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary to-gold animate-gradient-shift bg-[length:200%_auto]">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary to-aurora-pink">
                   Travel Intent
                 </span>
               </h1>
@@ -230,9 +228,9 @@ const CategoriesDestinations = () => {
                   </span>
                 </div>
                 <div className="flex items-center gap-2 bg-card border border-border px-4 py-2 rounded-lg shadow-sm">
-                  <Star className="w-4 h-4 text-gold fill-gold" />
+                  <Star className="w-4 h-4 text-aurora-pink fill-aurora-pink" />
                   <span className="text-sm font-medium">
-                    <span className="text-gold font-bold">4</span> Categories
+                    <span className="text-aurora-pink font-bold">4</span> Categories
                   </span>
                 </div>
                 <div className="flex items-center gap-2 bg-card border border-border px-4 py-2 rounded-lg shadow-sm">
@@ -315,7 +313,7 @@ const CategoriesDestinations = () => {
 
         {/* Enhanced Religious Travel Section */}
         <section id="religious-travel" className="py-20 bg-gradient-to-b from-background via-accent/20 to-background relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gold/5 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-aurora-pink/5 via-transparent to-transparent" />
           <div className="absolute top-1/2 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl -translate-y-1/2" />
           
           <div className="container mx-auto px-4 relative">
@@ -351,8 +349,8 @@ const CategoriesDestinations = () => {
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                     {destination.featured && (
                       <div className="absolute top-2 right-2">
-                        <Badge className="bg-gold/10 text-gold border-gold/20">
-                          <Star className="h-3 w-3 mr-1 fill-gold" />
+                        <Badge className="bg-aurora-pink/10 text-aurora-pink border-aurora-pink/20">
+                          <Star className="h-3 w-3 mr-1 fill-aurora-pink" />
                           Featured
                         </Badge>
                       </div>
@@ -427,8 +425,8 @@ const CategoriesDestinations = () => {
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                     {destination.featured && (
                       <div className="absolute top-2 right-2">
-                        <Badge className="bg-gold/10 text-gold border-gold/20">
-                          <Star className="h-3 w-3 mr-1 fill-gold" />
+                        <Badge className="bg-aurora-pink/10 text-aurora-pink border-aurora-pink/20">
+                          <Star className="h-3 w-3 mr-1 fill-aurora-pink" />
                           Popular
                         </Badge>
                       </div>
@@ -489,8 +487,8 @@ const CategoriesDestinations = () => {
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                     {destination.featured && (
                       <div className="absolute top-2 right-2">
-                        <Badge className="bg-gold/10 text-gold border-gold/20">
-                          <Star className="h-3 w-3 mr-1 fill-gold" />
+                        <Badge className="bg-aurora-pink/10 text-aurora-pink border-aurora-pink/20">
+                          <Star className="h-3 w-3 mr-1 fill-aurora-pink" />
                           Popular
                         </Badge>
                       </div>
@@ -551,8 +549,8 @@ const CategoriesDestinations = () => {
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                     {destination.featured && (
                       <div className="absolute top-2 right-2">
-                        <Badge className="bg-gold/10 text-gold border-gold/20">
-                          <Star className="h-3 w-3 mr-1 fill-gold" />
+                        <Badge className="bg-aurora-pink/10 text-aurora-pink border-aurora-pink/20">
+                          <Star className="h-3 w-3 mr-1 fill-aurora-pink" />
                           Featured
                         </Badge>
                       </div>
@@ -589,8 +587,6 @@ const CategoriesDestinations = () => {
         {/* Enhanced CTA Section */}
         <section className="py-20 bg-gradient-to-b from-background via-accent/20 to-background relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent" />
-          <div className="absolute top-1/4 left-0 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse-soft" />
-          <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-gold/5 rounded-full blur-3xl animate-pulse-soft" style={{ animationDelay: "1s" }} />
           
           <div className="container mx-auto px-4 relative">
             <div
@@ -598,15 +594,15 @@ const CategoriesDestinations = () => {
               className={`text-center max-w-3xl mx-auto opacity-0 ${ctaVisible ? "animate-fade-in" : ""}`}
             >
               <div className="bg-card border-2 border-border rounded-2xl p-8 md:p-12 shadow-xl relative overflow-hidden group">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-gold/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-aurora-pink/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                 <div className="relative">
                   <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                    <Globe className="h-10 w-10 text-primary-foreground animate-float" />
+                    <Globe className="h-10 w-10 text-primary-foreground" />
                   </div>
                   
                   <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
                     Ready to Access These{" "}
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-gold">
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-aurora-pink">
                       Destinations?
                     </span>
                   </h2>
@@ -629,7 +625,7 @@ const CategoriesDestinations = () => {
                     </div>
                     <div className="w-1 h-1 rounded-full bg-muted-foreground/30" />
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Star className="h-4 w-4 text-gold fill-gold" />
+                      <Star className="h-4 w-4 text-aurora-pink fill-aurora-pink" />
                       <span>6 Days Support</span>
                     </div>
                   </div>

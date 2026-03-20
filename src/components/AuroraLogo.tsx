@@ -46,7 +46,7 @@ const AuroraLogo = ({ size = "md", className = "" }: AuroraLogoProps) => {
           marhaba
         </span>
         <span
-          className={`${s.dmc} font-dmc tracking-[0.3em] uppercase aurora-gradient-text animate-text-shimmer bg-[length:200%_auto]`}
+          className={`${s.dmc} font-dmc tracking-[0.3em] uppercase aurora-gradient-text-static`}
         >
           DMC
         </span>

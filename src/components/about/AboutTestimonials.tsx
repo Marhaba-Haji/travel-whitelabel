@@ -1,12 +1,7 @@
 import { Star, TrendingUp, Quote } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
-const CARD_GRADIENTS = [
-  "from-aurora-blue to-aurora-teal",
-  "from-aurora-purple to-aurora-blue",
-  "from-aurora-teal to-emerald-500",
-  "from-aurora-pink to-aurora-purple",
-];
+import { getAuroraGradient } from "@/lib/design-tokens";
 
 const AboutTestimonials = () => {
   const { ref: headerRef, isVisible: headerVisible } = useScrollAnimation();
@@ -51,10 +46,6 @@ const AboutTestimonials = () => {
     <section className="py-24 relative overflow-hidden">
       {/* Aurora background */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_hsl(270_70%_58%_/_0.08),_transparent_50%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_hsl(210_100%_50%_/_0.06),_transparent_50%)]" />
-
-      <div className="absolute top-10 left-10 w-72 h-72 bg-aurora-purple/10 rounded-full blur-3xl pointer-events-none animate-pulse-soft" />
-      <div className="absolute bottom-10 right-10 w-80 h-80 bg-aurora-blue/8 rounded-full blur-3xl pointer-events-none animate-pulse-soft" style={{ animationDelay: "1.5s" }} />
 
       <div className="container mx-auto px-4 relative">
         <div
@@ -66,7 +57,7 @@ const AboutTestimonials = () => {
           </span>
           <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
             Loved by{" "}
-            <span className="aurora-gradient-text animate-text-shimmer bg-[length:200%_auto]">
+            <span className="aurora-gradient-text-static">
               Travel Professionals
             </span>
           </h2>
@@ -97,7 +88,7 @@ const AboutTestimonials = () => {
                 "{testimonial.content}"
               </p>
 
-              <div className={`bg-gradient-to-r ${CARD_GRADIENTS[index]} rounded-xl px-4 py-3 mb-5`}>
+              <div className={`bg-gradient-to-r ${getAuroraGradient(index)} rounded-xl px-4 py-3 mb-5`}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <TrendingUp className="h-4 w-4 text-white/70" />
@@ -111,7 +102,7 @@ const AboutTestimonials = () => {
               </div>
 
               <div className="flex items-center gap-3 pt-4 border-t border-white/10">
-                <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${CARD_GRADIENTS[index]} flex items-center justify-center text-xs font-bold text-white shadow-lg`}>
+                <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${getAuroraGradient(index)} flex items-center justify-center text-xs font-bold text-white shadow-lg`}>
                   {testimonial.avatar}
                 </div>
                 <div>
@@ -128,7 +119,7 @@ const AboutTestimonials = () => {
           style={{ animationDelay: "0.6s" }}
         >
           <p className="text-muted-foreground">
-            Join <span className="aurora-gradient-text animate-text-shimmer bg-[length:200%_auto] font-semibold">100+ travel professionals</span> who trust marhabaDMC to power their halal tourism businesses
+            Join <span className="aurora-gradient-text-static font-semibold">100+ travel professionals</span> who trust marhabaDMC to power their halal tourism businesses
           </p>
         </div>
       </div>

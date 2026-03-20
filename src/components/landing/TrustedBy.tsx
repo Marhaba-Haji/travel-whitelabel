@@ -7,10 +7,10 @@ const TrustedBy = () => {
     { name: "TravelMax", initials: "TM", gradient: "from-aurora-blue to-aurora-teal" },
     { name: "Wanderlust", initials: "WL", gradient: "from-aurora-purple to-aurora-blue" },
     { name: "Global Tours", initials: "GT", gradient: "from-aurora-teal to-emerald-500" },
-    { name: "Hajj Travels", initials: "HT", gradient: "from-aurora-pink to-aurora-purple" },
-    { name: "Sky Journeys", initials: "SJ", gradient: "from-aurora-blue to-aurora-purple" },
-    { name: "Vista Holidays", initials: "VH", gradient: "from-aurora-teal to-aurora-blue" },
-    { name: "Nomad Trips", initials: "NT", gradient: "from-aurora-purple to-aurora-pink" },
+    { name: "Hajj Travels", initials: "HT", gradient: "from-aurora-purple to-aurora-blue" },
+    { name: "Sky Journeys", initials: "SJ", gradient: "from-aurora-blue to-aurora-teal" },
+    { name: "Vista Holidays", initials: "VH", gradient: "from-aurora-teal to-emerald-500" },
+    { name: "Nomad Trips", initials: "NT", gradient: "from-aurora-purple to-aurora-blue" },
     { name: "Elite Voyages", initials: "EV", gradient: "from-aurora-blue to-aurora-teal" },
   ];
 

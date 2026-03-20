@@ -1,12 +1,6 @@
 import { CheckCircle } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-
-const STEP_GRADIENTS = [
-  "from-aurora-blue to-aurora-teal",
-  "from-aurora-purple to-aurora-blue",
-  "from-aurora-teal to-emerald-500",
-  "from-aurora-pink to-aurora-purple",
-];
+import { getAuroraGradient } from "@/lib/design-tokens";
 
 const HowItWorks = () => {
   const { ref: headerRef, isVisible: headerVisible } = useScrollAnimation();
@@ -39,7 +33,6 @@ const HowItWorks = () => {
     <section className="py-24 relative overflow-hidden">
       {/* Aurora background */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_hsl(210_100%_50%_/_0.05),_transparent_50%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_hsl(270_70%_58%_/_0.04),_transparent_50%)]" />
 
       <div className="container mx-auto px-4 relative">
         <div
@@ -51,7 +44,7 @@ const HowItWorks = () => {
           </span>
           <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
             Launch Your Portal in{" "}
-            <span className="aurora-gradient-text animate-text-shimmer bg-[length:200%_auto]">
+            <span className="aurora-gradient-text-static">
               4 Simple Steps
             </span>
           </h2>
@@ -72,7 +65,7 @@ const HowItWorks = () => {
                 style={{ animationDelay: `${index * 0.12}s` }}
               >
                 <div className="flex items-center gap-4 mb-5">
-                  <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${STEP_GRADIENTS[index]} flex items-center justify-center text-xl font-bold text-white shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                  <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${getAuroraGradient(index)} flex items-center justify-center text-xl font-bold text-white shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                     {item.step}
                   </div>
                   <CheckCircle className="h-5 w-5 text-aurora-teal/40" />

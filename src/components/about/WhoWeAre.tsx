@@ -1,18 +1,7 @@
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { Layers, Cpu, Shield, Target, Rocket, Heart, CheckCircle2 } from "lucide-react";
 
-const PILLAR_GRADIENTS = [
-  "from-aurora-blue to-aurora-teal",
-  "from-aurora-purple to-aurora-blue",
-  "from-aurora-teal to-emerald-500",
-];
-
-const WHY_GRADIENTS = [
-  "from-aurora-blue to-aurora-teal",
-  "from-aurora-purple to-aurora-blue",
-  "from-aurora-teal to-emerald-500",
-  "from-aurora-pink to-aurora-purple",
-];
+import { getAuroraGradient } from "@/lib/design-tokens";
 
 const WhoWeAre = () => {
   const { ref, isVisible } = useScrollAnimation();
@@ -22,10 +11,6 @@ const WhoWeAre = () => {
     <section className="py-24 relative overflow-hidden">
       {/* Aurora background */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_hsl(210_100%_50%_/_0.05),_transparent_50%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_hsl(270_70%_58%_/_0.04),_transparent_50%)]" />
-
-      <div className="absolute top-20 right-10 w-60 h-60 bg-aurora-purple/7 rounded-full blur-3xl pointer-events-none animate-pulse-soft" />
-      <div className="absolute bottom-10 left-10 w-72 h-72 bg-aurora-blue/5 rounded-full blur-3xl pointer-events-none animate-pulse-soft" style={{ animationDelay: "1.5s" }} />
 
       <div className="container mx-auto px-4 relative z-10">
         <div
@@ -38,7 +23,7 @@ const WhoWeAre = () => {
             </span>
             <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-6">
               Who{" "}
-              <span className="aurora-gradient-text animate-text-shimmer bg-[length:200%_auto]">
+              <span className="aurora-gradient-text-static">
                 We Are
               </span>
             </h2>
@@ -71,7 +56,7 @@ const WhoWeAre = () => {
 
             <div className="glass-card rounded-2xl p-6">
               <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-aurora-pink to-aurora-purple flex items-center justify-center flex-shrink-0 shadow-lg">
+                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-aurora-purple to-aurora-blue flex items-center justify-center flex-shrink-0 shadow-lg">
                   <Heart className="w-4 h-4 text-white" />
                 </div>
                 <p className="text-foreground font-medium italic text-lg leading-relaxed">
@@ -84,9 +69,9 @@ const WhoWeAre = () => {
 
           <div className="grid grid-cols-1 gap-4">
             {[
-              { icon: Layers, title: "Infrastructure", description: "Building the foundational systems that power halal travel businesses", gradient: PILLAR_GRADIENTS[0] },
-              { icon: Cpu, title: "Intelligence", description: "AI-powered tools and insights to enhance decision-making", gradient: PILLAR_GRADIENTS[1] },
-              { icon: Shield, title: "Backbone", description: "Reliable support systems that keep businesses running smoothly", gradient: PILLAR_GRADIENTS[2] },
+              { icon: Layers, title: "Infrastructure", description: "Building the foundational systems that power halal travel businesses", gradient: getAuroraGradient(0) },
+              { icon: Cpu, title: "Intelligence", description: "AI-powered tools and insights to enhance decision-making", gradient: getAuroraGradient(1) },
+              { icon: Shield, title: "Backbone", description: "Reliable support systems that keep businesses running smoothly", gradient: getAuroraGradient(2) },
             ].map((item, index) => (
               <div
                 key={item.title}
@@ -110,7 +95,7 @@ const WhoWeAre = () => {
           <div className="text-center mb-10">
             <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
               Why{" "}
-              <span className="aurora-gradient-text animate-text-shimmer bg-[length:200%_auto]">
+              <span className="aurora-gradient-text-static">
                 marhabaDMC?
               </span>
             </h3>
@@ -131,7 +116,7 @@ const WhoWeAre = () => {
                 className={`group glass-card rounded-2xl p-6 text-center hover:shadow-xl hover:border-white/20 transition-all duration-300 opacity-0 ${whyVisible ? "animate-scale-in" : ""}`}
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${WHY_GRADIENTS[index]} flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${getAuroraGradient(index)} flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                   <item.icon className="w-7 h-7 text-white" />
                 </div>
                 <h4 className="font-bold text-foreground mb-2">{item.title}</h4>

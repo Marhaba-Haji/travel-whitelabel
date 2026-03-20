@@ -2,12 +2,7 @@ import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Compass, Globe, Cpu, Building, CheckCircle2, Star, TrendingUp } from "lucide-react";
 
-const VISION_GRADIENTS = [
-  "from-aurora-blue to-aurora-teal",
-  "from-aurora-purple to-aurora-blue",
-  "from-aurora-teal to-emerald-500",
-  "from-aurora-pink to-aurora-purple",
-];
+import { getAuroraGradient } from "@/lib/design-tokens";
 
 const WorkWithUs = () => {
   const { ref, isVisible } = useScrollAnimation();
@@ -42,10 +37,6 @@ const WorkWithUs = () => {
     <section className="py-24 relative overflow-hidden">
       {/* Aurora background */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_hsl(270_70%_58%_/_0.05),_transparent_50%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_hsl(210_100%_50%_/_0.04),_transparent_50%)]" />
-
-      <div className="absolute top-10 left-10 w-60 h-60 bg-aurora-purple/7 rounded-full blur-3xl pointer-events-none animate-pulse-soft" />
-      <div className="absolute bottom-20 right-10 w-72 h-72 bg-aurora-blue/5 rounded-full blur-3xl pointer-events-none animate-pulse-soft" style={{ animationDelay: "1.5s" }} />
 
       <div className="container mx-auto px-4 relative z-10">
         <div
@@ -59,7 +50,7 @@ const WorkWithUs = () => {
             </span>
             <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-6">
               Who We{" "}
-              <span className="aurora-gradient-text animate-text-shimmer bg-[length:200%_auto]">
+              <span className="aurora-gradient-text-static">
                 Work With
               </span>
             </h2>
@@ -86,7 +77,7 @@ const WorkWithUs = () => {
             className={`glass-card rounded-2xl p-8 md:p-12 mb-14 opacity-0 ${benefitsVisible ? "animate-fade-in" : ""}`}
           >
             <h3 className="text-2xl font-bold text-foreground mb-6 text-center flex items-center justify-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-aurora-pink to-aurora-purple flex items-center justify-center shadow-lg">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-aurora-purple to-aurora-blue flex items-center justify-center shadow-lg">
                 <Star className="w-5 h-5 text-white" />
               </div>
               Why Partner With marhabaDMC?
@@ -104,7 +95,7 @@ const WorkWithUs = () => {
           {/* Looking Ahead */}
           <div className="glass-card rounded-2xl p-8 md:p-12 mb-14">
             <h3 className="text-2xl md:text-3xl font-bold text-foreground text-center mb-6">
-              <span className="aurora-gradient-text animate-text-shimmer bg-[length:200%_auto]">
+              <span className="aurora-gradient-text-static">
                 Looking Ahead
               </span>
             </h3>
@@ -120,7 +111,7 @@ const WorkWithUs = () => {
                   }`}
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${VISION_GRADIENTS[index]} flex items-center justify-center mx-auto mb-3 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${getAuroraGradient(index)} flex items-center justify-center mx-auto mb-3 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                     <area.icon className="w-6 h-6 text-white" />
                   </div>
                   <span className="text-foreground font-medium text-sm">{area.text}</span>
@@ -143,9 +134,9 @@ const WorkWithUs = () => {
             </div>
             <p className="text-muted-foreground text-center max-w-2xl mx-auto">
               Our partners see an average of{" "}
-              <span className="font-bold aurora-gradient-text animate-text-shimmer bg-[length:200%_auto]">27% increase in bookings</span>{" "}
+              <span className="font-bold aurora-gradient-text-static">27% increase in bookings</span>{" "}
               within the first 3 months, with{" "}
-              <span className="font-bold aurora-gradient-text animate-text-shimmer bg-[length:200%_auto]">15% reduction in operational costs</span>.
+              <span className="font-bold aurora-gradient-text-static">15% reduction in operational costs</span>.
             </p>
           </div>
 
@@ -183,7 +174,7 @@ const WorkWithUs = () => {
             </div>
             <p className="text-sm text-muted-foreground mt-6">
               Join{" "}
-              <span className="font-semibold aurora-gradient-text animate-text-shimmer bg-[length:200%_auto]">100+</span>{" "}
+              <span className="font-semibold aurora-gradient-text-static">100+</span>{" "}
               travel professionals already partnering with marhabaDMC
             </p>
           </div>

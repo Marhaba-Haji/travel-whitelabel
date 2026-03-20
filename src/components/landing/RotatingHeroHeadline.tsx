@@ -48,7 +48,7 @@ const RotatingHeroHeadline = ({
           className="block"
         >
           {current.before}
-          <span className="block aurora-gradient-text animate-gradient-shift bg-[length:200%_auto] italic py-1">
+          <span className="block aurora-gradient-text-static italic py-1">
             {current.highlight}
           </span>
           {current.after}

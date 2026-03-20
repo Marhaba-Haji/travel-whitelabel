@@ -2,12 +2,7 @@ import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { Button } from "@/components/ui/button";
 import { Building, BedDouble, TrendingUp, Settings, Calendar, ArrowRight, CheckCircle2 } from "lucide-react";
 
-const CAP_GRADIENTS = [
-  "from-aurora-blue to-aurora-teal",
-  "from-aurora-purple to-aurora-blue",
-  "from-aurora-teal to-emerald-500",
-  "from-aurora-pink to-aurora-purple",
-];
+import { getAuroraGradient } from "@/lib/design-tokens";
 
 const HospitalityTech = () => {
   const { ref, isVisible } = useScrollAnimation();
@@ -38,10 +33,6 @@ const HospitalityTech = () => {
     <section className="py-24 relative overflow-hidden">
       {/* Aurora background */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_hsl(320_90%_60%_/_0.04),_transparent_50%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_hsl(270_70%_58%_/_0.04),_transparent_50%)]" />
-
-      <div className="absolute top-10 right-10 w-60 h-60 bg-aurora-pink/7 rounded-full blur-3xl pointer-events-none animate-pulse-soft" />
-      <div className="absolute bottom-20 left-10 w-72 h-72 bg-aurora-purple/5 rounded-full blur-3xl pointer-events-none animate-pulse-soft" style={{ animationDelay: "1.5s" }} />
 
       <div className="container mx-auto px-4 relative z-10">
         <div
@@ -58,7 +49,7 @@ const HospitalityTech = () => {
               </div>
               <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
                 Hospitality{" "}
-                <span className="aurora-gradient-text animate-text-shimmer bg-[length:200%_auto]">
+                <span className="aurora-gradient-text-static">
                   Technology
                 </span>
               </h2>
@@ -71,7 +62,7 @@ const HospitalityTech = () => {
             {/* Launch Timeline */}
             <div className="glass-card rounded-2xl p-6 mb-14 text-center">
               <div className="flex items-center justify-center gap-3 mb-2">
-                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-aurora-pink to-aurora-purple flex items-center justify-center shadow-lg">
+                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-aurora-purple to-aurora-blue flex items-center justify-center shadow-lg">
                   <Calendar className="w-4 h-4 text-white" />
                 </div>
                 <h3 className="text-lg font-bold text-foreground">Expected Launch: Q4 2026</h3>
@@ -108,7 +99,7 @@ const HospitalityTech = () => {
                     }`}
                     style={{ animationDelay: `${index * 0.1}s` }}
                   >
-                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${CAP_GRADIENTS[index]} flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${getAuroraGradient(index)} flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                       <cap.icon className="w-5 h-5 text-white" />
                     </div>
                     <span className="text-foreground text-sm">{cap.text}</span>
@@ -142,7 +133,7 @@ const HospitalityTech = () => {
               <Button
                 size="lg"
                 asChild
-                className="rounded-full px-8 bg-gradient-to-r from-aurora-pink via-aurora-purple to-aurora-pink bg-[length:200%_auto] animate-gradient-shift shadow-[0_0_20px_hsl(320_90%_60%_/_0.2)] hover:shadow-[0_0_30px_hsl(320_90%_60%_/_0.3)] transition-shadow"
+                className="rounded-full px-8 bg-gradient-to-r from-aurora-purple via-aurora-blue to-aurora-purple shadow-[0_0_20px_hsl(270_60%_58%_/_0.2)] hover:shadow-[0_0_30px_hsl(270_60%_58%_/_0.3)] transition-shadow"
               >
                 <a href="#contact">
                   Request Early Access

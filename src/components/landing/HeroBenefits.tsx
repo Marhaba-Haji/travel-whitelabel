@@ -5,9 +5,9 @@ const BENEFITS = [
   { text: "Be Your Own Boss", icon: Crown, gradient: "from-aurora-blue to-aurora-teal" },
   { text: "Earning Potential: ₹50,000+/mo", icon: TrendingUp, gradient: "from-aurora-purple to-aurora-blue" },
   { text: "Travel at Insider Rates", icon: Plane, gradient: "from-aurora-teal to-emerald-500" },
-  { text: "Work From Anywhere", icon: Globe, gradient: "from-aurora-pink to-aurora-purple" },
+  { text: "Work From Anywhere", icon: Globe, gradient: "from-aurora-purple to-aurora-blue" },
   { text: "Launch-Ready in 24 Hours", icon: Zap, gradient: "from-aurora-blue to-aurora-teal" },
-  { text: "Build Your Dream Business", icon: Sparkles, gradient: "from-aurora-purple to-aurora-pink" },
+  { text: "Build Your Dream Business", icon: Sparkles, gradient: "from-aurora-purple to-aurora-blue" },
 ];
 
 const HeroBenefits = () => {

@@ -28,11 +28,9 @@ const AccountPendingActivation = () => {
       {/* Refined ambient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-accent/30 via-background to-background" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/[0.07] via-transparent to-transparent" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-primary/[0.05] via-transparent to-transparent" />
 
-      {/* Soft floating orbs */}
-      <div className="absolute top-24 right-16 w-64 h-64 bg-primary/8 rounded-full blur-3xl animate-pulse-soft pointer-events-none" />
-      <div className="absolute bottom-32 left-16 w-80 h-80 bg-primary/5 rounded-full blur-3xl animate-pulse-soft pointer-events-none" style={{ animationDelay: "0.8s" }} />
+      {/* Ambient blob - single orb kept */}
+      <div className="absolute bottom-32 left-16 w-80 h-80 bg-primary/5 rounded-full blur-3xl animate-pulse-soft pointer-events-none" />
 
       <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10">
         <div className="bg-card/95 backdrop-blur-md border border-border/80 rounded-3xl p-10 sm:p-12 shadow-2xl shadow-primary/5 animate-fade-in">
@@ -49,7 +47,7 @@ const AccountPendingActivation = () => {
           </div>
 
           {/* Icon with gentle glow */}
-          <div className="w-20 h-20 mx-auto mb-8 rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center border border-primary/10 animate-pulse-soft">
+          <div className="w-20 h-20 mx-auto mb-8 rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center border border-primary/10">
             <Sparkles className="h-10 w-10 text-primary" />
           </div>
 

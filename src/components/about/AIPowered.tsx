@@ -3,12 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Bot, Languages, Clock, Zap, Users, TrendingDown, TrendingUp, MessageSquare, ArrowRight, CheckCircle2 } from "lucide-react";
 import AnimatedCounter from "@/components/AnimatedCounter";
 
-const BENEFIT_GRADIENTS = [
-  "from-aurora-blue to-aurora-teal",
-  "from-aurora-purple to-aurora-blue",
-  "from-aurora-teal to-emerald-500",
-  "from-aurora-pink to-aurora-purple",
-];
+import { getAuroraGradient } from "@/lib/design-tokens";
 
 const AIPowered = () => {
   const { ref, isVisible } = useScrollAnimation();
@@ -39,10 +34,6 @@ const AIPowered = () => {
     <section className="py-24 relative overflow-hidden">
       {/* Aurora background */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_hsl(270_70%_58%_/_0.05),_transparent_50%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_hsl(320_90%_60%_/_0.04),_transparent_50%)]" />
-
-      <div className="absolute top-10 right-10 w-60 h-60 bg-aurora-purple/7 rounded-full blur-3xl pointer-events-none animate-pulse-soft" />
-      <div className="absolute bottom-20 left-10 w-72 h-72 bg-aurora-pink/5 rounded-full blur-3xl pointer-events-none animate-pulse-soft" style={{ animationDelay: "1.5s" }} />
 
       <div className="container mx-auto px-4 relative z-10">
         <div
@@ -75,7 +66,7 @@ const AIPowered = () => {
                 className={`glass-card rounded-2xl p-4 text-center opacity-0 ${metricsVisible ? "animate-scale-in" : ""}`}
                 style={{ animationDelay: `${index * 0.08}s` }}
               >
-                <div className="text-2xl font-bold aurora-gradient-text animate-text-shimmer bg-[length:200%_auto] mb-1">
+                <div className="text-2xl font-bold aurora-gradient-text-static mb-1">
                   {typeof metric.value === "string" ? (
                     metric.value
                   ) : (
@@ -146,7 +137,7 @@ const AIPowered = () => {
                     style={{ animationDelay: `${index * 0.1}s` }}
                   >
                     <div className="flex items-start gap-3">
-                      <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${BENEFIT_GRADIENTS[index]} flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                      <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${getAuroraGradient(index)} flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                         <benefit.icon className="w-5 h-5 text-white" />
                       </div>
                       <div className="flex-1">
@@ -187,7 +178,7 @@ const AIPowered = () => {
             <Button
               size="lg"
               asChild
-              className="rounded-full px-8 bg-gradient-to-r from-aurora-blue via-primary to-aurora-blue bg-[length:200%_auto] animate-gradient-shift shadow-[0_0_20px_hsl(210_100%_50%_/_0.2)] hover:shadow-[0_0_30px_hsl(210_100%_50%_/_0.3)] transition-shadow"
+              className="rounded-full px-8 bg-gradient-to-r from-aurora-blue via-primary to-aurora-blue shadow-[0_0_20px_hsl(210_100%_50%_/_0.2)] hover:shadow-[0_0_30px_hsl(210_100%_50%_/_0.3)] transition-shadow"
             >
               <a href="/signup">
                 Apply for Partner Access

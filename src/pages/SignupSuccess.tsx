@@ -25,10 +25,6 @@ const SignupSuccess = () => {
       {/* Animated Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-accent via-background to-background" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent" />
-
-      <div className="absolute top-20 right-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse-soft pointer-events-none" />
-      <div className="absolute bottom-20 left-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse-soft pointer-events-none" style={{ animationDelay: "1s" }} />
 
       <div className="w-full max-w-lg mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
         <div className="bg-card/90 backdrop-blur-sm border border-border rounded-2xl p-8 shadow-xl text-center animate-fade-in">

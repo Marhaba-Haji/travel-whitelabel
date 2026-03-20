@@ -141,9 +141,9 @@ const Itineraries = () => {
           </div>
 
           {/* Agent Benefits Callout */}
-          <div className="bg-gradient-to-r from-gold/10 via-gold/5 to-gold/10 border-2 border-gold/20 rounded-2xl p-8 text-center mb-8">
-            <div className="inline-flex items-center gap-2 bg-gold/10 border border-gold/30 rounded-full px-4 py-1.5 mb-4">
-              <span className="text-xs font-semibold text-gold uppercase tracking-wider">
+          <div className="bg-gradient-to-r from-aurora-pink/10 via-aurora-pink/5 to-aurora-pink/10 border-2 border-aurora-pink/20 rounded-2xl p-8 text-center mb-8">
+            <div className="inline-flex items-center gap-2 bg-aurora-pink/10 border border-aurora-pink/30 rounded-full px-4 py-1.5 mb-4">
+              <span className="text-xs font-semibold text-aurora-pink uppercase tracking-wider">
                 Agent Advantage
               </span>
             </div>

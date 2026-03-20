@@ -3,12 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Package, Settings, Users, Globe, ArrowRight } from "lucide-react";
 import AnimatedCounter from "@/components/AnimatedCounter";
 
-const PORTAL_GRADIENTS = [
-  "from-aurora-blue to-aurora-teal",
-  "from-aurora-purple to-aurora-blue",
-  "from-aurora-teal to-emerald-500",
-  "from-aurora-pink to-aurora-purple",
-];
+import { getAuroraGradient } from "@/lib/design-tokens";
 
 const TechPlatform = () => {
   const { ref, isVisible } = useScrollAnimation();
@@ -32,10 +27,6 @@ const TechPlatform = () => {
     <section className="py-24 relative overflow-hidden">
       {/* Aurora background */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_hsl(210_100%_50%_/_0.05),_transparent_50%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_hsl(320_90%_60%_/_0.04),_transparent_50%)]" />
-
-      <div className="absolute top-10 right-20 w-60 h-60 bg-aurora-blue/7 rounded-full blur-3xl pointer-events-none animate-pulse-soft" />
-      <div className="absolute bottom-10 left-10 w-72 h-72 bg-aurora-purple/5 rounded-full blur-3xl pointer-events-none animate-pulse-soft" style={{ animationDelay: "1.5s" }} />
 
       <div className="container mx-auto px-4 relative z-10">
         <div
@@ -48,7 +39,7 @@ const TechPlatform = () => {
             </span>
             <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
               WhiteLabel Technology{" "}
-              <span className="aurora-gradient-text animate-text-shimmer bg-[length:200%_auto]">
+              <span className="aurora-gradient-text-static">
                 Built for Agencies
               </span>
             </h2>
@@ -68,7 +59,7 @@ const TechPlatform = () => {
                 className={`glass-card rounded-2xl p-4 text-center opacity-0 ${metricsVisible ? "animate-scale-in" : ""}`}
                 style={{ animationDelay: `${index * 0.08}s` }}
               >
-                <div className="text-2xl font-bold aurora-gradient-text animate-text-shimmer bg-[length:200%_auto] mb-1">
+                <div className="text-2xl font-bold aurora-gradient-text-static mb-1">
                   {metric.value}
                 </div>
                 <div className="text-sm text-muted-foreground">{metric.label}</div>
@@ -85,7 +76,7 @@ const TechPlatform = () => {
                 }`}
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${PORTAL_GRADIENTS[index]} flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${getAuroraGradient(index)} flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                   <portal.icon className="w-6 h-6 text-white" />
                 </div>
                 <h3 className="font-bold text-foreground mb-2 text-lg">{portal.title}</h3>
@@ -98,7 +89,7 @@ const TechPlatform = () => {
           <div className="glass-card rounded-2xl p-8 text-center mb-10">
             <p className="text-foreground text-lg max-w-3xl mx-auto">
               Each agency operates on its own{" "}
-              <span className="font-semibold aurora-gradient-text animate-text-shimmer bg-[length:200%_auto]">branded ecosystem</span>{" "}
+              <span className="font-semibold aurora-gradient-text-static">branded ecosystem</span>{" "}
               while marhabaDMC powers the backend infrastructure.
             </p>
           </div>
@@ -107,7 +98,7 @@ const TechPlatform = () => {
             <Button
               size="lg"
               asChild
-              className="rounded-full px-8 bg-gradient-to-r from-aurora-blue via-primary to-aurora-blue bg-[length:200%_auto] animate-gradient-shift shadow-[0_0_20px_hsl(210_100%_50%_/_0.2)] hover:shadow-[0_0_30px_hsl(210_100%_50%_/_0.3)] transition-shadow"
+              className="rounded-full px-8 bg-gradient-to-r from-aurora-blue via-primary to-aurora-blue shadow-[0_0_20px_hsl(210_100%_50%_/_0.2)] hover:shadow-[0_0_30px_hsl(210_100%_50%_/_0.3)] transition-shadow"
             >
               <a href="#contact">
                 Schedule Platform Demo

@@ -13,12 +13,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 
-const ICON_GRADIENTS = [
-  "from-aurora-blue to-aurora-teal",
-  "from-aurora-purple to-aurora-blue",
-  "from-aurora-teal to-emerald-500",
-  "from-aurora-pink to-aurora-purple",
-];
+import { getAuroraGradient } from "@/lib/design-tokens";
 
 const AboutStats = () => {
   const { ref: row1Ref, isVisible: row1Visible } = useScrollAnimation();
@@ -99,11 +94,11 @@ const AboutStats = () => {
       style={{ animationDelay: `${index * 0.1}s` }}
     >
       <div
-        className={`w-14 h-14 rounded-xl bg-gradient-to-br ${ICON_GRADIENTS[index % ICON_GRADIENTS.length]} flex items-center justify-center mx-auto mb-5 shadow-lg group-hover:scale-110 transition-transform duration-300`}
+        className={`w-14 h-14 rounded-xl bg-gradient-to-br ${getAuroraGradient(index)} flex items-center justify-center mx-auto mb-5 shadow-lg group-hover:scale-110 transition-transform duration-300`}
       >
         <stat.icon className="w-7 h-7 text-white" />
       </div>
-      <div className="text-3xl md:text-4xl font-bold aurora-gradient-text animate-text-shimmer bg-[length:200%_auto] mb-2">
+      <div className="text-3xl md:text-4xl font-bold aurora-gradient-text-static mb-2">
         <AnimatedCounter end={stat.value} suffix={stat.suffix} />
       </div>
       <div className="text-base font-bold text-foreground mb-1">{stat.label}</div>
@@ -115,10 +110,6 @@ const AboutStats = () => {
     <section className="py-24 relative overflow-hidden">
       {/* Aurora background */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_hsl(270_70%_58%_/_0.08),_transparent_50%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_hsl(210_100%_50%_/_0.06),_transparent_50%)]" />
-
-      <div className="absolute top-10 left-10 w-80 h-80 bg-aurora-purple/10 rounded-full blur-3xl animate-pulse-soft pointer-events-none" />
-      <div className="absolute bottom-10 right-10 w-96 h-96 bg-aurora-blue/8 rounded-full blur-3xl animate-pulse-soft pointer-events-none" style={{ animationDelay: "1.5s" }} />
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Header */}
@@ -132,7 +123,7 @@ const AboutStats = () => {
             </span>
             <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
               Building the Future of{" "}
-              <span className="aurora-gradient-text animate-text-shimmer bg-[length:200%_auto]">
+              <span className="aurora-gradient-text-static">
                 Halal Tourism
               </span>
             </h2>
@@ -164,7 +155,7 @@ const AboutStats = () => {
           style={{ animationDelay: "0.5s" }}
         >
           <div className="inline-flex items-center gap-4 glass-card rounded-2xl px-8 py-5">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-aurora-pink to-aurora-purple flex items-center justify-center shadow-lg">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-aurora-purple to-aurora-blue flex items-center justify-center shadow-lg">
               <Award className="w-5 h-5 text-white" />
             </div>
             <div className="text-left">

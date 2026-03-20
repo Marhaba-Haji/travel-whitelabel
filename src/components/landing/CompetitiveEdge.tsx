@@ -33,7 +33,6 @@ const CompetitiveEdge = () => {
     >
       {/* Aurora background */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_hsl(270_70%_58%_/_0.05),_transparent_50%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_hsl(210_100%_50%_/_0.04),_transparent_50%)]" />
 
       <div className="container mx-auto px-4 relative">
         {/* Header */}
@@ -46,7 +45,7 @@ const CompetitiveEdge = () => {
           </span>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
             What Sets{" "}
-            <span className="aurora-gradient-text animate-text-shimmer bg-[length:200%_auto]">
+            <span className="aurora-gradient-text-static">
               marhabaDMC
             </span>{" "}
             Apart
@@ -249,7 +248,7 @@ const CompetitiveEdge = () => {
               Why compete on price
             </span>{" "}
             when you can{" "}
-            <span className="aurora-gradient-text font-semibold bg-[length:200%_auto] animate-text-shimmer">
+            <span className="aurora-gradient-text-static font-semibold">
               WIN on price?
             </span>
           </p>

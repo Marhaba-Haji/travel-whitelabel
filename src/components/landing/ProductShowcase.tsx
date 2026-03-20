@@ -30,7 +30,7 @@ const portals = [
     id: "supplier",
     name: "Supplier Portal",
     icon: PackageOpen,
-    color: "from-emerald-500 to-aurora-teal",
+    color: "from-aurora-teal to-emerald-500",
     description: "Dedicated access for suppliers to manage inventory & rates",
     features: ["Inventory Management", "Rate Configuration", "Availability Calendar", "Performance Analytics"],
     mockup: {
@@ -49,7 +49,7 @@ const portals = [
     id: "agent",
     name: "B2B Agent",
     icon: Users,
-    color: "from-violet-500 to-aurora-purple",
+    color: "from-aurora-blue to-aurora-teal",
     description: "Professional booking interface for travel agents & partners",
     features: ["Quick Search", "Commission Tracking", "Credit Management", "White-Label Access"],
     mockup: {
@@ -68,7 +68,7 @@ const portals = [
     id: "b2c",
     name: "B2C Portal",
     icon: ShoppingCart,
-    color: "from-amber-500 to-aurora-pink",
+    color: "from-aurora-teal to-emerald-500",
     description: "Beautiful booking experience for your end customers",
     features: ["Easy Search & Book", "Secure Payments", "Trip Itineraries", "24/7 Support"],
     mockup: {
@@ -201,7 +201,6 @@ const DashboardMockup = ({ portal, isVisible }: { portal: typeof portals[number]
     </motion.div>
 
     <div className="absolute -top-6 -right-6 w-40 h-40 bg-aurora-purple/7 rounded-full blur-3xl pointer-events-none" />
-    <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-aurora-blue/7 rounded-full blur-2xl pointer-events-none" />
   </div>
   );
 };
