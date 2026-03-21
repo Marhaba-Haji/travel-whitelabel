@@ -4,6 +4,7 @@ import Footer from "@/components/landing/Footer";
 import FloatingWhatsApp from "@/components/landing/FloatingWhatsApp";
 import PassportUploadStep, { type PassportExtractResult } from "@/components/visa/PassportUploadStep";
 import VisaDetailsForm, { type VisaDetailsValues } from "@/components/visa/VisaDetailsForm";
+import { supabase } from "@/integrations/supabase/client";
 import CaptchaStep from "@/components/visa/CaptchaStep";
 import VisaResultsStep, { type VisaResult } from "@/components/visa/VisaResultsStep";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
