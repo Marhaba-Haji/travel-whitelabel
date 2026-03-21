@@ -10,6 +10,8 @@ export interface PassportExtractResult {
   passportNumber?: string;
   firstName?: string;
   lastName?: string;
+  nationality?: string;
+  confidence?: string;
   error?: string;
 }
 
