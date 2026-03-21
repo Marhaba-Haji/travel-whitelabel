@@ -1,7 +1,7 @@
 /**
  * Visa Lookup - Submits the MOFA visa search form via HTTP POST.
  * Uses session cookies from visa-captcha to maintain the same MOFA session.
- * Parses the HTML response to extract visa results.
+ * Uses node:https to bypass Deno's TLS certificate issues with MOFA.
  */
 
 const corsHeaders = {
@@ -28,6 +28,73 @@ function checkRateLimit(ip: string): boolean {
   }
   entry.count++;
   return entry.count <= RATE_LIMIT_MAX;
+}
+
+/**
+ * Make an HTTPS request using node:https to bypass Deno's strict TLS verification.
+ */
+async function httpsRequest(
+  url: string,
+  options: {
+    method?: string;
+    headers?: Record<string, string>;
+    body?: string;
+    followRedirects?: boolean;
+  } = {}
+): Promise<{ body: Buffer; headers: Record<string, string | string[]>; statusCode: number; finalUrl: string }> {
+  const https = await import("node:https");
+  const { URL } = await import("node:url");
+
+  const method = options.method || "GET";
+  const followRedirects = options.followRedirects !== false;
+
+  return new Promise((resolve, reject) => {
+    const parsedUrl = new URL(url);
+    const reqOptions = {
+      hostname: parsedUrl.hostname,
+      port: parsedUrl.port || 443,
+      path: parsedUrl.pathname + parsedUrl.search,
+      method,
+      headers: options.headers || {},
+      rejectUnauthorized: false,
+    };
+
+    const req = https.request(reqOptions, (res: any) => {
+      // Handle redirects
+      if (followRedirects && res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+        let redirectUrl = res.headers.location;
+        if (redirectUrl.startsWith("/")) {
+          redirectUrl = `https://${parsedUrl.hostname}${redirectUrl}`;
+        }
+        httpsRequest(redirectUrl, { ...options, method: "GET", body: undefined })
+          .then(resolve)
+          .catch(reject);
+        return;
+      }
+
+      const chunks: Buffer[] = [];
+      res.on("data", (chunk: Buffer) => chunks.push(chunk));
+      res.on("end", () => {
+        const { Buffer: NodeBuffer } = require("node:buffer");
+        resolve({
+          body: NodeBuffer.concat(chunks),
+          headers: res.headers,
+          statusCode: res.statusCode,
+          finalUrl: url,
+        });
+      });
+    });
+
+    req.on("error", reject);
+    req.setTimeout(30000, () => {
+      req.destroy(new Error("Request timed out"));
+    });
+
+    if (options.body) {
+      req.write(options.body);
+    }
+    req.end();
+  });
 }
 
 /** No-result phrases from MOFA (Arabic + English) */
@@ -176,7 +243,7 @@ Deno.serve(async (req) => {
 
     // Build form data for MOFA POST
     const formParams = new URLSearchParams();
-    formParams.set("ReaderType", "1"); // Barcode reader
+    formParams.set("ReaderType", "1");
     formParams.set("tbMRZCode", "");
     formParams.set("ddlFirstValue", "PassPortNo");
     formParams.set("tbFirstValue", String(passportNumber).trim());
@@ -188,8 +255,8 @@ Deno.serve(async (req) => {
 
     console.log(`[visa-lookup] Submitting to MOFA for nationality=${countryCode}`);
 
-    // Submit form
-    const response = await fetch(MOFA_URL, {
+    // Submit form using node:https to bypass TLS issues
+    const response = await httpsRequest(MOFA_URL, {
       method: "POST",
       headers: {
         "User-Agent": UA,
@@ -199,16 +266,18 @@ Deno.serve(async (req) => {
         "Origin": "https://visa.mofa.gov.sa",
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         "Accept-Language": "en-US,en;q=0.9,ar;q=0.8",
+        "Content-Length": String(formParams.toString().length),
       },
       body: formParams.toString(),
-      redirect: "follow",
     });
 
-    const responseUrl = response.url || MOFA_URL;
-    const responseHtml = await response.text();
+    const responseUrl = response.finalUrl || MOFA_URL;
+    const responseHtml = response.body.toString("utf-8");
     const resultText = extractResultText(responseHtml);
     const fullText = htmlToText(responseHtml);
     const combinedLower = `${resultText}\n${fullText}`.toLowerCase();
+
+    console.log(`[visa-lookup] Response status: ${response.statusCode}, URL: ${responseUrl}`);
 
     // Check for captcha errors
     const hasCaptchaError = CAPTCHA_ERROR_PHRASES.some((p) =>
@@ -246,24 +315,9 @@ Deno.serve(async (req) => {
       );
     }
 
-    // If redirected to print visa page or found visa signals, try to capture visa details
+    // If found visa signals, try to capture visa details
     if (hasVisaFound) {
-      // If redirected to print page, fetch it
       let visaHtml = responseHtml;
-      if (isPrintVisaUrl(responseUrl)) {
-        try {
-          const printResponse = await fetch(responseUrl, {
-            headers: {
-              "User-Agent": UA,
-              "Cookie": session.cookies,
-              "Referer": MOFA_URL,
-            },
-          });
-          visaHtml = await printResponse.text();
-        } catch {
-          // Use original response
-        }
-      }
 
       // Look for a link to PrintEventVisa in the response
       const printLinkMatch = visaHtml.match(/href="([^"]*PrintEventVisa[^"]*)"/i);
@@ -273,15 +327,15 @@ Deno.serve(async (req) => {
           printUrl = `https://visa.mofa.gov.sa${printUrl}`;
         }
         try {
-          const printResponse = await fetch(printUrl, {
+          const printResult = await httpsRequest(printUrl, {
             headers: {
               "User-Agent": UA,
               "Cookie": session.cookies,
               "Referer": responseUrl,
             },
           });
-          if (printResponse.ok) {
-            visaHtml = await printResponse.text();
+          if (printResult.statusCode === 200) {
+            visaHtml = printResult.body.toString("utf-8");
           }
         } catch {
           // Use what we have
@@ -305,15 +359,12 @@ Deno.serve(async (req) => {
                 break;
               }
             } else if (imgUrl.startsWith("http")) {
-              const imgResp = await fetch(imgUrl, {
+              const imgResult = await httpsRequest(imgUrl, {
                 headers: { "User-Agent": UA, "Cookie": session.cookies },
               });
-              if (imgResp.ok) {
-                const imgBuf = await imgResp.arrayBuffer();
-                if (imgBuf.byteLength > 200) {
-                  visaImageBase64 = btoa(String.fromCharCode(...new Uint8Array(imgBuf)));
-                  break;
-                }
+              if (imgResult.statusCode === 200 && imgResult.body.byteLength > 200) {
+                visaImageBase64 = imgResult.body.toString("base64");
+                break;
               }
             }
           } catch {
@@ -347,7 +398,7 @@ Deno.serve(async (req) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
-    console.error("visa-lookup error:", err);
+    console.error("[visa-lookup] error:", err);
     return new Response(
       JSON.stringify({
         success: false,
