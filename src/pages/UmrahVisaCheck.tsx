@@ -32,7 +32,7 @@ const STEPS = [
   { id: 4, label: "Results", icon: CheckCircle2 },
 ];
 
-const apiBase = import.meta.env.VITE_API_URL ?? "";
+
 
 export default function UmrahVisaCheck() {
   const [step, setStep] = useState(1);
