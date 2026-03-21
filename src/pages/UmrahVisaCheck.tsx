@@ -95,9 +95,11 @@ export default function UmrahVisaCheck() {
         error: data.error,
         mofaMessage: typeof data.mofaMessage === "string" ? data.mofaMessage : undefined,
       });
-      if (data.success) setStep(4);
+      // Always advance to results step so the user sees the outcome
+      setStep(4);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Request failed";
+      setStep(4);
       setResult({ success: false, error: msg.includes("abort") ? "Request timed out. Please try again." : msg });
       toast({ variant: "destructive", title: "Error", description: "Visa lookup failed. Please try again." });
     } finally {
