@@ -80,8 +80,13 @@ function looksLikeMofaChromeOnly(rawText: string | undefined): boolean {
 /** True only when we have something a user can actually use (visa copy, table text, etc.). */
 function hasExtractableVisaContent(
   rawText: string | undefined,
-  visaCopyBase64: string | undefined
+  visaCopyBase64: string | undefined,
+  visaCopyMime?: string
 ): boolean {
+  // If backend returned a non-trivial binary copy, trust it even when parsed text is noisy.
+  const copyLen = (visaCopyBase64 ?? "").trim().length;
+  if (copyLen > 1200) return true;
+  if (visaCopyBase64 && visaCopyMime?.includes("pdf")) return true;
   if (visaCopyBase64 && !looksLikeMofaChromeOnly(rawText)) return true;
   if (isPlaceholderOrBoilerplate(rawText)) return false;
   const t = (rawText ?? "").toLowerCase();
@@ -136,7 +141,7 @@ export default function VisaResultsStep({ result, onReset, onRetry, fileNameHint
   const { success, visaDetails, error, mofaMessage } = result;
   const copyB64 = getVisaCopyBase64(visaDetails);
   const copyMime = getVisaCopyMime(visaDetails);
-  const hasUsefulData = hasExtractableVisaContent(visaDetails?.rawText, copyB64);
+  const hasUsefulData = hasExtractableVisaContent(visaDetails?.rawText, copyB64, copyMime);
   // API said success but we have no real data — don’t pretend the lookup was useful
   const ambiguousSuccess = success && !hasUsefulData;
 
