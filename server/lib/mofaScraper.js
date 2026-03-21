@@ -282,20 +282,78 @@ async function classifyPostSubmitOverlay(page) {
   return { kind: "none", snippet: blob.slice(0, 300) };
 }
 
+/** Wait for visa content to render and extract structured visa details from MOFA's print page. */
+async function waitForVisaContentOnPage(page) {
+  try {
+    await page.waitForLoadState("networkidle", { timeout: 20000 }).catch(() => {});
+    for (let attempt = 0; attempt < 8; attempt++) {
+      const bodyText = await page.locator("body").innerText().catch(() => "");
+      if (/passport\s*no|رقم الجواز|visa\s*no|رقم التأشيرة|valid\s*from|صالحة اعتبارا/i.test(bodyText)) {
+        console.log("[visa-capture] Content loaded after", attempt, "checks");
+        await new Promise((r) => setTimeout(r, 2000));
+        return;
+      }
+      await new Promise((r) => setTimeout(r, 2500));
+    }
+    console.log("[visa-capture] Content did not appear after polling");
+  } catch { /* best effort */ }
+}
+
+/**
+ * Extract visa details as structured text from the PrintEventVisa page.
+ * MOFA's print page doesn't render in headless Playwright (JS rendering issue),
+ * so we extract the data from the DOM instead of screenshotting.
+ */
+async function extractVisaDetailsFromPrintPage(page) {
+  try {
+    const bodyText = await page.locator("body").innerText().catch(() => "");
+    if (!bodyText || bodyText.length < 30) return null;
+
+    const extract = (label) => {
+      const re = new RegExp(label + "[:\\s]*([^\\n]{1,80})", "i");
+      const m = bodyText.match(re);
+      return m?.[1]?.trim() || null;
+    };
+
+    const visaNo = extract("(?:رقم التأشيرة|Visa\\s*No\\.?)");
+    const appNo = extract("(?:رقم الطلب|Application\\s*No\\.?)");
+    const validFrom = extract("(?:صالحة اعتبارا|Valid\\s*From)");
+    const validUntil = extract("(?:صالحة لغاية|Valid\\s*Until)");
+    const passportNo = extract("(?:رقم الجواز|Passport\\s*No\\.?)");
+    const fullName = extract("(?:الاسم|Full\\s*Name)");
+    const nationality = extract("(?:الجنسية|Nationality)");
+    const profession = extract("(?:المهنة|Profession)");
+
+    if (!visaNo && !passportNo) return null;
+
+    const lines = [];
+    if (visaNo) lines.push(`Visa No: ${visaNo}`);
+    if (appNo) lines.push(`Application No: ${appNo}`);
+    if (fullName) lines.push(`Name: ${fullName}`);
+    if (passportNo) lines.push(`Passport No: ${passportNo}`);
+    if (nationality) lines.push(`Nationality: ${nationality}`);
+    if (validFrom) lines.push(`Valid From: ${validFrom}`);
+    if (validUntil) lines.push(`Valid Until: ${validUntil}`);
+    if (profession) lines.push(`Profession: ${profession}`);
+
+    return lines.join("\n");
+  } catch {
+    return null;
+  }
+}
+
 /** After a successful search, MOFA may redirect or expose a link to /Home/PrintEventVisa. */
 async function resolvePrintEventVisaPage(page, context) {
   const onPrintUrl = (p) => PRINT_EVENT_VISA_RE.test(p.url());
 
   if (onPrintUrl(page)) {
-    await page.waitForLoadState("networkidle", { timeout: 15000 }).catch(() => {});
-    await new Promise((r) => setTimeout(r, 1200));
+    await waitForVisaContentOnPage(page);
     return page;
   }
 
   try {
     await page.waitForURL((u) => PRINT_EVENT_VISA_RE.test(u.href), { timeout: 15000 });
-    await page.waitForLoadState("networkidle", { timeout: 15000 }).catch(() => {});
-    await new Promise((r) => setTimeout(r, 1200));
+    await waitForVisaContentOnPage(page);
     return page;
   } catch {
     /* still on search / intermediate */
@@ -315,8 +373,7 @@ async function resolvePrintEventVisaPage(page, context) {
       const popupPromise = context.waitForEvent("page", { timeout: 15000 });
       await printLink.click();
       const newPage = await popupPromise;
-      await newPage.waitForLoadState("networkidle", { timeout: 20000 }).catch(() => {});
-      await new Promise((r) => setTimeout(r, 1500));
+      await waitForVisaContentOnPage(newPage);
       await page.close().catch(() => {});
       return newPage;
     } catch {
@@ -333,8 +390,7 @@ async function resolvePrintEventVisaPage(page, context) {
     await printLink.click().catch(() => {});
     await page.waitForURL((u) => PRINT_EVENT_VISA_RE.test(u.href), { timeout: 10000 }).catch(() => {});
   }
-  await page.waitForLoadState("networkidle", { timeout: 15000 }).catch(() => {});
-  await new Promise((r) => setTimeout(r, 1200));
+  await waitForVisaContentOnPage(page);
   return page;
 }
 
@@ -523,18 +579,37 @@ async function captureVisaCopy(page, context) {
   // Issued visa print page — Chromium PDF matches browser “Print → Save as PDF”
   if (PRINT_EVENT_VISA_RE.test(page.url())) {
     try {
-      await page.waitForLoadState("networkidle", { timeout: 15000 }).catch(() => {});
-      await new Promise((r) => setTimeout(r, 2000));
-      const pdfBuf = await page.pdf({
-        format: "A4",
-        printBackground: true,
-        margin: { top: "10mm", bottom: "10mm", left: "8mm", right: "8mm" },
-      });
-      if (pdfBuf && pdfBuf.length > 1200) {
-        return { base64: pdfBuf.toString("base64"), mime: "application/pdf" };
+      console.log("[visa-capture] On print page:", page.url());
+      await waitForVisaContentOnPage(page);
+
+      // Extract structured visa details from the DOM (more reliable than screenshot in headless)
+      const structuredText = await extractVisaDetailsFromPrintPage(page);
+      if (structuredText) {
+        console.log("[visa-capture] Extracted structured visa text");
       }
-    } catch {
-      /* fall through */
+
+      // Hide header/footer/nav so screenshot contains only the visa content
+      await page.evaluate(() => {
+        document.querySelectorAll("header, footer, nav, .navbar, .footer, [role='navigation'], .cookie-consent, .cookie-bar, #CookieConsent").forEach(
+          (el) => { el.style.display = "none"; }
+        );
+      }).catch(() => {});
+
+      // Set a wider viewport so MOFA renders the full visa layout
+      await page.setViewportSize({ width: 1400, height: 900 }).catch(() => {});
+      await new Promise((r) => setTimeout(r, 1500));
+
+      const shot = await page.screenshot({ type: "png", fullPage: true });
+      console.log("[visa-capture] Screenshot size:", shot?.length);
+      if (shot?.length > 5000) {
+        return { base64: shot.toString("base64"), mime: "image/png", structuredText };
+      }
+      // Screenshot failed or too small — return structured text only
+      if (structuredText) {
+        return { structuredText };
+      }
+    } catch (err) {
+      console.error("[visa-capture] Error:", err?.message);
     }
   }
 
@@ -855,7 +930,15 @@ export async function submitVisaLookup({ sessionId, passportNumber, firstName, c
     }
 
     /** Issued-visa visual for display + download (skip on clear failures above) */
+    console.log("[submit] Before captureVisaCopy, page URL:", page.url(), "onPrintPage:", PRINT_EVENT_VISA_RE.test(page.url()));
     const visaCopy = await captureVisaCopy(page, context);
+    console.log("[submit] captureVisaCopy returned:", visaCopy ? `mime=${visaCopy.mime} b64=${visaCopy.base64?.length} structured=${!!visaCopy.structuredText}` : "null");
+
+    // Use structured text from print page when available (headless Playwright often can't render MOFA's visa page visually)
+    if (visaCopy?.structuredText && (!resultText || resultText.length < 50 || !/visa\s*no|رقم التأشيرة/i.test(resultText))) {
+      resultText = visaCopy.structuredText;
+    }
+
     await browser.close();
 
     const textLower = `${relevantRaw}\n${resultText || ""}`.toLowerCase();
