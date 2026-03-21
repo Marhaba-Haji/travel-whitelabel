@@ -743,7 +743,7 @@ export async function submitVisaLookup({ sessionId, passportNumber, firstName, c
       return {
         success: false,
         error:
-          "MOFA rejected the lookup (often a new captcha was generated after the image you saw, or a session glitch). Tap Retry on the captcha step for a fresh image, enter it immediately, and submit. If your details are correct, try once more without changing passport or nationality between loading the captcha and submitting.",
+          "The captcha or session was rejected by MOFA. Tap \"Try again\" to load a fresh captcha and re-submit.",
         mofaMessage: hint || undefined,
       };
     }
@@ -849,7 +849,7 @@ export async function submitVisaLookup({ sessionId, passportNumber, firstName, c
       return {
         success: false,
         error:
-          "No visa was found for these details. The visa may not have been issued yet, was not applied through this channel, or the passport name / number / nationality does not match MOFA records. Please verify your entries and try again.",
+          "No visa found for these details. Double-check the passport number, first name, and nationality, or the visa may not have been issued yet.",
         visaDetails: resultText ? { rawText: resultText } : undefined,
       };
     }
@@ -865,13 +865,18 @@ export async function submitVisaLookup({ sessionId, passportNumber, firstName, c
       /check completed|please verify the result on the official mofa/i.test(textLower);
     const isPlaceholderOnly = textIsPlaceholder && !visaCopy?.base64;
 
-    const looksLikeVisaContent =
-      hasVisaFound ||
-      !!visaCopy?.base64 ||
+    const textHasVisaSignals =
       /تاريخ الإصدار|تاريخ الانتهاء|date of issue|date of expiry|حالة التأشيرة|نوع التأشيرة|جواز|passport no|nationality|الجنسية|border number|الرقم الحدودي/.test(
         textLower
       ) ||
       (relevantRaw.length > 80 && /[\u0600-\u06FF]{25,}/.test(relevantRaw));
+    const textIsOnlyCookieBanner =
+      /ملفات الارتباط|cookie|إستخدامك لموقعنا/i.test(textLower) &&
+      !textHasVisaSignals;
+    const looksLikeVisaContent =
+      hasVisaFound ||
+      (!!visaCopy?.base64 && !textIsOnlyCookieBanner) ||
+      textHasVisaSignals;
 
     if (!isPlaceholderOnly && looksLikeVisaContent) {
       return {

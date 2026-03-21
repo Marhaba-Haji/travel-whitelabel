@@ -20,6 +20,7 @@ export interface VisaResult {
 interface VisaResultsStepProps {
   result: VisaResult;
   onReset: () => void;
+  onRetry?: () => void;
   /** Used in download filename, e.g. last digits of passport */
   fileNameHint?: string;
 }
@@ -66,12 +67,22 @@ function isPlaceholderOrBoilerplate(rawText: string | undefined): boolean {
   return false;
 }
 
+/** MOFA boilerplate that ends up in rawText / visa copy when no real visa was found. */
+function looksLikeMofaChromeOnly(rawText: string | undefined): boolean {
+  if (!rawText?.trim()) return true;
+  const t = rawText.toLowerCase();
+  const hasOnlyBoilerplate =
+    /ملفات الارتباط|cookie|سياسة الخصوصية|privacy policy|إستخدامك لموقعنا|usage policy/i.test(t) &&
+    !/تاريخ الإصدار|تاريخ الانتهاء|date of issue|date of expiry|visa number|رقم التأشيرة.*\d|حالة التأشيرة|نوع التأشيرة|border number|الرقم الحدودي/i.test(t);
+  return hasOnlyBoilerplate;
+}
+
 /** True only when we have something a user can actually use (visa copy, table text, etc.). */
 function hasExtractableVisaContent(
   rawText: string | undefined,
   visaCopyBase64: string | undefined
 ): boolean {
-  if (visaCopyBase64) return true;
+  if (visaCopyBase64 && !looksLikeMofaChromeOnly(rawText)) return true;
   if (isPlaceholderOrBoilerplate(rawText)) return false;
   const t = (rawText ?? "").toLowerCase();
   const substantialArabic = /[\u0600-\u06FF]{30,}/.test(rawText ?? "");
@@ -108,7 +119,20 @@ function formatVisaResult(rawText: string): ReactNode {
   );
 }
 
-export default function VisaResultsStep({ result, onReset, fileNameHint }: VisaResultsStepProps) {
+/** Strip MOFA privacy / cookie boilerplate from the message shown to users. */
+function cleanMofaMessage(raw: string | undefined): string | undefined {
+  if (!raw?.trim()) return undefined;
+  let s = raw
+    .replace(/×/g, "")
+    .replace(/منصة التأشيرات/g, "")
+    .replace(/من خلال إستخدامك لموقعنا[\s\S]*/i, "")
+    .replace(/إغلاق/g, "")
+    .trim();
+  if (s.length < 5) return undefined;
+  return s;
+}
+
+export default function VisaResultsStep({ result, onReset, onRetry, fileNameHint }: VisaResultsStepProps) {
   const { success, visaDetails, error, mofaMessage } = result;
   const copyB64 = getVisaCopyBase64(visaDetails);
   const copyMime = getVisaCopyMime(visaDetails);
@@ -205,13 +229,13 @@ export default function VisaResultsStep({ result, onReset, fileNameHint }: VisaR
           <div className="flex items-start gap-3">
             <AlertCircle className="h-6 w-6 shrink-0 text-destructive" />
             <div className="space-y-2">
-              <h3 className="font-semibold text-destructive">Lookup Result</h3>
+              <h3 className="font-semibold text-destructive">Lookup failed</h3>
               <p className="text-sm">
                 {error || "No visa record found or the captcha was incorrect. Please try again."}
               </p>
-              {mofaMessage ? (
-                <p className="text-xs text-muted-foreground border-t border-destructive/20 pt-2 mt-2 whitespace-pre-wrap break-words">
-                  MOFA message: {mofaMessage}
+              {cleanMofaMessage(mofaMessage) ? (
+                <p className="text-xs text-muted-foreground border-t border-destructive/20 pt-2 mt-2">
+                  MOFA response: {cleanMofaMessage(mofaMessage)}
                 </p>
               ) : null}
             </div>
@@ -223,9 +247,16 @@ export default function VisaResultsStep({ result, onReset, fileNameHint }: VisaR
         When MOFA opens the official print visa page, we save the same output as Print → Save as PDF. Confirm all details against your passport and MOFA if needed.
       </p>
 
-      <Button variant="outline" className="w-full" onClick={onReset}>
-        Check another visa
-      </Button>
+      <div className="flex gap-3">
+        {onRetry && !success && (
+          <Button variant="default" className="flex-1" onClick={onRetry}>
+            Try again
+          </Button>
+        )}
+        <Button variant="outline" className={onRetry && !success ? "flex-1" : "w-full"} onClick={onReset}>
+          {success ? "Check another visa" : "Start over"}
+        </Button>
+      </div>
     </div>
   );
 }

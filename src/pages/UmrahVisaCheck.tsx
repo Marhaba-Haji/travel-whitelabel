@@ -121,10 +121,15 @@ export default function UmrahVisaCheck() {
     }
   };
 
+  const handleRetry = () => {
+    setResult(null);
+    setStep(3);
+  };
+
   const handleReset = () => {
     setStep(1);
     setExtractedData({});
-    setFormValues({});
+    setFormValues({ ...VISA_TEST_PREFILL });
     setResult(null);
   };
 
@@ -222,6 +227,7 @@ export default function UmrahVisaCheck() {
               <VisaResultsStep
                 result={result}
                 onReset={handleReset}
+                onRetry={handleRetry}
                 fileNameHint={formValues.passportNumber}
               />
             )}
