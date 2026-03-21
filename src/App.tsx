@@ -27,6 +27,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const SharedItinerary = lazy(() => import("./pages/SharedItinerary"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
+const UmrahVisaCheck = lazy(() => import("./pages/UmrahVisaCheck"));
 
 const queryClient = new QueryClient();
 
@@ -56,6 +57,7 @@ const App = () => (
                 <Route path="/itinerary/:shareId" element={<SharedItinerary />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/blog/:slug" element={<BlogPost />} />
+                <Route path="/umrah-visa-check" element={<UmrahVisaCheck />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

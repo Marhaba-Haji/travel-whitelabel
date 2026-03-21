@@ -15,6 +15,8 @@ export default defineConfig(({ mode }) => ({
       "/api": {
         target: "http://localhost:3001",
         changeOrigin: true,
+        timeout: 120000,
+        proxyTimeout: 120000,
       },
       "/supabase-proxy": {
         target: "https://kofijegdzeshitunwddn.supabase.co",

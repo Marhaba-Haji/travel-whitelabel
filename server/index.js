@@ -11,6 +11,7 @@ import cors from "cors";
 import crypto from "crypto";
 import bcrypt from "bcrypt";
 import { createClient } from "@supabase/supabase-js";
+import visaLookupRouter from "./routes/visaLookup.js";
 
 const app = express();
 app.use(cors());
@@ -402,6 +403,14 @@ app.post("/api/payu-failure", async (req, res) => {
 
   res.redirect(302, `${FRONTEND_URL.replace(/\/$/, "")}/signup?payment=failed`);
 });
+
+// Chrome DevTools requests this on every origin; without it you get 404 + CSP console noise
+app.get("/.well-known/appspecific/com.chrome.devtools.json", (_req, res) => {
+  res.type("application/json").send("{}");
+});
+
+// ----- Visa lookup (passport OCR, MOFA visa check) -----
+app.use("/api/visa", visaLookupRouter);
 
 app.listen(PORT, () => {
   console.log(`API server running on http://localhost:${PORT}`);
