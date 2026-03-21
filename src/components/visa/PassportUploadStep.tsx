@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { Upload, Loader2, FileCheck, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 
 const ACCEPT = "image/jpeg,image/png,image/webp,application/pdf";
 const MAX_SIZE_MB = 5;
@@ -17,13 +18,25 @@ interface PassportUploadStepProps {
   disabled?: boolean;
 }
 
+/** Convert File to base64 string (without data URL prefix). */
+async function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      // Remove "data:mime;base64," prefix
+      resolve(result.split(",")[1] || "");
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 export default function PassportUploadStep({ onExtracted, disabled }: PassportUploadStepProps) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastFile, setLastFile] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  const apiBase = import.meta.env.VITE_API_URL ?? "";
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -45,32 +58,21 @@ export default function PassportUploadStep({ onExtracted, disabled }: PassportUp
     setUploading(true);
 
     try {
-      const formData = new FormData();
-      formData.append("passport", file);
+      const fileBase64 = await fileToBase64(file);
 
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 60000);
-
-      const res = await fetch(`${apiBase}/api/visa/passport-extract`, {
-        method: "POST",
-        body: formData,
-        signal: controller.signal,
+      const { data, error: fnError } = await supabase.functions.invoke("visa-passport-ocr", {
+        body: {
+          fileBase64,
+          mimeType: mime,
+        },
       });
 
-      clearTimeout(timeout);
-
-      const data = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        setError(data?.error || `Request failed (${res.status}). Please enter details manually.`);
+      if (fnError) {
+        setError("Failed to process passport. Please enter details manually.");
         return;
       }
 
-      if (import.meta.env.DEV && data.debug) {
-        console.error("[passport-extract] Server debug (PDF/image pipeline):", data.debug);
-      }
-
-      if (data.error) {
+      if (data?.error) {
         setError(data.error);
         onExtracted({
           passportNumber: data.passportNumber,

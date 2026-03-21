@@ -3,11 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, RefreshCw } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface CaptchaStepProps {
-  onSubmit: (sessionId: string, captchaText: string) => void;
+  onSubmit: (sessionData: string, captchaText: string) => void;
   isLoading?: boolean;
-  /** Sent to /api/visa/captcha so MOFA’s form (especially nationality) matches submit — keeps captcha valid. */
   passportNumber?: string;
   firstName?: string;
   countryCode?: string;
@@ -20,54 +20,46 @@ export default function CaptchaStep({
   firstName,
   countryCode,
 }: CaptchaStepProps) {
-  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [sessionData, setSessionData] = useState<string | null>(null);
   const [captchaImage, setCaptchaImage] = useState<string | null>(null);
   const [captchaText, setCaptchaText] = useState("");
   const [fetchingCaptcha, setFetchingCaptcha] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
-
-  const apiBase = import.meta.env.VITE_API_URL ?? "";
 
   const loadCaptcha = async () => {
     setFetchError(null);
     setFetchingCaptcha(true);
     setCaptchaText("");
     try {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 45000);
-
-      const res = await fetch(`${apiBase}/api/visa/captcha`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke("visa-captcha", {
+        body: {
           passportNumber: passportNumber?.trim() || undefined,
           firstName: firstName?.trim() || undefined,
           countryCode: countryCode?.trim() || undefined,
-        }),
-        signal: controller.signal,
+        },
       });
 
-      clearTimeout(timeout);
-
-      const data = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        setFetchError(data.error || "Failed to load captcha");
+      if (error) {
+        setFetchError("Failed to load captcha. Please try again.");
         return;
       }
 
-      if (!data.sessionId || !data.captchaImageBase64) {
+      if (!data?.sessionData || !data?.captchaImageBase64) {
         setFetchError(
-          data.error ||
-            "MOFA did not return a captcha image (their site sometimes does this). Tap Retry or try again in a minute."
+          data?.error ||
+            "MOFA did not return a captcha image. Tap Retry or try again in a minute."
         );
         return;
       }
 
-      setSessionId(data.sessionId);
+      setSessionData(data.sessionData);
       setCaptchaImage(`data:image/png;base64,${data.captchaImageBase64}`);
     } catch (err: unknown) {
-      setFetchError(err instanceof Error && err.message.includes("abort") ? "Request timed out" : "Failed to load captcha");
+      setFetchError(
+        err instanceof Error && err.message.includes("abort")
+          ? "Request timed out"
+          : "Failed to load captcha"
+      );
     } finally {
       setFetchingCaptcha(false);
     }
@@ -79,15 +71,15 @@ export default function CaptchaStep({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (sessionId && captchaText.trim()) {
-      onSubmit(sessionId, captchaText.trim());
+    if (sessionData && captchaText.trim()) {
+      onSubmit(sessionData, captchaText.trim());
     }
   };
 
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Enter the characters exactly as shown (case-sensitive). The captcha is tied to this session and expires in about 5 minutes. If the image is missing or the page looks empty, use <strong>Retry</strong> — MOFA’s site sometimes loads the captcha late or only after a refresh.
+        Enter the characters exactly as shown (case-sensitive). The captcha is tied to this session and expires in about 5 minutes. If the image is missing or the page looks empty, use <strong>Retry</strong> — MOFA's site sometimes loads the captcha late or only after a refresh.
       </p>
 
       {fetchingCaptcha ? (
