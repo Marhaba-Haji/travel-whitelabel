@@ -62,7 +62,7 @@ export default function UmrahVisaCheck() {
     setStep(3);
   };
 
-  const handleCaptchaSubmit = async (sessionId: string, captchaText: string) => {
+  const handleCaptchaSubmit = async (sessionData: string, captchaText: string) => {
     if (!formValues.passportNumber || !formValues.firstName || !formValues.countryCode) {
       toast({ variant: "destructive", title: "Missing details", description: "Please go back and fill all fields." });
       return;
@@ -72,37 +72,19 @@ export default function UmrahVisaCheck() {
     setResult(null);
 
     try {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 90000);
-
-      const res = await fetch(`${apiBase}/api/visa/lookup`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sessionId,
+      const { data, error: fnError } = await supabase.functions.invoke("visa-lookup", {
+        body: {
+          sessionData,
           passportNumber: formValues.passportNumber,
           firstName: formValues.firstName,
           countryCode: formValues.countryCode,
           captchaText,
-        }),
-        signal: controller.signal,
+        },
       });
 
-      clearTimeout(timeout);
-
-      const data = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        const msg =
-          res.status === 429
-            ? data.error || "Too many attempts. Wait a few minutes or restart the API server in dev."
-            : data.error || "Lookup failed";
-        setResult({ success: false, error: msg });
-        toast({
-          variant: "destructive",
-          title: res.status === 429 ? "Too many requests" : "Error",
-          description: msg,
-        });
+      if (fnError) {
+        setResult({ success: false, error: "Visa lookup failed. Please try again." });
+        toast({ variant: "destructive", title: "Error", description: "Visa lookup failed. Please try again." });
         return;
       }
 
@@ -112,7 +94,7 @@ export default function UmrahVisaCheck() {
         error: data.error,
         mofaMessage: typeof data.mofaMessage === "string" ? data.mofaMessage : undefined,
       });
-      setStep(4);
+      if (data.success) setStep(4);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Request failed";
       setResult({ success: false, error: msg.includes("abort") ? "Request timed out. Please try again." : msg });
