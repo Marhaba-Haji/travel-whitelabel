@@ -80,14 +80,19 @@ export default function PassportUploadStep({ onExtracted, disabled }: PassportUp
           passportNumber: data.passportNumber,
           firstName: data.firstName,
           lastName: data.lastName,
+          nationality: data.nationality,
+          confidence: data.confidence,
           error: data.error,
         });
       } else {
         setLastFile(file.name);
+        const conf = data.confidence || "medium";
         onExtracted({
           passportNumber: data.passportNumber || "",
           firstName: data.firstName || "",
           lastName: data.lastName,
+          nationality: data.nationality,
+          confidence: conf,
         });
       }
     } catch (err: unknown) {
