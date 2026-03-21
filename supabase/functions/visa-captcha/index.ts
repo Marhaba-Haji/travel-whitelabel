@@ -1,7 +1,7 @@
 /**
  * Visa Captcha - Fetches the MOFA visa search page via HTTP, extracts captcha image,
  * and returns session cookies + captcha image for the client.
- * No Playwright needed — MOFA uses server-rendered HTML with standard POST forms.
+ * Uses node:https to bypass TLS certificate issues with MOFA's server.
  */
 
 const corsHeaders = {
@@ -30,25 +30,69 @@ function checkRateLimit(ip: string): boolean {
   return entry.count <= RATE_LIMIT_MAX;
 }
 
-/** Extract Set-Cookie headers into a cookie string for subsequent requests. */
-function extractCookies(response: Response): string {
+/**
+ * Make an HTTPS GET request using node:https to bypass Deno's strict TLS verification.
+ * Returns { body, headers, statusCode }.
+ */
+async function httpsGet(
+  url: string,
+  headers: Record<string, string> = {}
+): Promise<{ body: Buffer; headers: Record<string, string | string[]>; statusCode: number; rawHeaders: string[] }> {
+  const https = await import("node:https");
+  const { URL } = await import("node:url");
+
+  return new Promise((resolve, reject) => {
+    const parsedUrl = new URL(url);
+    const options = {
+      hostname: parsedUrl.hostname,
+      port: parsedUrl.port || 443,
+      path: parsedUrl.pathname + parsedUrl.search,
+      method: "GET",
+      headers: {
+        ...headers,
+      },
+      rejectUnauthorized: false, // Skip TLS verification for MOFA's cert
+    };
+
+    const req = https.request(options, (res: any) => {
+      const chunks: Buffer[] = [];
+      res.on("data", (chunk: Buffer) => chunks.push(chunk));
+      res.on("end", () => {
+        // Handle redirects
+        if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+          httpsGet(res.headers.location, headers).then(resolve).catch(reject);
+          return;
+        }
+        const { Buffer: NodeBuffer } = require("node:buffer");
+        resolve({
+          body: NodeBuffer.concat(chunks),
+          headers: res.headers,
+          statusCode: res.statusCode,
+          rawHeaders: res.rawHeaders || [],
+        });
+      });
+    });
+
+    req.on("error", reject);
+    req.setTimeout(30000, () => {
+      req.destroy(new Error("Request timed out"));
+    });
+    req.end();
+  });
+}
+
+/** Extract cookies from node:https response headers */
+function extractCookiesFromHeaders(headers: Record<string, string | string[]>): string {
   const cookies: string[] = [];
-  // response.headers.getSetCookie() returns all Set-Cookie values
-  const setCookieHeaders = response.headers.getSetCookie?.() || [];
-  for (const sc of setCookieHeaders) {
-    const nameValue = sc.split(";")[0]?.trim();
-    if (nameValue) cookies.push(nameValue);
-  }
-  // Fallback: try raw header
-  if (cookies.length === 0) {
-    const raw = response.headers.get("set-cookie");
-    if (raw) {
-      // Multiple cookies may be comma-separated (or not, depending on server)
-      for (const part of raw.split(/,(?=[^ ])/)) {
-        const nameValue = part.split(";")[0]?.trim();
-        if (nameValue) cookies.push(nameValue);
-      }
+  const setCookie = headers["set-cookie"];
+  if (Array.isArray(setCookie)) {
+    for (const sc of setCookie) {
+      const nameValue = sc.split(";")[0]?.trim();
+      if (nameValue) cookies.push(nameValue);
     }
+  } else if (typeof setCookie === "string") {
+    const nameValue = setCookie.split(";")[0]?.trim();
+    if (nameValue) cookies.push(nameValue);
   }
   return cookies.join("; ");
 }
@@ -68,31 +112,31 @@ Deno.serve(async (req) => {
 
   try {
     // Step 1: GET the MOFA search page to obtain session cookies and captcha image URL
-    const pageResponse = await fetch(MOFA_URL, {
-      method: "GET",
-      headers: {
-        "User-Agent": UA,
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.9,ar;q=0.8",
-      },
-      redirect: "follow",
+    console.log("[visa-captcha] Fetching MOFA search page...");
+    const pageResult = await httpsGet(MOFA_URL, {
+      "User-Agent": UA,
+      "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      "Accept-Language": "en-US,en;q=0.9,ar;q=0.8",
     });
 
-    if (!pageResponse.ok) {
-      console.error(`MOFA page returned ${pageResponse.status}`);
+    if (pageResult.statusCode !== 200) {
+      console.error(`[visa-captcha] MOFA page returned ${pageResult.statusCode}`);
       return new Response(
-        JSON.stringify({ error: `MOFA website returned status ${pageResponse.status}. Please try again.` }),
+        JSON.stringify({ error: `MOFA website returned status ${pageResult.statusCode}. Please try again.` }),
         { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const cookies = extractCookies(pageResponse);
-    const html = await pageResponse.text();
+    const cookies = extractCookiesFromHeaders(pageResult.headers);
+    const html = pageResult.body.toString("utf-8");
+    console.log(`[visa-captcha] Got HTML (${html.length} chars), cookies: ${cookies.substring(0, 100)}...`);
 
     // Step 2: Extract captcha image URL from HTML
     const captchaMatch = html.match(MOFA_CAPTCHA_RE);
     if (!captchaMatch?.[1]) {
       console.error("[visa-captcha] No captcha image found in MOFA HTML");
+      // Log a snippet of HTML for debugging
+      console.error("[visa-captcha] HTML snippet:", html.substring(0, 500));
       return new Response(
         JSON.stringify({
           error: "MOFA did not return a captcha image. Their site may be temporarily unavailable. Please try again in a moment.",
@@ -102,19 +146,18 @@ Deno.serve(async (req) => {
     }
 
     const captchaUrl = captchaMatch[1];
+    console.log(`[visa-captcha] Captcha URL: ${captchaUrl}`);
 
     // Step 3: Fetch the captcha image using the same cookies (session-bound)
-    const captchaResponse = await fetch(captchaUrl, {
-      headers: {
-        "User-Agent": UA,
-        "Cookie": cookies,
-        "Referer": MOFA_URL,
-        "Accept": "image/webp,image/apng,image/*,*/*;q=0.8",
-      },
+    const captchaResult = await httpsGet(captchaUrl, {
+      "User-Agent": UA,
+      "Cookie": cookies,
+      "Referer": MOFA_URL,
+      "Accept": "image/webp,image/apng,image/*,*/*;q=0.8",
     });
 
-    if (!captchaResponse.ok) {
-      console.error(`Captcha image fetch failed: ${captchaResponse.status}`);
+    if (captchaResult.statusCode !== 200) {
+      console.error(`[visa-captcha] Captcha image fetch failed: ${captchaResult.statusCode}`);
       return new Response(
         JSON.stringify({ error: "Failed to load captcha image from MOFA. Please try again." }),
         { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -122,15 +165,13 @@ Deno.serve(async (req) => {
     }
 
     // Merge any additional cookies from captcha response
-    const captchaCookies = extractCookies(captchaResponse);
+    const captchaCookies = extractCookiesFromHeaders(captchaResult.headers);
     const allCookies = captchaCookies
       ? `${cookies}; ${captchaCookies}`
       : cookies;
 
-    const captchaBuffer = await captchaResponse.arrayBuffer();
-    const captchaBase64 = btoa(
-      String.fromCharCode(...new Uint8Array(captchaBuffer))
-    );
+    // Convert captcha image buffer to base64
+    const captchaBase64 = captchaResult.body.toString("base64");
 
     if (!captchaBase64 || captchaBase64.length < 40) {
       return new Response(
@@ -138,6 +179,8 @@ Deno.serve(async (req) => {
         { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    console.log(`[visa-captcha] Captcha image fetched successfully (${captchaBase64.length} base64 chars)`);
 
     // Step 4: Create a session ID and encode cookies for the client to send back
     const sessionId = `mofa_${Date.now()}_${crypto.randomUUID().slice(0, 8)}`;
@@ -158,13 +201,13 @@ Deno.serve(async (req) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
-    console.error("visa-captcha error:", err);
+    console.error("[visa-captcha] error:", err);
     const msg = err instanceof Error ? err.message : "Unknown error";
     return new Response(
       JSON.stringify({
         error: msg.includes("abort") || msg.includes("timeout")
           ? "Request to MOFA timed out. Please try again."
-          : "Failed to load captcha. Please try again.",
+          : `Failed to load captcha: ${msg}`,
       }),
       { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
