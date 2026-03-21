@@ -436,8 +436,9 @@ Deno.serve(async (req) => {
 
     console.log(`[visa-lookup] Response status: ${response.statusCode}, URL: ${responseUrl}`);
 
-    // Check for captcha errors
-    const hasCaptchaError = CAPTCHA_ERROR_PHRASES.some((p) =>
+    // Check for captcha errors — but NOT if MOFA already redirected to the visa print page
+    const onPrintPage = isPrintVisaUrl(responseUrl);
+    const hasCaptchaError = !onPrintPage && CAPTCHA_ERROR_PHRASES.some((p) =>
       combinedLower.includes(p.toLowerCase())
     );
     if (hasCaptchaError) {
@@ -458,7 +459,7 @@ Deno.serve(async (req) => {
 
     // Check for visa found
     const hasVisaFound =
-      isPrintVisaUrl(responseUrl) ||
+      onPrintPage ||
       VISA_FOUND_PHRASES.some((p) => combinedLower.includes(p.toLowerCase()));
 
     if (hasNoResult && !hasVisaFound) {
