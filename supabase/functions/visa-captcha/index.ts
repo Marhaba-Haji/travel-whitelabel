@@ -12,7 +12,7 @@ const corsHeaders = {
 
 const MOFA_URL = "https://visa.mofa.gov.sa/visaservices/searchvisa";
 const MOFA_HOST = "visa.mofa.gov.sa";
-const MOFA_CAPTCHA_RE = /src="(https:\/\/visa\.mofa\.gov\.sa\/Base\/GetRandomCaptchaImage\/\d+)"/;
+const MOFA_CAPTCHA_RE = /(?:src|data-src)\s*=\s*["']([^"']*GetRandomCaptchaImage\/\d+)["']/i;
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36";
 
 // Explicit DigiCert chain to avoid UnknownIssuer in edge runtimes with limited trust stores.
@@ -99,6 +99,16 @@ function resolveRedirectUrl(location: string, currentUrl: string): string {
     return new URL(location, currentUrl).toString();
   } catch {
     return location;
+  }
+}
+
+function resolveCaptchaUrl(captchaPathOrUrl: string): string {
+  try {
+    return new URL(captchaPathOrUrl, MOFA_URL).toString();
+  } catch {
+    if (captchaPathOrUrl.startsWith("http")) return captchaPathOrUrl;
+    if (captchaPathOrUrl.startsWith("/")) return `https://${MOFA_HOST}${captchaPathOrUrl}`;
+    return `https://${MOFA_HOST}/${captchaPathOrUrl.replace(/^\/+/, "")}`;
   }
 }
 
@@ -289,7 +299,10 @@ Deno.serve(async (req) => {
 
     // Step 2: Extract captcha image URL from HTML
     const captchaMatch = html.match(MOFA_CAPTCHA_RE);
-    if (!captchaMatch?.[1]) {
+    const fallbackPathMatch = html.match(/GetRandomCaptchaImage\/\d+/i);
+    const captchaPath = captchaMatch?.[1] || fallbackPathMatch?.[0] || null;
+
+    if (!captchaPath) {
       console.error("[visa-captcha] No captcha image found in MOFA HTML");
       // Log a snippet of HTML for debugging
       console.error("[visa-captcha] HTML snippet:", html.substring(0, 500));
@@ -301,7 +314,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    const captchaUrl = captchaMatch[1];
+    const captchaUrl = resolveCaptchaUrl(captchaPath);
     console.log(`[visa-captcha] Captcha URL: ${captchaUrl}`);
 
     // Step 3: Fetch the captcha image using the same cookies (session-bound)
