@@ -51,6 +51,7 @@ export default function UmrahVisaCheck() {
       ...prev,
       passportNumber: data.passportNumber ?? prev.passportNumber,
       firstName: data.firstName ?? prev.firstName,
+      countryCode: data.nationality ?? prev.countryCode,
     }));
     if (data.passportNumber || data.firstName) {
       setStep(2);
