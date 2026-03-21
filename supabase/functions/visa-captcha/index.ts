@@ -11,6 +11,7 @@ const corsHeaders = {
 };
 
 const MOFA_URL = "https://visa.mofa.gov.sa/visaservices/searchvisa";
+const MOFA_HOST = "visa.mofa.gov.sa";
 const MOFA_CAPTCHA_RE = /src="(https:\/\/visa\.mofa\.gov\.sa\/Base\/GetRandomCaptchaImage\/\d+)"/;
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36";
 
@@ -18,6 +19,8 @@ const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT_MAX = 60;
 const RATE_LIMIT_WINDOW = 10 * 60 * 1000;
+
+let insecureHttpClient: Deno.HttpClient | null = null;
 
 function checkRateLimit(ip: string): boolean {
   const now = Date.now();
@@ -30,6 +33,88 @@ function checkRateLimit(ip: string): boolean {
   return entry.count <= RATE_LIMIT_MAX;
 }
 
+function isTlsIssuerError(err: unknown): boolean {
+  const msg = err instanceof Error ? err.message : String(err || "");
+  const normalized = msg.toLowerCase();
+  return normalized.includes("unknownissuer") ||
+    normalized.includes("invalid peer certificate") ||
+    normalized.includes("certificate") && normalized.includes("issuer");
+}
+
+function resolveRedirectUrl(location: string, currentUrl: string): string {
+  try {
+    return new URL(location, currentUrl).toString();
+  } catch {
+    return location;
+  }
+}
+
+function getInsecureHttpClient(): Deno.HttpClient {
+  if (!insecureHttpClient) {
+    insecureHttpClient = Deno.createHttpClient({
+      unsafelyIgnoreCertificateErrors: [MOFA_HOST],
+      http2: true,
+    });
+  }
+  return insecureHttpClient;
+}
+
+/**
+ * Fallback for environments where node:https still enforces TLS chain checks.
+ * Uses Deno HTTP client with host-specific cert bypass.
+ */
+async function httpsGetWithInsecureClient(
+  url: string,
+  headers: Record<string, string> = {}
+): Promise<{ body: Buffer; headers: Record<string, string | string[]>; statusCode: number; rawHeaders: string[] }> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 30000);
+
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers,
+      redirect: "manual",
+      signal: controller.signal,
+      client: getInsecureHttpClient(),
+    } as RequestInit & { client: Deno.HttpClient });
+
+    if (response.status >= 300 && response.status < 400) {
+      const location = response.headers.get("location");
+      if (location) {
+        const redirectUrl = resolveRedirectUrl(location, url);
+        return await httpsGetWithInsecureClient(redirectUrl, headers);
+      }
+    }
+
+    const { Buffer: NodeBuffer } = await import("node:buffer");
+    const body = NodeBuffer.from(await response.arrayBuffer());
+    const normalizedHeaders: Record<string, string | string[]> = {};
+    const rawHeaders: string[] = [];
+
+    response.headers.forEach((value, key) => {
+      rawHeaders.push(key, value);
+      if (normalizedHeaders[key] === undefined) {
+        normalizedHeaders[key] = value;
+        return;
+      }
+      const existing = normalizedHeaders[key];
+      normalizedHeaders[key] = Array.isArray(existing)
+        ? [...existing, value]
+        : [existing, value];
+    });
+
+    return {
+      body,
+      headers: normalizedHeaders,
+      statusCode: response.status,
+      rawHeaders,
+    };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 /**
  * Make an HTTPS GET request using node:https to bypass Deno's strict TLS verification.
  * Returns { body, headers, statusCode }.
@@ -38,47 +123,61 @@ async function httpsGet(
   url: string,
   headers: Record<string, string> = {}
 ): Promise<{ body: Buffer; headers: Record<string, string | string[]>; statusCode: number; rawHeaders: string[] }> {
-  const https = await import("node:https");
-  const { URL } = await import("node:url");
+  try {
+    const https = await import("node:https");
+    const { URL } = await import("node:url");
 
-  return new Promise((resolve, reject) => {
-    const parsedUrl = new URL(url);
-    const options = {
-      hostname: parsedUrl.hostname,
-      port: parsedUrl.port || 443,
-      path: parsedUrl.pathname + parsedUrl.search,
-      method: "GET",
-      headers: {
-        ...headers,
-      },
-      rejectUnauthorized: false, // Skip TLS verification for MOFA's cert
-    };
+    return await new Promise((resolve, reject) => {
+      const parsedUrl = new URL(url);
+      const options = {
+        hostname: parsedUrl.hostname,
+        port: parsedUrl.port || 443,
+        path: parsedUrl.pathname + parsedUrl.search,
+        method: "GET",
+        headers: {
+          ...headers,
+        },
+        rejectUnauthorized: false, // Skip TLS verification for MOFA's cert
+      };
 
-    const req = https.request(options, (res: any) => {
-      const chunks: Buffer[] = [];
-      res.on("data", (chunk: Buffer) => chunks.push(chunk));
-      res.on("end", () => {
-        // Handle redirects
-        if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-          httpsGet(res.headers.location, headers).then(resolve).catch(reject);
-          return;
-        }
-        const { Buffer: NodeBuffer } = require("node:buffer");
-        resolve({
-          body: NodeBuffer.concat(chunks),
-          headers: res.headers,
-          statusCode: res.statusCode,
-          rawHeaders: res.rawHeaders || [],
+      const req = https.request(options, (res: any) => {
+        const chunks: Buffer[] = [];
+        res.on("data", (chunk: Buffer) => chunks.push(chunk));
+        res.on("end", async () => {
+          try {
+            // Handle redirects
+            if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+              const redirectUrl = resolveRedirectUrl(String(res.headers.location), url);
+              const redirected = await httpsGet(redirectUrl, headers);
+              resolve(redirected);
+              return;
+            }
+            const { Buffer: NodeBuffer } = await import("node:buffer");
+            resolve({
+              body: NodeBuffer.concat(chunks),
+              headers: res.headers,
+              statusCode: res.statusCode,
+              rawHeaders: res.rawHeaders || [],
+            });
+          } catch (e) {
+            reject(e);
+          }
         });
       });
-    });
 
-    req.on("error", reject);
-    req.setTimeout(30000, () => {
-      req.destroy(new Error("Request timed out"));
+      req.on("error", reject);
+      req.setTimeout(30000, () => {
+        req.destroy(new Error("Request timed out"));
+      });
+      req.end();
     });
-    req.end();
-  });
+  } catch (err) {
+    if (isTlsIssuerError(err)) {
+      console.warn("[visa-captcha] node:https TLS validation failed, retrying with Deno insecure client");
+      return await httpsGetWithInsecureClient(url, headers);
+    }
+    throw err;
+  }
 }
 
 /** Extract cookies from node:https response headers */
