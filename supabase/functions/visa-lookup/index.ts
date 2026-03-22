@@ -75,6 +75,63 @@ const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT_MAX = 30;
 const RATE_LIMIT_WINDOW = 10 * 60 * 1000;
 
+function splitSetCookieHeader(raw: string): string[] {
+  return raw
+    .split(/,(?=[^;,\s=]+=[^;,]+)/g)
+    .map((v) => v.trim())
+    .filter(Boolean);
+}
+
+function getSetCookieValues(headers: Record<string, string | string[]>): string[] {
+  const out: string[] = [];
+  for (const [k, v] of Object.entries(headers || {})) {
+    if (k.toLowerCase() !== "set-cookie") continue;
+    if (Array.isArray(v)) {
+      for (const cookie of v) {
+        if (!cookie) continue;
+        out.push(...splitSetCookieHeader(String(cookie)));
+      }
+      continue;
+    }
+    if (typeof v === "string" && v.trim()) {
+      out.push(...splitSetCookieHeader(v));
+    }
+  }
+  return out;
+}
+
+function getSetCookieValuesFromFetchHeaders(headers: Headers): string[] {
+  const withGetSetCookie = headers as Headers & { getSetCookie?: () => string[] };
+  if (typeof withGetSetCookie.getSetCookie === "function") {
+    return withGetSetCookie.getSetCookie().map((v) => v.trim()).filter(Boolean);
+  }
+  const raw = headers.get("set-cookie");
+  return raw ? splitSetCookieHeader(raw) : [];
+}
+
+function mergeCookieHeader(existingCookieHeader: string | undefined, setCookieValues: string[]): string | undefined {
+  const cookieMap = new Map<string, string>();
+
+  if (existingCookieHeader) {
+    for (const part of existingCookieHeader.split(";")) {
+      const [name, ...rest] = part.trim().split("=");
+      if (!name || rest.length === 0) continue;
+      cookieMap.set(name.trim(), rest.join("=").trim());
+    }
+  }
+
+  for (const setCookie of setCookieValues) {
+    const firstPart = setCookie.split(";")[0]?.trim();
+    if (!firstPart) continue;
+    const [name, ...rest] = firstPart.split("=");
+    if (!name || rest.length === 0) continue;
+    cookieMap.set(name.trim(), rest.join("=").trim());
+  }
+
+  if (cookieMap.size === 0) return existingCookieHeader;
+  return [...cookieMap.entries()].map(([k, v]) => `${k}=${v}`).join("; ");
+}
+
 function checkRateLimit(ip: string): boolean {
   const now = Date.now();
   let entry = rateLimitMap.get(ip);
@@ -100,6 +157,28 @@ function resolveRedirectUrl(location: string, currentUrl: string): string {
   } catch {
     return location;
   }
+}
+
+function extractPrintVisaUrl(html: string, currentUrl: string): string | undefined {
+  const patterns = [
+    /href=["']([^"']*PrintEventVisa[^"']*)["']/i,
+    /window\.open\(["']([^"']*PrintEventVisa[^"']*)["']/i,
+    /location\.href\s*=\s*["']([^"']*PrintEventVisa[^"']*)["']/i,
+    /(\/[^"'\s>]*PrintEventVisa[^"'\s>]*)/i,
+  ];
+
+  for (const re of patterns) {
+    const match = html.match(re);
+    const raw = match?.[1];
+    if (!raw) continue;
+    try {
+      return new URL(raw, currentUrl).toString();
+    } catch {
+      return raw;
+    }
+  }
+
+  return undefined;
 }
 
 function getInsecureHttpClient(): Deno.HttpClient {
@@ -143,11 +222,18 @@ async function httpsRequestWithInsecureClient(
     if (followRedirects && response.status >= 300 && response.status < 400) {
       const location = response.headers.get("location");
       if (location) {
+        const mergedCookie = mergeCookieHeader(
+          options.headers?.Cookie,
+          getSetCookieValuesFromFetchHeaders(response.headers)
+        );
+        const nextHeaders = { ...(options.headers || {}) };
+        if (mergedCookie) nextHeaders.Cookie = mergedCookie;
         const redirectUrl = resolveRedirectUrl(location, url);
         return await httpsRequestWithInsecureClient(redirectUrl, {
           ...options,
           method: "GET",
           body: undefined,
+          headers: nextHeaders,
         });
       }
     }
@@ -211,8 +297,11 @@ async function httpsRequest(
       const req = https.request(reqOptions, (res: any) => {
         // Handle redirects
         if (followRedirects && res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+          const mergedCookie = mergeCookieHeader(options.headers?.Cookie, getSetCookieValues(res.headers));
+          const redirectHeaders = { ...(options.headers || {}) };
+          if (mergedCookie) redirectHeaders.Cookie = mergedCookie;
           const redirectUrl = resolveRedirectUrl(String(res.headers.location), url);
-          httpsRequest(redirectUrl, { ...options, method: "GET", body: undefined })
+          httpsRequest(redirectUrl, { ...options, method: "GET", body: undefined, headers: redirectHeaders })
             .then(resolve)
             .catch(reject);
           return;
@@ -429,6 +518,7 @@ Deno.serve(async (req) => {
     });
 
     const responseUrl = response.finalUrl || MOFA_URL;
+    const lookupCookieHeader = mergeCookieHeader(session.cookies, getSetCookieValues(response.headers)) || session.cookies;
     const responseHtml = response.body.toString("utf-8");
     const resultText = extractResultText(responseHtml);
     const fullText = htmlToText(responseHtml);
@@ -476,24 +566,22 @@ Deno.serve(async (req) => {
     // If found visa signals, try to capture visa details
     if (hasVisaFound) {
       let visaHtml = responseHtml;
+      let visaCookieHeader = lookupCookieHeader;
 
-      // Look for a link to PrintEventVisa in the response
-      const printLinkMatch = visaHtml.match(/href="([^"]*PrintEventVisa[^"]*)"/i);
-      if (printLinkMatch?.[1]) {
-        let printUrl = printLinkMatch[1];
-        if (printUrl.startsWith("/")) {
-          printUrl = `https://visa.mofa.gov.sa${printUrl}`;
-        }
+      // Look for a PrintEventVisa URL in links/scripts when we're not already on the print page.
+      const printUrl = !onPrintPage ? extractPrintVisaUrl(visaHtml, responseUrl) : undefined;
+      if (printUrl) {
         try {
           const printResult = await httpsRequest(printUrl, {
             headers: {
               "User-Agent": UA,
-              "Cookie": session.cookies,
+              "Cookie": visaCookieHeader,
               "Referer": responseUrl,
             },
           });
           if (printResult.statusCode === 200) {
             visaHtml = printResult.body.toString("utf-8");
+            visaCookieHeader = mergeCookieHeader(visaCookieHeader, getSetCookieValues(printResult.headers)) || visaCookieHeader;
           }
         } catch {
           // Use what we have
@@ -518,7 +606,7 @@ Deno.serve(async (req) => {
               }
             } else if (imgUrl.startsWith("http")) {
               const imgResult = await httpsRequest(imgUrl, {
-                headers: { "User-Agent": UA, "Cookie": session.cookies },
+                headers: { "User-Agent": UA, "Cookie": visaCookieHeader },
               });
               if (imgResult.statusCode === 200 && imgResult.body.byteLength > 200) {
                 visaImageBase64 = imgResult.body.toString("base64");
