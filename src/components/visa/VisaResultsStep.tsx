@@ -85,8 +85,16 @@ function hasExtractableVisaContent(
 ): boolean {
   if (visaCopyBase64 && visaCopyMime?.includes("pdf")) return true;
 
-  // Require meaningful textual signal for image responses to avoid watermark-only false positives.
-  if (isPlaceholderOrBoilerplate(rawText) || looksLikeMofaChromeOnly(rawText)) return false;
+  // If we have both a substantial image AND non-boilerplate text, trust it (Firecrawl screenshots are real)
+  const copyLen = (visaCopyBase64 ?? "").trim().length;
+  const textIsBoilerplate = isPlaceholderOrBoilerplate(rawText) || looksLikeMofaChromeOnly(rawText);
+
+  // Large screenshots from Firecrawl (browser-rendered) are trustworthy even with noisy text
+  if (copyLen > 50000 && !textIsBoilerplate) return true;
+  // Very large screenshots (full page captures) — trust even with boilerplate text
+  if (copyLen > 150000) return true;
+
+  if (textIsBoilerplate) return false;
 
   const t = (rawText ?? "").toLowerCase();
   const substantialArabic = /[\u0600-\u06FF]{30,}/.test(rawText ?? "");
@@ -99,9 +107,9 @@ function hasExtractableVisaContent(
   const hasTextVisaData = looksLikeVisa || (lineCount >= 4 && (rawText?.length ?? 0) > 100);
   if (hasTextVisaData) return true;
 
-  // Large image blobs alone are not enough; only allow them if text has explicit visa field hints.
-  if (visaCopyBase64 && visaCopyBase64.trim().length > 30000) {
-    return /visa|passport|application|issue|expiry|nationality|تأشيرة|جواز|تاريخ|الجنسية|الرقم الحدودي/.test(t);
+  // Medium-sized image with some visa keywords in text
+  if (visaCopyBase64 && copyLen > 5000) {
+    return /visa|passport|application|issue|expiry|nationality|تأشيرة|جواز|تاريخ|الجنسية|الرقم الحدودي|valid|صالح|border|حدود/.test(t);
   }
 
   return false;
