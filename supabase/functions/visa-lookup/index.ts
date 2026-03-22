@@ -426,12 +426,12 @@ function htmlToText(html: string): string {
 
 function extractResultText(html: string): string {
   const patterns = [
-    /<div[^>]*class=\"[^"]*alert[^"]*\"[^>]*>([\\s\\S]*?)<\\/div>/gi,
-    /<div[^>]*class=\"[^"]*result[^"]*\"[^>]*>([\\s\\S]*?)<\\/div>/gi,
-    /<div[^>]*class=\"[^"]*swal[^"]*\"[^>]*>([\\s\\S]*?)<\\/div>/gi,
-    /<div[^>]*role=\"dialog\"[^>]*>([\\s\\S]*?)<\\/div>/gi,
-    /<div[^>]*role=\"alert\"[^>]*>([\\s\\S]*?)<\\/div>/gi,
-    /<table[^>]*>([\\s\\S]*?)<\\/table>/gi,
+    /<div[^>]*class="[^"]*alert[^"]*"[^>]*>([\s\S]*?)<\/div>/gi,
+    /<div[^>]*class="[^"]*result[^"]*"[^>]*>([\s\S]*?)<\/div>/gi,
+    /<div[^>]*class="[^"]*swal[^"]*"[^>]*>([\s\S]*?)<\/div>/gi,
+    /<div[^>]*role="dialog"[^>]*>([\s\S]*?)<\/div>/gi,
+    /<div[^>]*role="alert"[^>]*>([\s\S]*?)<\/div>/gi,
+    /<table[^>]*>([\s\S]*?)<\/table>/gi,
   ];
   const chunks: string[] = [];
   for (const re of patterns) {
@@ -441,7 +441,7 @@ function extractResultText(html: string): string {
       if (text.length > 15) chunks.push(text);
     }
   }
-  return chunks.join("\\n").trim();
+  return chunks.join("\n").trim();
 }
 
 function isPrintVisaUrl(url: string): boolean {
