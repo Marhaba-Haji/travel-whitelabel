@@ -57,8 +57,8 @@ Return ONLY a valid JSON object with no markdown formatting, no code blocks, no 
 // Use the best vision models in order of preference
 const GEMINI_MODELS = [
   "gemini-2.5-flash",
-  "gemini-2.0-flash",
   "gemini-2.5-flash-lite",
+  "gemini-2.0-flash-lite",
 ];
 
 // Rate limiting
@@ -176,34 +176,45 @@ Deno.serve(async (req) => {
         const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
         console.log(`[visa-passport-ocr] ${model} raw response: ${text.slice(0, 500)}`);
 
-        // Extract JSON from response (handle markdown code blocks too)
-        const cleaned = text.replace(/```json\s*/g, "").replace(/```\s*/g, "");
-        const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          const parsed = JSON.parse(jsonMatch[0]);
-          if (parsed.passportNumber || parsed.firstName) {
-            result = {
-              passportNumber: typeof parsed.passportNumber === "string"
-                ? normalizePassportNumber(parsed.passportNumber)
-                : undefined,
-              firstName: typeof parsed.firstName === "string"
-                ? normalizeName(parsed.firstName)
-                : undefined,
-              lastName: typeof parsed.lastName === "string"
-                ? normalizeName(parsed.lastName)
-                : undefined,
-              nationality: typeof parsed.nationality === "string"
-                ? parsed.nationality.trim().toUpperCase().slice(0, 3)
-                : undefined,
-              confidence: parsed.confidence || "medium",
-            };
+        // Extract JSON from response (handle markdown code blocks, trailing whitespace, etc.)
+        const cleaned = text
+          .replace(/^[\s\S]*?(\{)/, "$1")  // strip everything before first {
+          .replace(/\}[\s\S]*$/, "}")       // strip everything after last }
+          .trim();
 
-            console.log(`[visa-passport-ocr] Extracted: passport=${result.passportNumber}, name=${result.firstName} ${result.lastName}, nationality=${result.nationality}, confidence=${result.confidence}`);
-            break;
+        let parsed: Record<string, unknown> | null = null;
+        try {
+          parsed = JSON.parse(cleaned);
+        } catch {
+          // Try extracting JSON with original regex approach
+          const jsonMatch = text.replace(/```json\s*/g, "").replace(/```\s*/g, "").match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            try { parsed = JSON.parse(jsonMatch[0]); } catch { /* ignore */ }
           }
         }
 
-        console.warn(`[visa-passport-ocr] ${model} returned no parseable result`);
+        if (parsed && (parsed.passportNumber || parsed.firstName)) {
+          result = {
+            passportNumber: typeof parsed.passportNumber === "string"
+              ? normalizePassportNumber(parsed.passportNumber as string)
+              : undefined,
+            firstName: typeof parsed.firstName === "string"
+              ? normalizeName(parsed.firstName as string)
+              : undefined,
+            lastName: typeof parsed.lastName === "string"
+              ? normalizeName(parsed.lastName as string)
+              : undefined,
+            nationality: typeof parsed.nationality === "string"
+              ? (parsed.nationality as string).trim().toUpperCase().slice(0, 3)
+              : undefined,
+            confidence: (parsed.confidence as string) || "medium",
+          };
+
+          console.log(`[visa-passport-ocr] Extracted: passport=${result.passportNumber}, name=${result.firstName} ${result.lastName}, nationality=${result.nationality}, confidence=${result.confidence}`);
+          break;
+        }
+
+        console.warn(`[visa-passport-ocr] ${model} returned no parseable result. Cleaned: ${cleaned.slice(0, 200)}`);
       } catch (err) {
         lastErr = err instanceof Error ? err : new Error(String(err));
         console.error(`[visa-passport-ocr] ${model} failed:`, lastErr.message);
