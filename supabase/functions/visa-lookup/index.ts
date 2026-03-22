@@ -352,7 +352,7 @@ async function httpsRequest(
 async function firecrawlRenderPage(
   url: string,
   cookieHeader: string
-): Promise<{ screenshot?: string; markdown?: string; rawText?: string } | null> {
+): Promise<{ html?: string; markdown?: string; rawText?: string } | null> {
   const apiKey = Deno.env.get("FIRECRAWL_API_KEY");
   if (!apiKey) {
     console.warn("[visa-lookup] FIRECRAWL_API_KEY not set, skipping browser rendering");
@@ -372,7 +372,7 @@ async function firecrawlRenderPage(
       },
       body: JSON.stringify({
         url,
-        formats: ["screenshot", "markdown"],
+        formats: ["html", "markdown"],
         waitFor: 5000,
         headers: {
           Cookie: cookieHeader,
@@ -392,15 +392,15 @@ async function firecrawlRenderPage(
     }
 
     const data = await resp.json();
-    const screenshot = data?.data?.screenshot || data?.screenshot;
+    const html = data?.data?.html || data?.html;
     const markdown = data?.data?.markdown || data?.markdown;
 
     console.log(
-      `[visa-lookup] Firecrawl result: screenshot=${screenshot ? screenshot.length : 0} chars, markdown=${markdown ? markdown.length : 0} chars`
+      `[visa-lookup] Firecrawl result: html=${html ? html.length : 0} chars, markdown=${markdown ? markdown.length : 0} chars`
     );
 
     return {
-      screenshot: screenshot || undefined,
+      html: html || undefined,
       markdown: markdown || undefined,
       rawText: markdown || undefined,
     };
