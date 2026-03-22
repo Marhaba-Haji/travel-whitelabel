@@ -352,7 +352,7 @@ async function httpsRequest(
 async function firecrawlRenderPage(
   url: string,
   cookieHeader: string
-): Promise<{ html?: string; markdown?: string; rawText?: string } | null> {
+): Promise<{ screenshot?: string; markdown?: string } | null> {
   const apiKey = Deno.env.get("FIRECRAWL_API_KEY");
   if (!apiKey) {
     console.warn("[visa-lookup] FIRECRAWL_API_KEY not set, skipping browser rendering");
@@ -360,7 +360,7 @@ async function firecrawlRenderPage(
   }
 
   try {
-    console.log(`[visa-lookup] Firecrawl rendering: ${url}`);
+    console.log(`[visa-lookup] Firecrawl rendering (screenshot): ${url}`);
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 45000);
 
@@ -372,13 +372,13 @@ async function firecrawlRenderPage(
       },
       body: JSON.stringify({
         url,
-        formats: ["html", "markdown"],
+        formats: ["screenshot", "markdown"],
         waitFor: 5000,
         headers: {
           Cookie: cookieHeader,
           "User-Agent": UA,
         },
-        onlyMainContent: false,
+        onlyMainContent: true,
       }),
       signal: controller.signal,
     });
@@ -392,17 +392,16 @@ async function firecrawlRenderPage(
     }
 
     const data = await resp.json();
-    const html = data?.data?.html || data?.html;
+    const screenshot = data?.data?.screenshot || data?.screenshot;
     const markdown = data?.data?.markdown || data?.markdown;
 
     console.log(
-      `[visa-lookup] Firecrawl result: html=${html ? html.length : 0} chars, markdown=${markdown ? markdown.length : 0} chars`
+      `[visa-lookup] Firecrawl result: screenshot=${screenshot ? "yes" : "no"}, markdown=${markdown ? markdown.length : 0} chars`
     );
 
     return {
-      html: html || undefined,
+      screenshot: screenshot || undefined,
       markdown: markdown || undefined,
-      rawText: markdown || undefined,
     };
   } catch (err) {
     console.error("[visa-lookup] Firecrawl fetch failed:", err);
