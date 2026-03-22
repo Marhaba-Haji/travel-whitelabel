@@ -716,10 +716,9 @@ Deno.serve(async (req) => {
       let visaCopyUrl: string | undefined;
       let visaCopyMime = "image/png";
 
-      const printContentType = getHeaderValue(response.headers, "content-type") || "";
       if (/application\/pdf/i.test(printContentType) || visaHtml.startsWith("%PDF")) {
         visaCopyMime = "application/pdf";
-        visaCopyBase64 = response.body.toString("base64");
+        visaCopyBase64 = printBodyBase64;
       }
 
       if (!visaCopyBase64 && firecrawlResult?.html) {
