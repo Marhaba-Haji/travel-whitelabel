@@ -676,6 +676,8 @@ Deno.serve(async (req) => {
     if (hasVisaFound) {
       let visaHtml = responseHtml;
       let visaCookieHeader = lookupCookieHeader;
+      let printContentType = getHeaderValue(response.headers, "content-type") || "";
+      let printBodyBase64 = response.body.toString("base64");
 
       // Determine the best URL to render with Firecrawl
       const targetUrl = onPrintPage
@@ -696,6 +698,8 @@ Deno.serve(async (req) => {
             });
             if (printResult.statusCode === 200) {
               visaHtml = printResult.body.toString("utf-8");
+              printBodyBase64 = printResult.body.toString("base64");
+              printContentType = getHeaderValue(printResult.headers, "content-type") || printContentType;
               visaCookieHeader = mergeCookieHeader(visaCookieHeader, getSetCookieValues(printResult.headers)) || visaCookieHeader;
             }
           } catch {
