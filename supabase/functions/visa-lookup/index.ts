@@ -10,6 +10,8 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const FIRECRAWL_API_URL = "https://api.firecrawl.dev/v1/scrape";
+
 const MOFA_URL = "https://visa.mofa.gov.sa/visaservices/searchvisa";
 const MOFA_HOST = "visa.mofa.gov.sa";
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36";
@@ -343,6 +345,71 @@ async function httpsRequest(
   }
 }
 
+/**
+ * Use Firecrawl to render a MOFA page with JavaScript and capture screenshot + text.
+ * Returns { screenshot, markdown, rawText } or null if Firecrawl is unavailable/fails.
+ */
+async function firecrawlRenderPage(
+  url: string,
+  cookieHeader: string
+): Promise<{ screenshot?: string; markdown?: string; rawText?: string } | null> {
+  const apiKey = Deno.env.get("FIRECRAWL_API_KEY");
+  if (!apiKey) {
+    console.warn("[visa-lookup] FIRECRAWL_API_KEY not set, skipping browser rendering");
+    return null;
+  }
+
+  try {
+    console.log(`[visa-lookup] Firecrawl rendering: ${url}`);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 45000);
+
+    const resp = await fetch(FIRECRAWL_API_URL, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        url,
+        formats: ["screenshot", "markdown"],
+        waitFor: 5000,
+        headers: {
+          Cookie: cookieHeader,
+          "User-Agent": UA,
+        },
+        onlyMainContent: false,
+      }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeout);
+
+    if (!resp.ok) {
+      const errBody = await resp.text().catch(() => "");
+      console.error(`[visa-lookup] Firecrawl error ${resp.status}: ${errBody.slice(0, 300)}`);
+      return null;
+    }
+
+    const data = await resp.json();
+    const screenshot = data?.data?.screenshot || data?.screenshot;
+    const markdown = data?.data?.markdown || data?.markdown;
+
+    console.log(
+      `[visa-lookup] Firecrawl result: screenshot=${screenshot ? screenshot.length : 0} chars, markdown=${markdown ? markdown.length : 0} chars`
+    );
+
+    return {
+      screenshot: screenshot || undefined,
+      markdown: markdown || undefined,
+      rawText: markdown || undefined,
+    };
+  } catch (err) {
+    console.error("[visa-lookup] Firecrawl fetch failed:", err);
+    return null;
+  }
+}
+
 /** No-result phrases from MOFA (Arabic + English) */
 const NO_RESULT_PHRASES = [
   "لم يتم العثور",
@@ -567,67 +634,117 @@ Deno.serve(async (req) => {
     if (hasVisaFound) {
       let visaHtml = responseHtml;
       let visaCookieHeader = lookupCookieHeader;
+      let firecrawlScreenshot: string | undefined;
+      let firecrawlMarkdown: string | undefined;
 
-      // Look for a PrintEventVisa URL in links/scripts when we're not already on the print page.
-      const printUrl = !onPrintPage ? extractPrintVisaUrl(visaHtml, responseUrl) : undefined;
-      if (printUrl) {
-        try {
-          const printResult = await httpsRequest(printUrl, {
-            headers: {
-              "User-Agent": UA,
-              "Cookie": visaCookieHeader,
-              "Referer": responseUrl,
-            },
-          });
-          if (printResult.statusCode === 200) {
-            visaHtml = printResult.body.toString("utf-8");
-            visaCookieHeader = mergeCookieHeader(visaCookieHeader, getSetCookieValues(printResult.headers)) || visaCookieHeader;
-          }
-        } catch {
-          // Use what we have
-        }
-      }
+      // Determine the best URL to render with Firecrawl
+      const targetUrl = onPrintPage
+        ? responseUrl
+        : extractPrintVisaUrl(visaHtml, responseUrl) || responseUrl;
 
-      // Try to extract visa image
-      let visaImageBase64: string | undefined;
-      const imgMatches = visaHtml.matchAll(/<img[^>]*src="([^"]*)"[^>]*>/gi);
-      for (const imgMatch of imgMatches) {
-        const src = imgMatch[1];
-        if (!src || /captcha|logo|icon|avatar|header|footer|banner|social/i.test(src)) continue;
-        if (/visa|qr/i.test(src)) {
+      // If not on print page, also try HTTP fetch for the print page (fallback text)
+      if (!onPrintPage) {
+        const printUrl = extractPrintVisaUrl(visaHtml, responseUrl);
+        if (printUrl) {
           try {
-            let imgUrl = src;
-            if (imgUrl.startsWith("/")) imgUrl = `https://visa.mofa.gov.sa${imgUrl}`;
-            if (imgUrl.startsWith("data:image/")) {
-              const b64 = imgUrl.replace(/^data:image\/\w+;base64,/, "");
-              if (b64.length > 200) {
-                visaImageBase64 = b64;
-                break;
-              }
-            } else if (imgUrl.startsWith("http")) {
-              const imgResult = await httpsRequest(imgUrl, {
-                headers: { "User-Agent": UA, "Cookie": visaCookieHeader },
-              });
-              if (imgResult.statusCode === 200 && imgResult.body.byteLength > 200) {
-                visaImageBase64 = imgResult.body.toString("base64");
-                break;
-              }
+            const printResult = await httpsRequest(printUrl, {
+              headers: {
+                "User-Agent": UA,
+                "Cookie": visaCookieHeader,
+                "Referer": responseUrl,
+              },
+            });
+            if (printResult.statusCode === 200) {
+              visaHtml = printResult.body.toString("utf-8");
+              visaCookieHeader = mergeCookieHeader(visaCookieHeader, getSetCookieValues(printResult.headers)) || visaCookieHeader;
             }
           } catch {
-            // Skip this image
+            // Use what we have
           }
         }
       }
 
-      const visaResultText = extractResultText(visaHtml) || resultText;
+      // Use Firecrawl to render the page with full JS — this is the primary capture method
+      const firecrawlResult = await firecrawlRenderPage(targetUrl, visaCookieHeader);
+      if (firecrawlResult) {
+        firecrawlScreenshot = firecrawlResult.screenshot;
+        firecrawlMarkdown = firecrawlResult.markdown;
+      }
+
+      // Build visa copy: prefer Firecrawl screenshot, fall back to HTML image extraction
+      let visaCopyBase64: string | undefined;
+      let visaCopyMime = "image/png";
+
+      if (firecrawlScreenshot) {
+        // Firecrawl returns screenshot as a URL or base64 data URI
+        if (firecrawlScreenshot.startsWith("data:image/")) {
+          const mimeMatch = firecrawlScreenshot.match(/^data:(image\/[^;]+);base64,/);
+          visaCopyMime = mimeMatch?.[1] || "image/png";
+          visaCopyBase64 = firecrawlScreenshot.replace(/^data:image\/[^;]+;base64,/, "");
+        } else if (firecrawlScreenshot.startsWith("http")) {
+          // Firecrawl returns a URL to the screenshot — download it
+          try {
+            const imgResp = await fetch(firecrawlScreenshot);
+            if (imgResp.ok) {
+              const { Buffer: NodeBuffer } = await import("node:buffer");
+              const buf = NodeBuffer.from(await imgResp.arrayBuffer());
+              visaCopyBase64 = buf.toString("base64");
+              const ct = imgResp.headers.get("content-type") || "image/png";
+              visaCopyMime = ct.split(";")[0].trim();
+            }
+          } catch {
+            console.warn("[visa-lookup] Failed to download Firecrawl screenshot URL");
+          }
+        } else {
+          // Assume raw base64
+          visaCopyBase64 = firecrawlScreenshot;
+        }
+      }
+
+      // Fallback: try to extract visa image from raw HTML if Firecrawl didn't yield a screenshot
+      let visaImageBase64: string | undefined;
+      if (!visaCopyBase64) {
+        const imgMatches = visaHtml.matchAll(/<img[^>]*src="([^"]*)"[^>]*>/gi);
+        for (const imgMatch of imgMatches) {
+          const src = imgMatch[1];
+          if (!src || /captcha|logo|icon|avatar|header|footer|banner|social/i.test(src)) continue;
+          if (/visa|qr/i.test(src)) {
+            try {
+              let imgUrl = src;
+              if (imgUrl.startsWith("/")) imgUrl = `https://visa.mofa.gov.sa${imgUrl}`;
+              if (imgUrl.startsWith("data:image/")) {
+                const b64 = imgUrl.replace(/^data:image\/\w+;base64,/, "");
+                if (b64.length > 200) {
+                  visaImageBase64 = b64;
+                  break;
+                }
+              } else if (imgUrl.startsWith("http")) {
+                const imgResult = await httpsRequest(imgUrl, {
+                  headers: { "User-Agent": UA, "Cookie": visaCookieHeader },
+                });
+                if (imgResult.statusCode === 200 && imgResult.body.byteLength > 200) {
+                  visaImageBase64 = imgResult.body.toString("base64");
+                  break;
+                }
+              }
+            } catch {
+              // Skip this image
+            }
+          }
+        }
+      }
+
+      const visaResultText = firecrawlMarkdown || extractResultText(visaHtml) || resultText;
+      const finalVisaCopy = visaCopyBase64 || visaImageBase64;
 
       return new Response(
         JSON.stringify({
           success: true,
           visaDetails: {
             rawText: visaResultText || fullText.slice(0, 2000),
-            visaImageBase64,
-            visaCopyMime: "image/png",
+            visaCopyBase64: finalVisaCopy,
+            visaCopyMime: visaCopyBase64 ? visaCopyMime : "image/png",
+            visaImageBase64: visaImageBase64,
           },
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
