@@ -146,7 +146,7 @@ export default function VisaResultsStep({ result, onReset, onRetry, fileNameHint
               <h3 className="font-semibold text-green-800 dark:text-green-200">Issued visa copy</h3>
               <div className="rounded bg-white/80 p-3 text-green-900 dark:bg-black/20 dark:text-green-100 space-y-3">
                 {visaCopyHtml ? (
-                  <VisaHtmlViewer html={visaCopyHtml} fileNameHint={fileNameHint} />
+                  <VisaHtmlViewer html={visaCopyHtml} />
                 ) : legacyBase64 ? (
                   <div className="space-y-3">
                     {legacyMime.includes("pdf") ? (
