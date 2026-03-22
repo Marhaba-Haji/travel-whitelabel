@@ -378,7 +378,7 @@ async function firecrawlRenderPage(
           Cookie: cookieHeader,
           "User-Agent": UA,
         },
-        onlyMainContent: true,
+        onlyMainContent: false,
       }),
       signal: controller.signal,
     });
@@ -663,26 +663,29 @@ Deno.serve(async (req) => {
 
       // Use Firecrawl screenshot to capture the actual visa as rendered
       const firecrawlResult = await firecrawlRenderPage(targetUrl, visaCookieHeader);
-      
-      let visaScreenshot: string | undefined;
+
+      let visaScreenshotBase64: string | undefined;
+      let visaScreenshotUrl: string | undefined;
       let visaScreenshotMime = "image/png";
-      
+
       if (firecrawlResult?.screenshot) {
-        // Firecrawl returns screenshot as a data URL or base64
-        const ss = firecrawlResult.screenshot;
+        // Firecrawl may return screenshot as data URL, raw base64, or a signed URL.
+        const ss = firecrawlResult.screenshot.trim();
         if (ss.startsWith("data:")) {
           const mimeMatch = ss.match(/^data:(image\/\w+);base64,/);
           if (mimeMatch) {
             visaScreenshotMime = mimeMatch[1];
-            visaScreenshot = ss.replace(/^data:image\/\w+;base64,/, "");
           }
-        } else {
-          visaScreenshot = ss;
+          visaScreenshotBase64 = ss.replace(/^data:image\/\w+;base64,/, "");
+        } else if (/^https?:\/\//i.test(ss)) {
+          visaScreenshotUrl = ss;
+        } else if (ss.length > 500) {
+          visaScreenshotBase64 = ss;
         }
       }
 
       // Fallback: try to extract visa image from raw HTML
-      if (!visaScreenshot) {
+      if (!visaScreenshotBase64 && !visaScreenshotUrl) {
         const imgMatches = visaHtml.matchAll(/<img[^>]*src="([^"]*)"[^>]*>/gi);
         for (const imgMatch of imgMatches) {
           const src = imgMatch[1];
@@ -694,7 +697,7 @@ Deno.serve(async (req) => {
               if (imgUrl.startsWith("data:image/")) {
                 const b64 = imgUrl.replace(/^data:image\/\w+;base64,/, "");
                 if (b64.length > 200) {
-                  visaScreenshot = b64;
+                  visaScreenshotBase64 = b64;
                   break;
                 }
               } else if (imgUrl.startsWith("http")) {
@@ -702,7 +705,7 @@ Deno.serve(async (req) => {
                   headers: { "User-Agent": UA, "Cookie": visaCookieHeader },
                 });
                 if (imgResult.statusCode === 200 && imgResult.body.byteLength > 200) {
-                  visaScreenshot = imgResult.body.toString("base64");
+                  visaScreenshotBase64 = imgResult.body.toString("base64");
                   break;
                 }
               }
@@ -717,7 +720,8 @@ Deno.serve(async (req) => {
         JSON.stringify({
           success: true,
           visaDetails: {
-            visaCopyBase64: visaScreenshot,
+            visaCopyBase64: visaScreenshotBase64,
+            visaCopyUrl: visaScreenshotUrl,
             visaCopyMime: visaScreenshotMime,
           },
         }),
