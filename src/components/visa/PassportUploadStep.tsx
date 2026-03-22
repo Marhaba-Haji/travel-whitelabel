@@ -46,13 +46,13 @@ export default function PassportUploadStep({ onExtracted, disabled }: PassportUp
     if (!file) return;
 
     if (file.size > MAX_SIZE_MB * 1024 * 1024) {
-      setError(`File too large. Max ${MAX_SIZE_MB}MB.`);
+      setError(`Max ${MAX_SIZE_MB}MB.`);
       return;
     }
 
     const mime = file.type;
     if (!["image/jpeg", "image/png", "image/webp", "application/pdf"].includes(mime)) {
-      setError("Please upload a JPEG, PNG, WebP image, or PDF.");
+      setError("Use JPEG, PNG, WebP or PDF.");
       return;
     }
 
@@ -70,7 +70,7 @@ export default function PassportUploadStep({ onExtracted, disabled }: PassportUp
       });
 
       if (fnError) {
-        setError("Failed to process passport. Please enter details manually.");
+        setError("Processing failed. Enter details manually.");
         return;
       }
 
@@ -97,16 +97,16 @@ export default function PassportUploadStep({ onExtracted, disabled }: PassportUp
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Upload failed.";
-      setError(msg.includes("abort") ? "Request timed out. Please try again." : msg);
+      setError(msg.includes("abort") ? "Timed out. Try again." : msg);
     } finally {
       setUploading(false);
     }
   };
 
   return (
-    <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">
-        Upload a clear photo or PDF of your passport front page. We will extract your passport number and first name. Your data is not stored.
+    <div className="space-y-3 sm:space-y-4">
+      <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+        Upload passport front page (photo or PDF). We extract passport number and first name.
       </p>
 
       <input
@@ -120,40 +120,36 @@ export default function PassportUploadStep({ onExtracted, disabled }: PassportUp
       <Button
         type="button"
         variant="outline"
-        className="w-full"
+        className="w-full text-sm min-h-[44px] touch-manipulation"
         disabled={disabled || uploading}
         onClick={() => inputRef.current?.click()}
       >
         {uploading ? (
           <>
-            <Loader2 className="h-4 w-4 animate-spin" />
-            Extracting passport data...
+            <Loader2 className="h-4 w-4 animate-spin shrink-0" />
+            <span className="truncate">Extracting passport data...</span>
           </>
         ) : (
           <>
-            <Upload className="h-4 w-4" />
-            Choose passport image or PDF
+            <Upload className="h-4 w-4 shrink-0" />
+            <span className="truncate">Choose passport image or PDF</span>
           </>
         )}
       </Button>
 
       {lastFile && !error && (
-        <p className="flex items-center gap-2 text-sm text-green-600 dark:text-green-500">
-          <FileCheck className="h-4 w-4" />
-          {lastFile} processed
+        <p className="flex items-center gap-2 text-xs sm:text-sm text-green-600 dark:text-green-500 truncate">
+          <FileCheck className="h-4 w-4 shrink-0" />
+          <span className="truncate">{lastFile} ✓</span>
         </p>
       )}
 
       {error && (
-        <p className="flex items-center gap-2 text-sm text-destructive">
+        <p className="flex items-center gap-2 text-xs sm:text-sm text-destructive">
           <AlertCircle className="h-4 w-4 shrink-0" />
-          {error}
+          <span>{error}</span>
         </p>
       )}
-
-      <p className="text-xs text-muted-foreground">
-        You can also skip this step and enter your details manually in the next step.
-      </p>
     </div>
   );
 }

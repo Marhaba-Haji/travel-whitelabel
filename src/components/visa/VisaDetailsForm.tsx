@@ -50,7 +50,7 @@ export default function VisaDetailsForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 sm:space-y-4">
         <FormField
           control={form.control}
           name="passportNumber"
@@ -58,7 +58,7 @@ export default function VisaDetailsForm({
             <FormItem>
               <FormLabel>Passport Number</FormLabel>
               <FormControl>
-                <Input placeholder="e.g. A1234567" {...field} />
+                <Input placeholder="e.g. A1234567" className="min-h-[44px] touch-manipulation" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -72,7 +72,7 @@ export default function VisaDetailsForm({
             <FormItem>
               <FormLabel>First Name</FormLabel>
               <FormControl>
-                <Input placeholder="As shown on passport" {...field} />
+                <Input placeholder="As on passport" className="min-h-[44px] touch-manipulation" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -87,8 +87,8 @@ export default function VisaDetailsForm({
               <FormLabel>Nationality</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select your country" />
+                  <SelectTrigger className="min-h-[44px] touch-manipulation">
+                    <SelectValue placeholder="Select country" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
@@ -104,8 +104,8 @@ export default function VisaDetailsForm({
           )}
         />
 
-        <Button type="submit" className="w-full" disabled={isLoading}>
-          Continue to captcha
+        <Button type="submit" className="w-full min-h-[44px] touch-manipulation" disabled={isLoading}>
+          Continue
         </Button>
       </form>
     </Form>

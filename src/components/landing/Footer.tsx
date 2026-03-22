@@ -119,6 +119,7 @@ const Footer = () => {
 
   const quickLinks = [
     { name: "About", href: "/about", isPage: true },
+    { name: "Umrah Visa Check", href: "/umrah-visa-check", isPage: true },
     { name: "Features", href: "#features" },
     { name: "Pricing", href: "#pricing" },
     { name: "FAQ", href: "#faq" },

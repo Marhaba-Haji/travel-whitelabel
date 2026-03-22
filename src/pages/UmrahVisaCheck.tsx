@@ -7,9 +7,9 @@ import VisaDetailsForm, { type VisaDetailsValues } from "@/components/visa/VisaD
 import { supabase } from "@/integrations/supabase/client";
 import CaptchaStep from "@/components/visa/CaptchaStep";
 import VisaResultsStep, { type VisaResult } from "@/components/visa/VisaResultsStep";
+import VisaStepIndicator from "@/components/visa/VisaStepIndicator";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
-import { FileImage, FileEdit, Shield, CheckCircle2 } from "lucide-react";
 
 /** Dev-only optional prefill via .env.development.local (see .env.example). */
 function readVisaTestPrefillFromEnv(): Partial<VisaDetailsValues> {
@@ -26,10 +26,10 @@ function readVisaTestPrefillFromEnv(): Partial<VisaDetailsValues> {
 const VISA_TEST_PREFILL = readVisaTestPrefillFromEnv();
 
 const STEPS = [
-  { id: 1, label: "Upload Passport", icon: FileImage },
-  { id: 2, label: "Confirm Details", icon: FileEdit },
-  { id: 3, label: "Captcha", icon: Shield },
-  { id: 4, label: "Results", icon: CheckCircle2 },
+  { id: 1, label: "Upload Passport", description: "Upload a clear photo or PDF of your passport to auto-fill details." },
+  { id: 2, label: "Confirm Details", description: "Review and edit your passport details before continuing." },
+  { id: 3, label: "Verify", description: "Enter the captcha to verify your request." },
+  { id: 4, label: "Results", description: "Your visa lookup result." },
 ];
 
 
@@ -43,6 +43,57 @@ export default function UmrahVisaCheck() {
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
+  }, []);
+
+  // Dev-only: ?mock=visa shows sample issued visa; use URL params for real user data (e.g. ?mock=visa&passport=R6026268&firstName=SHAMS%20UL&country=IND)
+  useEffect(() => {
+    if (import.meta.env.DEV && new URLSearchParams(location.search).get("mock") === "visa") {
+      const params = new URLSearchParams(location.search);
+      // Real user data from passport (defaults from attached image)
+      const passport = params.get("passport") || "R6026268";
+      const firstName = params.get("firstName") || "SHAMS UL";
+      const surname = params.get("surname") || "HAQ";
+      const country = params.get("country") || "IND";
+      const dob = params.get("dob") || "30/05/1981";
+      const placeOfBirth = params.get("placeOfBirth") || "KOLAR, KARNATAKA";
+
+      // Prefill form with real input
+      setFormValues((prev) => ({
+        ...prev,
+        passportNumber: passport,
+        firstName: decodeURIComponent(firstName),
+        countryCode: country,
+      }));
+
+      const sampleHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+        @media print { .no-print{display:none} body{font-family:Arial;padding:20px} }
+        body{margin:0;font-family:Arial;padding:20px;background:#fff}
+        .visa-box{border:1px solid #333;padding:24px;max-width:800px;margin:0 auto}
+        table{width:100%;border-collapse:collapse}
+        td{padding:8px;border:1px solid #ddd}
+        .header{text-align:center;margin-bottom:20px;font-size:18px}
+      </style></head><body>
+        <button class="no-print" onclick="window.print()">Print</button>
+        <a class="no-print" href="#">Close</a>
+        <div class="visa-box">
+          <div class="header">Ministry of Foreign Affairs - Kingdom of Saudi Arabia<br>Visa Copy</div>
+          <table>
+            <tr><td>Passport Number</td><td>${passport}</td></tr>
+            <tr><td>Surname</td><td>${surname}</td></tr>
+            <tr><td>Given Names</td><td>${decodeURIComponent(firstName)}</td></tr>
+            <tr><td>Nationality</td><td>${country}</td></tr>
+            <tr><td>Date of Birth</td><td>${dob}</td></tr>
+            <tr><td>Place of Birth</td><td>${decodeURIComponent(placeOfBirth)}</td></tr>
+            <tr><td>Visa Type</td><td>Umrah</td></tr>
+            <tr><td>Date of Issue</td><td>19/10/2024</td></tr>
+            <tr><td>Date of Expiry</td><td>18/01/2025</td></tr>
+          </table>
+          <p style="margin-top:20px">This is a sample visa document for UI testing. Real MOFA output will look similar.</p>
+        </div>
+      </body></html>`;
+      setResult({ success: true, visaDetails: { visaCopyHtml: sampleHtml } });
+      setStep(4);
+    }
   }, []);
 
   const handleExtracted = (data: PassportExtractResult) => {
@@ -65,7 +116,7 @@ export default function UmrahVisaCheck() {
 
   const handleCaptchaSubmit = async (sessionData: string, captchaText: string) => {
     if (!formValues.passportNumber || !formValues.firstName || !formValues.countryCode) {
-      toast({ variant: "destructive", title: "Missing details", description: "Please go back and fill all fields." });
+      toast({ variant: "destructive", title: "Missing details", description: "Fill all fields." });
       return;
     }
 
@@ -100,8 +151,8 @@ export default function UmrahVisaCheck() {
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Request failed";
       setStep(4);
-      setResult({ success: false, error: msg.includes("abort") ? "Request timed out. Please try again." : msg });
-      toast({ variant: "destructive", title: "Error", description: "Visa lookup failed. Please try again." });
+      setResult({ success: false, error: msg.includes("abort") ? "Timed out. Try again." : msg });
+      toast({ variant: "destructive", title: "Error", description: "Lookup failed. Try again." });
     } finally {
       setLookupLoading(false);
     }
@@ -128,51 +179,36 @@ export default function UmrahVisaCheck() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background" data-visa-page>
       <Header />
-      <main className="container mx-auto max-w-2xl px-4 py-12">
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold tracking-tight">Umrah Visa Status Check</h1>
-          <p className="mt-2 text-muted-foreground">
-            Check your Umrah visa status using your passport details. Your data is not stored.
-          </p>
+      <main className={`container mx-auto px-4 sm:px-6 pt-[4.5rem] lg:pt-20 pb-5 sm:pb-10 md:pb-12 ${step === 4 ? "max-w-4xl" : "max-w-xl"}`}>
+        <div className="mb-5 sm:mb-8 text-center space-y-4 sm:space-y-6">
+          <div className="space-y-1.5 sm:space-y-2">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight leading-tight">
+              Umrah Visa Status Check
+            </h1>
+            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed px-1">
+              Official MOFA data. Your data is not stored.
+            </p>
+          </div>
+
+          <VisaStepIndicator
+            currentStep={step}
+            canGoToStep={canGoToStep}
+            onStepClick={setStep}
+          />
         </div>
 
-        <div className="mb-6 flex justify-center gap-2">
-          {STEPS.map((s) => {
-            const Icon = s.icon;
-            const active = step === s.id;
-            const done = step > s.id;
-            return (
-              <button
-                key={s.id}
-                type="button"
-                onClick={() => canGoToStep(s.id) && setStep(s.id)}
-                disabled={!canGoToStep(s.id)}
-                className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm transition-colors ${
-                  active ? "bg-primary text-primary-foreground" : done ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"
-                } ${!canGoToStep(s.id) ? "cursor-not-allowed opacity-60" : "cursor-pointer hover:opacity-90"}`}
-              >
-                <Icon className="h-4 w-4" />
-                {s.label}
-              </button>
-            );
-          })}
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>{STEPS[step - 1]?.label ?? "Step"}</CardTitle>
-            <CardDescription>
-              {step === 1 && "Upload your passport front page (image or PDF) to auto-fill details."}
-              {step === 2 && "Review and edit your passport details before continuing."}
-              {step === 3 && "Solve the captcha to verify your request."}
-              {step === 4 && "Your visa lookup result."}
+        <Card className="border shadow-sm">
+          <CardHeader className="p-6 pb-0">
+            <CardTitle className="text-lg font-semibold">{STEPS[step - 1]?.label ?? "Step"}</CardTitle>
+            <CardDescription className="text-sm">
+              {STEPS[step - 1]?.description}
             </CardDescription>
           </CardHeader>
           <CardContent>
             {step === 1 && (
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 <PassportUploadStep
                   onExtracted={handleExtracted}
                   disabled={lookupLoading}
@@ -180,9 +216,9 @@ export default function UmrahVisaCheck() {
                 <button
                   type="button"
                   onClick={() => setStep(2)}
-                  className="w-full text-center text-sm text-muted-foreground underline hover:text-foreground"
+                  className="w-full py-2 text-center text-xs sm:text-sm text-muted-foreground underline hover:text-foreground touch-manipulation min-h-[44px] flex items-center justify-center"
                 >
-                  Skip and enter details manually
+                  Enter details manually
                 </button>
               </div>
             )}
@@ -212,6 +248,8 @@ export default function UmrahVisaCheck() {
             {step === 4 && result && (
               <VisaResultsStep
                 result={result}
+                applicantPassport={formValues.passportNumber}
+                applicantFirstName={formValues.firstName}
                 onReset={handleReset}
                 onRetry={handleRetry}
               />
@@ -219,8 +257,8 @@ export default function UmrahVisaCheck() {
           </CardContent>
         </Card>
 
-        <p className="mt-6 text-center text-xs text-muted-foreground">
-          This service retrieves visa information from the official Saudi Ministry of Foreign Affairs (MOFA) portal. We do not store your passport data.
+        <p className="mt-4 sm:mt-6 text-center text-[11px] sm:text-xs text-muted-foreground px-2">
+          Sourced from MOFA. Passport data not stored.
         </p>
       </main>
       <Footer />

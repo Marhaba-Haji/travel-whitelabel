@@ -282,3 +282,44 @@
 .blog-prose td {
   @apply text-muted-foreground;
 }
+
+/* Umrah Visa Page – Official Design System
+   Scoped to [data-visa-page] for structured, professional, trustworthy aesthetic
+*/
+[data-visa-page] {
+  --visa-bg: 0 0% 98%;
+  --visa-card-bg: 0 0% 100%;
+  --visa-border: 215 20% 91%;
+  --visa-foreground: 222 47% 11%;
+  --visa-muted: 215 16% 47%;
+  --visa-accent: 221 83% 53%;
+  --visa-success: 142 76% 36%;
+  --visa-warning: 38 92% 50%;
+  --visa-error: 0 72% 51%;
+}
+
+[data-visa-page].dark,
+.dark [data-visa-page] {
+  --visa-bg: 222 47% 5%;
+  --visa-card-bg: 222 47% 9%;
+  --visa-border: 215 28% 17%;
+  --visa-foreground: 210 40% 98%;
+  --visa-muted: 215 20% 65%;
+  --visa-accent: 217 91% 60%;
+  --visa-success: 142 71% 45%;
+  --visa-warning: 43 96% 56%;
+  --visa-error: 0 84% 60%;
+}
+
+[data-visa-page] {
+  --background: var(--visa-bg);
+  --foreground: var(--visa-foreground);
+  --card: var(--visa-card-bg);
+  --card-foreground: var(--visa-foreground);
+  --border: var(--visa-border);
+  --muted-foreground: var(--visa-muted);
+  --primary: var(--visa-accent);
+  --primary-foreground: 0 0% 100%;
+  --destructive: var(--visa-error);
+  --ring: var(--visa-accent);
+}
