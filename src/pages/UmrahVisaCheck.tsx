@@ -214,7 +214,6 @@ export default function UmrahVisaCheck() {
                 result={result}
                 onReset={handleReset}
                 onRetry={handleRetry}
-                fileNameHint={formValues.passportNumber}
               />
             )}
           </CardContent>
