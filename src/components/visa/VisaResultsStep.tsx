@@ -87,7 +87,7 @@ a,button,input,select{pointer-events:none!important;cursor:default!important}
                 title="MOFA visa preview"
                 srcDoc={visaHtml}
                 className="h-[min(72vh,940px)] w-full rounded border bg-white"
-                sandbox="allow-same-origin"
+                sandbox=""
               />
 
               <Button type="button" className="w-full gap-2" onClick={handleSaveAsPdf}>
