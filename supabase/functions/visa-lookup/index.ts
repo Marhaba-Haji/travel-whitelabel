@@ -1,7 +1,7 @@
 /**
  * Visa Lookup - Submits the MOFA visa search form via HTTP POST.
  * Uses session cookies from visa-captcha to maintain the same MOFA session.
- * Uses node:https to bypass Deno's TLS certificate issues with MOFA.
+ * Captures raw HTML from PrintEventVisa page via Firecrawl for print-to-PDF.
  */
 
 const corsHeaders = {
@@ -15,9 +15,8 @@ const FIRECRAWL_API_URL = "https://api.firecrawl.dev/v1/scrape";
 const MOFA_URL = "https://visa.mofa.gov.sa/visaservices/searchvisa";
 const MOFA_HOST = "visa.mofa.gov.sa";
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36";
-const SESSION_MAX_AGE = 10 * 60 * 1000; // 10 minutes
+const SESSION_MAX_AGE = 10 * 60 * 1000;
 
-// Explicit DigiCert chain to avoid UnknownIssuer in edge runtimes with limited trust stores.
 const DIGICERT_GLOBAL_G2_TLS_RSA_SHA256_2020_CA1_CERT = `-----BEGIN CERTIFICATE-----
 MIIEyDCCA7CgAwIBAgIQDPW9BitWAvR6uFAsI8zwZjANBgkqhkiG9w0BAQsFADBh
 MQswCQYDVQQGEwJVUzEVMBMGA1UEChMMRGlnaUNlcnQgSW5jMRkwFwYDVQQLExB3
@@ -29,7 +28,7 @@ ggEPADCCAQoCggEBAMz3EGJPprtjb+2QUlbFbSd7ehJWivH0+dbn4Y+9lavyYEEV
 cNsSAPonCrVXOFt9slGTcZUOakGUWzUb+nv6u8W+JDD+Vu/E832X4xT1FE3LpxDy
 FuqrIvAxIhFhaZAmunjZlx/jfWardUSVc8is/+9dCopZQ+GssjoP80j812s3wWPc
 3kbW20X+fSP9kOhRBx5Ro1/tSUZUfyyIxfQTnJcVPAPooTncaQwywa8WV0yUR0J8
-osicfebUTVSvQpmowQTCd5zWSOTOEeAqgJnwQ3DPP3Zr0UxJqyRewg2C/Uaoq2yT
+nosicfebUTVSvQpmowQTCd5zWSOTOEeAqgJnwQ3DPP3Zr0UxJqyRewg2C/Uaoq2yT
 zGJSQnWS+Jr6Xl6ysGHlHx+5fwmY6D36g39HaaECAwEAAaOCAYIwggF+MBIGA1Ud
 EwEB/wQIMAYBAf8CAQAwHQYDVR0OBBYEFHSFgMBmx9833s+9KTeqAx2+7c0XMB8G
 A1UdIwQYMBaAFE4iVCAYlebjbuYP+vq5Eu0GF485MA4GA1UdDwEB/wQEAwIBhjAd
@@ -57,8 +56,8 @@ b20xIDAeBgNVBAMTF0RpZ2lDZXJ0IEdsb2JhbCBSb290IEcyMIIBIjANBgkqhkiG
 9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuzfNNNx7a8myaJCtSnX/RrohCgiN9RlUyfuI
 2/Ou8jqJkTx65qsGGmvPrC3oXgkkRLpimn7Wo6h+4FR1IAWsULecYxpsMNzaHxmx
 1x7e/dfgy5SDN67sH0NO3Xss0r0upS/kqbitOtSZpLYl6ZtrAGCSYP9PIUkY92eQ
-q2EGnI/yuum06ZIya7XzV+hdG82MHauVBJVJ8zUtluNJbd134/tJS7SsVQepj5Wz
-tCO7TG1F8PapspUwtP1MVYwnSlcUfIKdzXOS0xZKBgyMUNGPHgm+F6HmIcr9g+UQ
+q2EGnI/yuum06ZIya7XzV/hdG82MHauVBJVJ8zUtluNJbd134/tJS7SsVQepj5Wz
+ntCO7TG1F8PapspUwtP1MVYwnSlcUfIKdzXOS0xZKBgyMUNGPHgm+F6HmIcr9g+UQ
 vIOlCsRnKPZzFBQ9RnbDhxSJITRNrw9FDKZJobq7nMWxM4MphQIDAQABo0IwQDAP
 BgNVHRMBAf8EBTADAQH/MA4GA1UdDwEB/wQEAwIBhjAdBgNVHQ4EFgQUTiJUIBiV
 5uNu5g/6+rkS7QYXjzkwDQYJKoZIhvcNAQELBQADggEBAGBnKJRvDkhj6zHd6mcY
@@ -72,14 +71,13 @@ MrY=
 
 let insecureHttpClient: Deno.HttpClient | null = null;
 
-// Rate limiting
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT_MAX = 30;
 const RATE_LIMIT_WINDOW = 10 * 60 * 1000;
 
 function splitSetCookieHeader(raw: string): string[] {
   return raw
-    .split(/,(?=[^;,\s=]+=[^;,]+)/g)
+    .split(/,(?=[^;,\\s=]+=[^;,]+)/g)
     .map((v) => v.trim())
     .filter(Boolean);
 }
@@ -113,7 +111,6 @@ function getSetCookieValuesFromFetchHeaders(headers: Headers): string[] {
 
 function mergeCookieHeader(existingCookieHeader: string | undefined, setCookieValues: string[]): string | undefined {
   const cookieMap = new Map<string, string>();
-
   if (existingCookieHeader) {
     for (const part of existingCookieHeader.split(";")) {
       const [name, ...rest] = part.trim().split("=");
@@ -121,7 +118,6 @@ function mergeCookieHeader(existingCookieHeader: string | undefined, setCookieVa
       cookieMap.set(name.trim(), rest.join("=").trim());
     }
   }
-
   for (const setCookie of setCookieValues) {
     const firstPart = setCookie.split(";")[0]?.trim();
     if (!firstPart) continue;
@@ -129,7 +125,6 @@ function mergeCookieHeader(existingCookieHeader: string | undefined, setCookieVa
     if (!name || rest.length === 0) continue;
     cookieMap.set(name.trim(), rest.join("=").trim());
   }
-
   if (cookieMap.size === 0) return existingCookieHeader;
   return [...cookieMap.entries()].map(([k, v]) => `${k}=${v}`).join("; ");
 }
@@ -166,9 +161,8 @@ function extractPrintVisaUrl(html: string, currentUrl: string): string | undefin
     /href=["']([^"']*PrintEventVisa[^"']*)["']/i,
     /window\.open\(["']([^"']*PrintEventVisa[^"']*)["']/i,
     /location\.href\s*=\s*["']([^"']*PrintEventVisa[^"']*)["']/i,
-    /(\/[^"'\s>]*PrintEventVisa[^"'\s>]*)/i,
+    /(\/[^"'\\s>]*PrintEventVisa[^"'\\s>]*)/i,
   ];
-
   for (const re of patterns) {
     const match = html.match(re);
     const raw = match?.[1];
@@ -179,7 +173,6 @@ function extractPrintVisaUrl(html: string, currentUrl: string): string | undefin
       return raw;
     }
   }
-
   return undefined;
 }
 
@@ -243,7 +236,6 @@ async function httpsRequestWithInsecureClient(
     const { Buffer: NodeBuffer } = await import("node:buffer");
     const body = NodeBuffer.from(await response.arrayBuffer());
     const normalizedHeaders: Record<string, string | string[]> = {};
-
     response.headers.forEach((value, key) => {
       if (normalizedHeaders[key] === undefined) {
         normalizedHeaders[key] = value;
@@ -255,20 +247,12 @@ async function httpsRequestWithInsecureClient(
         : [existing, value];
     });
 
-    return {
-      body,
-      headers: normalizedHeaders,
-      statusCode: response.status,
-      finalUrl: url,
-    };
+    return { body, headers: normalizedHeaders, statusCode: response.status, finalUrl: url };
   } finally {
     clearTimeout(timeout);
   }
 }
 
-/**
- * Make an HTTPS request using node:https to bypass Deno's strict TLS verification.
- */
 async function httpsRequest(
   url: string,
   options: {
@@ -281,7 +265,6 @@ async function httpsRequest(
   try {
     const https = await import("node:https");
     const { URL } = await import("node:url");
-
     const method = options.method || "GET";
     const followRedirects = options.followRedirects !== false;
 
@@ -297,7 +280,6 @@ async function httpsRequest(
       };
 
       const req = https.request(reqOptions, (res: any) => {
-        // Handle redirects
         if (followRedirects && res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
           const mergedCookie = mergeCookieHeader(options.headers?.Cookie, getSetCookieValues(res.headers));
           const redirectHeaders = { ...(options.headers || {}) };
@@ -331,9 +313,7 @@ async function httpsRequest(
         req.destroy(new Error("Request timed out"));
       });
 
-      if (options.body) {
-        req.write(options.body);
-      }
+      if (options.body) req.write(options.body);
       req.end();
     });
   } catch (err) {
@@ -346,20 +326,20 @@ async function httpsRequest(
 }
 
 /**
- * Use Firecrawl to render a MOFA page with JavaScript and capture print-ready HTML.
+ * Use Firecrawl to fetch the raw HTML of the MOFA print page (preserving all CSS/styles).
  */
-async function firecrawlRenderPage(
+async function firecrawlFetchRawHtml(
   url: string,
   cookieHeader: string
-): Promise<{ html?: string; screenshot?: string; markdown?: string } | null> {
+): Promise<string | null> {
   const apiKey = Deno.env.get("FIRECRAWL_API_KEY");
   if (!apiKey) {
-    console.warn("[visa-lookup] FIRECRAWL_API_KEY not set, skipping browser rendering");
+    console.warn("[visa-lookup] FIRECRAWL_API_KEY not set, skipping Firecrawl");
     return null;
   }
 
   try {
-    console.log(`[visa-lookup] Firecrawl rendering (html): ${url}`);
+    console.log(`[visa-lookup] Firecrawl fetching rawHtml: ${url}`);
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 45000);
 
@@ -371,13 +351,13 @@ async function firecrawlRenderPage(
       },
       body: JSON.stringify({
         url,
-        formats: ["html", "screenshot", "markdown"],
+        formats: ["rawHtml"],
         waitFor: 5000,
         headers: {
           Cookie: cookieHeader,
           "User-Agent": UA,
         },
-        onlyMainContent: true,
+        onlyMainContent: false,
       }),
       signal: controller.signal,
     });
@@ -391,19 +371,10 @@ async function firecrawlRenderPage(
     }
 
     const data = await resp.json();
-    const html = data?.data?.html || data?.html;
-    const screenshot = data?.data?.screenshot || data?.screenshot;
-    const markdown = data?.data?.markdown || data?.markdown;
+    const rawHtml = data?.data?.rawHtml || data?.rawHtml;
 
-    console.log(
-      `[visa-lookup] Firecrawl result: html=${html ? html.length : 0} chars, screenshot=${screenshot ? "yes" : "no"}`
-    );
-
-    return {
-      html: html || undefined,
-      screenshot: screenshot || undefined,
-      markdown: markdown || undefined,
-    };
+    console.log(`[visa-lookup] Firecrawl rawHtml: ${rawHtml ? rawHtml.length : 0} chars`);
+    return rawHtml || null;
   } catch (err) {
     console.error("[visa-lookup] Firecrawl fetch failed:", err);
     return null;
@@ -418,85 +389,24 @@ function getHeaderValue(headers: Record<string, string | string[]>, key: string)
   return value;
 }
 
-function toPrintableVisaHtml(sourceHtml: string): string {
-  const bodyMatch = sourceHtml.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-  const body = (bodyMatch?.[1] || sourceHtml)
-    .replace(/<script[\s\S]*?<\/script>/gi, "")
-    .replace(/<noscript[\s\S]*?<\/noscript>/gi, "")
-    .replace(/<header[\s\S]*?<\/header>/gi, "")
-    .replace(/<footer[\s\S]*?<\/footer>/gi, "")
-    .replace(/<nav[\s\S]*?<\/nav>/gi, "")
-    .replace(/<form[\s\S]*?<\/form>/gi, "");
-
-  return `<!doctype html>
-<html dir="rtl" lang="ar">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MOFA Visa</title>
-  <style>
-    @page { size: auto; margin: 10mm; }
-    body { margin: 0; background: #fff; font-family: Arial, Tahoma, sans-serif; direction: rtl; }
-    .visa-shell { max-width: 980px; margin: 0 auto; background: #fff; }
-    img { max-width: 100%; height: auto; }
-    nav, header, footer, form, script, style,
-    [class*="menu"], [class*="navbar"], [class*="header"], [class*="footer"],
-    [class*="cookie"], [id*="cookie"], [class*="chat"], [id*="chat"],
-    [class*="modal"], [id*="modal"] { display: none !important; }
-    @media print { .no-print { display: none !important; } }
-  </style>
-</head>
-<body>
-  <div class="visa-shell">${body}</div>
-</body>
-</html>`;
-}
-
-/** No-result phrases from MOFA (Arabic + English) */
 const NO_RESULT_PHRASES = [
-  "لم يتم العثور",
-  "لا توجد بيانات",
-  "no record",
-  "no result",
-  "not found",
-  "no data",
-  "لا توجد نتائج",
-  "لا يوجد سجل",
-  "لم يتم",
-  "there is no any information",
-  "no any information for the selected",
+  "لم يتم العثور", "لا توجد بيانات", "no record", "no result", "not found",
+  "no data", "لا توجد نتائج", "لا يوجد سجل", "لم يتم",
+  "there is no any information", "no any information for the selected",
   "no information for the selected values",
 ];
 
-/** Visa-found signals */
 const VISA_FOUND_PHRASES = [
-  "تاريخ الإصدار",
-  "تاريخ الانتهاء",
-  "date of issue",
-  "date of expiry",
-  "visa expiry",
-  "صورة التأشيرة",
-  "visa copy",
-  "تم إصدار",
-  "حالة التأشيرة",
-  "نوع التأشيرة",
-  "رقم الطلب",
-  "application no",
-  "border number",
-  "الرقم الحدودي",
+  "تاريخ الإصدار", "تاريخ الانتهاء", "date of issue", "date of expiry",
+  "visa expiry", "صورة التأشيرة", "visa copy", "تم إصدار", "حالة التأشيرة",
+  "نوع التأشيرة", "رقم الطلب", "application no", "border number", "الرقم الحدودي",
 ];
 
 const CAPTCHA_ERROR_PHRASES = [
-  "خطأ في رمز",
-  "رمز الصورة غير",
-  "رمز التحقق غير",
-  "incorrect captcha",
-  "invalid captcha",
-  "wrong captcha",
-  "عفوا حدث خطأ",
+  "خطأ في رمز", "رمز الصورة غير", "رمز التحقق غير",
+  "incorrect captcha", "invalid captcha", "wrong captcha", "عفوا حدث خطأ",
 ];
 
-/** Strip HTML tags and normalize whitespace */
 function htmlToText(html: string): string {
   return html
     .replace(/<script[\s\S]*?<\/script>/gi, "")
@@ -514,7 +424,6 @@ function htmlToText(html: string): string {
     .trim();
 }
 
-/** Extract text from alert/result divs */
 function extractResultText(html: string): string {
   const patterns = [
     /<div[^>]*class="[^"]*alert[^"]*"[^>]*>([\s\S]*?)<\/div>/gi,
@@ -524,7 +433,6 @@ function extractResultText(html: string): string {
     /<div[^>]*role="alert"[^>]*>([\s\S]*?)<\/div>/gi,
     /<table[^>]*>([\s\S]*?)<\/table>/gi,
   ];
-
   const chunks: string[] = [];
   for (const re of patterns) {
     let m;
@@ -536,7 +444,6 @@ function extractResultText(html: string): string {
   return chunks.join("\n").trim();
 }
 
-/** Check if the response redirected to a print visa page */
 function isPrintVisaUrl(url: string): boolean {
   return /printeventvisa/i.test(url);
 }
@@ -549,10 +456,7 @@ Deno.serve(async (req) => {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
   if (!checkRateLimit(ip)) {
     return new Response(
-      JSON.stringify({
-        success: false,
-        error: "Too many visa lookups. Please wait a few minutes and try again.",
-      }),
+      JSON.stringify({ success: false, error: "Too many visa lookups. Please wait a few minutes and try again." }),
       { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
@@ -563,40 +467,28 @@ Deno.serve(async (req) => {
 
     if (!sessionData || !passportNumber || !firstName || !countryCode || !captchaText) {
       return new Response(
-        JSON.stringify({
-          success: false,
-          error: "Missing required fields: sessionData, passportNumber, firstName, countryCode, captchaText",
-        }),
+        JSON.stringify({ success: false, error: "Missing required fields: sessionData, passportNumber, firstName, countryCode, captchaText" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Decode session data
     let session: { cookies: string; captchaUrl: string; createdAt: number };
     try {
       session = JSON.parse(atob(sessionData));
     } catch {
       return new Response(
-        JSON.stringify({
-          success: false,
-          error: "Invalid session. Please get a new captcha and try again.",
-        }),
+        JSON.stringify({ success: false, error: "Invalid session. Please get a new captcha and try again." }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Check session age
     if (Date.now() - session.createdAt > SESSION_MAX_AGE) {
       return new Response(
-        JSON.stringify({
-          success: false,
-          error: "Session expired. Please get a new captcha and try again.",
-        }),
+        JSON.stringify({ success: false, error: "Session expired. Please get a new captcha and try again." }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Build form data for MOFA POST
     const formParams = new URLSearchParams();
     formParams.set("ReaderType", "1");
     formParams.set("tbMRZCode", "");
@@ -610,7 +502,6 @@ Deno.serve(async (req) => {
 
     console.log(`[visa-lookup] Submitting to MOFA for nationality=${countryCode}`);
 
-    // Submit form using node:https to bypass TLS issues
     const response = await httpsRequest(MOFA_URL, {
       method: "POST",
       headers: {
@@ -631,11 +522,10 @@ Deno.serve(async (req) => {
     const responseHtml = response.body.toString("utf-8");
     const resultText = extractResultText(responseHtml);
     const fullText = htmlToText(responseHtml);
-    const combinedLower = `${resultText}\n${fullText}`.toLowerCase();
+    const combinedLower = `${resultText}\\n${fullText}`.toLowerCase();
 
     console.log(`[visa-lookup] Response status: ${response.statusCode}, URL: ${responseUrl}`);
 
-    // Check for captcha errors — but NOT if MOFA already redirected to the visa print page
     const onPrintPage = isPrintVisaUrl(responseUrl);
     const hasCaptchaError = !onPrintPage && CAPTCHA_ERROR_PHRASES.some((p) =>
       combinedLower.includes(p.toLowerCase())
@@ -651,157 +541,78 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Check for no-result
-    const hasNoResult = NO_RESULT_PHRASES.some((p) =>
-      combinedLower.includes(p.toLowerCase())
-    );
-
-    // Check for visa found
-    const hasVisaFound =
-      onPrintPage ||
-      VISA_FOUND_PHRASES.some((p) => combinedLower.includes(p.toLowerCase()));
+    const hasNoResult = NO_RESULT_PHRASES.some((p) => combinedLower.includes(p.toLowerCase()));
+    const hasVisaFound = onPrintPage || VISA_FOUND_PHRASES.some((p) => combinedLower.includes(p.toLowerCase()));
 
     if (hasNoResult && !hasVisaFound) {
       return new Response(
         JSON.stringify({
           success: false,
           error: "No visa found for these details. Double-check the passport number, first name, and nationality, or the visa may not have been issued yet.",
-          visaDetails: resultText ? { rawText: resultText } : undefined,
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // If found visa signals, try to capture visa details
     if (hasVisaFound) {
-      let visaHtml = responseHtml;
       let visaCookieHeader = lookupCookieHeader;
-      let printContentType = getHeaderValue(response.headers, "content-type") || "";
-      let printBodyBase64 = response.body.toString("base64");
 
-      // Determine the best URL to render with Firecrawl
+      // Determine the print page URL
       const targetUrl = onPrintPage
         ? responseUrl
-        : extractPrintVisaUrl(visaHtml, responseUrl) || responseUrl;
+        : extractPrintVisaUrl(responseHtml, responseUrl) || responseUrl;
 
-      // If not on print page, also try HTTP fetch for the print page
+      // If not already on print page, fetch it to update cookies
       if (!onPrintPage) {
-        const printUrl = extractPrintVisaUrl(visaHtml, responseUrl);
+        const printUrl = extractPrintVisaUrl(responseHtml, responseUrl);
         if (printUrl) {
           try {
             const printResult = await httpsRequest(printUrl, {
-              headers: {
-                "User-Agent": UA,
-                "Cookie": visaCookieHeader,
-                "Referer": responseUrl,
-              },
+              headers: { "User-Agent": UA, "Cookie": visaCookieHeader, "Referer": responseUrl },
             });
             if (printResult.statusCode === 200) {
-              visaHtml = printResult.body.toString("utf-8");
-              printBodyBase64 = printResult.body.toString("base64");
-              printContentType = getHeaderValue(printResult.headers, "content-type") || printContentType;
               visaCookieHeader = mergeCookieHeader(visaCookieHeader, getSetCookieValues(printResult.headers)) || visaCookieHeader;
             }
-          } catch {
-            // Use what we have
-          }
+          } catch { /* continue */ }
         }
       }
 
-      // Prefer actual print output from MOFA page over generic screenshots
-      const firecrawlResult = await firecrawlRenderPage(targetUrl, visaCookieHeader);
+      // Fetch raw HTML via Firecrawl (preserves MOFA's print CSS)
+      const rawHtml = await firecrawlFetchRawHtml(targetUrl, visaCookieHeader);
 
-      let visaCopyHtml: string | undefined;
-      let visaCopyBase64: string | undefined;
-      let visaCopyUrl: string | undefined;
-      let visaCopyMime = "image/png";
+      const visaCopyHtml = rawHtml || undefined;
 
-      if (/application\/pdf/i.test(printContentType) || visaHtml.startsWith("%PDF")) {
-        visaCopyMime = "application/pdf";
-        visaCopyBase64 = printBodyBase64;
-      }
-
-      if (!visaCopyBase64 && firecrawlResult?.html) {
-        visaCopyHtml = toPrintableVisaHtml(firecrawlResult.html);
-      } else if (!visaCopyBase64 && visaHtml?.trim()) {
-        visaCopyHtml = toPrintableVisaHtml(visaHtml);
-      }
-
-      if (!visaCopyBase64 && firecrawlResult?.screenshot) {
-        const ss = firecrawlResult.screenshot.trim();
-        if (ss.startsWith("data:")) {
-          const mimeMatch = ss.match(/^data:(image\/\w+);base64,/);
-          if (mimeMatch) visaCopyMime = mimeMatch[1];
-          visaCopyBase64 = ss.replace(/^data:image\/\w+;base64,/, "");
-        } else if (/^https?:\/\//i.test(ss)) {
-          visaCopyUrl = ss;
-        } else if (ss.length > 500) {
-          visaCopyBase64 = ss;
-        }
-      }
-
-      // Last fallback: extract likely visa image from raw HTML
-      if (!visaCopyHtml && !visaCopyBase64 && !visaCopyUrl) {
-        const imgMatches = visaHtml.matchAll(/<img[^>]*src="([^"]*)"[^>]*>/gi);
-        for (const imgMatch of imgMatches) {
-          const src = imgMatch[1];
-          if (!src || /captcha|logo|icon|avatar|header|footer|banner|social/i.test(src)) continue;
-          if (/visa|qr/i.test(src)) {
-            try {
-              let imgUrl = src;
-              if (imgUrl.startsWith("/")) imgUrl = `https://visa.mofa.gov.sa${imgUrl}`;
-              if (imgUrl.startsWith("data:image/")) {
-                const b64 = imgUrl.replace(/^data:image\/\w+;base64,/, "");
-                if (b64.length > 200) {
-                  visaCopyBase64 = b64;
-                  break;
-                }
-              } else if (imgUrl.startsWith("http")) {
-                const imgResult = await httpsRequest(imgUrl, {
-                  headers: { "User-Agent": UA, "Cookie": visaCookieHeader },
-                });
-                if (imgResult.statusCode === 200 && imgResult.body.byteLength > 200) {
-                  visaCopyBase64 = imgResult.body.toString("base64");
-                  break;
-                }
-              }
-            } catch {
-              // Skip
-            }
-          }
-        }
+      if (!visaCopyHtml) {
+        return new Response(
+          JSON.stringify({
+            success: true,
+            visaDetails: {},
+            error: "Visa found but could not capture the print preview. Try again or check visa.mofa.gov.sa directly.",
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
       }
 
       return new Response(
         JSON.stringify({
           success: true,
-          visaDetails: {
-            visaCopyHtml,
-            visaCopyBase64,
-            visaCopyUrl,
-            visaCopyMime,
-          },
+          visaDetails: { visaCopyHtml },
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Ambiguous result
     return new Response(
       JSON.stringify({
         success: false,
         error: "We could not determine the visa status from MOFA's response. Try again with a new captcha, or check directly at visa.mofa.gov.sa.",
-        visaDetails: resultText ? { rawText: resultText.slice(0, 2000) } : undefined,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
     console.error("[visa-lookup] error:", err);
     return new Response(
-      JSON.stringify({
-        success: false,
-        error: "Failed to complete visa lookup. Please try again.",
-      }),
+      JSON.stringify({ success: false, error: "Failed to complete visa lookup. Please try again." }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
