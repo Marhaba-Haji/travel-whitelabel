@@ -179,10 +179,6 @@ function extractPrintVisaUrl(html: string, currentUrl: string): string | undefin
 function getInsecureHttpClient(): Deno.HttpClient {
   if (!insecureHttpClient) {
     insecureHttpClient = Deno.createHttpClient({
-      caCerts: [
-        DIGICERT_GLOBAL_G2_TLS_RSA_SHA256_2020_CA1_CERT,
-        DIGICERT_GLOBAL_ROOT_G2_CERT,
-      ],
       unsafelyIgnoreCertificateErrors: [MOFA_HOST],
       http2: true,
     });
