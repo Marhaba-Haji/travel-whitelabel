@@ -352,7 +352,7 @@ async function httpsRequest(
 async function firecrawlRenderPage(
   url: string,
   cookieHeader: string
-): Promise<{ screenshot?: string; markdown?: string; rawText?: string } | null> {
+): Promise<{ html?: string; markdown?: string; rawText?: string } | null> {
   const apiKey = Deno.env.get("FIRECRAWL_API_KEY");
   if (!apiKey) {
     console.warn("[visa-lookup] FIRECRAWL_API_KEY not set, skipping browser rendering");
@@ -372,7 +372,7 @@ async function firecrawlRenderPage(
       },
       body: JSON.stringify({
         url,
-        formats: ["screenshot", "markdown"],
+        formats: ["html", "markdown"],
         waitFor: 5000,
         headers: {
           Cookie: cookieHeader,
@@ -392,15 +392,15 @@ async function firecrawlRenderPage(
     }
 
     const data = await resp.json();
-    const screenshot = data?.data?.screenshot || data?.screenshot;
+    const html = data?.data?.html || data?.html;
     const markdown = data?.data?.markdown || data?.markdown;
 
     console.log(
-      `[visa-lookup] Firecrawl result: screenshot=${screenshot ? screenshot.length : 0} chars, markdown=${markdown ? markdown.length : 0} chars`
+      `[visa-lookup] Firecrawl result: html=${html ? html.length : 0} chars, markdown=${markdown ? markdown.length : 0} chars`
     );
 
     return {
-      screenshot: screenshot || undefined,
+      html: html || undefined,
       markdown: markdown || undefined,
       rawText: markdown || undefined,
     };
@@ -666,44 +666,46 @@ Deno.serve(async (req) => {
 
       // Use Firecrawl to render the page with full JS — this is the primary capture method
       const firecrawlResult = await firecrawlRenderPage(targetUrl, visaCookieHeader);
+      let firecrawlHtml: string | undefined;
+      let firecrawlMarkdown: string | undefined;
       if (firecrawlResult) {
-        firecrawlScreenshot = firecrawlResult.screenshot;
+        firecrawlHtml = firecrawlResult.html;
         firecrawlMarkdown = firecrawlResult.markdown;
       }
 
-      // Build visa copy: prefer Firecrawl screenshot, fall back to HTML image extraction
-      let visaCopyBase64: string | undefined;
-      let visaCopyMime = "image/png";
-
-      if (firecrawlScreenshot) {
-        // Firecrawl returns screenshot as a URL or base64 data URI
-        if (firecrawlScreenshot.startsWith("data:image/")) {
-          const mimeMatch = firecrawlScreenshot.match(/^data:(image\/[^;]+);base64,/);
-          visaCopyMime = mimeMatch?.[1] || "image/png";
-          visaCopyBase64 = firecrawlScreenshot.replace(/^data:image\/[^;]+;base64,/, "");
-        } else if (firecrawlScreenshot.startsWith("http")) {
-          // Firecrawl returns a URL to the screenshot — download it
-          try {
-            const imgResp = await fetch(firecrawlScreenshot);
-            if (imgResp.ok) {
-              const { Buffer: NodeBuffer } = await import("node:buffer");
-              const buf = NodeBuffer.from(await imgResp.arrayBuffer());
-              visaCopyBase64 = buf.toString("base64");
-              const ct = imgResp.headers.get("content-type") || "image/png";
-              visaCopyMime = ct.split(";")[0].trim();
-            }
-          } catch {
-            console.warn("[visa-lookup] Failed to download Firecrawl screenshot URL");
-          }
-        } else {
-          // Assume raw base64
-          visaCopyBase64 = firecrawlScreenshot;
-        }
+      // Build a clean, self-contained HTML document for the visa
+      let visaCopyHtml: string | undefined;
+      if (firecrawlHtml) {
+        // Wrap in a print-friendly document with inlined styles
+        visaCopyHtml = `<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Visa Copy</title>
+<style>
+  body { font-family: Arial, Tahoma, sans-serif; margin: 20px; direction: rtl; }
+  @media print {
+    body { margin: 0; }
+    .no-print { display: none !important; }
+  }
+  nav, header, footer, .cookie-banner, .cookie-consent, [class*="cookie"],
+  [class*="navbar-"], [class*="header-"], [class*="footer-"], .modal-backdrop,
+  [ivo-player], .ivo-container { display: none !important; }
+  table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+  td, th { border: 1px solid #ccc; padding: 8px; text-align: right; }
+  img { max-width: 100%; height: auto; }
+</style>
+</head>
+<body>
+${firecrawlHtml}
+</body>
+</html>`;
       }
 
-      // Fallback: try to extract visa image from raw HTML if Firecrawl didn't yield a screenshot
+      // Fallback: try to extract visa image from raw HTML if Firecrawl didn't yield HTML
       let visaImageBase64: string | undefined;
-      if (!visaCopyBase64) {
+      if (!visaCopyHtml) {
         const imgMatches = visaHtml.matchAll(/<img[^>]*src="([^"]*)"[^>]*>/gi);
         for (const imgMatch of imgMatches) {
           const src = imgMatch[1];
@@ -735,15 +737,13 @@ Deno.serve(async (req) => {
       }
 
       const visaResultText = firecrawlMarkdown || extractResultText(visaHtml) || resultText;
-      const finalVisaCopy = visaCopyBase64 || visaImageBase64;
 
       return new Response(
         JSON.stringify({
           success: true,
           visaDetails: {
             rawText: visaResultText || fullText.slice(0, 2000),
-            visaCopyBase64: finalVisaCopy,
-            visaCopyMime: visaCopyBase64 ? visaCopyMime : "image/png",
+            visaCopyHtml: visaCopyHtml,
             visaImageBase64: visaImageBase64,
           },
         }),
