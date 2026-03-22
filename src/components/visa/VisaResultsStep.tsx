@@ -53,18 +53,11 @@ function cleanMofaMessage(raw: string | undefined): string | undefined {
 export default function VisaResultsStep({ result, onReset, onRetry }: VisaResultsStepProps) {
   const { success, visaDetails, error, mofaMessage } = result;
   const hasVisa = hasVisaContent(visaDetails);
-  // Inject styles: show only .page-content-inner, disable clicks, scale to fit
+  // Inject responsive scaling so the visa fits the iframe width
   const visaHtml = visaDetails?.visaCopyHtml
     ? visaDetails.visaCopyHtml.replace(
         /<head([^>]*)>/i,
-        `<head$1><meta name="viewport" content="width=device-width, initial-scale=1"><style>
-html,body{margin:0;padding:0;overflow-x:hidden}
-body>*{display:none!important}
-.page-content-inner{display:block!important}
-body{pointer-events:none;user-select:none;transform-origin:top left;width:800px;transform:scale(calc(100vw / 800))}
-img{max-width:100%;height:auto}
-a,button,input,select{pointer-events:none!important;cursor:default!important}
-</style>`
+        `<head$1><meta name="viewport" content="width=device-width, initial-scale=1"><style>html,body{margin:0;padding:0;overflow-x:hidden}body{transform-origin:top left;width:800px;transform:scale(calc(100vw / 800))}img{max-width:100%;height:auto}</style>`
       )
     : undefined;
 
@@ -87,7 +80,7 @@ a,button,input,select{pointer-events:none!important;cursor:default!important}
                 title="MOFA visa preview"
                 srcDoc={visaHtml}
                 className="h-[min(72vh,940px)] w-full rounded border bg-white"
-                sandbox=""
+                sandbox="allow-same-origin"
               />
 
               <Button type="button" className="w-full gap-2" onClick={handleSaveAsPdf}>
