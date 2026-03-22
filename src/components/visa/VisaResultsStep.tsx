@@ -83,12 +83,11 @@ function hasExtractableVisaContent(
   visaCopyBase64: string | undefined,
   visaCopyMime?: string
 ): boolean {
-  // If backend returned a non-trivial binary copy, trust it even when parsed text is noisy.
-  const copyLen = (visaCopyBase64 ?? "").trim().length;
-  if (copyLen > 1200) return true;
   if (visaCopyBase64 && visaCopyMime?.includes("pdf")) return true;
-  if (visaCopyBase64 && !looksLikeMofaChromeOnly(rawText)) return true;
-  if (isPlaceholderOrBoilerplate(rawText)) return false;
+
+  // Require meaningful textual signal for image responses to avoid watermark-only false positives.
+  if (isPlaceholderOrBoilerplate(rawText) || looksLikeMofaChromeOnly(rawText)) return false;
+
   const t = (rawText ?? "").toLowerCase();
   const substantialArabic = /[\u0600-\u06FF]{30,}/.test(rawText ?? "");
   const looksLikeVisa =
@@ -97,7 +96,15 @@ function hasExtractableVisaContent(
     ) ||
     (substantialArabic && (rawText?.length ?? 0) > 120);
   const lineCount = (rawText ?? "").split(/\n/).filter((l) => l.trim().length > 3).length;
-  return looksLikeVisa || (lineCount >= 4 && (rawText?.length ?? 0) > 100);
+  const hasTextVisaData = looksLikeVisa || (lineCount >= 4 && (rawText?.length ?? 0) > 100);
+  if (hasTextVisaData) return true;
+
+  // Large image blobs alone are not enough; only allow them if text has explicit visa field hints.
+  if (visaCopyBase64 && visaCopyBase64.trim().length > 30000) {
+    return /visa|passport|application|issue|expiry|nationality|تأشيرة|جواز|تاريخ|الجنسية|الرقم الحدودي/.test(t);
+  }
+
+  return false;
 }
 
 function formatVisaResult(rawText: string): ReactNode {
