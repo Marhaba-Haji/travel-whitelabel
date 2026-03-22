@@ -667,7 +667,6 @@ Deno.serve(async (req) => {
       // Use Firecrawl to render the page with full JS — this is the primary capture method
       const firecrawlResult = await firecrawlRenderPage(targetUrl, visaCookieHeader);
       let firecrawlHtml: string | undefined;
-      let firecrawlMarkdown: string | undefined;
       if (firecrawlResult) {
         firecrawlHtml = firecrawlResult.html;
         firecrawlMarkdown = firecrawlResult.markdown;
