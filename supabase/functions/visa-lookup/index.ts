@@ -378,7 +378,7 @@ async function firecrawlRenderPage(
           Cookie: cookieHeader,
           "User-Agent": UA,
         },
-        onlyMainContent: true,
+        onlyMainContent: false,
       }),
       signal: controller.signal,
     });
