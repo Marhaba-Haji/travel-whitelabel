@@ -57,7 +57,7 @@ export default function VisaResultsStep({ result, onReset, onRetry }: VisaResult
   const visaHtml = visaDetails?.visaCopyHtml
     ? visaDetails.visaCopyHtml.replace(
         /<head([^>]*)>/i,
-        `<head$1><meta name="viewport" content="width=device-width, initial-scale=1"><style>html,body{margin:0;padding:0;overflow-x:hidden;width:100%}body>*{max-width:100%;box-sizing:border-box}table{width:100%!important;table-layout:fixed}img{max-width:100%;height:auto}</style>`
+        `<head$1><meta name="viewport" content="width=device-width, initial-scale=1"><style>html,body{margin:0;padding:0;overflow-x:hidden}body{transform-origin:top left;width:800px;transform:scale(calc(100vw / 800))}img{max-width:100%;height:auto}</style>`
       )
     : undefined;
 
