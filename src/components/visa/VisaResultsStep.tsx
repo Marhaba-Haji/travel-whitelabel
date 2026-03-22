@@ -1,4 +1,4 @@
-import { useRef, type ReactNode } from "react";
+import { type ReactNode } from "react";
 import { FileCheck, AlertCircle, Download, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -73,53 +73,37 @@ function cleanMofaMessage(raw: string | undefined): string | undefined {
   return s;
 }
 
-/** Render visa HTML in iframe and trigger print dialog for Save-as-PDF */
-function VisaHtmlViewer({ html, fileNameHint }: { html: string; fileNameHint?: string }) {
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-
-  const blobUrl = URL.createObjectURL(
-    new Blob([html], { type: "text/html;charset=utf-8" })
-  );
-
-  const handlePrint = () => {
-    const iframe = iframeRef.current;
-    if (!iframe?.contentWindow) return;
-    iframe.contentWindow.focus();
-    iframe.contentWindow.print();
-  };
-
-  const handleDownloadHtml = () => {
-    const safe = (fileNameHint || "").replace(/[^\w-]/g, "").slice(-12) || "visa";
-    const name = `mofa-visa-${safe}-${Date.now()}.html`;
-    const a = document.createElement("a");
-    a.href = blobUrl;
-    a.download = name;
-    a.click();
+/** Open visa HTML in a new window and trigger print for Save-as-PDF */
+function VisaHtmlViewer({ html }: { html: string }) {
+  const handleSaveAsPdf = () => {
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) {
+      alert("Please allow pop-ups to save the visa as PDF.");
+      return;
+    }
+    printWindow.document.open();
+    printWindow.document.write(html);
+    printWindow.document.close();
+    // Wait for content to render then trigger print
+    printWindow.addEventListener("load", () => {
+      printWindow.focus();
+      printWindow.print();
+    });
+    // Fallback if load doesn't fire
+    setTimeout(() => {
+      printWindow.focus();
+      printWindow.print();
+    }, 1500);
   };
 
   return (
     <div className="space-y-3">
-      <div className="w-full overflow-hidden rounded border bg-white">
-        <iframe
-          ref={iframeRef}
-          title="Visa preview"
-          src={blobUrl}
-          className="h-[min(70vh,820px)] w-full"
-          sandbox="allow-same-origin"
-        />
-      </div>
-      <div className="flex gap-2">
-        <Button type="button" className="flex-1 gap-2" onClick={handlePrint}>
-          <Printer className="h-4 w-4" />
-          Save as PDF (Print)
-        </Button>
-        <Button type="button" variant="outline" className="gap-2" onClick={handleDownloadHtml}>
-          <Download className="h-4 w-4" />
-          Download HTML
-        </Button>
-      </div>
+      <Button type="button" className="w-full gap-2" onClick={handleSaveAsPdf}>
+        <Printer className="h-4 w-4" />
+        Save as PDF
+      </Button>
       <p className="text-xs text-muted-foreground">
-        Click "Save as PDF" → choose "Save as PDF" as your printer → Save. This gives you a clean PDF of just the visa.
+        Opens the visa in a new tab → choose "Save as PDF" as your printer → Save.
       </p>
     </div>
   );
@@ -162,7 +146,7 @@ export default function VisaResultsStep({ result, onReset, onRetry, fileNameHint
               <h3 className="font-semibold text-green-800 dark:text-green-200">Issued visa copy</h3>
               <div className="rounded bg-white/80 p-3 text-green-900 dark:bg-black/20 dark:text-green-100 space-y-3">
                 {visaCopyHtml ? (
-                  <VisaHtmlViewer html={visaCopyHtml} fileNameHint={fileNameHint} />
+                  <VisaHtmlViewer html={visaCopyHtml} />
                 ) : legacyBase64 ? (
                   <div className="space-y-3">
                     {legacyMime.includes("pdf") ? (
