@@ -57,8 +57,8 @@ Return ONLY a valid JSON object with no markdown formatting, no code blocks, no 
 // Use the best vision models in order of preference
 const GEMINI_MODELS = [
   "gemini-2.5-flash",
-  "gemini-2.0-flash",
   "gemini-2.5-flash-lite",
+  "gemini-2.0-flash-lite",
 ];
 
 // Rate limiting
