@@ -352,7 +352,7 @@ async function httpsRequest(
 async function firecrawlRenderPage(
   url: string,
   cookieHeader: string
-): Promise<{ html?: string; markdown?: string; rawText?: string } | null> {
+): Promise<{ screenshot?: string; markdown?: string } | null> {
   const apiKey = Deno.env.get("FIRECRAWL_API_KEY");
   if (!apiKey) {
     console.warn("[visa-lookup] FIRECRAWL_API_KEY not set, skipping browser rendering");
@@ -360,7 +360,7 @@ async function firecrawlRenderPage(
   }
 
   try {
-    console.log(`[visa-lookup] Firecrawl rendering: ${url}`);
+    console.log(`[visa-lookup] Firecrawl rendering (screenshot): ${url}`);
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 45000);
 
@@ -372,13 +372,13 @@ async function firecrawlRenderPage(
       },
       body: JSON.stringify({
         url,
-        formats: ["html", "markdown"],
+        formats: ["screenshot", "markdown"],
         waitFor: 5000,
         headers: {
           Cookie: cookieHeader,
           "User-Agent": UA,
         },
-        onlyMainContent: false,
+        onlyMainContent: true,
       }),
       signal: controller.signal,
     });
@@ -392,17 +392,16 @@ async function firecrawlRenderPage(
     }
 
     const data = await resp.json();
-    const html = data?.data?.html || data?.html;
+    const screenshot = data?.data?.screenshot || data?.screenshot;
     const markdown = data?.data?.markdown || data?.markdown;
 
     console.log(
-      `[visa-lookup] Firecrawl result: html=${html ? html.length : 0} chars, markdown=${markdown ? markdown.length : 0} chars`
+      `[visa-lookup] Firecrawl result: screenshot=${screenshot ? "yes" : "no"}, markdown=${markdown ? markdown.length : 0} chars`
     );
 
     return {
-      html: html || undefined,
+      screenshot: screenshot || undefined,
       markdown: markdown || undefined,
-      rawText: markdown || undefined,
     };
   } catch (err) {
     console.error("[visa-lookup] Firecrawl fetch failed:", err);
@@ -634,15 +633,13 @@ Deno.serve(async (req) => {
     if (hasVisaFound) {
       let visaHtml = responseHtml;
       let visaCookieHeader = lookupCookieHeader;
-      let firecrawlScreenshot: string | undefined;
-      let firecrawlMarkdown: string | undefined;
 
       // Determine the best URL to render with Firecrawl
       const targetUrl = onPrintPage
         ? responseUrl
         : extractPrintVisaUrl(visaHtml, responseUrl) || responseUrl;
 
-      // If not on print page, also try HTTP fetch for the print page (fallback text)
+      // If not on print page, also try HTTP fetch for the print page
       if (!onPrintPage) {
         const printUrl = extractPrintVisaUrl(visaHtml, responseUrl);
         if (printUrl) {
@@ -664,47 +661,28 @@ Deno.serve(async (req) => {
         }
       }
 
-      // Use Firecrawl to render the page with full JS — this is the primary capture method
+      // Use Firecrawl screenshot to capture the actual visa as rendered
       const firecrawlResult = await firecrawlRenderPage(targetUrl, visaCookieHeader);
-      let firecrawlHtml: string | undefined;
-      if (firecrawlResult) {
-        firecrawlHtml = firecrawlResult.html;
-        firecrawlMarkdown = firecrawlResult.markdown;
+      
+      let visaScreenshot: string | undefined;
+      let visaScreenshotMime = "image/png";
+      
+      if (firecrawlResult?.screenshot) {
+        // Firecrawl returns screenshot as a data URL or base64
+        const ss = firecrawlResult.screenshot;
+        if (ss.startsWith("data:")) {
+          const mimeMatch = ss.match(/^data:(image\/\w+);base64,/);
+          if (mimeMatch) {
+            visaScreenshotMime = mimeMatch[1];
+            visaScreenshot = ss.replace(/^data:image\/\w+;base64,/, "");
+          }
+        } else {
+          visaScreenshot = ss;
+        }
       }
 
-      // Build a clean, self-contained HTML document for the visa
-      let visaCopyHtml: string | undefined;
-      if (firecrawlHtml) {
-        // Wrap in a print-friendly document with inlined styles
-        visaCopyHtml = `<!DOCTYPE html>
-<html dir="rtl" lang="ar">
-<head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Visa Copy</title>
-<style>
-  body { font-family: Arial, Tahoma, sans-serif; margin: 20px; direction: rtl; }
-  @media print {
-    body { margin: 0; }
-    .no-print { display: none !important; }
-  }
-  nav, header, footer, .cookie-banner, .cookie-consent, [class*="cookie"],
-  [class*="navbar-"], [class*="header-"], [class*="footer-"], .modal-backdrop,
-  [ivo-player], .ivo-container { display: none !important; }
-  table { border-collapse: collapse; width: 100%; margin: 10px 0; }
-  td, th { border: 1px solid #ccc; padding: 8px; text-align: right; }
-  img { max-width: 100%; height: auto; }
-</style>
-</head>
-<body>
-${firecrawlHtml}
-</body>
-</html>`;
-      }
-
-      // Fallback: try to extract visa image from raw HTML if Firecrawl didn't yield HTML
-      let visaImageBase64: string | undefined;
-      if (!visaCopyHtml) {
+      // Fallback: try to extract visa image from raw HTML
+      if (!visaScreenshot) {
         const imgMatches = visaHtml.matchAll(/<img[^>]*src="([^"]*)"[^>]*>/gi);
         for (const imgMatch of imgMatches) {
           const src = imgMatch[1];
@@ -716,7 +694,7 @@ ${firecrawlHtml}
               if (imgUrl.startsWith("data:image/")) {
                 const b64 = imgUrl.replace(/^data:image\/\w+;base64,/, "");
                 if (b64.length > 200) {
-                  visaImageBase64 = b64;
+                  visaScreenshot = b64;
                   break;
                 }
               } else if (imgUrl.startsWith("http")) {
@@ -724,26 +702,23 @@ ${firecrawlHtml}
                   headers: { "User-Agent": UA, "Cookie": visaCookieHeader },
                 });
                 if (imgResult.statusCode === 200 && imgResult.body.byteLength > 200) {
-                  visaImageBase64 = imgResult.body.toString("base64");
+                  visaScreenshot = imgResult.body.toString("base64");
                   break;
                 }
               }
             } catch {
-              // Skip this image
+              // Skip
             }
           }
         }
       }
 
-      const visaResultText = firecrawlMarkdown || extractResultText(visaHtml) || resultText;
-
       return new Response(
         JSON.stringify({
           success: true,
           visaDetails: {
-            rawText: visaResultText || fullText.slice(0, 2000),
-            visaCopyHtml: visaCopyHtml,
-            visaImageBase64: visaImageBase64,
+            visaCopyBase64: visaScreenshot,
+            visaCopyMime: visaScreenshotMime,
           },
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
