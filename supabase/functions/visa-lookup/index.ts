@@ -346,13 +346,12 @@ async function httpsRequest(
 }
 
 /**
- * Use Firecrawl to render a MOFA page with JavaScript and capture screenshot + text.
- * Returns { screenshot, markdown, rawText } or null if Firecrawl is unavailable/fails.
+ * Use Firecrawl to render a MOFA page with JavaScript and capture print-ready HTML.
  */
 async function firecrawlRenderPage(
   url: string,
   cookieHeader: string
-): Promise<{ screenshot?: string; markdown?: string } | null> {
+): Promise<{ html?: string; screenshot?: string; markdown?: string } | null> {
   const apiKey = Deno.env.get("FIRECRAWL_API_KEY");
   if (!apiKey) {
     console.warn("[visa-lookup] FIRECRAWL_API_KEY not set, skipping browser rendering");
@@ -360,7 +359,7 @@ async function firecrawlRenderPage(
   }
 
   try {
-    console.log(`[visa-lookup] Firecrawl rendering (screenshot): ${url}`);
+    console.log(`[visa-lookup] Firecrawl rendering (html): ${url}`);
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 45000);
 
@@ -372,13 +371,13 @@ async function firecrawlRenderPage(
       },
       body: JSON.stringify({
         url,
-        formats: ["screenshot", "markdown"],
+        formats: ["html", "screenshot", "markdown"],
         waitFor: 5000,
         headers: {
           Cookie: cookieHeader,
           "User-Agent": UA,
         },
-        onlyMainContent: false,
+        onlyMainContent: true,
       }),
       signal: controller.signal,
     });
@@ -392,14 +391,16 @@ async function firecrawlRenderPage(
     }
 
     const data = await resp.json();
+    const html = data?.data?.html || data?.html;
     const screenshot = data?.data?.screenshot || data?.screenshot;
     const markdown = data?.data?.markdown || data?.markdown;
 
     console.log(
-      `[visa-lookup] Firecrawl result: screenshot=${screenshot ? "yes" : "no"}, markdown=${markdown ? markdown.length : 0} chars`
+      `[visa-lookup] Firecrawl result: html=${html ? html.length : 0} chars, screenshot=${screenshot ? "yes" : "no"}`
     );
 
     return {
+      html: html || undefined,
       screenshot: screenshot || undefined,
       markdown: markdown || undefined,
     };
@@ -407,6 +408,48 @@ async function firecrawlRenderPage(
     console.error("[visa-lookup] Firecrawl fetch failed:", err);
     return null;
   }
+}
+
+function getHeaderValue(headers: Record<string, string | string[]>, key: string): string | undefined {
+  const entry = Object.entries(headers).find(([k]) => k.toLowerCase() === key.toLowerCase());
+  if (!entry) return undefined;
+  const value = entry[1];
+  if (Array.isArray(value)) return value[0];
+  return value;
+}
+
+function toPrintableVisaHtml(sourceHtml: string): string {
+  const bodyMatch = sourceHtml.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+  const body = (bodyMatch?.[1] || sourceHtml)
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<noscript[\s\S]*?<\/noscript>/gi, "")
+    .replace(/<header[\s\S]*?<\/header>/gi, "")
+    .replace(/<footer[\s\S]*?<\/footer>/gi, "")
+    .replace(/<nav[\s\S]*?<\/nav>/gi, "")
+    .replace(/<form[\s\S]*?<\/form>/gi, "");
+
+  return `<!doctype html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MOFA Visa</title>
+  <style>
+    @page { size: auto; margin: 10mm; }
+    body { margin: 0; background: #fff; font-family: Arial, Tahoma, sans-serif; direction: rtl; }
+    .visa-shell { max-width: 980px; margin: 0 auto; background: #fff; }
+    img { max-width: 100%; height: auto; }
+    nav, header, footer, form, script, style,
+    [class*="menu"], [class*="navbar"], [class*="header"], [class*="footer"],
+    [class*="cookie"], [id*="cookie"], [class*="chat"], [id*="chat"],
+    [class*="modal"], [id*="modal"] { display: none !important; }
+    @media print { .no-print { display: none !important; } }
+  </style>
+</head>
+<body>
+  <div class="visa-shell">${body}</div>
+</body>
+</html>`;
 }
 
 /** No-result phrases from MOFA (Arabic + English) */
