@@ -53,7 +53,13 @@ function cleanMofaMessage(raw: string | undefined): string | undefined {
 export default function VisaResultsStep({ result, onReset, onRetry }: VisaResultsStepProps) {
   const { success, visaDetails, error, mofaMessage } = result;
   const hasVisa = hasVisaContent(visaDetails);
-  const visaHtml = visaDetails?.visaCopyHtml;
+  // Inject responsive scaling so the visa fits the iframe width
+  const visaHtml = visaDetails?.visaCopyHtml
+    ? visaDetails.visaCopyHtml.replace(
+        /<head([^>]*)>/i,
+        `<head$1><meta name="viewport" content="width=device-width, initial-scale=1"><style>html,body{margin:0;padding:0;overflow-x:hidden;width:100%}body>*{max-width:100%;box-sizing:border-box}table{width:100%!important;table-layout:fixed}img{max-width:100%;height:auto}</style>`
+      )
+    : undefined;
 
   const handleSaveAsPdf = () => {
     if (visaHtml) {
