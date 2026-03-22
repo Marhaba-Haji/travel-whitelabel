@@ -704,31 +704,41 @@ Deno.serve(async (req) => {
         }
       }
 
-      // Use Firecrawl screenshot to capture the actual visa as rendered
+      // Prefer actual print output from MOFA page over generic screenshots
       const firecrawlResult = await firecrawlRenderPage(targetUrl, visaCookieHeader);
 
-      let visaScreenshotBase64: string | undefined;
-      let visaScreenshotUrl: string | undefined;
-      let visaScreenshotMime = "image/png";
+      let visaCopyHtml: string | undefined;
+      let visaCopyBase64: string | undefined;
+      let visaCopyUrl: string | undefined;
+      let visaCopyMime = "image/png";
 
-      if (firecrawlResult?.screenshot) {
-        // Firecrawl may return screenshot as data URL, raw base64, or a signed URL.
+      const printContentType = getHeaderValue(response.headers, "content-type") || "";
+      if (/application\/pdf/i.test(printContentType) || visaHtml.startsWith("%PDF")) {
+        visaCopyMime = "application/pdf";
+        visaCopyBase64 = response.body.toString("base64");
+      }
+
+      if (!visaCopyBase64 && firecrawlResult?.html) {
+        visaCopyHtml = toPrintableVisaHtml(firecrawlResult.html);
+      } else if (!visaCopyBase64 && visaHtml?.trim()) {
+        visaCopyHtml = toPrintableVisaHtml(visaHtml);
+      }
+
+      if (!visaCopyBase64 && firecrawlResult?.screenshot) {
         const ss = firecrawlResult.screenshot.trim();
         if (ss.startsWith("data:")) {
           const mimeMatch = ss.match(/^data:(image\/\w+);base64,/);
-          if (mimeMatch) {
-            visaScreenshotMime = mimeMatch[1];
-          }
-          visaScreenshotBase64 = ss.replace(/^data:image\/\w+;base64,/, "");
+          if (mimeMatch) visaCopyMime = mimeMatch[1];
+          visaCopyBase64 = ss.replace(/^data:image\/\w+;base64,/, "");
         } else if (/^https?:\/\//i.test(ss)) {
-          visaScreenshotUrl = ss;
+          visaCopyUrl = ss;
         } else if (ss.length > 500) {
-          visaScreenshotBase64 = ss;
+          visaCopyBase64 = ss;
         }
       }
 
-      // Fallback: try to extract visa image from raw HTML
-      if (!visaScreenshotBase64 && !visaScreenshotUrl) {
+      // Last fallback: extract likely visa image from raw HTML
+      if (!visaCopyHtml && !visaCopyBase64 && !visaCopyUrl) {
         const imgMatches = visaHtml.matchAll(/<img[^>]*src="([^"]*)"[^>]*>/gi);
         for (const imgMatch of imgMatches) {
           const src = imgMatch[1];
@@ -740,7 +750,7 @@ Deno.serve(async (req) => {
               if (imgUrl.startsWith("data:image/")) {
                 const b64 = imgUrl.replace(/^data:image\/\w+;base64,/, "");
                 if (b64.length > 200) {
-                  visaScreenshotBase64 = b64;
+                  visaCopyBase64 = b64;
                   break;
                 }
               } else if (imgUrl.startsWith("http")) {
@@ -748,7 +758,7 @@ Deno.serve(async (req) => {
                   headers: { "User-Agent": UA, "Cookie": visaCookieHeader },
                 });
                 if (imgResult.statusCode === 200 && imgResult.body.byteLength > 200) {
-                  visaScreenshotBase64 = imgResult.body.toString("base64");
+                  visaCopyBase64 = imgResult.body.toString("base64");
                   break;
                 }
               }
@@ -763,9 +773,10 @@ Deno.serve(async (req) => {
         JSON.stringify({
           success: true,
           visaDetails: {
-            visaCopyBase64: visaScreenshotBase64,
-            visaCopyUrl: visaScreenshotUrl,
-            visaCopyMime: visaScreenshotMime,
+            visaCopyHtml,
+            visaCopyBase64,
+            visaCopyUrl,
+            visaCopyMime,
           },
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
