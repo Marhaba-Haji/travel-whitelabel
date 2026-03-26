@@ -151,7 +151,7 @@ async function handleError(response: Response): Promise<Response> {
 }
 
 async function callAI(apiKey: string, body: any): Promise<Response> {
-  return await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+  return await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${apiKey}`,
@@ -183,11 +183,11 @@ Deno.serve(async (req) => {
       );
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+    if (!GEMINI_API_KEY) {
       return new Response(
         JSON.stringify({
-          error: "LOVABLE_API_KEY is not configured. Add it in Supabase Dashboard → Project Settings → Edge Functions → Secrets.",
+          error: "GEMINI_API_KEY is not configured. Add it in Supabase Dashboard → Project Settings → Edge Functions → Secrets.",
         }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
@@ -934,8 +934,8 @@ Return ONLY their main blog or insights URLs as HTTPS links (one per entry).`,
         const results: any[] = [];
         for (const p of imagePrompts) {
           try {
-            const imgResp = await callAI(LOVABLE_API_KEY, {
-              model: "google/gemini-2.5-flash-image",
+            const imgResp = await callAI(GEMINI_API_KEY, {
+              model: "gemini-2.5-flash-preview-image-generation",
               messages: [{ role: "user", content: `Generate a professional, high-quality blog image: ${p.prompt}. Style: modern, clean, professional photography or illustration suitable for a travel industry blog. No text or watermarks.` }],
               modalities: ["image", "text"],
             });
@@ -986,7 +986,7 @@ Return ONLY their main blog or insights URLs as HTTPS links (one per entry).`,
     }
 
     const aiBody: any = {
-      model: "google/gemini-3-flash-preview",
+      model: "gemini-2.5-flash",
       messages,
     };
     if (tools) aiBody.tools = tools;
@@ -995,7 +995,7 @@ Return ONLY their main blog or insights URLs as HTTPS links (one per entry).`,
     // For article generation, use streaming
     if (action === "generate_article" || action === "improve_content" || action === "interlink_posts") {
       aiBody.stream = true;
-      const response = await callAI(LOVABLE_API_KEY, aiBody);
+      const response = await callAI(GEMINI_API_KEY, aiBody);
 
       if (!response.ok) return handleError(response);
 
@@ -1005,7 +1005,7 @@ Return ONLY their main blog or insights URLs as HTTPS links (one per entry).`,
     }
 
     // Non-streaming for structured outputs
-    const response = await callAI(LOVABLE_API_KEY, aiBody);
+    const response = await callAI(GEMINI_API_KEY, aiBody);
 
     if (!response.ok) return handleError(response);
 
