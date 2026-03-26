@@ -934,8 +934,8 @@ Return ONLY their main blog or insights URLs as HTTPS links (one per entry).`,
         const results: any[] = [];
         for (const p of imagePrompts) {
           try {
-            const imgResp = await callAI(LOVABLE_API_KEY, {
-              model: "google/gemini-2.5-flash-image",
+            const imgResp = await callAI(GEMINI_API_KEY, {
+              model: "gemini-2.5-flash-preview-image-generation",
               messages: [{ role: "user", content: `Generate a professional, high-quality blog image: ${p.prompt}. Style: modern, clean, professional photography or illustration suitable for a travel industry blog. No text or watermarks.` }],
               modalities: ["image", "text"],
             });
