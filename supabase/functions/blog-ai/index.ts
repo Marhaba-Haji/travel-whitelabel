@@ -927,24 +927,38 @@ Return ONLY their main blog or insights URLs as HTTPS links (one per entry).`,
       }
 
       case "generate_images": {
-        // Generate images using the Lovable AI image model
         const imagePrompts = prompts || [];
-        
-        // This action receives pre-extracted prompts and generates actual images
         const results: any[] = [];
         for (const p of imagePrompts) {
           try {
-            const imgResp = await callAI(GEMINI_API_KEY, {
-              model: "gemini-2.5-flash-preview-image-generation",
-              messages: [{ role: "user", content: `Generate a professional, high-quality blog image: ${p.prompt}. Style: modern, clean, professional photography or illustration suitable for a travel industry blog. No text or watermarks.` }],
-              modalities: ["image", "text"],
-            });
+            // Use native Gemini API for image generation (OpenAI-compat doesn't support modalities)
+            const imgResp = await fetch(
+              `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${GEMINI_API_KEY}`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  contents: [{
+                    parts: [{ text: `Generate a professional, high-quality blog image: ${p.prompt}. Style: modern, clean, professional photography or illustration suitable for a travel industry blog. No text or watermarks.` }],
+                  }],
+                  generationConfig: {
+                    responseModalities: ["TEXT", "IMAGE"],
+                  },
+                }),
+              }
+            );
             if (imgResp.ok) {
               const imgData = await imgResp.json();
-              const imageUrl = imgData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
-              if (imageUrl) {
-                results.push({ ...p, image_base64: imageUrl });
+              const parts = imgData.candidates?.[0]?.content?.parts || [];
+              const imagePart = parts.find((pt: any) => pt.inlineData);
+              if (imagePart?.inlineData) {
+                const b64 = imagePart.inlineData.data;
+                const mime = imagePart.inlineData.mimeType || "image/png";
+                results.push({ ...p, image_base64: `data:${mime};base64,${b64}` });
               }
+            } else {
+              const errText = await imgResp.text();
+              console.error("Image generation error:", imgResp.status, errText);
             }
           } catch (e) {
             console.error("Image generation error:", e);
