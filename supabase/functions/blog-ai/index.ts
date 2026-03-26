@@ -183,11 +183,11 @@ Deno.serve(async (req) => {
       );
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+    if (!GEMINI_API_KEY) {
       return new Response(
         JSON.stringify({
-          error: "LOVABLE_API_KEY is not configured. Add it in Supabase Dashboard → Project Settings → Edge Functions → Secrets.",
+          error: "GEMINI_API_KEY is not configured. Add it in Supabase Dashboard → Project Settings → Edge Functions → Secrets.",
         }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
