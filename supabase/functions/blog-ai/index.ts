@@ -933,7 +933,7 @@ Return ONLY their main blog or insights URLs as HTTPS links (one per entry).`,
           try {
             // Use native Gemini API for image generation (OpenAI-compat doesn't support modalities)
             const imgResp = await fetch(
-              `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${GEMINI_API_KEY}`,
+              `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
               {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
