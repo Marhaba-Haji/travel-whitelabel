@@ -151,7 +151,7 @@ async function handleError(response: Response): Promise<Response> {
 }
 
 async function callAI(apiKey: string, body: any): Promise<Response> {
-  return await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+  return await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${apiKey}`,
