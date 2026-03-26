@@ -995,7 +995,7 @@ Return ONLY their main blog or insights URLs as HTTPS links (one per entry).`,
     // For article generation, use streaming
     if (action === "generate_article" || action === "improve_content" || action === "interlink_posts") {
       aiBody.stream = true;
-      const response = await callAI(LOVABLE_API_KEY, aiBody);
+      const response = await callAI(GEMINI_API_KEY, aiBody);
 
       if (!response.ok) return handleError(response);
 
