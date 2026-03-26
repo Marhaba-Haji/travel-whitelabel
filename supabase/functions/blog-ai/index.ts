@@ -133,6 +133,8 @@ function buildClusterContext(clusterInfo?: any): string {
 
 async function handleError(response: Response): Promise<Response> {
   const status = response.status;
+  const t = await response.text();
+  console.error("Gemini API error:", status, t);
   if (status === 429) {
     return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again shortly." }), {
       status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -143,9 +145,7 @@ async function handleError(response: Response): Promise<Response> {
       status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
-  const t = await response.text();
-  console.error("AI gateway error:", status, t);
-  return new Response(JSON.stringify({ error: "AI gateway error" }), {
+  return new Response(JSON.stringify({ error: `Gemini API error (${status}): ${t.substring(0, 200)}` }), {
     status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 }
