@@ -161,6 +161,97 @@ async function callAI(apiKey: string, body: any): Promise<Response> {
   });
 }
 
+function extractImageUrlFromChoice(data: any): string | null {
+  const directImage = data?.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+  if (typeof directImage === "string" && directImage.startsWith("data:image/")) return directImage;
+
+  const content = data?.choices?.[0]?.message?.content;
+  if (Array.isArray(content)) {
+    for (const part of content) {
+      if (part?.type === "image_url" && typeof part?.image_url?.url === "string") {
+        return part.image_url.url;
+      }
+    }
+  }
+
+  return null;
+}
+
+async function generateImageWithGemini(apiKey: string, prompt: string): Promise<{ imageUrl?: string; model?: string; error?: string }> {
+  const preferredModels = [
+    "gemini-3.1-flash-image-preview",
+    "gemini-2.5-flash-image",
+    "gemini-3-pro-image-preview",
+  ];
+
+  let lastError = "No image-capable model returned an image.";
+
+  for (const model of preferredModels) {
+    try {
+      const resp = await callAI(apiKey, {
+        model,
+        messages: [{ role: "user", content: prompt }],
+        modalities: ["image", "text"],
+      });
+
+      if (!resp.ok) {
+        const errText = await resp.text();
+        lastError = `${model} (${resp.status}): ${errText.substring(0, 180)}`;
+        console.error("Gemini image generation error:", model, resp.status, errText);
+        continue;
+      }
+
+      const data = await resp.json();
+      const imageUrl = extractImageUrlFromChoice(data);
+      if (imageUrl) {
+        return { imageUrl, model };
+      }
+
+      lastError = `${model}: response did not include an image payload`;
+      console.error("Gemini image generation missing image payload:", model, JSON.stringify(data).substring(0, 300));
+    } catch (e) {
+      lastError = `${model}: ${e instanceof Error ? e.message : "Unknown error"}`;
+      console.error("Gemini image generation exception:", model, e);
+    }
+  }
+
+  return { error: lastError };
+}
+
+async function generateImageWithLovable(apiKey: string, prompt: string): Promise<{ imageUrl?: string; error?: string }> {
+  try {
+    const imgResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-3-pro-image-preview",
+        messages: [{ role: "user", content: prompt }],
+        modalities: ["image", "text"],
+      }),
+    });
+
+    if (!imgResp.ok) {
+      const errText = await imgResp.text();
+      console.error("Lovable gateway image generation error:", imgResp.status, errText);
+      return { error: `gateway (${imgResp.status}): ${errText.substring(0, 180)}` };
+    }
+
+    const imgData = await imgResp.json();
+    const imageUrl = extractImageUrlFromChoice(imgData);
+    if (!imageUrl) {
+      return { error: "gateway: response did not include an image payload" };
+    }
+
+    return { imageUrl };
+  } catch (e) {
+    console.error("Lovable gateway image generation exception:", e);
+    return { error: e instanceof Error ? e.message : "Unknown gateway error" };
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { status: 200, headers: corsHeaders });
@@ -194,14 +285,6 @@ Deno.serve(async (req) => {
     }
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      return new Response(
-        JSON.stringify({
-          error: "LOVABLE_API_KEY is not configured.",
-        }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
-    }
 
     const {
       action,
@@ -939,41 +1022,40 @@ Return ONLY their main blog or insights URLs as HTTPS links (one per entry).`,
       case "generate_images": {
         const imagePrompts = prompts || [];
         const results: any[] = [];
+        const failures: string[] = [];
+
         for (const p of imagePrompts) {
-          try {
-            // Use Lovable AI Gateway with Nano banana pro for image generation
-            const imgResp = await fetch(
-              "https://ai.gateway.lovable.dev/v1/chat/completions",
-              {
-                method: "POST",
-                headers: {
-                  Authorization: `Bearer ${LOVABLE_API_KEY}`,
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  model: "google/gemini-3-pro-image-preview",
-                  messages: [{
-                    role: "user",
-                    content: `Generate a professional, high-quality blog image: ${p.prompt}. Style: modern, clean, professional photography or illustration suitable for a travel industry blog. No text or watermarks.`,
-                  }],
-                  modalities: ["image", "text"],
-                }),
-              }
-            );
-            if (imgResp.ok) {
-              const imgData = await imgResp.json();
-              const imageUrl = imgData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
-              if (imageUrl) {
-                results.push({ ...p, image_base64: imageUrl });
-              }
-            } else {
-              const errText = await imgResp.text();
-              console.error("Image generation error:", imgResp.status, errText);
+          const promptText = `Generate a professional, high-quality blog image: ${p.prompt}. Style: modern, clean, professional photography or illustration suitable for a travel industry blog. No text or watermarks.`;
+
+          const geminiResult = await generateImageWithGemini(GEMINI_API_KEY, promptText);
+          if (geminiResult.imageUrl) {
+            results.push({ ...p, image_base64: geminiResult.imageUrl, model_used: geminiResult.model });
+            continue;
+          }
+
+          if (LOVABLE_API_KEY) {
+            const gatewayResult = await generateImageWithLovable(LOVABLE_API_KEY, promptText);
+            if (gatewayResult.imageUrl) {
+              results.push({ ...p, image_base64: gatewayResult.imageUrl, model_used: "google/gemini-3-pro-image-preview" });
+              continue;
             }
-          } catch (e) {
-            console.error("Image generation error:", e);
+
+            failures.push(`Prompt "${p?.prompt || "(empty)"}": Gemini failed (${geminiResult.error || "unknown"}); gateway failed (${gatewayResult.error || "unknown"})`);
+          } else {
+            failures.push(`Prompt "${p?.prompt || "(empty)"}": Gemini failed (${geminiResult.error || "unknown"})`);
           }
         }
+
+        if (!results.length) {
+          return new Response(
+            JSON.stringify({
+              error: "Image generation failed for all prompts",
+              details: failures.slice(0, 3),
+            }),
+            { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+          );
+        }
+
         return new Response(JSON.stringify({ result: results, action }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
