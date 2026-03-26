@@ -150,15 +150,25 @@ async function handleError(response: Response): Promise<Response> {
   });
 }
 
-async function callAI(apiKey: string, body: any): Promise<Response> {
-  return await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  });
+async function callAI(apiKey: string, body: any, timeoutMs?: number): Promise<Response> {
+  const controller = timeoutMs ? new AbortController() : undefined;
+  const timeoutId = timeoutMs
+    ? setTimeout(() => controller?.abort(`AI request timed out after ${timeoutMs}ms`), timeoutMs)
+    : null;
+
+  try {
+    return await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+      signal: controller?.signal,
+    });
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
+  }
 }
 
 function extractImageUrlFromChoice(data: any): string | null {
@@ -181,7 +191,6 @@ async function generateImageWithGemini(apiKey: string, prompt: string): Promise<
   const preferredModels = [
     "gemini-3.1-flash-image-preview",
     "gemini-2.5-flash-image",
-    "gemini-3-pro-image-preview",
   ];
 
   let lastError = "No image-capable model returned an image.";
@@ -192,7 +201,7 @@ async function generateImageWithGemini(apiKey: string, prompt: string): Promise<
         model,
         messages: [{ role: "user", content: prompt }],
         modalities: ["image", "text"],
-      });
+      }, 35000);
 
       if (!resp.ok) {
         const errText = await resp.text();
@@ -216,40 +225,6 @@ async function generateImageWithGemini(apiKey: string, prompt: string): Promise<
   }
 
   return { error: lastError };
-}
-
-async function generateImageWithLovable(apiKey: string, prompt: string): Promise<{ imageUrl?: string; error?: string }> {
-  try {
-    const imgResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-3-pro-image-preview",
-        messages: [{ role: "user", content: prompt }],
-        modalities: ["image", "text"],
-      }),
-    });
-
-    if (!imgResp.ok) {
-      const errText = await imgResp.text();
-      console.error("Lovable gateway image generation error:", imgResp.status, errText);
-      return { error: `gateway (${imgResp.status}): ${errText.substring(0, 180)}` };
-    }
-
-    const imgData = await imgResp.json();
-    const imageUrl = extractImageUrlFromChoice(imgData);
-    if (!imageUrl) {
-      return { error: "gateway: response did not include an image payload" };
-    }
-
-    return { imageUrl };
-  } catch (e) {
-    console.error("Lovable gateway image generation exception:", e);
-    return { error: e instanceof Error ? e.message : "Unknown gateway error" };
-  }
 }
 
 Deno.serve(async (req) => {
@@ -283,8 +258,6 @@ Deno.serve(async (req) => {
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
-
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     const {
       action,
@@ -1033,17 +1006,7 @@ Return ONLY their main blog or insights URLs as HTTPS links (one per entry).`,
             continue;
           }
 
-          if (LOVABLE_API_KEY) {
-            const gatewayResult = await generateImageWithLovable(LOVABLE_API_KEY, promptText);
-            if (gatewayResult.imageUrl) {
-              results.push({ ...p, image_base64: gatewayResult.imageUrl, model_used: "google/gemini-3-pro-image-preview" });
-              continue;
-            }
-
-            failures.push(`Prompt "${p?.prompt || "(empty)"}": Gemini failed (${geminiResult.error || "unknown"}); gateway failed (${gatewayResult.error || "unknown"})`);
-          } else {
-            failures.push(`Prompt "${p?.prompt || "(empty)"}": Gemini failed (${geminiResult.error || "unknown"})`);
-          }
+          failures.push(`Prompt "${p?.prompt || "(empty)"}": Gemini failed (${geminiResult.error || "unknown"})`);
         }
 
         if (!results.length) {
