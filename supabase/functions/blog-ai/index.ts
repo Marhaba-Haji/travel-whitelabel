@@ -986,7 +986,7 @@ Return ONLY their main blog or insights URLs as HTTPS links (one per entry).`,
     }
 
     const aiBody: any = {
-      model: "google/gemini-3-flash-preview",
+      model: "gemini-2.5-flash",
       messages,
     };
     if (tools) aiBody.tools = tools;
