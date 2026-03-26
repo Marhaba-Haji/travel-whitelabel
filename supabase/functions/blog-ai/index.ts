@@ -171,25 +171,9 @@ async function callAI(apiKey: string, body: any, timeoutMs?: number): Promise<Re
   }
 }
 
-function extractImageUrlFromChoice(data: any): string | null {
-  const directImage = data?.choices?.[0]?.message?.images?.[0]?.image_url?.url;
-  if (typeof directImage === "string" && directImage.startsWith("data:image/")) return directImage;
-
-  const content = data?.choices?.[0]?.message?.content;
-  if (Array.isArray(content)) {
-    for (const part of content) {
-      if (part?.type === "image_url" && typeof part?.image_url?.url === "string") {
-        return part.image_url.url;
-      }
-    }
-  }
-
-  return null;
-}
-
 async function generateImageWithGemini(apiKey: string, prompt: string): Promise<{ imageUrl?: string; model?: string; error?: string }> {
   const preferredModels = [
-    "gemini-3.1-flash-image-preview",
+    "gemini-3-pro-image-preview",
     "gemini-2.5-flash-image",
   ];
 
@@ -197,11 +181,22 @@ async function generateImageWithGemini(apiKey: string, prompt: string): Promise<
 
   for (const model of preferredModels) {
     try {
-      const resp = await callAI(apiKey, {
-        model,
-        messages: [{ role: "user", content: prompt }],
-        modalities: ["image", "text"],
-      }, 35000);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort("Gemini image generation timed out"), 35000);
+
+      const resp = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/images/generations", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model,
+          prompt,
+          size: "1024x1024",
+        }),
+        signal: controller.signal,
+      }).finally(() => clearTimeout(timeoutId));
 
       if (!resp.ok) {
         const errText = await resp.text();
@@ -211,7 +206,14 @@ async function generateImageWithGemini(apiKey: string, prompt: string): Promise<
       }
 
       const data = await resp.json();
-      const imageUrl = extractImageUrlFromChoice(data);
+      const directUrl = data?.data?.[0]?.url;
+      const b64 = data?.data?.[0]?.b64_json;
+      const imageUrl = typeof directUrl === "string"
+        ? directUrl
+        : typeof b64 === "string"
+          ? `data:image/png;base64,${b64}`
+          : null;
+
       if (imageUrl) {
         return { imageUrl, model };
       }
