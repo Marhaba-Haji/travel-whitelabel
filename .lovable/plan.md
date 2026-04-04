@@ -1,44 +1,73 @@
 
 
-## Plan: Clean Visa PDF via Browser Print Dialog
+## Plan: Light/Dark Theme Toggle with Bright Default Theme
 
 ### Problem
-The current implementation captures screenshots and strips HTML, producing distorted output. The MOFA `PrintEventVisa` page already has print-optimized CSS. When you use the browser's "Print > Save as PDF" with no margins on that page, you get the exact visa document (as in the uploaded PDF).
+The site currently defaults to a dark theme with hardcoded dark colors in `:root`. There is a `.light` class defined in CSS but it is never used -- no theme provider or toggle exists. The dark-only aesthetic can feel heavy and reduce engagement for first-time visitors.
 
-### Approach
-Stop capturing screenshots entirely. Fetch the full raw HTML from MOFA's PrintEventVisa page via Firecrawl, preserve it as-is (including MOFA's own print CSS), and use the browser's native print dialog for PDF generation.
+### Strategy
+1. **Default to light theme** for first-time visitors (better conversion psychology for B2B SaaS landing pages)
+2. **Add a theme toggle** in the header so users can switch between light and dark
+3. **Refine the light palette** to feel warm, bright, and premium (not just a CSS variable swap -- the glassmorphism and hardcoded dark backgrounds need light-mode equivalents)
+4. **Persist preference** in localStorage
 
-### Changes
+### Implementation Steps
 
-**1. Edge Function (`supabase/functions/visa-lookup/index.ts`)**
-- Request only `rawHtml` format from Firecrawl (not `screenshot`, not processed `html`)
-- Set `onlyMainContent: false` to keep the full page including MOFA's print stylesheets
-- Remove `toPrintableVisaHtml` stripping function -- we want the original HTML
-- Stop sending `visaCopyBase64`, `visaCopyUrl`, `visaCopyMime` -- only send `visaCopyHtml` containing the raw PrintEventVisa HTML
-- Remove the screenshot/image fallback logic entirely (lines 730-773)
+#### 1. Install `next-themes` (already a dependency via sonner)
+Wrap the app in `ThemeProvider` from `next-themes` with `defaultTheme="light"` and `attribute="class"`.
 
-**2. Frontend (`src/components/visa/VisaResultsStep.tsx`)**
-- Remove all image/screenshot/base64/URL download logic (`downloadBase64`, `downloadFromUrl`, `openPrintWindowFromImage`, `getVisaImageSrc`)
-- Simplify `hasVisaContent` to check only for `visaCopyHtml`
-- Preview: render `visaCopyHtml` in a sandboxed iframe (`srcDoc`) for safe, isolated display
-- "Save as PDF" button: open a new window, write the raw HTML into it, inject a small `<style>` block (`@page { margin: 0; size: auto; }`) to match zero-margin print, then call `window.print()`
-- Remove the "Download visa file" button entirely -- only keep "Save as PDF"
-- Keep error/retry/reset flows unchanged
+**File: `src/App.tsx`**
+- Import `ThemeProvider` from `next-themes`
+- Wrap the outermost component tree with `<ThemeProvider attribute="class" defaultTheme="light" storageKey="aurora-theme">`
 
-**3. Interface cleanup**
-- Remove `visaCopyBase64`, `visaCopyUrl`, `visaCopyMime` from `VisaResult` type (keep only `visaCopyHtml`)
-- Remove unused imports (`Download` icon, image helpers)
+#### 2. Refine the light theme CSS variables
+**File: `src/index.css`**
+- Move the current `:root` variables to `.dark` (merge with existing `.dark` block)
+- Make `:root` use the `.light` values as the new default
+- Warm up the light palette slightly: off-white background (`0 0% 99%`), softer borders, and a slightly richer purple primary
+- Add light-mode aurora gradient overrides and glassmorphism utilities that use `bg-black/5` instead of `bg-white/5`
 
-### Technical Detail
+#### 3. Fix hardcoded dark colors across landing components
+Several components have hardcoded dark HSL values that will look wrong in light mode:
 
-```text
-Flow:
-  MOFA POST → redirect to PrintEventVisa
-  → Firecrawl scrape (rawHtml, onlyMainContent: false)
-  → Return full HTML to frontend
-  → iframe preview (srcDoc)
-  → "Save as PDF" → window.open() → inject @page{margin:0} → window.print()
+- **Hero.tsx**: Replace `from-[hsl(230,40%,10%)]` background with theme-aware classes (e.g., `from-background`)
+- **Hero.tsx**: The ambient blob uses `bg-aurora-purple/15` -- fine for both themes
+- **StickyCTA.tsx**: `glass` utility with `border-white/10` -- needs light-mode variant
+- **Header.tsx**: Scrolled state background uses dark glass -- needs conditional styling
+- **ProductShowcase.tsx**: Uses `glass-card` and `glass` utilities throughout
+
+#### 4. Update glassmorphism utilities for dual-theme support
+**File: `src/index.css`**
+```css
+.glass {
+  @apply bg-white/5 dark:bg-white/5 backdrop-blur-xl border border-white/10 dark:border-white/10;
+  /* Light mode overrides */
+  @apply bg-black/[0.03] border-black/[0.06];
+}
+/* Use dark: prefix pattern for all glass utilities */
 ```
 
-The key insight: MOFA's page already contains `@media print` CSS that produces the clean visa layout. By preserving the raw HTML and using the browser's native print, we get the exact same PDF as manually printing from the MOFA site.
+#### 5. Add theme toggle button to Header
+**File: `src/components/landing/Header.tsx`**
+- Import `useTheme` from `next-themes`
+- Add a Sun/Moon icon toggle button next to the "Book Demo" button
+- Subtle, icon-only button with smooth transition
+
+#### 6. Ensure Sonner toaster uses the theme correctly
+**File: `src/components/ui/sonner.tsx`** -- already uses `useTheme`, so this should work automatically once the provider is added.
+
+### Files to Modify
+| File | Change |
+|------|--------|
+| `src/App.tsx` | Wrap with `ThemeProvider` |
+| `src/index.css` | Swap `:root` to light, merge dark into `.dark`, add light-mode glass utilities |
+| `src/components/landing/Header.tsx` | Add Sun/Moon theme toggle |
+| `src/components/landing/Hero.tsx` | Replace hardcoded dark gradient with theme-aware classes |
+| `src/components/landing/StickyCTA.tsx` | Update glass border for light mode |
+| `src/components/landing/Footer.tsx` | Check and fix any hardcoded dark backgrounds |
+
+### Visual Outcome
+- **Light mode (default)**: Clean white/off-white background, soft shadows instead of glows, darker text, purple accent remains, glass cards use subtle gray tint
+- **Dark mode**: Current look preserved, with slight refinements
+- **Toggle**: Small icon button in the header nav bar (Moon icon in light mode, Sun icon in dark mode)
 
