@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { Menu, X, LogIn, ArrowRight } from "lucide-react";
+import { Menu, X, LogIn, ArrowRight, Sun, Moon } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useTheme } from "next-themes";
 import AuroraLogo from "@/components/AuroraLogo";
 
 const Header = () => {
