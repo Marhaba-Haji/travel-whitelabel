@@ -147,7 +147,7 @@ const Header = () => {
 
         {/* Mobile / Tablet Navigation */}
         {isMenuOpen && (
-          <div className="lg:hidden py-4 border-t border-white/10 animate-fade-in">
+          <div className="lg:hidden py-4 border-t border-border animate-fade-in">
             <nav className="flex flex-col gap-1">
               {navLinks.map((link) =>
                 link.isExternal ? (
