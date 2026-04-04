@@ -235,7 +235,7 @@ const Footer = () => {
                     onChange={(e) => setNewsletterEmail(e.target.value)}
                     placeholder="your@email.com"
                     maxLength={255}
-                    className="glass border-white/20 text-foreground placeholder:text-muted-foreground flex-1"
+                    className="glass text-foreground placeholder:text-muted-foreground flex-1"
                   />
                   <Button type="submit" variant="secondary" size="icon" className="shrink-0" disabled={newsletterLoading}>
                     <ArrowRight className="h-4 w-4" />
