@@ -161,8 +161,8 @@ const Footer = () => {
                     placeholder="Your name"
                     required
                     maxLength={100}
-                    className="glass border-white/20 text-foreground placeholder:text-muted-foreground"
-                  />
+                   className="glass text-foreground placeholder:text-muted-foreground"
+                 />
                 </div>
                 <div>
                   <Label htmlFor="email" className="text-foreground/90">Email</Label>
@@ -175,7 +175,7 @@ const Footer = () => {
                     placeholder="your@email.com"
                     required
                     maxLength={255}
-                    className="glass border-white/20 text-foreground placeholder:text-muted-foreground"
+                    className="glass text-foreground placeholder:text-muted-foreground"
                   />
                 </div>
               </div>
