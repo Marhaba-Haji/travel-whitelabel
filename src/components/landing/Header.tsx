@@ -165,7 +165,7 @@ const Header = () => {
                     key={link.name}
                     to={link.href}
                     onClick={handlePageNavigation}
-                    className="text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-white/5 px-3 py-2.5 rounded-lg transition-all text-left"
+                    className="text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted px-3 py-2.5 rounded-lg transition-all text-left"
                   >
                     {link.name}
                   </Link>
