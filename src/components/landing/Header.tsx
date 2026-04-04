@@ -24,6 +24,7 @@ const Header = () => {
     { name: "Pricing", href: "#pricing" },
     { name: "FAQ", href: "#faq" },
     { name: "Contact", href: "#contact" },
+    { name: "Book Demo", href: "https://cal.id/harab-rasheed/product-demo?overlayCalendar=true", isExternal: true },
   ];
 
   const scrollToSection = (href: string) => {
