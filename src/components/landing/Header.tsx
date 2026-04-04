@@ -127,7 +127,17 @@ const Header = () => {
           <div className="lg:hidden py-4 border-t border-white/10 animate-fade-in">
             <nav className="flex flex-col gap-1">
               {navLinks.map((link) =>
-                link.isPage ? (
+                link.isExternal ? (
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-medium text-foreground bg-white/10 border border-white/15 px-3 py-2.5 rounded-lg hover:bg-white/15 transition-all text-left"
+                  >
+                    {link.name}
+                  </a>
+                ) : link.isPage ? (
                   <Link
                     key={link.name}
                     to={link.href}
