@@ -121,14 +121,23 @@ const Header = () => {
 
           {/* Mobile / Tablet: Login pill + hamburger */}
           <div className="flex lg:hidden items-center gap-2">
+            {mounted && (
+              <button
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+                aria-label="Toggle theme"
+              >
+                {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </button>
+            )}
             <a
               href="/login"
-              className="text-sm font-medium text-foreground/80 px-4 py-1.5 rounded-full border border-white/20 hover:bg-white/5 transition-colors"
+              className="text-sm font-medium text-foreground/80 px-4 py-1.5 rounded-full border border-border hover:bg-muted transition-colors"
             >
               Login
             </a>
             <button
-              className="p-2 rounded-lg hover:bg-white/5 transition-colors"
+              className="p-2 rounded-lg hover:bg-muted transition-colors"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
               {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
