@@ -1,4 +1,5 @@
 import { lazy, Suspense } from "react";
+import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -32,10 +33,11 @@ const UmrahVisaCheck = lazy(() => import("./pages/UmrahVisaCheck"));
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <ItineraryProvider>
-        <TooltipProvider>
+  <ThemeProvider attribute="class" defaultTheme="light" storageKey="aurora-theme">
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <ItineraryProvider>
+          <TooltipProvider>
           <Toaster />
           <Sonner />
           <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
@@ -63,10 +65,11 @@ const App = () => (
               </Routes>
             </Suspense>
           </BrowserRouter>
-        </TooltipProvider>
-      </ItineraryProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+          </TooltipProvider>
+        </ItineraryProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  </ThemeProvider>
 );
 
 export default App;

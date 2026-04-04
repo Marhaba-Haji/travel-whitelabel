@@ -161,8 +161,8 @@ const Footer = () => {
                     placeholder="Your name"
                     required
                     maxLength={100}
-                    className="glass border-white/20 text-foreground placeholder:text-muted-foreground"
-                  />
+                   className="glass text-foreground placeholder:text-muted-foreground"
+                 />
                 </div>
                 <div>
                   <Label htmlFor="email" className="text-foreground/90">Email</Label>
@@ -175,7 +175,7 @@ const Footer = () => {
                     placeholder="your@email.com"
                     required
                     maxLength={255}
-                    className="glass border-white/20 text-foreground placeholder:text-muted-foreground"
+                    className="glass text-foreground placeholder:text-muted-foreground"
                   />
                 </div>
               </div>
@@ -188,7 +188,7 @@ const Footer = () => {
                   onChange={handleChange}
                   placeholder="+91 XXXXX XXXXX"
                   maxLength={20}
-                  className="glass border-white/20 text-foreground placeholder:text-muted-foreground"
+                  className="glass text-foreground placeholder:text-muted-foreground"
                 />
               </div>
               <div>
@@ -202,7 +202,7 @@ const Footer = () => {
                   rows={4}
                   required
                   maxLength={1000}
-                  className="glass border-white/20 text-foreground placeholder:text-muted-foreground"
+                  className="glass text-foreground placeholder:text-muted-foreground"
                 />
               </div>
               <Button type="submit" size="lg" variant="secondary" className="w-full sm:w-auto" disabled={contactLoading}>
@@ -235,7 +235,7 @@ const Footer = () => {
                     onChange={(e) => setNewsletterEmail(e.target.value)}
                     placeholder="your@email.com"
                     maxLength={255}
-                    className="glass border-white/20 text-foreground placeholder:text-muted-foreground flex-1"
+                    className="glass text-foreground placeholder:text-muted-foreground flex-1"
                   />
                   <Button type="submit" variant="secondary" size="icon" className="shrink-0" disabled={newsletterLoading}>
                     <ArrowRight className="h-4 w-4" />
@@ -337,7 +337,7 @@ const Footer = () => {
         </div>
 
         {/* Trust Badges Section */}
-        <div className="border-t border-white/10 mt-12 pt-8">
+        <div className="border-t border-border mt-12 pt-8">
           <div className="flex flex-wrap items-center justify-center gap-6 mb-6">
             {/* Security Badges */}
             <div className="flex items-center gap-2 text-muted-foreground">
@@ -354,7 +354,7 @@ const Footer = () => {
             </div>
             
             {/* Divider */}
-            <div className="hidden sm:block h-6 w-px bg-white/20" />
+            <div className="hidden sm:block h-6 w-px bg-border" />
             
             {/* Payment Icons */}
             <div className="flex items-center gap-2">

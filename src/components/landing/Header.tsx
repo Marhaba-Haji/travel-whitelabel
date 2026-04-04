@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { Menu, X, LogIn, ArrowRight } from "lucide-react";
+import { Menu, X, LogIn, ArrowRight, Sun, Moon } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useTheme } from "next-themes";
 import AuroraLogo from "@/components/AuroraLogo";
 
 const Header = () => {
@@ -9,6 +10,10 @@ const Header = () => {
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -45,7 +50,7 @@ const Header = () => {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "glass border-b border-white/10 shadow-lg shadow-black/10"
+          ? "glass shadow-lg shadow-black/5 dark:shadow-black/10"
           : "bg-transparent"
       }`}
     >
@@ -63,7 +68,7 @@ const Header = () => {
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm font-medium text-foreground bg-white/10 border border-white/15 px-3 py-2 rounded-lg hover:bg-white/15 transition-all"
+                  className="text-sm font-medium text-foreground bg-muted border border-border px-3 py-2 rounded-lg hover:bg-muted/80 transition-all"
                 >
                   {link.name}
                 </a>
@@ -72,7 +77,7 @@ const Header = () => {
                   key={link.name}
                   to={link.href}
                   onClick={handlePageNavigation}
-                  className="text-sm font-medium text-muted-foreground hover:text-foreground px-3 py-2 rounded-lg hover:bg-white/5 transition-all"
+                  className="text-sm font-medium text-muted-foreground hover:text-foreground px-3 py-2 rounded-lg hover:bg-muted transition-all"
                 >
                   {link.name}
                 </Link>
@@ -80,7 +85,7 @@ const Header = () => {
                 <button
                   key={link.name}
                   onClick={() => scrollToSection(link.href)}
-                  className="text-sm font-medium text-muted-foreground hover:text-foreground px-3 py-2 rounded-lg hover:bg-white/5 transition-all"
+                  className="text-sm font-medium text-muted-foreground hover:text-foreground px-3 py-2 rounded-lg hover:bg-muted transition-all"
                 >
                   {link.name}
                 </button>
@@ -90,9 +95,18 @@ const Header = () => {
 
           {/* Desktop CTA */}
           <div className="hidden lg:flex items-center gap-3">
+            {mounted && (
+              <button
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+                aria-label="Toggle theme"
+              >
+                {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </button>
+            )}
             <a
               href="/login"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground px-3 py-2 rounded-lg hover:bg-white/5 transition-all flex items-center gap-1.5"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground px-3 py-2 rounded-lg hover:bg-muted transition-all flex items-center gap-1.5"
             >
               <LogIn className="h-4 w-4" />
               Login
@@ -107,14 +121,23 @@ const Header = () => {
 
           {/* Mobile / Tablet: Login pill + hamburger */}
           <div className="flex lg:hidden items-center gap-2">
+            {mounted && (
+              <button
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+                aria-label="Toggle theme"
+              >
+                {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </button>
+            )}
             <a
               href="/login"
-              className="text-sm font-medium text-foreground/80 px-4 py-1.5 rounded-full border border-white/20 hover:bg-white/5 transition-colors"
+              className="text-sm font-medium text-foreground/80 px-4 py-1.5 rounded-full border border-border hover:bg-muted transition-colors"
             >
               Login
             </a>
             <button
-              className="p-2 rounded-lg hover:bg-white/5 transition-colors"
+              className="p-2 rounded-lg hover:bg-muted transition-colors"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
               {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -124,7 +147,7 @@ const Header = () => {
 
         {/* Mobile / Tablet Navigation */}
         {isMenuOpen && (
-          <div className="lg:hidden py-4 border-t border-white/10 animate-fade-in">
+          <div className="lg:hidden py-4 border-t border-border animate-fade-in">
             <nav className="flex flex-col gap-1">
               {navLinks.map((link) =>
                 link.isExternal ? (
@@ -133,7 +156,7 @@ const Header = () => {
                     href={link.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm font-medium text-foreground bg-white/10 border border-white/15 px-3 py-2.5 rounded-lg hover:bg-white/15 transition-all text-left"
+                    className="text-sm font-medium text-foreground bg-muted border border-border px-3 py-2.5 rounded-lg hover:bg-muted/80 transition-all text-left"
                   >
                     {link.name}
                   </a>
@@ -142,7 +165,7 @@ const Header = () => {
                     key={link.name}
                     to={link.href}
                     onClick={handlePageNavigation}
-                    className="text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-white/5 px-3 py-2.5 rounded-lg transition-all text-left"
+                    className="text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted px-3 py-2.5 rounded-lg transition-all text-left"
                   >
                     {link.name}
                   </Link>
@@ -150,13 +173,13 @@ const Header = () => {
                   <button
                     key={link.name}
                     onClick={() => scrollToSection(link.href)}
-                    className="text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-white/5 px-3 py-2.5 rounded-lg transition-all text-left"
+                    className="text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted px-3 py-2.5 rounded-lg transition-all text-left"
                   >
                     {link.name}
                   </button>
                 )
               )}
-              <div className="pt-4 mt-2 border-t border-white/10">
+              <div className="pt-4 mt-2 border-t border-border">
                 <Button asChild className="w-full rounded-full bg-gradient-to-r from-aurora-blue to-primary">
                   <a href="/signup">
                     Get Started
