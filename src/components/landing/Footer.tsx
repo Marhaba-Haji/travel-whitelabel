@@ -337,7 +337,7 @@ const Footer = () => {
         </div>
 
         {/* Trust Badges Section */}
-        <div className="border-t border-white/10 mt-12 pt-8">
+        <div className="border-t border-border mt-12 pt-8">
           <div className="flex flex-wrap items-center justify-center gap-6 mb-6">
             {/* Security Badges */}
             <div className="flex items-center gap-2 text-muted-foreground">
