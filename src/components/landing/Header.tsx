@@ -156,7 +156,7 @@ const Header = () => {
                     href={link.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm font-medium text-foreground bg-white/10 border border-white/15 px-3 py-2.5 rounded-lg hover:bg-white/15 transition-all text-left"
+                    className="text-sm font-medium text-foreground bg-muted border border-border px-3 py-2.5 rounded-lg hover:bg-muted/80 transition-all text-left"
                   >
                     {link.name}
                   </a>
