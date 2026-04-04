@@ -354,7 +354,7 @@ const Footer = () => {
             </div>
             
             {/* Divider */}
-            <div className="hidden sm:block h-6 w-px bg-white/20" />
+            <div className="hidden sm:block h-6 w-px bg-border" />
             
             {/* Payment Icons */}
             <div className="flex items-center gap-2">
