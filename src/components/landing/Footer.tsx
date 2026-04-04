@@ -188,7 +188,7 @@ const Footer = () => {
                   onChange={handleChange}
                   placeholder="+91 XXXXX XXXXX"
                   maxLength={20}
-                  className="glass border-white/20 text-foreground placeholder:text-muted-foreground"
+                  className="glass text-foreground placeholder:text-muted-foreground"
                 />
               </div>
               <div>
@@ -202,7 +202,7 @@ const Footer = () => {
                   rows={4}
                   required
                   maxLength={1000}
-                  className="glass border-white/20 text-foreground placeholder:text-muted-foreground"
+                  className="glass text-foreground placeholder:text-muted-foreground"
                 />
               </div>
               <Button type="submit" size="lg" variant="secondary" className="w-full sm:w-auto" disabled={contactLoading}>
