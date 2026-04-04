@@ -33,7 +33,7 @@ const UmrahVisaCheck = lazy(() => import("./pages/UmrahVisaCheck"));
 const queryClient = new QueryClient();
 
 const App = () => (
-  <ThemeProvider attribute="class" defaultTheme="light" storageKey="aurora-theme">
+  <ThemeProvider attribute="class" defaultTheme="light" enableSystem storageKey="aurora-theme">
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <ItineraryProvider>

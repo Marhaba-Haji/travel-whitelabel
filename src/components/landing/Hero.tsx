@@ -27,7 +27,8 @@ const Hero = () => {
     <section className="relative pt-24 pb-8 lg:pt-32 lg:pb-24 overflow-hidden min-h-screen flex items-center">
       {/* Aurora gradient background */}
       <div className="absolute inset-0 bg-gradient-to-b from-muted via-background to-background dark:from-[hsl(230,40%,10%)] dark:via-background dark:to-background" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_center,_hsl(270_60%_48%_/_0.08),_transparent_60%)] dark:bg-[radial-gradient(ellipse_at_top_center,_hsl(220_80%_40%_/_0.25),_transparent_60%)]" />
+      {/* Light: layered aurora wash so the hero does not read flat vs dark */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_center,_hsl(270_58%_48%_/_0.14),_transparent_55%),radial-gradient(ellipse_at_85%_15%,_hsl(210_85%_50%_/_0.1),_transparent_42%),radial-gradient(ellipse_at_15%_40%,_hsl(175_60%_45%_/_0.06),_transparent_45%)] dark:bg-[radial-gradient(ellipse_at_top_center,_hsl(220_80%_40%_/_0.25),_transparent_60%)]" />
 
       {/* Ambient blob - single orb kept for hero */}
       <div className="absolute bottom-32 right-5 w-72 h-72 bg-aurora-purple/15 rounded-full blur-3xl animate-pulse-soft" />

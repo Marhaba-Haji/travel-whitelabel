@@ -51,7 +51,7 @@ const ContractedInventory = () => {
             {pillars.map((pillar, index) => (
               <div
                 key={pillar.title}
-                className={`group glass-card rounded-2xl p-8 text-center hover:shadow-xl hover:border-white/20 transition-all duration-300 opacity-0 ${isVisible ? "animate-scale-in" : ""}`}
+                className={`group glass-card rounded-2xl p-8 text-center hover-surface-card transition-all duration-300 opacity-0 ${isVisible ? "animate-scale-in" : ""}`}
                 style={{ animationDelay: `${index * 0.12}s` }}
               >
                 <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${getAuroraGradient(index)} flex items-center justify-center mx-auto mb-5 shadow-lg group-hover:scale-110 transition-transform duration-300`}>

@@ -143,7 +143,7 @@ const DashboardMockup = ({ portal, isVisible }: { portal: typeof portals[number]
         rotateY: smoothRotateY,
       }}
     >
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-white/10">
+      <div className="flex items-center gap-3 px-4 py-3 border-b-surface">
         <div className="flex gap-1.5">
           <div className="w-2.5 h-2.5 rounded-full bg-red-400/60" />
           <div className="w-2.5 h-2.5 rounded-full bg-yellow-400/40" />
@@ -223,7 +223,7 @@ const ProductShowcase = () => {
         className={`container mx-auto px-4 relative opacity-0 ${sectionVisible ? "animate-fade-in" : ""}`}
       >
         <div className="text-center mb-14">
-          <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
+          <h2 className="font-display text-3xl md:text-5xl font-bold text-foreground mb-4">
             See It In Action
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -237,7 +237,7 @@ const ProductShowcase = () => {
               <TabsTrigger
                 key={portal.id}
                 value={portal.id}
-                className="glass px-4 py-2.5 rounded-lg data-[state=active]:bg-white/10 data-[state=active]:border-primary/40 transition-all text-sm"
+                className="glass px-4 py-2.5 rounded-lg data-[state=active]:bg-primary/10 data-[state=active]:border-primary/40 dark:data-[state=active]:bg-white/10 transition-all text-sm"
               >
                 <portal.icon className="h-4 w-4 mr-2" />
                 {portal.name}

@@ -76,13 +76,6 @@ const Blog = () => {
     fetchData();
   }, []);
 
-  // Collect all unique tags from posts
-  const allTags = useMemo(() => {
-    const tagSet = new Set<string>();
-    posts.forEach((p) => p.tags?.forEach((t) => tagSet.add(t)));
-    return Array.from(tagSet).sort();
-  }, [posts]);
-
   // Filter posts
   const filteredPosts = useMemo(() => {
     const filtered = posts.filter((p) => {
@@ -153,7 +146,7 @@ const Blog = () => {
             <Badge variant="outline" className="mb-4">
               <BookOpen className="h-3 w-3 mr-1" /> Our Blog
             </Badge>
-            <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
+            <h1 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-4">
               Insights & Inspiration
             </h1>
             <p className="text-lg text-muted-foreground mb-4">
@@ -200,48 +193,29 @@ const Blog = () => {
           </div>
 
           {/* Filters */}
-          {(categories.length > 0 || allTags.length > 0) && (
+          {categories.length > 0 && (
             <div className="mb-8 space-y-4">
               {/* Categories */}
-              {categories.length > 0 && (
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-sm font-medium text-muted-foreground mr-1">Categories:</span>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-sm font-medium text-muted-foreground mr-1">Categories:</span>
+                <Badge
+                  variant={!activeCategory ? "default" : "outline"}
+                  className="cursor-pointer"
+                  onClick={() => setFilter("category", "")}
+                >
+                  All
+                </Badge>
+                {categories.map((cat) => (
                   <Badge
-                    variant={!activeCategory ? "default" : "outline"}
+                    key={cat.id}
+                    variant={activeCategory === cat.slug ? "default" : "outline"}
                     className="cursor-pointer"
-                    onClick={() => setFilter("category", "")}
+                    onClick={() => setFilter("category", activeCategory === cat.slug ? "" : cat.slug)}
                   >
-                    All
+                    {cat.name}
                   </Badge>
-                  {categories.map((cat) => (
-                    <Badge
-                      key={cat.id}
-                      variant={activeCategory === cat.slug ? "default" : "outline"}
-                      className="cursor-pointer"
-                      onClick={() => setFilter("category", activeCategory === cat.slug ? "" : cat.slug)}
-                    >
-                      {cat.name}
-                    </Badge>
-                  ))}
-                </div>
-              )}
-
-              {/* Tags */}
-              {allTags.length > 0 && (
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-sm font-medium text-muted-foreground mr-1">Tags:</span>
-                  {allTags.map((tag) => (
-                    <Badge
-                      key={tag}
-                      variant={activeTag === tag ? "default" : "secondary"}
-                      className="cursor-pointer text-xs"
-                      onClick={() => setFilter("tag", activeTag === tag ? "" : tag)}
-                    >
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
-              )}
+                ))}
+              </div>
 
               {/* Active filter indicator */}
               {hasFilters && (

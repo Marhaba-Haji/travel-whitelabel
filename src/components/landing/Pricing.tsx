@@ -69,7 +69,7 @@ const Pricing = () => {
           <Badge className="mb-4 bg-primary/10 text-primary hover:bg-primary/20 border-0">
             Subscription Plans
           </Badge>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mt-2 mb-4 max-w-3xl mx-auto leading-tight">
+          <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mt-2 mb-4 max-w-3xl mx-auto leading-tight">
             Launch Your Own Travel Business — With Real Infrastructure
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-3">

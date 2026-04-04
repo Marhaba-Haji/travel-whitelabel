@@ -71,7 +71,7 @@ const Features = () => {
           <span className="inline-block text-aurora-teal font-semibold text-xs uppercase tracking-[0.2em] glass px-4 py-1.5 rounded-full mb-5">
             Complete API Suite
           </span>
-          <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
+          <h2 className="font-display text-3xl md:text-5xl font-bold text-foreground mb-4">
             COMPLETE API Suite
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -86,7 +86,7 @@ const Features = () => {
             {features.slice(0, 3).map((feature, index) => (
               <div
                 key={feature.title}
-                className={`group glass-card rounded-2xl p-6 hover:shadow-xl hover:border-white/20 transition-all duration-300 opacity-0 ${gridVisible ? "animate-scale-in" : ""}`}
+                className={`group glass-card rounded-2xl p-6 hover-surface-card transition-all duration-300 opacity-0 ${gridVisible ? "animate-scale-in" : ""}`}
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <div className="w-16 h-16 mb-5 group-hover:scale-110 transition-transform duration-300">
@@ -110,7 +110,7 @@ const Features = () => {
             {features.slice(3).map((feature, index) => (
               <div
                 key={feature.title}
-                className={`group glass-card rounded-2xl p-5 hover:shadow-xl hover:border-white/20 transition-all duration-300 opacity-0 ${gridVisible ? "animate-scale-in" : ""}`}
+                className={`group glass-card rounded-2xl p-5 hover-surface-card transition-all duration-300 opacity-0 ${gridVisible ? "animate-scale-in" : ""}`}
                 style={{ animationDelay: `${(index + 3) * 0.1}s` }}
               >
                 <div className="w-14 h-14 mb-4 group-hover:scale-110 transition-transform duration-300">

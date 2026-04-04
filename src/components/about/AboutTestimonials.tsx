@@ -70,7 +70,7 @@ const AboutTestimonials = () => {
           {testimonials.map((testimonial, index) => (
             <div
               key={testimonial.name}
-              className={`group glass-card rounded-2xl p-6 hover:shadow-2xl hover:border-white/20 transition-all duration-300 opacity-0 ${
+              className={`group glass-card rounded-2xl p-6 hover-surface-card hover:shadow-2xl transition-all duration-300 opacity-0 ${
                 gridVisible ? "animate-scale-in" : ""
               }`}
               style={{ animationDelay: `${index * 0.12}s` }}
@@ -101,7 +101,7 @@ const AboutTestimonials = () => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 pt-4 border-t border-white/10">
+              <div className="flex items-center gap-3 pt-4 border-t-surface">
                 <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${getAuroraGradient(index)} flex items-center justify-center text-xs font-bold text-white shadow-lg`}>
                   {testimonial.avatar}
                 </div>

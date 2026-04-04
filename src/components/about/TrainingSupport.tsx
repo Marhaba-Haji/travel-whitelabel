@@ -52,7 +52,7 @@ const TrainingSupport = () => {
                   className={`relative opacity-0 ${isVisible ? "animate-scale-in" : ""}`}
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
-                  <div className="group glass-card rounded-2xl p-6 text-center hover:shadow-xl hover:border-white/20 transition-all duration-300">
+                  <div className="group glass-card rounded-2xl p-6 text-center hover-surface-card transition-all duration-300">
                     <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${getAuroraGradient(index)} text-white text-sm font-bold flex items-center justify-center mx-auto mb-4 shadow-lg`}>
                       {training.step}
                     </div>

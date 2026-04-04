@@ -1,6 +1,22 @@
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
+    <!-- Sync theme class before paint to match next-themes localStorage (storageKey: aurora-theme) -->
+    <script>
+      (function () {
+        try {
+          var k = "aurora-theme";
+          var t = localStorage.getItem(k);
+          if (t === "dark") document.documentElement.classList.add("dark");
+          else if (
+            t === "system" &&
+            window.matchMedia &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches
+          )
+            document.documentElement.classList.add("dark");
+        } catch (e) {}
+      })();
+    </script>
     <!-- GA & FB Pixel: deferred until first user interaction to minimize main-thread work -->
     <script>
       (function(){
@@ -112,10 +128,11 @@
     /></noscript>
     <!-- Inline critical CSS for instant FCP before main stylesheet loads -->
     <style>
-      :root{color-scheme:dark}
-      body{margin:0;font-family:Inter,system-ui,-apple-system,sans-serif;background:#0a0b14;color:#e2e8f0}
+      :root{color-scheme:light}
+      html.dark{color-scheme:dark}
+      body{margin:0;font-family:Inter,system-ui,-apple-system,sans-serif;background:#faf8f5;color:#0f172a}
+      html.dark body{background:#0a0b14;color:#e2e8f0}
       #root{min-height:100vh}
-      .dark{--background:230 25% 5%;--foreground:210 40% 90%}
     </style>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>

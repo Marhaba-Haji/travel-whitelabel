@@ -75,7 +75,7 @@ const WhoWeAre = () => {
             ].map((item, index) => (
               <div
                 key={item.title}
-                className={`group glass-card rounded-2xl p-6 hover:shadow-xl hover:border-white/20 transition-all duration-300 opacity-0 ${isVisible ? "animate-scale-in" : ""}`}
+                className={`group glass-card rounded-2xl p-6 hover-surface-card transition-all duration-300 opacity-0 ${isVisible ? "animate-scale-in" : ""}`}
                 style={{ animationDelay: `${index * 0.12}s` }}
               >
                 <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${item.gradient} flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
@@ -113,7 +113,7 @@ const WhoWeAre = () => {
             ].map((item, index) => (
               <div
                 key={item.title}
-                className={`group glass-card rounded-2xl p-6 text-center hover:shadow-xl hover:border-white/20 transition-all duration-300 opacity-0 ${whyVisible ? "animate-scale-in" : ""}`}
+                className={`group glass-card rounded-2xl p-6 text-center hover-surface-card transition-all duration-300 opacity-0 ${whyVisible ? "animate-scale-in" : ""}`}
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${getAuroraGradient(index)} flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>

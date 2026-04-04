@@ -112,7 +112,7 @@ const AIPowered = () => {
                   </div>
                 </div>
 
-                <div className="pt-6 border-t border-white/10">
+                <div className="pt-6 border-t-surface">
                   <div className="grid grid-cols-2 gap-3">
                     {capabilities.map((cap) => (
                       <div key={cap.text} className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -131,7 +131,7 @@ const AIPowered = () => {
                 {benefits.map((benefit, index) => (
                   <div
                     key={benefit.title}
-                    className={`group glass-card rounded-2xl p-4 hover:shadow-xl hover:border-white/20 transition-all duration-300 opacity-0 ${
+                    className={`group glass-card rounded-2xl p-4 hover-surface-card transition-all duration-300 opacity-0 ${
                       isVisible ? "animate-scale-in" : ""
                     }`}
                     style={{ animationDelay: `${index * 0.1}s` }}

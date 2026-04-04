@@ -30,7 +30,7 @@ const HowItWorks = () => {
   ];
 
   return (
-    <section className="py-24 relative overflow-hidden">
+    <section className="py-24 relative overflow-hidden bg-muted/20">
       {/* Aurora background */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_hsl(210_100%_50%_/_0.05),_transparent_50%)]" />
 
@@ -42,7 +42,7 @@ const HowItWorks = () => {
           <span className="inline-block text-aurora-teal font-semibold text-xs uppercase tracking-[0.2em] glass px-4 py-1.5 rounded-full mb-5">
             Quick Setup
           </span>
-          <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
+          <h2 className="font-display text-3xl md:text-5xl font-bold text-foreground mb-4">
             Launch Your Portal in{" "}
             <span className="aurora-gradient-text-static">
               4 Simple Steps
@@ -61,7 +61,7 @@ const HowItWorks = () => {
               )}
 
               <div
-                className={`group relative glass-card rounded-2xl p-6 hover:shadow-xl hover:border-white/20 transition-all duration-300 opacity-0 ${stepsVisible ? "animate-scale-in" : ""}`}
+                className={`group relative glass-card rounded-2xl p-6 hover-surface-card transition-all duration-300 opacity-0 ${stepsVisible ? "animate-scale-in" : ""}`}
                 style={{ animationDelay: `${index * 0.12}s` }}
               >
                 <div className="flex items-center gap-4 mb-5">

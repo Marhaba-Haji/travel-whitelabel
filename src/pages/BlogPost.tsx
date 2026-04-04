@@ -544,7 +544,7 @@ const BlogPost = () => {
                     </Link>
                   )}
                 </div>
-                <h1 className="text-3xl md:text-4xl lg:text-[2.75rem] font-bold text-foreground leading-tight tracking-tight mb-6">
+                <h1 className="font-display text-3xl md:text-4xl lg:text-[2.75rem] font-bold text-foreground leading-tight tracking-tight mb-6">
                   {post.title}
                 </h1>
                 <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
@@ -610,7 +610,7 @@ const BlogPost = () => {
                 <div className="mb-10 lg:hidden glass-card rounded-xl overflow-hidden">
                   <button
                     onClick={() => setTocOpen(!tocOpen)}
-                    className="w-full flex items-center justify-between px-5 py-4 hover:bg-white/5 transition-colors"
+                    className="w-full flex items-center justify-between px-5 py-4 hover:bg-muted/60 dark:hover:bg-white/5 transition-colors"
                   >
                     <span className="flex items-center gap-2 text-sm font-medium text-foreground">
                       <List className="h-4 w-4 text-primary" /> Table of Contents
@@ -618,7 +618,7 @@ const BlogPost = () => {
                     <span className="text-xs text-muted-foreground">{tocOpen ? "Hide" : "Show"}</span>
                   </button>
                   {tocOpen && (
-                    <nav className="px-5 pb-4 border-t border-white/10">
+                    <nav className="px-5 pb-4 border-t-surface">
                       <ul className="space-y-1 pt-3">
                         {toc.map((item) => (
                           <li key={item.id} style={{ paddingLeft: `${(item.level - 2) * 14}px` }}>
@@ -791,7 +791,7 @@ const BlogPost = () => {
 
           {/* Newsletter */}
           <div className="mt-16 pt-10 border-t border-border/60">
-            <Card className="glass-card border-white/10 overflow-hidden">
+            <Card className="glass-card border-surface overflow-hidden">
               <div className="aurora-gradient p-1">
                 <CardContent className="p-6 md:p-8 text-center bg-card/95 backdrop-blur">
                   <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/20 text-primary mx-auto mb-4">

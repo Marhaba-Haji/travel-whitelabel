@@ -367,9 +367,9 @@ export default function NyraWidget() {
             className={`absolute inset-3 md:inset-6 rounded-2xl overflow-hidden flex ${isMobile ? 'flex-col' : 'flex-row'} glass-card shadow-2xl`}
           >
             {/* LEFT: Voice Panel */}
-            <div className={`${isMobile ? 'h-[35%]' : 'w-[35%]'} flex flex-col border-b md:border-b-0 md:border-r border-white/10 bg-card/80`}>
+            <div className={`${isMobile ? 'h-[35%]' : 'w-[35%]'} flex flex-col border-b md:border-b-0 md:border-r border-surface bg-card/80`}>
               {/* Header bar */}
-              <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-gradient-to-r from-primary/90 via-aurora-blue/80 to-primary/90">
+              <div className="flex items-center justify-between px-4 py-3 border-b-surface bg-gradient-to-r from-primary/90 via-aurora-blue/80 to-primary/90">
                 <div className="flex items-center gap-2">
                   <img src="/assets/nyra-avatar.png" alt="Nyra" width={56} height={56} className="w-7 h-7 rounded-full object-cover object-top ring-2 ring-white/20" />
                   <div>
@@ -531,7 +531,7 @@ export default function NyraWidget() {
             className="mb-4 w-[340px] rounded-3xl shadow-2xl overflow-hidden flex flex-col glass-card ring-1 ring-primary/20"
           >
             {/* Widget Header */}
-            <div className="bg-gradient-to-r from-primary/95 via-aurora-blue/90 to-primary/95 text-primary-foreground p-4 flex justify-between items-center border-b border-white/10">
+            <div className="bg-gradient-to-r from-primary/95 via-aurora-blue/90 to-primary/95 text-primary-foreground p-4 flex justify-between items-center border-b-surface">
               <div className="flex items-center gap-3">
                 <img src="/assets/nyra-avatar.png" alt="Nyra" width={64} height={64} className="w-8 h-8 rounded-full object-cover object-top ring-2 ring-white/20" />
                 <div>
@@ -630,7 +630,7 @@ export default function NyraWidget() {
               </div>
             ) : (
               /* ── VOICE MODE ── */
-              <div className="p-8 flex flex-col items-center justify-center relative min-h-[280px] aurora-gradient border-t border-white/5">
+              <div className="p-8 flex flex-col items-center justify-center relative min-h-[280px] aurora-gradient border-t border-border/50 dark:border-white/5">
                 <Globe size={120} className="absolute opacity-[0.06] text-primary" />
                 <div className="relative flex flex-col items-center z-10">
                   {isSpeaking && (

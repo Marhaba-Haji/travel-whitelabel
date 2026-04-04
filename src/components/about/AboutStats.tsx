@@ -88,7 +88,7 @@ const AboutStats = () => {
   ) => (
     <div
       key={stat.label}
-      className={`group glass-card rounded-2xl p-6 text-center hover:shadow-2xl hover:border-white/20 hover:-translate-y-1 transition-all duration-300 opacity-0 ${
+      className={`group glass-card rounded-2xl p-6 text-center hover-surface-card hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 opacity-0 ${
         isVisible ? "animate-scale-in" : ""
       }`}
       style={{ animationDelay: `${index * 0.1}s` }}

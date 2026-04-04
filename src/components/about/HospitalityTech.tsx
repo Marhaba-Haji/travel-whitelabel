@@ -77,7 +77,7 @@ const HospitalityTech = () => {
               {audiences.map((audience) => (
                 <div
                   key={audience.name}
-                  className="flex items-center gap-2 glass rounded-full px-5 py-2.5 hover:border-white/20 transition-all"
+                  className="flex items-center gap-2 glass rounded-full px-5 py-2.5 hover-surface-chip transition-all"
                 >
                   <audience.icon className="w-4 h-4 text-aurora-teal" />
                   <span className="text-foreground text-sm font-medium">{audience.name}</span>
@@ -94,7 +94,7 @@ const HospitalityTech = () => {
                 {capabilities.map((cap, index) => (
                   <div
                     key={cap.text}
-                    className={`group flex items-center gap-3 p-4 glass rounded-xl hover:border-white/20 transition-all opacity-0 ${
+                    className={`group flex items-center gap-3 p-4 glass rounded-xl hover-surface-chip transition-all opacity-0 ${
                       isVisible ? "animate-scale-in" : ""
                     }`}
                     style={{ animationDelay: `${index * 0.1}s` }}

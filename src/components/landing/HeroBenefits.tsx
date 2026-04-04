@@ -14,7 +14,7 @@ const HeroBenefits = () => {
   const { ref, isVisible } = useScrollAnimation();
 
   return (
-    <section className="py-14 relative overflow-hidden border-y border-white/[0.06]">
+    <section className="py-14 relative overflow-hidden border-y-surface-muted">
       <div className="absolute inset-0 bg-gradient-to-b from-background via-card/20 to-background" />
 
       <div ref={ref} className="container mx-auto px-4 relative z-10">
@@ -26,7 +26,7 @@ const HeroBenefits = () => {
           {BENEFITS.map((benefit, index) => (
             <div
               key={benefit.text}
-              className={`group glass-card rounded-xl px-4 py-4 md:px-5 md:py-5 flex flex-col items-center text-center hover:shadow-lg hover:border-white/20 transition-all duration-300 opacity-0 ${
+              className={`group glass-card rounded-xl px-4 py-4 md:px-5 md:py-5 flex flex-col items-center text-center hover-surface-card hover:shadow-lg transition-all duration-300 opacity-0 ${
                 isVisible ? "animate-scale-in" : ""
               }`}
               style={{ animationDelay: `${index * 0.08}s` }}

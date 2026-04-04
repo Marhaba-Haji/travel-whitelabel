@@ -34,7 +34,7 @@ const Testimonials = () => {
   ];
 
   return (
-    <section className="py-24 relative overflow-hidden" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 800px' }}>
+    <section className="py-24 relative overflow-hidden bg-muted/25" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 800px' }}>
       {/* Aurora background */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_hsl(270_70%_58%_/_0.05),_transparent_50%)]" />
 
@@ -46,7 +46,7 @@ const Testimonials = () => {
           <span className="inline-block text-aurora-teal font-semibold text-xs uppercase tracking-[0.2em] glass px-4 py-1.5 rounded-full mb-5">
             Testimonials
           </span>
-          <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
+          <h2 className="font-display text-3xl md:text-5xl font-bold text-foreground mb-4">
             Loved by{" "}
             <span className="aurora-gradient-text-static">
               Travel Professionals
@@ -61,7 +61,7 @@ const Testimonials = () => {
           {testimonials.map((testimonial, index) => (
             <div
               key={testimonial.name}
-              className={`group glass-card rounded-2xl p-6 hover:shadow-xl hover:border-white/20 transition-all duration-300 opacity-0 ${gridVisible ? "animate-scale-in" : ""}`}
+              className={`group glass-card rounded-2xl p-6 hover-surface-card transition-all duration-300 opacity-0 ${gridVisible ? "animate-scale-in" : ""}`}
               style={{ animationDelay: `${index * 0.12}s` }}
             >
               <div className="flex items-center justify-between mb-4">
@@ -85,7 +85,7 @@ const Testimonials = () => {
                 "{testimonial.content}"
               </p>
 
-              <div className="flex items-center gap-3 pt-4 border-t border-white/10">
+              <div className="flex items-center gap-3 pt-4 border-t-surface">
                 <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${getAuroraGradient(index)} flex items-center justify-center text-xs font-bold text-white shadow-lg`}>
                   {testimonial.avatar}
                 </div>

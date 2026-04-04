@@ -58,7 +58,7 @@ const WorkWithUs = () => {
               {partnerTypes.map((partner) => (
                 <div
                   key={partner}
-                  className="glass rounded-full px-5 py-2.5 hover:border-white/20 transition-all"
+                  className="glass rounded-full px-5 py-2.5 hover-surface-chip transition-all"
                 >
                   <span className="text-foreground text-sm font-medium">{partner}</span>
                 </div>
@@ -106,7 +106,7 @@ const WorkWithUs = () => {
               {visionAreas.map((area, index) => (
                 <div
                   key={area.text}
-                  className={`group glass rounded-2xl p-5 text-center hover:shadow-xl hover:border-white/20 transition-all duration-300 opacity-0 ${
+                  className={`group glass rounded-2xl p-5 text-center hover-surface-card transition-all duration-300 opacity-0 ${
                     isVisible ? "animate-scale-in" : ""
                   }`}
                   style={{ animationDelay: `${index * 0.1}s` }}
@@ -164,7 +164,7 @@ const WorkWithUs = () => {
                 size="lg"
                 variant="outline"
                 asChild
-                className="rounded-full px-8 border-white/20 hover:bg-white/5 hover:border-white/30"
+                className="rounded-full px-8 border-surface hover:bg-muted/70 hover:border-primary/35 dark:hover:bg-white/5 dark:hover:border-white/30"
               >
                 <a href="#contact">
                   Request a Platform Overview

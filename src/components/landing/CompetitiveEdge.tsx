@@ -43,7 +43,7 @@ const CompetitiveEdge = () => {
           <span className="inline-block text-aurora-teal font-semibold text-xs uppercase tracking-[0.2em] glass px-4 py-1.5 rounded-full mb-5">
             Your Unfair Advantage
           </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
+          <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
             What Sets{" "}
             <span className="aurora-gradient-text-static">
               marhabaDMC
@@ -63,7 +63,7 @@ const CompetitiveEdge = () => {
         >
           {/* Card 1: Exclusive Contracted Rates */}
           <div
-            className={`relative glass-card rounded-2xl p-6 md:p-8 hover:shadow-xl hover:border-white/20 transition-all duration-300 group overflow-hidden opacity-0 ${cardsVisible ? "animate-scale-in" : ""}`}
+            className={`relative glass-card rounded-2xl p-6 md:p-8 hover-surface-card transition-all duration-300 group overflow-hidden opacity-0 ${cardsVisible ? "animate-scale-in" : ""}`}
             style={{ animationDelay: "0.1s" }}
           >
             <div className="absolute -top-1 -right-1">
@@ -113,7 +113,7 @@ const CompetitiveEdge = () => {
                     ₹4,200
                   </span>
                 </div>
-                <div className="flex items-center justify-between pt-2 border-t border-white/10">
+                <div className="flex items-center justify-between pt-2 border-t-surface">
                   <span className="text-sm font-semibold text-foreground flex items-center gap-1">
                     <TrendingUp className="w-4 h-4 text-aurora-teal" />
                     Your Extra Profit:
@@ -140,7 +140,7 @@ const CompetitiveEdge = () => {
 
           {/* Card 2: AI Sales Assistant */}
           <div
-            className={`relative glass-card rounded-2xl p-6 md:p-8 hover:shadow-xl hover:border-white/20 transition-all duration-300 group overflow-hidden opacity-0 ${cardsVisible ? "animate-scale-in" : ""}`}
+            className={`relative glass-card rounded-2xl p-6 md:p-8 hover-surface-card transition-all duration-300 group overflow-hidden opacity-0 ${cardsVisible ? "animate-scale-in" : ""}`}
             style={{ animationDelay: "0.2s" }}
           >
             <div className="absolute -top-1 -right-1">
@@ -196,7 +196,7 @@ const CompetitiveEdge = () => {
               </div>
 
               {/* Cost comparison */}
-              <div className="mt-4 pt-3 border-t border-white/10">
+              <div className="mt-4 pt-3 border-t-surface">
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-muted-foreground">
                     Human sales exec:
