@@ -179,7 +179,7 @@ const Header = () => {
                   </button>
                 )
               )}
-              <div className="pt-4 mt-2 border-t border-white/10">
+              <div className="pt-4 mt-2 border-t border-border">
                 <Button asChild className="w-full rounded-full bg-gradient-to-r from-aurora-blue to-primary">
                   <a href="/signup">
                     Get Started
