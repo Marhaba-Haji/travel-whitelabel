@@ -585,6 +585,18 @@ const SignupForm = ({ selectedPlanName, planBasePrice, planKey, gstPercent, symb
             Sign in
           </Link>
         </div>
+
+        <div className="text-center text-sm text-muted-foreground">
+          Want to see how it works?{" "}
+          <a
+            href="https://cal.id/harab-rasheed/product-demo?overlayCalendar=true"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:underline font-semibold"
+          >
+            Book a Demo
+          </a>
+        </div>
       </form>
     </Form>
   );
