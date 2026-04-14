@@ -1,3 +1,5 @@
+import { Buffer as NodeBuffer } from "node:buffer";
+
 /**
  * Visa Captcha - Fetches the MOFA visa search page via HTTP, extracts captcha image,
  * and returns session cookies + captcha image for the client.
@@ -119,7 +121,6 @@ function getInsecureHttpClient(): Deno.HttpClient {
         DIGICERT_GLOBAL_G2_TLS_RSA_SHA256_2020_CA1_CERT,
         DIGICERT_GLOBAL_ROOT_G2_CERT,
       ],
-      unsafelyIgnoreCertificateErrors: [MOFA_HOST],
       http2: true,
     });
   }
@@ -133,7 +134,7 @@ function getInsecureHttpClient(): Deno.HttpClient {
 async function httpsGetWithInsecureClient(
   url: string,
   headers: Record<string, string> = {}
-): Promise<{ body: Buffer; headers: Record<string, string | string[]>; statusCode: number; rawHeaders: string[] }> {
+): Promise<{ body: NodeBuffer; headers: Record<string, string | string[]>; statusCode: number; rawHeaders: string[] }> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 30000);
 
@@ -154,7 +155,6 @@ async function httpsGetWithInsecureClient(
       }
     }
 
-    const { Buffer: NodeBuffer } = await import("node:buffer");
     const body = NodeBuffer.from(await response.arrayBuffer());
     const normalizedHeaders: Record<string, string | string[]> = {};
     const rawHeaders: string[] = [];
@@ -189,7 +189,7 @@ async function httpsGetWithInsecureClient(
 async function httpsGet(
   url: string,
   headers: Record<string, string> = {}
-): Promise<{ body: Buffer; headers: Record<string, string | string[]>; statusCode: number; rawHeaders: string[] }> {
+): Promise<{ body: NodeBuffer; headers: Record<string, string | string[]>; statusCode: number; rawHeaders: string[] }> {
   try {
     const https = await import("node:https");
     const { URL } = await import("node:url");
@@ -208,8 +208,8 @@ async function httpsGet(
       };
 
       const req = https.request(options, (res: any) => {
-        const chunks: Buffer[] = [];
-        res.on("data", (chunk: Buffer) => chunks.push(chunk));
+        const chunks: Uint8Array[] = [];
+        res.on("data", (chunk: Uint8Array) => chunks.push(chunk));
         res.on("end", async () => {
           try {
             // Handle redirects
@@ -219,7 +219,6 @@ async function httpsGet(
               resolve(redirected);
               return;
             }
-            const { Buffer: NodeBuffer } = await import("node:buffer");
             resolve({
               body: NodeBuffer.concat(chunks),
               headers: res.headers,

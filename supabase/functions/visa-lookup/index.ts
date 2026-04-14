@@ -1,3 +1,5 @@
+import { Buffer as NodeBuffer } from "node:buffer";
+
 /**
  * Visa Lookup - Submits the MOFA visa search form via HTTP POST.
  * Uses session cookies from visa-captcha to maintain the same MOFA session.
@@ -183,7 +185,6 @@ function getInsecureHttpClient(): Deno.HttpClient {
         DIGICERT_GLOBAL_G2_TLS_RSA_SHA256_2020_CA1_CERT,
         DIGICERT_GLOBAL_ROOT_G2_CERT,
       ],
-      unsafelyIgnoreCertificateErrors: [MOFA_HOST],
       http2: true,
     });
   }
@@ -198,7 +199,7 @@ async function httpsRequestWithInsecureClient(
     body?: string;
     followRedirects?: boolean;
   } = {}
-): Promise<{ body: Buffer; headers: Record<string, string | string[]>; statusCode: number; finalUrl: string }> {
+): Promise<{ body: NodeBuffer; headers: Record<string, string | string[]>; statusCode: number; finalUrl: string }> {
   const method = options.method || "GET";
   const followRedirects = options.followRedirects !== false;
   const controller = new AbortController();
@@ -233,7 +234,6 @@ async function httpsRequestWithInsecureClient(
       }
     }
 
-    const { Buffer: NodeBuffer } = await import("node:buffer");
     const body = NodeBuffer.from(await response.arrayBuffer());
     const normalizedHeaders: Record<string, string | string[]> = {};
     response.headers.forEach((value, key) => {
@@ -261,7 +261,7 @@ async function httpsRequest(
     body?: string;
     followRedirects?: boolean;
   } = {}
-): Promise<{ body: Buffer; headers: Record<string, string | string[]>; statusCode: number; finalUrl: string }> {
+): Promise<{ body: NodeBuffer; headers: Record<string, string | string[]>; statusCode: number; finalUrl: string }> {
   try {
     const https = await import("node:https");
     const { URL } = await import("node:url");
@@ -291,11 +291,10 @@ async function httpsRequest(
           return;
         }
 
-        const chunks: Buffer[] = [];
-        res.on("data", (chunk: Buffer) => chunks.push(chunk));
+        const chunks: Uint8Array[] = [];
+        res.on("data", (chunk: Uint8Array) => chunks.push(chunk));
         res.on("end", async () => {
           try {
-            const { Buffer: NodeBuffer } = await import("node:buffer");
             resolve({
               body: NodeBuffer.concat(chunks),
               headers: res.headers,
