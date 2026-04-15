@@ -257,10 +257,10 @@ const BlogTab = () => {
     }
   };
 
-  const runResearch = async () => {
+  const runResearch = async (): Promise<any> => {
     if (!currentPost?.title) {
       toast({ title: "Enter a title first", variant: "destructive" });
-      return;
+      return null;
     }
     setAiLoading("research");
     try {
@@ -278,16 +278,19 @@ const BlogTab = () => {
       if (data?.research) {
         setResearchData(data.research);
         toast({ title: "Research complete!", description: "Real-time data gathered. Now generate your article." });
+        return data.research;
       }
+      return null;
     } catch (e: any) {
       toast({ title: "Research failed", description: e.message, variant: "destructive" });
+      return null;
     } finally {
       setAiLoading(null);
     }
   };
 
-  const checkCannibalization = async () => {
-    if (!currentPost?.title) return;
+  const checkCannibalization = async (): Promise<CannibalizationOverlap[]> => {
+    if (!currentPost?.title) return [];
     setAiLoading("cannibalization");
     try {
       const { data, error } = await supabase.functions.invoke("blog-ai", {
@@ -299,16 +302,17 @@ const BlogTab = () => {
         },
       });
       if (error) throw error;
-      if (data?.result) {
-        setCannibalizationWarnings(data.result.overlaps || []);
-        if (data.result.safe) {
-          toast({ title: "✅ No cannibalization detected", description: "This topic is safe to target." });
-        } else {
-          toast({ title: "⚠️ Keyword overlaps found", description: `${data.result.overlaps.length} potential conflicts detected.`, variant: "destructive" });
-        }
+      const overlaps: CannibalizationOverlap[] = data?.result?.overlaps || [];
+      setCannibalizationWarnings(overlaps);
+      if (data?.result?.safe) {
+        toast({ title: "✅ No cannibalization detected", description: "This topic is safe to target." });
+      } else {
+        toast({ title: "⚠️ Keyword overlaps found", description: `${overlaps.length} potential conflicts detected.`, variant: "destructive" });
       }
+      return overlaps;
     } catch (e: any) {
       toast({ title: "Check failed", description: e.message, variant: "destructive" });
+      return [];
     } finally {
       setAiLoading(null);
     }
@@ -459,6 +463,7 @@ const BlogTab = () => {
   const PIPELINE_STEPS = [
     { key: "research", label: "Researching topic..." },
     { key: "cannibalization", label: "Checking cannibalization..." },
+    { key: "resolve_cannibalization", label: "Resolving cannibalization..." },
     { key: "generate_article", label: "Generating article..." },
     { key: "generate_images", label: "Generating images..." },
     { key: "generate_meta", label: "Generating meta, category, tags..." },
@@ -467,6 +472,58 @@ const BlogTab = () => {
     { key: "saving", label: "Saving post..." },
   ];
 
+  const retryStep = async <T,>(fn: () => Promise<T>, maxRetries = 2, delayMs = 3000): Promise<T> => {
+    let lastError: any;
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        return await fn();
+      } catch (e: any) {
+        lastError = e;
+        const status = e?.status || e?.statusCode;
+        if (status === 400 || status === 402) throw e; // permanent failures
+        if (attempt < maxRetries) {
+          console.warn(`Retry ${attempt + 1}/${maxRetries} after error:`, e.message);
+          await new Promise((r) => setTimeout(r, delayMs));
+        }
+      }
+    }
+    throw lastError;
+  };
+
+  const resolveCannibalization = async (overlaps: CannibalizationOverlap[]): Promise<{ revisedTitle: string; revisedKeyword: string } | null> => {
+    if (!overlaps.some((o) => o.severity === "medium" || o.severity === "high")) return null;
+    try {
+      const { data, error } = await supabase.functions.invoke("blog-ai", {
+        body: {
+          action: "resolve_cannibalization",
+          title: currentPost?.title,
+          overlaps,
+          existingPosts: getExistingPostsCatalog().filter((p) => p.slug !== currentPost?.slug),
+          brandConfig: aiConfig,
+        },
+      });
+      if (error) throw error;
+      if (data?.result?.revised_title) {
+        const originalTitle = currentPost?.title;
+        setCurrentPost((prev) => prev ? {
+          ...prev,
+          title: data.result.revised_title,
+          slug: prev.id ? prev.slug : slugify(data.result.revised_title),
+          primary_keyword: data.result.revised_keyword || prev.primary_keyword,
+        } : prev);
+        toast({
+          title: "🔧 Cannibalization resolved",
+          description: `"${originalTitle}" → "${data.result.revised_title}"`,
+        });
+        return { revisedTitle: data.result.revised_title, revisedKeyword: data.result.revised_keyword };
+      }
+      return null;
+    } catch (e: any) {
+      toast({ title: "Resolve failed, continuing with original title", description: e.message });
+      return null;
+    }
+  };
+
   const runFullPipeline = async () => {
     if (!currentPost?.title) {
       toast({ title: "Enter a title first", variant: "destructive" });
@@ -474,45 +531,72 @@ const BlogTab = () => {
     }
     pipelineCancelledRef.current = false;
     const check = () => { if (pipelineCancelledRef.current) throw new Error("Pipeline cancelled"); };
+    let localResearchData: any = null;
+    let localOverlaps: CannibalizationOverlap[] = [];
+
     try {
+      // 1. Research
       if (useResearch) {
         setPipelineStep("research");
-        await runResearch();
+        localResearchData = await retryStep(() => runResearch());
         check();
       }
 
+      // 2. Check Cannibalization
       setPipelineStep("cannibalization");
-      await checkCannibalization();
+      localOverlaps = await retryStep(() => checkCannibalization());
       check();
 
+      // 3. Resolve Cannibalization (if needed)
+      if (localOverlaps.some((o) => o.severity === "medium" || o.severity === "high")) {
+        setPipelineStep("resolve_cannibalization");
+        await retryStep(() => resolveCannibalization(localOverlaps));
+        check();
+      }
+
+      // 4. Generate Article (pass research + cannibalization context directly)
       setPipelineStep("generate_article");
-      await callAI("generate_article");
+      await retryStep(() => callAI("generate_article", {
+        ...(localResearchData ? { research: localResearchData } : {}),
+        ...(localOverlaps.length ? { cannibalizationOverlaps: localOverlaps } : {}),
+      }));
       check();
 
+      // 5. Generate Images
       setPipelineStep("generate_images");
-      await generateImages();
+      await retryStep(() => generateImages());
       check();
 
+      // 6. Generate Meta
       setPipelineStep("generate_meta");
-      await callAI("generate_meta");
+      await retryStep(() => callAI("generate_meta"));
       check();
 
+      // 7. Generate Excerpt
       setPipelineStep("generate_excerpt");
-      await callAI("generate_excerpt");
+      await retryStep(() => callAI("generate_excerpt"));
       check();
 
+      // 8. Internal Links
       setPipelineStep("interlink_posts");
-      await callAI("interlink_posts");
+      await retryStep(() => callAI("interlink_posts"));
 
-      // Auto-save so all generated fields (cover image, category, cluster, tags, og image, meta) are persisted
+      // 9. Ensure unique slug + save
       setPipelineStep("saving");
-      await new Promise((r) => setTimeout(r, 100)); // Allow React to flush state updates
+      await new Promise((r) => setTimeout(r, 200)); // Allow React to flush state updates
+      const latestPost = currentPostRef.current;
+      if (latestPost && !latestPost.id && latestPost.slug) {
+        const uniqueSlug = await ensureUniquePostSlug(latestPost.slug);
+        if (uniqueSlug !== latestPost.slug) {
+          setCurrentPost((prev) => prev ? { ...prev, slug: uniqueSlug } : prev);
+          await new Promise((r) => setTimeout(r, 100));
+        }
+      }
       await save(true);
 
       toast({ title: "🚀 Full pipeline complete!", description: "Article generated, saved with images, meta, category, tags, and internal links." });
-      // Auto-submit to search engines after pipeline
-      if (currentPost?.slug && currentPost?.status === "published") {
-        const postUrl = `https://marhabadmc.com/blog/${currentPost.slug}`;
+      if (currentPostRef.current?.slug && currentPostRef.current?.status === "published") {
+        const postUrl = `https://marhabadmc.com/blog/${currentPostRef.current.slug}`;
         supabase.functions.invoke("indexnow", { body: { urls: [postUrl] } })
           .then(() => toast({ title: "📡 Submitted to search engines for indexing" }))
           .catch(() => {});
@@ -719,6 +803,62 @@ const BlogTab = () => {
     };
   }, [currentPost, clusters, posts]);
 
+  // Shared streaming helper
+  const streamFromEdgeFunction = async (body: any, onChunk: (fullContent: string) => void): Promise<string> => {
+    const baseUrl =
+      import.meta.env.DEV && typeof window !== "undefined"
+        ? `${window.location.origin}/supabase-proxy`
+        : (import.meta.env.VITE_SUPABASE_URL || "https://kofijegdzeshitunwddn.supabase.co");
+    const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtvZmlqZWdkemVzaGl0dW53ZGRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5MjQxNTIsImV4cCI6MjA4NjUwMDE1Mn0.knr8JAjauZWGl-3Wd4BbaMCEZLujxHR7veJs4rQEwVw";
+    const url = `${baseUrl}/functions/v1/blog-ai`;
+    const resp = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${supabaseKey}`,
+      },
+      body: JSON.stringify(body),
+    });
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({ error: "AI request failed" }));
+      throw new Error(err.error || "AI request failed");
+    }
+    const reader = resp.body!.getReader();
+    const decoder = new TextDecoder();
+    let textBuffer = "";
+    let fullContent = "";
+    const processBuffer = () => {
+      let newlineIndex: number;
+      while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
+        let line = textBuffer.slice(0, newlineIndex);
+        textBuffer = textBuffer.slice(newlineIndex + 1);
+        if (line.endsWith("\r")) line = line.slice(0, -1);
+        if (line.startsWith(":") || line.trim() === "" || !line.startsWith("data: ")) continue;
+        const jsonStr = line.slice(6).trim();
+        if (jsonStr === "[DONE]") return;
+        try {
+          const parsed = JSON.parse(jsonStr);
+          const c = parsed.choices?.[0]?.delta?.content;
+          if (c) {
+            fullContent += c;
+            onChunk(fullContent);
+          }
+        } catch {
+          textBuffer = line + "\n" + textBuffer;
+          break;
+        }
+      }
+    };
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      textBuffer += decoder.decode(value, { stream: true });
+      processBuffer();
+    }
+    if (textBuffer.trim()) processBuffer();
+    return fullContent;
+  };
+
   // AI helpers
   const callAI = async (action: string, extra: Record<string, any> = {}) => {
     setAiLoading(action);
@@ -736,7 +876,7 @@ const BlogTab = () => {
         title: currentPost?.title,
         content: currentPost?.content,
         brandConfig: aiConfig,
-        ...(useResearch && researchData ? { research: researchData } : {}),
+        ...(useResearch && researchData && !extra.research ? { research: researchData } : {}),
         ...(existingPosts?.length ? { existingPosts } : {}),
         ...(existingClusters?.length ? { existingClusters } : {}),
         ...(clusterInfo ? { clusterInfo } : {}),
@@ -745,62 +885,9 @@ const BlogTab = () => {
       };
 
       if (action === "generate_article" || action === "improve_content" || action === "interlink_posts") {
-        // Streaming (use proxy in dev to avoid CORS)
-        const baseUrl =
-          import.meta.env.DEV && typeof window !== "undefined"
-            ? `${window.location.origin}/supabase-proxy`
-            : (import.meta.env.VITE_SUPABASE_URL || "https://kofijegdzeshitunwddn.supabase.co");
-        const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtvZmlqZWdkemVzaGl0dW53ZGRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5MjQxNTIsImV4cCI6MjA4NjUwMDE1Mn0.knr8JAjauZWGl-3Wd4BbaMCEZLujxHR7veJs4rQEwVw";
-        const url = `${baseUrl}/functions/v1/blog-ai`;
-        const resp = await fetch(url, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${supabaseKey}`,
-          },
-          body: JSON.stringify(body),
+        await streamFromEdgeFunction(body, (fullContent) => {
+          setCurrentPost((prev) => prev ? { ...prev, content: fullContent } : prev);
         });
-        if (!resp.ok) {
-          const err = await resp.json().catch(() => ({ error: "AI request failed" }));
-          throw new Error(err.error || "AI request failed");
-        }
-
-        const reader = resp.body!.getReader();
-        const decoder = new TextDecoder();
-        let textBuffer = "";
-        let fullContent = "";
-
-        const processBuffer = () => {
-          let newlineIndex: number;
-          while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
-            let line = textBuffer.slice(0, newlineIndex);
-            textBuffer = textBuffer.slice(newlineIndex + 1);
-            if (line.endsWith("\r")) line = line.slice(0, -1);
-            if (line.startsWith(":") || line.trim() === "" || !line.startsWith("data: ")) continue;
-            const jsonStr = line.slice(6).trim();
-            if (jsonStr === "[DONE]") return;
-            try {
-              const parsed = JSON.parse(jsonStr);
-              const c = parsed.choices?.[0]?.delta?.content;
-              if (c) {
-                fullContent += c;
-                setCurrentPost((prev) => prev ? { ...prev, content: fullContent } : prev);
-              }
-            } catch {
-              textBuffer = line + "\n" + textBuffer;
-              break;
-            }
-          }
-        };
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          textBuffer += decoder.decode(value, { stream: true });
-          processBuffer();
-        }
-        if (textBuffer.trim()) processBuffer();
-
         toast({ title: action === "generate_article" ? "Article generated!" : action === "interlink_posts" ? "Internal links added!" : "Content improved!" });
       } else if (action === "suggest_cluster") {
         const { data, error } = await supabase.functions.invoke("blog-ai", { body });
@@ -821,7 +908,6 @@ const BlogTab = () => {
           toast({ title: "No clusters returned", description: "The AI did not return any clusters. Try again or use Quick AI Cluster.", variant: "destructive" });
         }
       } else {
-        // Non-streaming
         const { data, error } = await supabase.functions.invoke("blog-ai", { body });
         if (error) throw error;
 
@@ -865,55 +951,16 @@ const BlogTab = () => {
         toast({ title: "Need at least 2 published posts for interlinking", variant: "destructive" });
         return;
       }
-      const baseUrl =
-        import.meta.env.DEV && typeof window !== "undefined"
-          ? `${window.location.origin}/supabase-proxy`
-          : (import.meta.env.VITE_SUPABASE_URL || "https://kofijegdzeshitunwddn.supabase.co");
-      const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtvZmlqZWdkemVzaGl0dW53ZGRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5MjQxNTIsImV4cCI6MjA4NjUwMDE1Mn0.knr8JAjauZWGl-3Wd4BbaMCEZLujxHR7veJs4rQEwVw";
-      const url = `${baseUrl}/functions/v1/blog-ai`;
-      const resp = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${supabaseKey}`,
-        },
-        body: JSON.stringify({
+      const fullContent = await streamFromEdgeFunction(
+        {
           action: "interlink_posts",
           title: post.title,
           content: post.content,
           existingPosts: otherPosts,
           brandConfig: aiConfig,
-        }),
-      });
-      if (!resp.ok) throw new Error("Interlinking failed");
-
-      const reader = resp.body!.getReader();
-      const decoder = new TextDecoder();
-      let textBuffer = "";
-      let fullContent = "";
-      const processBuffer = () => {
-        let idx: number;
-        while ((idx = textBuffer.indexOf("\n")) !== -1) {
-          let line = textBuffer.slice(0, idx);
-          textBuffer = textBuffer.slice(idx + 1);
-          if (line.endsWith("\r")) line = line.slice(0, -1);
-          if (!line.startsWith("data: ") || line.trim() === "") continue;
-          const jsonStr = line.slice(6).trim();
-          if (jsonStr === "[DONE]") return;
-          try {
-            const parsed = JSON.parse(jsonStr);
-            const c = parsed.choices?.[0]?.delta?.content;
-            if (c) fullContent += c;
-          } catch { break; }
-        }
-      };
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        textBuffer += decoder.decode(value, { stream: true });
-        processBuffer();
-      }
-      if (textBuffer.trim()) processBuffer();
+        },
+        () => {} // No live UI update needed for batch interlinking
+      );
 
       if (fullContent.trim()) {
         const { error } = await supabase.from("blog_posts").update({ content: fullContent }).eq("id", post.id);

@@ -281,6 +281,43 @@ Deno.serve(async (req) => {
     let tool_choice: any | undefined;
 
     switch (action) {
+      case "resolve_cannibalization": {
+        const { overlaps } = reqBody;
+        if (!overlaps?.length || !title) {
+          return new Response(JSON.stringify({ result: { revised_title: title, revised_keyword: "" } }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        messages = [
+          { role: "system", content: "You are an SEO keyword cannibalization specialist. Your job is to revise a blog post title and primary keyword angle to avoid competing with existing posts for the same keywords, while maintaining the same general topic and search intent." },
+          {
+            role: "user",
+            content: `The proposed title "${title}" has the following keyword overlaps with existing posts:\n\n${overlaps.map((o: any) => `- Keyword "${o.keyword}" overlaps with "${o.competing_post}" (severity: ${o.severity}). Suggestion: ${o.suggestion}`).join("\n")}\n\nExisting posts for context:\n${(existingPosts || []).map((p: any) => `- "${p.title}" | Keywords: ${[...(p.meta_keywords || []), ...(p.tags || [])].join(", ")}`).join("\n")}\n\nRevise the title and suggest a new primary keyword angle that:\n1. Avoids directly competing for the same keywords\n2. Uses a differentiated long-tail angle\n3. Maintains the same general topic and user intent\n4. Is still SEO-friendly and compelling`,
+          },
+        ];
+        tools = [
+          {
+            type: "function",
+            function: {
+              name: "resolve_cannibalization",
+              description: "Return a revised title and keyword angle to avoid cannibalization",
+              parameters: {
+                type: "object",
+                properties: {
+                  revised_title: { type: "string", description: "The revised blog post title" },
+                  revised_keyword: { type: "string", description: "The new primary keyword angle" },
+                  rationale: { type: "string", description: "Brief explanation of why this avoids cannibalization" },
+                },
+                required: ["revised_title", "revised_keyword", "rationale"],
+                additionalProperties: false,
+              },
+            },
+          },
+        ];
+        tool_choice = { type: "function", function: { name: "resolve_cannibalization" } };
+        break;
+      }
+
       case "generate_article": {
         let researchContext = "";
         if (research) {
@@ -299,11 +336,9 @@ Deno.serve(async (req) => {
           if (research.competition_landscape?.content) {
             researchContext += `\n\n## Global Competition Landscape:\n${research.competition_landscape.content}`;
           }
-          // New: PAA & snippet data
           if (research.paa_snippets?.content) {
             researchContext += `\n\n## People Also Ask & Featured Snippet Data:\n${research.paa_snippets.content}`;
           }
-          // New: AI engine citation patterns
           if (research.ai_citations?.content) {
             researchContext += `\n\n## AI Engine Citation Patterns (what ChatGPT/Gemini/Claude cite):\n${research.ai_citations.content}`;
           }
@@ -323,7 +358,6 @@ Deno.serve(async (req) => {
           researchContext += `\n\nTarget Region: ${research.targetRegion || "Global"}`;
           researchContext += `\nTarget Audience: ${research.targetAudience || "B2B travel agents"}`;
 
-          // Include citation URLs for inline references
           const allCitations: string[] = [];
           for (const key of ["serp_analysis", "industry_trends", "competitor_insights", "brand_positioning", "paa_snippets", "ai_citations"]) {
             if (research[key]?.citations?.length) {
@@ -343,12 +377,19 @@ Deno.serve(async (req) => {
         const cannibalizationCtx = buildCannibalizationContext(existingPosts);
         const clusterCtx = buildClusterContext(clusterInfo);
 
+        // Enhanced: explicit differentiation instructions from resolved cannibalization overlaps
+        let cannibalizationDiffCtx = "";
+        const cannibalizationOverlaps = reqBody.cannibalizationOverlaps;
+        if (Array.isArray(cannibalizationOverlaps) && cannibalizationOverlaps.length > 0) {
+          cannibalizationDiffCtx = `\n\n## CRITICAL: DIFFERENTIATION FROM OVERLAPPING POSTS\nThe following keyword overlaps were detected with existing content. You MUST explicitly differentiate this article from these competing posts by using alternative angles, different keyword variations, and unique perspectives:\n${cannibalizationOverlaps.map((o: any) => `- Keyword "${o.keyword}" overlaps with "${o.competing_post}" (${o.severity} severity). Required differentiation: ${o.suggestion}`).join("\n")}\n\nDo NOT use the same primary keyword framing as any of these posts. Find a unique angle.`;
+        }
+
         messages = [
           { role: "system", content: SYSTEM_PROMPT },
           {
             role: "user",
             content: `Write a comprehensive, SEO-optimized blog article about: "${title || topic}".
-${researchContext ? `\nUse the following real-time research to inform your writing — cite statistics, address content gaps identified, and differentiate from competitor angles. Use the source URLs provided to add inline citations [Source](url) for E-E-A-T signals:\n${researchContext}\n` : ""}${internalLinksContext}${cannibalizationCtx}${clusterCtx}
+${researchContext ? `\nUse the following real-time research to inform your writing — cite statistics, address content gaps identified, and differentiate from competitor angles. Use the source URLs provided to add inline citations [Source](url) for E-E-A-T signals:\n${researchContext}\n` : ""}${internalLinksContext}${cannibalizationCtx}${cannibalizationDiffCtx}${clusterCtx}
 
 ## REQUIRED ARTICLE STRUCTURE (follow this order for optimal UX, SEO, and AI citation)
 
