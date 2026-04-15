@@ -1,73 +1,60 @@
 
 
-## Plan: Light/Dark Theme Toggle with Bright Default Theme
+## Plan: Robust AI Blog Builder Overhaul
 
-### Problem
-The site currently defaults to a dark theme with hardcoded dark colors in `:root`. There is a `.light` class defined in CSS but it is never used -- no theme provider or toggle exists. The dark-only aesthetic can feel heavy and reduce engagement for first-time visitors.
+### Problems Identified
 
-### Strategy
-1. **Default to light theme** for first-time visitors (better conversion psychology for B2B SaaS landing pages)
-2. **Add a theme toggle** in the header so users can switch between light and dark
-3. **Refine the light palette** to feel warm, bright, and premium (not just a CSS variable swap -- the glassmorphism and hardcoded dark backgrounds need light-mode equivalents)
-4. **Persist preference** in localStorage
+1. **Cannibalization is warn-only**: `checkCannibalization()` shows warnings but the pipeline ignores them and generates the article anyway. No auto-fix.
+2. **State sync race conditions**: Pipeline calls `runResearch()` which sets `researchData` via React setState, then immediately calls `callAI("generate_article")` which reads `researchData` from state -- but React hasn't flushed yet, so articles generate without research data.
+3. **No retry on failure**: If image generation or any step fails mid-pipeline, everything stops with no recovery.
+4. **Pipeline doesn't pass cannibalization context to article generation**: Even when overlaps are found, the article generation prompt doesn't receive specific differentiation instructions.
+5. **Duplicate streaming code**: `callAI()` and `interlinkPost()` duplicate the entire SSE streaming logic.
+6. **No slug dedup in pipeline save**: Auto-save at end of pipeline doesn't ensure unique slug for new posts.
 
-### Implementation Steps
+### Implementation Plan
 
-#### 1. Install `next-themes` (already a dependency via sonner)
-Wrap the app in `ThemeProvider` from `next-themes` with `defaultTheme="light"` and `attribute="class"`.
+#### 1. Fix Pipeline Data Flow (BlogTab.tsx)
+- Make `runResearch()` return research data instead of only setting state. Pipeline stores it in a local variable and passes it directly to `callAI("generate_article", { research: localResearchData })`.
+- Make `checkCannibalization()` return the overlaps array. Pipeline stores it locally.
+- Pass cannibalization overlaps as `extra` to `callAI("generate_article")` so the prompt includes specific differentiation instructions.
 
-**File: `src/App.tsx`**
-- Import `ThemeProvider` from `next-themes`
-- Wrap the outermost component tree with `<ThemeProvider attribute="class" defaultTheme="light" storageKey="aurora-theme">`
+#### 2. Auto-Fix Cannibalization (blog-ai edge function + BlogTab.tsx)
+- Add a new action `resolve_cannibalization` to the edge function that takes the original title, overlaps, and existing posts, and returns a revised title + revised primary keyword angle that avoids the conflicts.
+- In the pipeline: if `checkCannibalization` finds medium/high severity overlaps, automatically call `resolve_cannibalization` to get a revised title, update `currentPost.title` and `currentPost.slug`, then proceed.
+- Keep the warnings UI but add a "Resolved" state showing the original vs revised title.
 
-#### 2. Refine the light theme CSS variables
-**File: `src/index.css`**
-- Move the current `:root` variables to `.dark` (merge with existing `.dark` block)
-- Make `:root` use the `.light` values as the new default
-- Warm up the light palette slightly: off-white background (`0 0% 99%`), softer borders, and a slightly richer purple primary
-- Add light-mode aurora gradient overrides and glassmorphism utilities that use `bg-black/5` instead of `bg-white/5`
+#### 3. Add Retry Logic to Pipeline (BlogTab.tsx)
+- Wrap each pipeline step in a retry helper: `retryStep(fn, maxRetries=2, delayMs=3000)`.
+- On transient failures (500, 502, timeout), retry before failing the pipeline.
+- On permanent failures (400, 402), skip retry and fail immediately.
 
-#### 3. Fix hardcoded dark colors across landing components
-Several components have hardcoded dark HSL values that will look wrong in light mode:
+#### 4. Ensure Slug Uniqueness in Pipeline (BlogTab.tsx)
+- Before the final `save(true)` in the pipeline, call `ensureUniquePostSlug()` on the current slug if the post is new (no `id`).
 
-- **Hero.tsx**: Replace `from-[hsl(230,40%,10%)]` background with theme-aware classes (e.g., `from-background`)
-- **Hero.tsx**: The ambient blob uses `bg-aurora-purple/15` -- fine for both themes
-- **StickyCTA.tsx**: `glass` utility with `border-white/10` -- needs light-mode variant
-- **Header.tsx**: Scrolled state background uses dark glass -- needs conditional styling
-- **ProductShowcase.tsx**: Uses `glass-card` and `glass` utilities throughout
+#### 5. Extract Shared Streaming Helper (BlogTab.tsx)
+- Create a `streamFromEdgeFunction(body, onChunk)` helper to eliminate the duplicated SSE parsing in `callAI()` and `interlinkPost()`.
 
-#### 4. Update glassmorphism utilities for dual-theme support
-**File: `src/index.css`**
-```css
-.glass {
-  @apply bg-white/5 dark:bg-white/5 backdrop-blur-xl border border-white/10 dark:border-white/10;
-  /* Light mode overrides */
-  @apply bg-black/[0.03] border-black/[0.06];
-}
-/* Use dark: prefix pattern for all glass utilities */
-```
-
-#### 5. Add theme toggle button to Header
-**File: `src/components/landing/Header.tsx`**
-- Import `useTheme` from `next-themes`
-- Add a Sun/Moon icon toggle button next to the "Book Demo" button
-- Subtle, icon-only button with smooth transition
-
-#### 6. Ensure Sonner toaster uses the theme correctly
-**File: `src/components/ui/sonner.tsx`** -- already uses `useTheme`, so this should work automatically once the provider is added.
+#### 6. Pass Full Existing Posts Context to Article Generation (blog-ai edge function)
+- In the `generate_article` case, when cannibalization overlaps are provided via `reqBody.cannibalizationOverlaps`, append explicit differentiation instructions to the prompt: "You MUST differentiate from these specific overlapping posts: [list]. Use these alternative angles: [from overlaps.suggestion]."
 
 ### Files to Modify
-| File | Change |
-|------|--------|
-| `src/App.tsx` | Wrap with `ThemeProvider` |
-| `src/index.css` | Swap `:root` to light, merge dark into `.dark`, add light-mode glass utilities |
-| `src/components/landing/Header.tsx` | Add Sun/Moon theme toggle |
-| `src/components/landing/Hero.tsx` | Replace hardcoded dark gradient with theme-aware classes |
-| `src/components/landing/StickyCTA.tsx` | Update glass border for light mode |
-| `src/components/landing/Footer.tsx` | Check and fix any hardcoded dark backgrounds |
 
-### Visual Outcome
-- **Light mode (default)**: Clean white/off-white background, soft shadows instead of glows, darker text, purple accent remains, glass cards use subtle gray tint
-- **Dark mode**: Current look preserved, with slight refinements
-- **Toggle**: Small icon button in the header nav bar (Moon icon in light mode, Sun icon in dark mode)
+| File | Changes |
+|------|---------|
+| `src/components/admin/BlogTab.tsx` | Fix pipeline data flow, add retry logic, add `resolve_cannibalization` step, extract streaming helper, ensure slug uniqueness |
+| `supabase/functions/blog-ai/index.ts` | Add `resolve_cannibalization` action, enhance `generate_article` prompt with cannibalization differentiation context |
+
+### Pipeline Sequence (After Fix)
+
+```text
+1. Research Topic (returns data directly)
+2. Check Cannibalization (returns overlaps)
+3. IF overlaps found → Resolve Cannibalization (auto-revise title/angle)
+4. Generate Article (receives research + cannibalization context)
+5. Generate Images
+6. Generate Meta + Category + Tags
+7. Generate Excerpt
+8. Add Internal Links
+9. Ensure unique slug → Save
+```
 
