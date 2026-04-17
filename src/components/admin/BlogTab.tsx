@@ -2103,7 +2103,7 @@ const BlogTab = () => {
                 <Switch checked={useResearch} onCheckedChange={setUseResearch} />
               </div>
               {useResearch && (
-                <Button variant="outline" size="sm" className="w-full justify-start" disabled={!!aiLoading || !currentPost?.title} onClick={runResearch}>
+                <Button variant="outline" size="sm" className="w-full justify-start" disabled={!!aiLoading || !currentPost?.title} onClick={() => runResearch()}>
                   {aiLoading === "research" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Globe className="h-4 w-4 mr-2" />}
                   Research Topic
                 </Button>
@@ -2154,7 +2154,7 @@ const BlogTab = () => {
                   </div>
                 )}
                 <div className="border-t border-border pt-2 space-y-2"></div>
-                <Button variant="outline" size="sm" className="w-full justify-start" disabled={!!aiLoading || !currentPost?.title} onClick={checkCannibalization}>
+                <Button variant="outline" size="sm" className="w-full justify-start" disabled={!!aiLoading || !currentPost?.title} onClick={() => checkCannibalization()}>
                   {aiLoading === "cannibalization" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <AlertTriangle className="h-4 w-4 mr-2" />}
                   Check Cannibalization
                 </Button>
@@ -2166,7 +2166,7 @@ const BlogTab = () => {
                   {aiLoading === "improve_content" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <BookOpen className="h-4 w-4 mr-2" />}
                   Improve for SEO
                 </Button>
-                <Button variant="outline" size="sm" className="w-full justify-start" disabled={!!aiLoading || !currentPost?.content || imageGenLoading} onClick={generateImages}>
+                <Button variant="outline" size="sm" className="w-full justify-start" disabled={!!aiLoading || !currentPost?.content || imageGenLoading} onClick={() => generateImages()}>
                   {imageGenLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Image className="h-4 w-4 mr-2" />}
                   Generate Images (4)
                 </Button>

@@ -145,6 +145,11 @@ async function handleError(response: Response): Promise<Response> {
       status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
+  if (status === 503 || status === 504) {
+    return new Response(JSON.stringify({ error: "AI provider is temporarily overloaded. Please retry in a few moments." }), {
+      status, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
   return new Response(JSON.stringify({ error: `Gemini API error (${status}): ${t.substring(0, 200)}` }), {
     status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
@@ -169,6 +174,28 @@ async function callAI(apiKey: string, body: any, timeoutMs?: number): Promise<Re
   } finally {
     if (timeoutId) clearTimeout(timeoutId);
   }
+}
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+async function callAIWithRetry(apiKey: string, body: any, timeoutMs?: number, maxAttempts = 3): Promise<Response> {
+  let lastResponse: Response | null = null;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const response = await callAI(apiKey, body, timeoutMs);
+    if (response.ok) return response;
+
+    lastResponse = response;
+    if (![429, 503, 504].includes(response.status) || attempt === maxAttempts) {
+      return response;
+    }
+
+    const retryBody = await response.clone().text().catch(() => "");
+    console.warn(`Retrying Gemini request ${attempt}/${maxAttempts} after ${response.status}:`, retryBody.substring(0, 200));
+    await sleep(800 * attempt);
+  }
+
+  return lastResponse ?? new Response(JSON.stringify({ error: "AI request failed" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 }
 
 async function generateImageWithGemini(apiKey: string, prompt: string): Promise<{ imageUrl?: string; model?: string; error?: string }> {
@@ -1107,7 +1134,7 @@ Return ONLY their main blog or insights URLs as HTTPS links (one per entry).`,
     // For article generation, use streaming
     if (action === "generate_article" || action === "improve_content" || action === "interlink_posts") {
       aiBody.stream = true;
-      const response = await callAI(GEMINI_API_KEY, aiBody);
+      const response = await callAIWithRetry(GEMINI_API_KEY, aiBody, 120000, 3);
 
       if (!response.ok) return handleError(response);
 
@@ -1117,7 +1144,7 @@ Return ONLY their main blog or insights URLs as HTTPS links (one per entry).`,
     }
 
     // Non-streaming for structured outputs
-    const response = await callAI(GEMINI_API_KEY, aiBody);
+    const response = await callAIWithRetry(GEMINI_API_KEY, aiBody, 45000, 3);
 
     if (!response.ok) return handleError(response);
 
