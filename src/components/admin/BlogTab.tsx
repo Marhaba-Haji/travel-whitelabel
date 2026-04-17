@@ -86,6 +86,11 @@ interface CannibalizationOverlap {
   suggestion: string;
 }
 
+interface BlogActionOptions {
+  propagateError?: boolean;
+  suppressToast?: boolean;
+}
+
 const DEFAULT_AI_CONFIG: BlogAIConfig = {
   brand_tone: "Professional yet engaging, authoritative yet approachable. Focus on expertise in halal-friendly luxury travel.",
   target_audience: ["B2B travel agents in GCC", "Umrah/Hajj tour operators", "Luxury travel planners in SE Asia"],
@@ -149,6 +154,25 @@ const BlogTab = () => {
   const currentPostRef = useRef(currentPost);
   currentPostRef.current = currentPost;
   const { toast } = useToast();
+
+  const getRequestStatus = (error: any): number | undefined =>
+    error?.status || error?.statusCode || error?.context?.status || error?.context?.response?.status;
+
+  const toActionError = (error: any, fallbackMessage: string) => {
+    const normalized = error instanceof Error ? error : new Error(error?.message || fallbackMessage);
+    const status = getRequestStatus(error);
+    if (status !== undefined) {
+      (normalized as Error & { status?: number }).status = status;
+    }
+    return normalized;
+  };
+
+  const mergeIntoCurrentPost = (updates: Partial<BlogPost>) => {
+    if (!currentPostRef.current) return;
+    const merged = { ...currentPostRef.current, ...updates };
+    currentPostRef.current = merged;
+    setCurrentPost(merged);
+  };
 
   const getExistingPostsCatalog = useCallback(() => {
     return posts
@@ -257,9 +281,11 @@ const BlogTab = () => {
     }
   };
 
-  const runResearch = async (): Promise<any> => {
+  const runResearch = async (options: BlogActionOptions = {}): Promise<any> => {
     if (!currentPost?.title) {
-      toast({ title: "Enter a title first", variant: "destructive" });
+      const error = new Error("Enter a title first");
+      if (!options.suppressToast) toast({ title: error.message, variant: "destructive" });
+      if (options.propagateError) throw error;
       return null;
     }
     setAiLoading("research");
@@ -274,22 +300,28 @@ const BlogTab = () => {
           targetRegions: aiConfig.target_regions,
         },
       });
-      if (error) throw error;
+      if (error) throw toActionError(error, "Research failed");
       if (data?.research) {
         setResearchData(data.research);
-        toast({ title: "Research complete!", description: "Real-time data gathered. Now generate your article." });
+        if (!options.suppressToast) {
+          toast({ title: "Research complete!", description: "Real-time data gathered. Now generate your article." });
+        }
         return data.research;
       }
       return null;
     } catch (e: any) {
-      toast({ title: "Research failed", description: e.message, variant: "destructive" });
+      const error = toActionError(e, "Research failed");
+      if (!options.suppressToast) {
+        toast({ title: "Research failed", description: error.message, variant: "destructive" });
+      }
+      if (options.propagateError) throw error;
       return null;
     } finally {
       setAiLoading(null);
     }
   };
 
-  const checkCannibalization = async (): Promise<CannibalizationOverlap[]> => {
+  const checkCannibalization = async (options: BlogActionOptions = {}): Promise<CannibalizationOverlap[]> => {
     if (!currentPost?.title) return [];
     setAiLoading("cannibalization");
     try {
@@ -301,17 +333,21 @@ const BlogTab = () => {
           brandConfig: aiConfig,
         },
       });
-      if (error) throw error;
+      if (error) throw toActionError(error, "Cannibalization check failed");
       const overlaps: CannibalizationOverlap[] = data?.result?.overlaps || [];
       setCannibalizationWarnings(overlaps);
-      if (data?.result?.safe) {
+      if (!options.suppressToast && data?.result?.safe) {
         toast({ title: "✅ No cannibalization detected", description: "This topic is safe to target." });
-      } else {
+      } else if (!options.suppressToast) {
         toast({ title: "⚠️ Keyword overlaps found", description: `${overlaps.length} potential conflicts detected.`, variant: "destructive" });
       }
       return overlaps;
     } catch (e: any) {
-      toast({ title: "Check failed", description: e.message, variant: "destructive" });
+      const error = toActionError(e, "Cannibalization check failed");
+      if (!options.suppressToast) {
+        toast({ title: "Check failed", description: error.message, variant: "destructive" });
+      }
+      if (options.propagateError) throw error;
       return [];
     } finally {
       setAiLoading(null);
@@ -333,16 +369,18 @@ const BlogTab = () => {
     });
   };
 
-  const generateImages = async () => {
+  const generateImages = async (options: BlogActionOptions = {}) => {
     if (!currentPost?.content || !currentPost?.title) {
-      toast({ title: "Generate article content first", variant: "destructive" });
+      const error = new Error("Generate article content first");
+      if (!options.suppressToast) toast({ title: error.message, variant: "destructive" });
+      if (options.propagateError) throw error;
       return;
     }
     setImageGenLoading(true);
     try {
       const contentWithMarkers = ensureImageMarkersInContent(currentPost.content);
       if (contentWithMarkers !== currentPost.content) {
-        setCurrentPost((prev) => prev ? { ...prev, content: contentWithMarkers } : prev);
+        mergeIntoCurrentPost({ content: contentWithMarkers });
       }
       // Step 1: Extract image prompts from content
       const { data: promptData, error: promptErr } = await supabase.functions.invoke("blog-ai", {
@@ -353,7 +391,7 @@ const BlogTab = () => {
           brandConfig: aiConfig,
         },
       });
-      if (promptErr) throw promptErr;
+      if (promptErr) throw toActionError(promptErr, "Image prompt generation failed");
 
       const imagePrompts = promptData?.result;
       if (!imagePrompts) throw new Error("No image prompts generated");
@@ -364,7 +402,9 @@ const BlogTab = () => {
         ...(imagePrompts.content_images || []).map((img: any) => ({ ...img, type: "content" })),
       ];
 
-      toast({ title: "Generating images...", description: `Creating ${allPrompts.length} images. This may take a minute.` });
+      if (!options.suppressToast) {
+        toast({ title: "Generating images...", description: `Creating ${allPrompts.length} images. This may take a minute.` });
+      }
 
       const { data: imgData, error: imgErr } = await supabase.functions.invoke("blog-ai", {
         body: {
@@ -372,11 +412,13 @@ const BlogTab = () => {
           prompts: allPrompts,
         },
       });
-      if (imgErr) throw imgErr;
+      if (imgErr) throw toActionError(imgErr, "Image generation failed");
 
       const generatedImages = imgData?.result || [];
       if (generatedImages.length === 0) {
-        toast({ title: "No images generated", variant: "destructive" });
+        const error = new Error("No images generated");
+        if (!options.suppressToast) toast({ title: error.message, variant: "destructive" });
+        if (options.propagateError) throw error;
         return;
       }
 
@@ -445,16 +487,23 @@ const BlogTab = () => {
       // Also replace any remaining [IMAGE_N: ...] markers that weren't matched
       updatedContent = updatedContent.replace(/\[IMAGE_\d+:\s*[^\]]+\]/g, "");
 
-      setCurrentPost((prev) => prev ? {
-        ...prev,
+      const updates = {
         content: updatedContent,
-        cover_image_url: featuredUrl || prev.cover_image_url,
-        og_image_url: featuredUrl || prev.og_image_url,
-      } : prev);
+        cover_image_url: featuredUrl || currentPost.cover_image_url,
+        og_image_url: featuredUrl || currentPost.og_image_url,
+      };
+      mergeIntoCurrentPost(updates);
 
-      toast({ title: "Images generated!", description: `${generatedImages.length} images created and uploaded.` });
+      if (!options.suppressToast) {
+        toast({ title: "Images generated!", description: `${generatedImages.length} images created and uploaded.` });
+      }
+      return updates;
     } catch (e: any) {
-      toast({ title: "Image generation failed", description: e.message, variant: "destructive" });
+      const error = toActionError(e, "Image generation failed");
+      if (!options.suppressToast) {
+        toast({ title: "Image generation failed", description: error.message, variant: "destructive" });
+      }
+      if (options.propagateError) throw error;
     } finally {
       setImageGenLoading(false);
     }
@@ -479,7 +528,7 @@ const BlogTab = () => {
         return await fn();
       } catch (e: any) {
         lastError = e;
-        const status = e?.status || e?.statusCode;
+        const status = getRequestStatus(e);
         if (status === 400 || status === 402) throw e; // permanent failures
         if (attempt < maxRetries) {
           console.warn(`Retry ${attempt + 1}/${maxRetries} after error:`, e.message);
@@ -490,7 +539,7 @@ const BlogTab = () => {
     throw lastError;
   };
 
-  const resolveCannibalization = async (overlaps: CannibalizationOverlap[]): Promise<{ revisedTitle: string; revisedKeyword: string } | null> => {
+  const resolveCannibalization = async (overlaps: CannibalizationOverlap[], options: BlogActionOptions = {}): Promise<{ revisedTitle: string; revisedKeyword: string } | null> => {
     if (!overlaps.some((o) => o.severity === "medium" || o.severity === "high")) return null;
     try {
       const { data, error } = await supabase.functions.invoke("blog-ai", {
@@ -502,24 +551,29 @@ const BlogTab = () => {
           brandConfig: aiConfig,
         },
       });
-      if (error) throw error;
+      if (error) throw toActionError(error, "Cannibalization resolution failed");
       if (data?.result?.revised_title) {
         const originalTitle = currentPost?.title;
-        setCurrentPost((prev) => prev ? {
-          ...prev,
+        mergeIntoCurrentPost({
           title: data.result.revised_title,
-          slug: prev.id ? prev.slug : slugify(data.result.revised_title),
-          primary_keyword: data.result.revised_keyword || prev.primary_keyword,
-        } : prev);
-        toast({
-          title: "🔧 Cannibalization resolved",
-          description: `"${originalTitle}" → "${data.result.revised_title}"`,
+          slug: currentPost?.id ? currentPost.slug : slugify(data.result.revised_title),
+          primary_keyword: data.result.revised_keyword || currentPost?.primary_keyword,
         });
+        if (!options.suppressToast) {
+          toast({
+            title: "🔧 Cannibalization resolved",
+            description: `"${originalTitle}" → "${data.result.revised_title}"`,
+          });
+        }
         return { revisedTitle: data.result.revised_title, revisedKeyword: data.result.revised_keyword };
       }
       return null;
     } catch (e: any) {
-      toast({ title: "Resolve failed, continuing with original title", description: e.message });
+      const error = toActionError(e, "Cannibalization resolution failed");
+      if (!options.suppressToast) {
+        toast({ title: "Resolve failed, continuing with original title", description: error.message });
+      }
+      if (options.propagateError) throw error;
       return null;
     }
   };
@@ -538,48 +592,51 @@ const BlogTab = () => {
       // 1. Research
       if (useResearch) {
         setPipelineStep("research");
-        localResearchData = await retryStep(() => runResearch());
+        localResearchData = await retryStep(() => runResearch({ propagateError: true, suppressToast: true }));
         check();
       }
 
       // 2. Check Cannibalization
       setPipelineStep("cannibalization");
-      localOverlaps = await retryStep(() => checkCannibalization());
+      localOverlaps = await retryStep(() => checkCannibalization({ propagateError: true, suppressToast: true }));
       check();
 
       // 3. Resolve Cannibalization (if needed)
       if (localOverlaps.some((o) => o.severity === "medium" || o.severity === "high")) {
         setPipelineStep("resolve_cannibalization");
-        await retryStep(() => resolveCannibalization(localOverlaps));
+        await retryStep(() => resolveCannibalization(localOverlaps, { propagateError: true, suppressToast: true }));
         check();
       }
 
       // 4. Generate Article (pass research + cannibalization context directly)
       setPipelineStep("generate_article");
-      await retryStep(() => callAI("generate_article", {
+      const article = await retryStep(() => callAI("generate_article", {
         ...(localResearchData ? { research: localResearchData } : {}),
         ...(localOverlaps.length ? { cannibalizationOverlaps: localOverlaps } : {}),
-      }));
+      }, { propagateError: true, suppressToast: true }));
+      if (!article || typeof article !== "string" || !article.trim()) throw new Error("Article generation returned empty content");
       check();
 
       // 5. Generate Images
       setPipelineStep("generate_images");
-      await retryStep(() => generateImages());
+      await retryStep(() => generateImages({ propagateError: true, suppressToast: true }));
       check();
 
       // 6. Generate Meta
       setPipelineStep("generate_meta");
-      await retryStep(() => callAI("generate_meta"));
+      await retryStep(() => callAI("generate_meta", {}, { propagateError: true, suppressToast: true }));
       check();
 
       // 7. Generate Excerpt
       setPipelineStep("generate_excerpt");
-      await retryStep(() => callAI("generate_excerpt"));
+      await retryStep(() => callAI("generate_excerpt", {}, { propagateError: true, suppressToast: true }));
       check();
 
       // 8. Internal Links
       setPipelineStep("interlink_posts");
-      await retryStep(() => callAI("interlink_posts"));
+      const interlinked = await retryStep(() => callAI("interlink_posts", {}, { propagateError: true, suppressToast: true }));
+      if (!interlinked || typeof interlinked !== "string" || !interlinked.trim()) throw new Error("Internal linking returned empty content");
+      check();
 
       // 9. Ensure unique slug + save
       setPipelineStep("saving");
@@ -821,7 +878,9 @@ const BlogTab = () => {
     });
     if (!resp.ok) {
       const err = await resp.json().catch(() => ({ error: "AI request failed" }));
-      throw new Error(err.error || "AI request failed");
+      const error = new Error(err.error || "AI request failed");
+      (error as Error & { status?: number }).status = resp.status;
+      throw error;
     }
     const reader = resp.body!.getReader();
     const decoder = new TextDecoder();
@@ -860,7 +919,7 @@ const BlogTab = () => {
   };
 
   // AI helpers
-  const callAI = async (action: string, extra: Record<string, any> = {}) => {
+  const callAI = async (action: string, extra: Record<string, any> = {}, options: BlogActionOptions = {}) => {
     setAiLoading(action);
     try {
       const needsExistingPosts = ["generate_article", "interlink_posts", "suggest_cluster", "suggest_topics", "full_cluster_strategy"].includes(action);
@@ -885,59 +944,79 @@ const BlogTab = () => {
       };
 
       if (action === "generate_article" || action === "improve_content" || action === "interlink_posts") {
-        await streamFromEdgeFunction(body, (fullContent) => {
-          setCurrentPost((prev) => prev ? { ...prev, content: fullContent } : prev);
+        const fullContent = await streamFromEdgeFunction(body, (streamedContent) => {
+          mergeIntoCurrentPost({ content: streamedContent });
         });
-        toast({ title: action === "generate_article" ? "Article generated!" : action === "interlink_posts" ? "Internal links added!" : "Content improved!" });
+        if (!options.suppressToast) {
+          toast({ title: action === "generate_article" ? "Article generated!" : action === "interlink_posts" ? "Internal links added!" : "Content improved!" });
+        }
+        return fullContent;
       } else if (action === "suggest_cluster") {
         const { data, error } = await supabase.functions.invoke("blog-ai", { body });
-        if (error) throw error;
+        if (error) throw toActionError(error, "AI request failed");
         if (data?.result) {
           setSuggestedCluster(data.result);
           setClusterDialog(true);
         }
+        return data?.result;
       } else if (action === "full_cluster_strategy") {
         const { data, error } = await supabase.functions.invoke("blog-ai", { body });
-        if (error) throw error;
+        if (error) throw toActionError(error, "AI request failed");
         const clusters = data?.result?.clusters;
         if (Array.isArray(clusters) && clusters.length > 0) {
           setFullStrategy(data.result);
           setFullStrategyDialog(true);
-          toast({ title: "Full cluster strategy ready", description: `${clusters.length} clusters generated.` });
+          if (!options.suppressToast) {
+            toast({ title: "Full cluster strategy ready", description: `${clusters.length} clusters generated.` });
+          }
         } else {
-          toast({ title: "No clusters returned", description: "The AI did not return any clusters. Try again or use Quick AI Cluster.", variant: "destructive" });
+          const error = new Error("The AI did not return any clusters. Try again or use Quick AI Cluster.");
+          if (!options.suppressToast) {
+            toast({ title: "No clusters returned", description: error.message, variant: "destructive" });
+          }
+          if (options.propagateError) throw error;
         }
+        return data?.result;
       } else {
         const { data, error } = await supabase.functions.invoke("blog-ai", { body });
-        if (error) throw error;
+        if (error) throw toActionError(error, "AI request failed");
 
         if (action === "generate_meta" && data.result) {
           const r = data.result;
           const clusterMatch = r.suggested_cluster_name && clusters.find((c) => c.name.toLowerCase() === (r.suggested_cluster_name || "").toLowerCase());
-          setCurrentPost((prev) => prev ? {
-            ...prev,
+          mergeIntoCurrentPost({
             meta_title: r.meta_title,
             meta_description: r.meta_description,
-            meta_keywords: r.meta_keywords ?? prev.meta_keywords,
-            category: r.category_slug ?? prev.category,
-            tags: (r.tags && r.tags.length) ? r.tags : (prev.tags ?? []),
-            cluster_id: clusterMatch?.id ?? prev.cluster_id,
-            snippet_type: r.snippet_type || prev.snippet_type || null,
-            paa_target: r.paa_target || prev.paa_target || null,
-            search_intent: r.search_intent || prev.search_intent || null,
-            primary_keyword: r.primary_keyword || prev.primary_keyword || null,
-          } : prev);
-          toast({ title: "Meta tags generated!", description: "Category, tags, snippet type, search intent, and primary keyword applied." });
+            meta_keywords: r.meta_keywords ?? currentPostRef.current?.meta_keywords,
+            category: r.category_slug ?? currentPostRef.current?.category,
+            tags: (r.tags && r.tags.length) ? r.tags : (currentPostRef.current?.tags ?? []),
+            cluster_id: clusterMatch?.id ?? currentPostRef.current?.cluster_id,
+            snippet_type: r.snippet_type || currentPostRef.current?.snippet_type || null,
+            paa_target: r.paa_target || currentPostRef.current?.paa_target || null,
+            search_intent: r.search_intent || currentPostRef.current?.search_intent || null,
+            primary_keyword: r.primary_keyword || currentPostRef.current?.primary_keyword || null,
+          });
+          if (!options.suppressToast) {
+            toast({ title: "Meta tags generated!", description: "Category, tags, snippet type, search intent, and primary keyword applied." });
+          }
+          return r;
         } else if (action === "generate_excerpt" && data.result) {
-          setCurrentPost((prev) => prev ? { ...prev, excerpt: data.result } : prev);
-          toast({ title: "Excerpt generated!" });
+          mergeIntoCurrentPost({ excerpt: data.result });
+          if (!options.suppressToast) toast({ title: "Excerpt generated!" });
+          return data.result;
         } else if (action === "suggest_topics" && data.result?.topics) {
           setSuggestedTopics(data.result.topics);
           setTopicsDialog(true);
+          return data.result;
         }
+        return data?.result;
       }
     } catch (e: any) {
-      toast({ title: "AI Error", description: e.message, variant: "destructive" });
+      const error = toActionError(e, "AI request failed");
+      if (!options.suppressToast) {
+        toast({ title: "AI Error", description: error.message, variant: "destructive" });
+      }
+      if (options.propagateError) throw error;
     } finally {
       setAiLoading(null);
     }
@@ -2024,7 +2103,7 @@ const BlogTab = () => {
                 <Switch checked={useResearch} onCheckedChange={setUseResearch} />
               </div>
               {useResearch && (
-                <Button variant="outline" size="sm" className="w-full justify-start" disabled={!!aiLoading || !currentPost?.title} onClick={runResearch}>
+                <Button variant="outline" size="sm" className="w-full justify-start" disabled={!!aiLoading || !currentPost?.title} onClick={() => runResearch()}>
                   {aiLoading === "research" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Globe className="h-4 w-4 mr-2" />}
                   Research Topic
                 </Button>
@@ -2075,7 +2154,7 @@ const BlogTab = () => {
                   </div>
                 )}
                 <div className="border-t border-border pt-2 space-y-2"></div>
-                <Button variant="outline" size="sm" className="w-full justify-start" disabled={!!aiLoading || !currentPost?.title} onClick={checkCannibalization}>
+                <Button variant="outline" size="sm" className="w-full justify-start" disabled={!!aiLoading || !currentPost?.title} onClick={() => checkCannibalization()}>
                   {aiLoading === "cannibalization" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <AlertTriangle className="h-4 w-4 mr-2" />}
                   Check Cannibalization
                 </Button>
@@ -2087,7 +2166,7 @@ const BlogTab = () => {
                   {aiLoading === "improve_content" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <BookOpen className="h-4 w-4 mr-2" />}
                   Improve for SEO
                 </Button>
-                <Button variant="outline" size="sm" className="w-full justify-start" disabled={!!aiLoading || !currentPost?.content || imageGenLoading} onClick={generateImages}>
+                <Button variant="outline" size="sm" className="w-full justify-start" disabled={!!aiLoading || !currentPost?.content || imageGenLoading} onClick={() => generateImages()}>
                   {imageGenLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Image className="h-4 w-4 mr-2" />}
                   Generate Images (4)
                 </Button>
