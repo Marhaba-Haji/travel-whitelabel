@@ -135,40 +135,6 @@ const Features = () => {
 
   return (
     <section id="features" className="py-24 relative overflow-hidden">
-      {/* SVG gradient defs for icon strokes — referenced via url(#id) */}
-      <svg width="0" height="0" className="absolute" aria-hidden>
-        <defs>
-          <linearGradient id="aurora-grad-hero" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="hsl(var(--aurora-blue))" />
-            <stop offset="100%" stopColor="hsl(var(--aurora-teal))" />
-          </linearGradient>
-          <linearGradient id="aurora-grad-1" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="hsl(var(--aurora-purple))" />
-            <stop offset="100%" stopColor="hsl(var(--aurora-blue))" />
-          </linearGradient>
-          <linearGradient id="aurora-grad-2" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="hsl(var(--aurora-teal))" />
-            <stop offset="100%" stopColor="hsl(160 84% 39%)" />
-          </linearGradient>
-          <linearGradient id="aurora-grad-3" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="hsl(var(--aurora-blue))" />
-            <stop offset="100%" stopColor="hsl(var(--aurora-teal))" />
-          </linearGradient>
-          <linearGradient id="aurora-grad-4" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="hsl(var(--aurora-purple))" />
-            <stop offset="100%" stopColor="hsl(var(--aurora-blue))" />
-          </linearGradient>
-          <linearGradient id="aurora-grad-5" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="hsl(var(--aurora-teal))" />
-            <stop offset="100%" stopColor="hsl(160 84% 39%)" />
-          </linearGradient>
-          <linearGradient id="aurora-grad-6" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="hsl(var(--aurora-blue))" />
-            <stop offset="100%" stopColor="hsl(var(--aurora-teal))" />
-          </linearGradient>
-        </defs>
-      </svg>
-
       {/* Ambient background */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_hsl(270_70%_58%_/_0.05),_transparent_50%)]" />
       <div
