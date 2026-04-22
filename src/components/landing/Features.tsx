@@ -197,11 +197,14 @@ const Features = () => {
                   )}
                 >
                   <div className="w-full h-full rounded-3xl glass flex items-center justify-center transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6">
-                    <img
-                      src={hero.icon}
-                      alt={hero.title}
-                      className="w-16 h-16 object-contain"
-                      loading="lazy"
+                    <hero.icon
+                      aria-label={hero.title}
+                      className={cn(
+                        "w-12 h-12 text-transparent bg-clip-text bg-gradient-to-br",
+                        hero.gradient,
+                      )}
+                      strokeWidth={1.75}
+                      style={{ stroke: "url(#aurora-grad-hero)" }}
                     />
                   </div>
                 </div>
