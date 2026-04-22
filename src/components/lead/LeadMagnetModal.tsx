@@ -42,19 +42,19 @@ const LeadMagnetModal = ({
     try {
       const attr = getAttribution();
       // Subscribe to newsletter (attribution)
-      await supabase.from("newsletter_subscriptions").insert({
+      await supabase.from("newsletter_subscriptions").insert([{
         email: email.trim().toLowerCase(),
         source,
-        utm: attr || {},
-      });
+        utm: (attr as any) || {},
+      }]);
       // Track download record
-      await supabase.from("lead_magnet_downloads").insert({
+      await supabase.from("lead_magnet_downloads").insert([{
         email: email.trim().toLowerCase(),
         name: name.trim() || null,
         source,
-        utm: attr || {},
+        utm: (attr as any) || {},
         session_id: getSessionId(),
-      });
+      }]);
       setDone(true);
       toast({
         title: "Check your inbox",
