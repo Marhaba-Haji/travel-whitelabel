@@ -65,3 +65,15 @@ verify_jwt = false
 
 [functions.delete-admin-user]
 verify_jwt = false
+
+[functions.llms-txt]
+verify_jwt = false
+
+[functions.classify-enquiry]
+verify_jwt = false
+
+[functions.recover-abandoned-signups]
+verify_jwt = false
+
+[functions.blog-prerender]
+verify_jwt = false

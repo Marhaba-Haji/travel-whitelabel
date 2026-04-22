@@ -9,6 +9,8 @@ const STATIC_PAGES = [
   { path: "/blog", priority: "0.8", changefreq: "daily" },
   { path: "/signup", priority: "0.7", changefreq: "monthly" },
   { path: "/categories-destinations", priority: "0.7", changefreq: "weekly" },
+  { path: "/umrah-visa-check", priority: "0.7", changefreq: "monthly" },
+  { path: "/login", priority: "0.4", changefreq: "yearly" },
   { path: "/privacy-policy", priority: "0.3", changefreq: "yearly" },
   { path: "/terms-of-service", priority: "0.3", changefreq: "yearly" },
   { path: "/refund-policy", priority: "0.3", changefreq: "yearly" },
@@ -57,6 +59,9 @@ serve(async (req) => {
     <lastmod>${now}</lastmod>
     <changefreq>${p.changefreq}</changefreq>
     <priority>${p.priority}</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="${SITE_URL}${p.path}" />
+    <xhtml:link rel="alternate" hreflang="en-IN" href="${SITE_URL}${p.path}" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="${SITE_URL}${p.path}" />
   </url>`).join("\n");
 
     const blogEntries = (posts || []).map((post: any) => {
@@ -94,7 +99,8 @@ serve(async (req) => {
     const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
-        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
+        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
 ${staticEntries}
 ${blogEntries}
 ${newsEntries}
