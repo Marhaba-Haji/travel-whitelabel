@@ -1,19 +1,22 @@
 import { Badge } from "@/components/ui/badge";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import { ArrowUpRight, Check } from "lucide-react";
+import {
+  ArrowUpRight,
+  Check,
+  Plane,
+  BedDouble,
+  Bot,
+  StampIcon,
+  Compass,
+  Globe2,
+  Palette,
+  type LucideIcon,
+} from "lucide-react";
 import { getAuroraGradient } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
-import flightIcon from "@/assets/icons/flight-api.png";
-import hotelIcon from "@/assets/icons/hotel-api.png";
-import aiBotIcon from "@/assets/icons/ai-bot.png";
-import visaIcon from "@/assets/icons/visa-api.png";
-import activitiesIcon from "@/assets/icons/activities-api.png";
-import domainIcon from "@/assets/icons/own-domain.png";
-import whiteLabelIcon from "@/assets/icons/white-label.png";
-
 type Feature = {
-  icon: string;
+  icon: LucideIcon;
   title: string;
   description: string;
   badge?: string;
