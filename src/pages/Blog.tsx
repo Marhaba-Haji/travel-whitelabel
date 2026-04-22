@@ -152,6 +152,15 @@ const Blog = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Blog — Halal Travel Insights & Industry Trends"
+        description="Expert insights on halal-friendly travel, destination guides, travel technology, and hospitality trends from Marhaba DMC."
+        path="/blog"
+        jsonLd={breadcrumbSchema([
+          { name: "Home", url: SITE_URL },
+          { name: "Blog", url: `${SITE_URL}/blog` },
+        ])}
+      />
       <Header />
       <main className="pt-24 pb-20">
         <div className="container mx-auto px-4">
