@@ -96,6 +96,21 @@ const Blog = () => {
     return filtered;
   }, [posts, activeCategory, activeTag, activeSearch, activeSort]);
 
+  // Log search queries for content-gap analysis (debounced via useEffect)
+  useEffect(() => {
+    if (!activeSearch || posts.length === 0) return;
+    const t = setTimeout(() => {
+      supabase.from("search_queries").insert([{
+        query: activeSearch,
+        results_count: filteredPosts.length,
+        page_path: "/blog",
+        session_id: getSessionId(),
+        source: "blog_search",
+      }] as any).then(() => {});
+    }, 1500);
+    return () => clearTimeout(t);
+  }, [activeSearch, filteredPosts.length, posts.length]);
+
   const POSTS_PER_PAGE = 9;
   const activePage = parseInt(searchParams.get("page") || "1", 10);
   const totalPages = Math.ceil(filteredPosts.length / POSTS_PER_PAGE);
