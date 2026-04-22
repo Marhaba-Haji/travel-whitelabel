@@ -3,12 +3,12 @@ import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import {
   ArrowUpRight,
   Plane,
-  BedDouble,
+  Hotel,
   Bot,
-  StampIcon,
-  Compass,
-  Globe2,
-  Palette,
+  ScrollText,
+  MountainSnow,
+  Globe,
+  Sparkles,
   type LucideIcon,
 } from "lucide-react";
 import { getAuroraGradient } from "@/lib/design-tokens";
@@ -20,8 +20,8 @@ type Feature = {
   description: string;
   badge?: string;
   gradient: string;
-  /** Stable id used to reference the SVG gradient that strokes the icon */
-  gradId: string;
+  /** Accent color token used for highlight pill + badge */
+  accent: "teal" | "purple" | "blue";
 };
 
 const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
@@ -30,6 +30,27 @@ const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
   const y = ((e.clientY - rect.top) / rect.height) * 100;
   e.currentTarget.style.setProperty("--mx", `${x}%`);
   e.currentTarget.style.setProperty("--my", `${y}%`);
+};
+
+const accentClasses: Record<
+  Feature["accent"],
+  { badge: string; chip: string; chipBg: string }
+> = {
+  teal: {
+    badge: "bg-aurora-teal/10 text-aurora-teal border-aurora-teal/25",
+    chip: "text-aurora-teal",
+    chipBg: "bg-aurora-teal/10 border-aurora-teal/20",
+  },
+  purple: {
+    badge: "bg-aurora-purple/10 text-aurora-purple border-aurora-purple/25",
+    chip: "text-aurora-purple",
+    chipBg: "bg-aurora-purple/10 border-aurora-purple/20",
+  },
+  blue: {
+    badge: "bg-aurora-blue/10 text-aurora-blue border-aurora-blue/25",
+    chip: "text-aurora-blue",
+    chipBg: "bg-aurora-blue/10 border-aurora-blue/20",
+  },
 };
 
 const Features = () => {
@@ -44,17 +65,17 @@ const Features = () => {
         "Real-time flight inventory from global GDS systems. Book domestic and international with instant confirmation.",
       badge: "Popular",
       gradient: getAuroraGradient(0),
-      gradId: "aurora-grad-0",
+      accent: "teal",
       highlight: "Global GDS",
     },
     {
-      icon: BedDouble,
+      icon: Hotel,
       title: "Hotel API",
       description:
         "Connect to over 1M hotels worldwide — from budget stays to luxury resorts at the best negotiated rates.",
       badge: "Popular",
       gradient: getAuroraGradient(1),
-      gradId: "aurora-grad-1",
+      accent: "purple",
       highlight: "1M+ properties",
     },
     {
@@ -64,43 +85,43 @@ const Features = () => {
         "Multilingual chat and voice bot that converts visitors 24/7 — like a sales team that never sleeps.",
       badge: "Add-on",
       gradient: getAuroraGradient(2),
-      gradId: "aurora-grad-2",
+      accent: "teal",
       highlight: "24/7 conversion",
     },
     {
-      icon: StampIcon,
+      icon: ScrollText,
       title: "Visa API",
       description:
         "Streamlined visa processing for 100+ countries. Digital applications, document management and live status tracking.",
       gradient: getAuroraGradient(0),
-      gradId: "aurora-grad-3",
+      accent: "blue",
       highlight: "100+ countries",
     },
     {
-      icon: Compass,
+      icon: MountainSnow,
       title: "Activities API",
       description:
         "Curated tours, experiences and local activities. Give customers access to thousands of bookable adventures.",
       gradient: getAuroraGradient(1),
-      gradId: "aurora-grad-4",
+      accent: "purple",
       highlight: "Tours & experiences",
     },
     {
-      icon: Globe2,
+      icon: Globe,
       title: "Own Domain",
       description:
         "Use your own custom domain. Your brand, your identity — no marhabaDMC branding shown to customers.",
       gradient: getAuroraGradient(2),
-      gradId: "aurora-grad-5",
+      accent: "teal",
       highlight: "Your brand",
     },
     {
-      icon: Palette,
+      icon: Sparkles,
       title: "White-Label Branding",
       description:
         "Complete customization with your logo and design themes. Essential branding control to make the platform truly yours.",
       gradient: getAuroraGradient(0),
-      gradId: "aurora-grad-6",
+      accent: "blue",
       highlight: "Fully themable",
     },
   ];
