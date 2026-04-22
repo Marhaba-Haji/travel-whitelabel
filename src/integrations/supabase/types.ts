@@ -138,6 +138,7 @@ export type Database = {
       }
       blog_posts: {
         Row: {
+          ai_summary: string | null
           author_name: string | null
           category: string | null
           cluster_id: string | null
@@ -159,6 +160,7 @@ export type Database = {
           search_intent: string | null
           slug: string
           snippet_type: string | null
+          speakable_selector: string | null
           status: string
           tags: string[] | null
           title: string
@@ -166,6 +168,7 @@ export type Database = {
           views_count: number
         }
         Insert: {
+          ai_summary?: string | null
           author_name?: string | null
           category?: string | null
           cluster_id?: string | null
@@ -187,6 +190,7 @@ export type Database = {
           search_intent?: string | null
           slug: string
           snippet_type?: string | null
+          speakable_selector?: string | null
           status?: string
           tags?: string[] | null
           title: string
@@ -194,6 +198,7 @@ export type Database = {
           views_count?: number
         }
         Update: {
+          ai_summary?: string | null
           author_name?: string | null
           category?: string | null
           cluster_id?: string | null
@@ -215,6 +220,7 @@ export type Database = {
           search_intent?: string | null
           slug?: string
           snippet_type?: string | null
+          speakable_selector?: string | null
           status?: string
           tags?: string[] | null
           title?: string
@@ -243,31 +249,46 @@ export type Database = {
           created_at: string
           email: string
           id: string
+          intent: string | null
+          landing_page: string | null
           message: string
           name: string
           phone: string | null
+          referrer: string | null
+          session_id: string | null
           status: string
           updated_at: string
+          utm: Json | null
         }
         Insert: {
           created_at?: string
           email: string
           id?: string
+          intent?: string | null
+          landing_page?: string | null
           message: string
           name: string
           phone?: string | null
+          referrer?: string | null
+          session_id?: string | null
           status?: string
           updated_at?: string
+          utm?: Json | null
         }
         Update: {
           created_at?: string
           email?: string
           id?: string
+          intent?: string | null
+          landing_page?: string | null
           message?: string
           name?: string
           phone?: string | null
+          referrer?: string | null
+          session_id?: string | null
           status?: string
           updated_at?: string
+          utm?: Json | null
         }
         Relationships: []
       }
@@ -349,24 +370,122 @@ export type Database = {
         }
         Relationships: []
       }
+      lead_magnet_downloads: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          magnet_id: string | null
+          name: string | null
+          session_id: string | null
+          source: string | null
+          utm: Json | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          magnet_id?: string | null
+          name?: string | null
+          session_id?: string | null
+          source?: string | null
+          utm?: Json | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          magnet_id?: string | null
+          name?: string | null
+          session_id?: string | null
+          source?: string | null
+          utm?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_magnet_downloads_magnet_id_fkey"
+            columns: ["magnet_id"]
+            isOneToOne: false
+            referencedRelation: "lead_magnets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_magnets: {
+        Row: {
+          category: string | null
+          cover_image_url: string | null
+          created_at: string
+          description: string | null
+          downloads_count: number
+          file_url: string | null
+          gated: boolean
+          id: string
+          is_active: boolean
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          downloads_count?: number
+          file_url?: string | null
+          gated?: boolean
+          id?: string
+          is_active?: boolean
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          downloads_count?: number
+          file_url?: string | null
+          gated?: boolean
+          id?: string
+          is_active?: boolean
+          slug?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       newsletter_subscriptions: {
         Row: {
           email: string
           id: string
+          last_email_opened_at: string | null
+          preferred_categories: string[] | null
+          source: string | null
           subscribed_at: string
           unsubscribed_at: string | null
+          utm: Json | null
         }
         Insert: {
           email: string
           id?: string
+          last_email_opened_at?: string | null
+          preferred_categories?: string[] | null
+          source?: string | null
           subscribed_at?: string
           unsubscribed_at?: string | null
+          utm?: Json | null
         }
         Update: {
           email?: string
           id?: string
+          last_email_opened_at?: string | null
+          preferred_categories?: string[] | null
+          source?: string | null
           subscribed_at?: string
           unsubscribed_at?: string | null
+          utm?: Json | null
         }
         Relationships: []
       }
@@ -483,12 +602,17 @@ export type Database = {
           email: string
           full_name: string
           id: string
+          last_reminder_at: string | null
           password_hash: string | null
           phone: string
           plan_name: string | null
+          recovered_at: string | null
+          recovery_attempts: number
+          session_id: string | null
           status: string
           terms_accepted: boolean
           updated_at: string
+          utm: Json | null
         }
         Insert: {
           city?: string | null
@@ -496,12 +620,17 @@ export type Database = {
           email: string
           full_name: string
           id?: string
+          last_reminder_at?: string | null
           password_hash?: string | null
           phone: string
           plan_name?: string | null
+          recovered_at?: string | null
+          recovery_attempts?: number
+          session_id?: string | null
           status?: string
           terms_accepted?: boolean
           updated_at?: string
+          utm?: Json | null
         }
         Update: {
           city?: string | null
@@ -509,12 +638,17 @@ export type Database = {
           email?: string
           full_name?: string
           id?: string
+          last_reminder_at?: string | null
           password_hash?: string | null
           phone?: string
           plan_name?: string | null
+          recovered_at?: string | null
+          recovery_attempts?: number
+          session_id?: string | null
           status?: string
           terms_accepted?: boolean
           updated_at?: string
+          utm?: Json | null
         }
         Relationships: []
       }
@@ -572,6 +706,36 @@ export type Database = {
         }
         Relationships: []
       }
+      search_queries: {
+        Row: {
+          created_at: string
+          id: string
+          page_path: string | null
+          query: string
+          results_count: number | null
+          session_id: string | null
+          source: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          page_path?: string | null
+          query: string
+          results_count?: number | null
+          session_id?: string | null
+          source?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          page_path?: string | null
+          query?: string
+          results_count?: number | null
+          session_id?: string | null
+          source?: string | null
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
           id: string
@@ -611,6 +775,60 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      visitor_sessions: {
+        Row: {
+          country: string | null
+          device: string | null
+          first_seen_at: string
+          id: string
+          landing_page: string | null
+          last_seen_at: string
+          page_views: number
+          referrer: string | null
+          session_id: string
+          user_agent: string | null
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
+        }
+        Insert: {
+          country?: string | null
+          device?: string | null
+          first_seen_at?: string
+          id?: string
+          landing_page?: string | null
+          last_seen_at?: string
+          page_views?: number
+          referrer?: string | null
+          session_id: string
+          user_agent?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+        }
+        Update: {
+          country?: string | null
+          device?: string | null
+          first_seen_at?: string
+          id?: string
+          landing_page?: string | null
+          last_seen_at?: string
+          page_views?: number
+          referrer?: string | null
+          session_id?: string
+          user_agent?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
         }
         Relationships: []
       }
@@ -739,6 +957,10 @@ export type Database = {
         Returns: boolean
       }
       increment_blog_views: { Args: { _slug: string }; Returns: undefined }
+      increment_lead_magnet_downloads: {
+        Args: { _magnet_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "superadmin" | "admin" | "user"
