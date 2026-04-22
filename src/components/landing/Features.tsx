@@ -21,6 +21,8 @@ type Feature = {
   description: string;
   badge?: string;
   gradient: string;
+  /** Stable id used to reference the SVG gradient that strokes the icon */
+  gradId: string;
 };
 
 const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
@@ -42,6 +44,7 @@ const Features = () => {
       "Access real-time flight inventory from global GDS systems. Book domestic and international flights with instant confirmation.",
     badge: "Popular",
     gradient: getAuroraGradient(0),
+    gradId: "aurora-grad-hero",
     bullets: ["Global GDS coverage", "Instant ticketing", "Domestic + international"],
   };
 
@@ -53,6 +56,7 @@ const Features = () => {
         "Connect to 1M+ hotels worldwide. From budget stays to luxury resorts, offer your customers the best rates.",
       badge: "Popular",
       gradient: getAuroraGradient(1),
+      gradId: "aurora-grad-1",
     },
     {
       icon: Bot,
@@ -61,6 +65,7 @@ const Features = () => {
         "Multilingual chatbot and voicebot that converts visitors 24/7. Like a sales team that never sleeps — at a fraction of the cost.",
       badge: "Add-on",
       gradient: getAuroraGradient(2),
+      gradId: "aurora-grad-2",
     },
   ];
 
@@ -71,6 +76,7 @@ const Features = () => {
       description:
         "Streamlined visa processing for 100+ countries. Digital applications, document management, and status tracking.",
       gradient: getAuroraGradient(0),
+      gradId: "aurora-grad-3",
     },
     {
       icon: Compass,
@@ -78,6 +84,7 @@ const Features = () => {
       description:
         "Tours, experiences, and local activities. Give your customers access to thousands of curated experiences.",
       gradient: getAuroraGradient(1),
+      gradId: "aurora-grad-4",
     },
     {
       icon: Globe2,
@@ -85,6 +92,7 @@ const Features = () => {
       description:
         "Use your own custom domain. Your brand, your identity. No marhabaDMC branding visible to your customers.",
       gradient: getAuroraGradient(2),
+      gradId: "aurora-grad-5",
     },
     {
       icon: Palette,
@@ -92,6 +100,7 @@ const Features = () => {
       description:
         "Complete customization with your logo, and available design themes. Make it truly yours with essential branding control.",
       gradient: getAuroraGradient(0),
+      gradId: "aurora-grad-6",
     },
   ];
 
