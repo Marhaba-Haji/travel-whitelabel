@@ -8,6 +8,9 @@ import { Clock, BookOpen, X, Search, ChevronLeft, ChevronRight, Rss, Eye, Trendi
 import { Input } from "@/components/ui/input";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
+import SEOHead from "@/components/seo/SEOHead";
+import { breadcrumbSchema, SITE_URL } from "@/lib/seo-schemas";
+import { getSessionId } from "@/hooks/useSessionTracking";
 
 interface BlogPost {
   id: string;
@@ -45,10 +48,6 @@ const Blog = () => {
   const activeSort = searchParams.get("sort") || "latest";
 
   useEffect(() => {
-    document.title = "Blog | Marhaba DMC — Halal Travel Insights & Industry Trends";
-    const meta = document.querySelector('meta[name="description"]');
-    if (meta) meta.setAttribute("content", "Explore expert insights on halal-friendly travel, destination guides, travel technology, and hospitality trends from Marhaba DMC.");
-
     // Add RSS link
     let rssLink = document.querySelector('link[type="application/rss+xml"]');
     if (!rssLink) {

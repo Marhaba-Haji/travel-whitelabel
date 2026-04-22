@@ -14,6 +14,8 @@ import HospitalityTech from "@/components/about/HospitalityTech";
 import Philosophy from "@/components/about/Philosophy";
 import WorkWithUs from "@/components/about/WorkWithUs";
 import { useEffect } from "react";
+import SEOHead from "@/components/seo/SEOHead";
+import { breadcrumbSchema, SITE_URL } from "@/lib/seo-schemas";
 
 const About = () => {
   // Scroll to top when component mounts
@@ -23,6 +25,15 @@ const About = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="About Marhaba DMC — Halal-First B2B Travel Platform"
+        description="Marhaba DMC powers travel agents and entrepreneurs with a white-label portal, halal-friendly inventory, AI sales assistant, and global supplier network."
+        path="/about"
+        jsonLd={breadcrumbSchema([
+          { name: "Home", url: SITE_URL },
+          { name: "About", url: `${SITE_URL}/about` },
+        ])}
+      />
       <Header />
       <main>
         <AboutHero />
