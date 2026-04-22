@@ -187,13 +187,14 @@ const Features = () => {
             const colSpanClass = isBottomRow
               ? "lg:col-span-4"
               : "lg:col-span-3";
+            const accent = accentClasses[feature.accent];
             return (
               <article
                 key={feature.title}
                 onMouseMove={handleMouseMove}
                 className={cn(
                   "group relative overflow-hidden rounded-2xl glass-card hover-surface-card feature-card-glow",
-                  "p-5 min-h-[210px] flex transition-all duration-500 motion-safe:hover:-translate-y-1 opacity-0",
+                  "p-6 min-h-[230px] flex transition-all duration-500 motion-safe:hover:-translate-y-1 opacity-0",
                   colSpanClass,
                   gridVisible && "animate-scale-in",
                 )}
@@ -202,41 +203,46 @@ const Features = () => {
                 <div
                   aria-hidden
                   className={cn(
-                    "absolute -top-10 -right-10 w-40 h-40 rounded-full blur-3xl opacity-25 bg-gradient-to-br pointer-events-none",
+                    "absolute -top-12 -right-12 w-44 h-44 rounded-full blur-3xl opacity-30 bg-gradient-to-br pointer-events-none transition-opacity duration-500 group-hover:opacity-50",
                     feature.gradient,
                   )}
                 />
 
                 <div className="relative flex flex-col h-full w-full">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className={cn("rounded-2xl bg-gradient-to-br p-[1.5px]", feature.gradient)}>
-                      <div className="w-12 h-12 rounded-2xl glass flex items-center justify-center transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6">
-                        <feature.icon
-                          aria-label={feature.title}
-                          className="w-6 h-6"
-                          strokeWidth={1.75}
-                          style={{ stroke: `url(#${feature.gradId})` }}
-                        />
-                      </div>
+                  <div className="flex items-start justify-between mb-4">
+                    <div
+                      className={cn(
+                        "w-14 h-14 rounded-2xl bg-gradient-to-br flex items-center justify-center shadow-lg transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-3",
+                        feature.gradient,
+                      )}
+                    >
+                      <feature.icon
+                        aria-label={feature.title}
+                        className="w-7 h-7 text-white"
+                        strokeWidth={2}
+                      />
                     </div>
                     {feature.badge && (
-                      <Badge className="text-[10px] bg-aurora-teal/10 text-aurora-teal border-aurora-teal/25 px-2 py-0">
+                      <Badge className={cn("text-[10px] px-2 py-0.5 font-semibold", accent.badge)}>
                         {feature.badge}
                       </Badge>
                     )}
                   </div>
 
-                  <h3 className="text-base font-bold text-foreground mb-1.5">{feature.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+                  <h3 className="text-lg font-bold text-foreground mb-2">{feature.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-4">
                     {feature.description}
                   </p>
 
-                  <div className="mt-auto pt-2 flex items-center justify-between border-t border-foreground/[0.06]">
+                  <div className="mt-auto pt-3 flex items-center justify-between border-t-surface">
                     {feature.highlight && (
-                      <span className={cn(
-                        "text-[11px] font-semibold uppercase tracking-wider bg-clip-text text-transparent bg-gradient-to-r",
-                        feature.gradient,
-                      )}>
+                      <span
+                        className={cn(
+                          "inline-flex items-center text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full border",
+                          accent.chip,
+                          accent.chipBg,
+                        )}
+                      >
                         {feature.highlight}
                       </span>
                     )}
