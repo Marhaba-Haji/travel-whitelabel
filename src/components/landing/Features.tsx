@@ -323,7 +323,20 @@ const Features = () => {
                     </Badge>
                   )}
                 </div>
-                <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-4">{feature.description}</p>
+                {feature.chips && (
+                  <div className="mt-auto flex flex-wrap gap-1.5">
+                    {feature.chips.map((chip) => (
+                      <span
+                        key={chip}
+                        className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-full glass text-foreground/75"
+                      >
+                        <span className={cn("w-1.5 h-1.5 rounded-full bg-gradient-to-br", feature.gradient)} />
+                        {chip}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             </article>
           ))}
@@ -360,7 +373,20 @@ const Features = () => {
                   <ArrowUpRight className="w-4 h-4 text-muted-foreground transition-all duration-300 group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:text-foreground" />
                 </div>
                 <h3 className="text-base font-bold text-foreground mb-1.5">{feature.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-3">{feature.description}</p>
+                {feature.chips && (
+                  <div className="mt-auto flex flex-wrap gap-1.5">
+                    {feature.chips.map((chip) => (
+                      <span
+                        key={chip}
+                        className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full glass text-foreground/75"
+                      >
+                        <span className={cn("w-1 h-1 rounded-full bg-gradient-to-br", feature.gradient)} />
+                        {chip}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             </article>
           ))}
