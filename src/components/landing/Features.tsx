@@ -371,7 +371,12 @@ const Features = () => {
                 <div className="flex items-start justify-between mb-3">
                   <div className={cn("rounded-2xl bg-gradient-to-br p-[1.5px]", feature.gradient)}>
                     <div className="w-12 h-12 rounded-2xl glass flex items-center justify-center transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6">
-                      <img src={feature.icon} alt={feature.title} className="w-7 h-7 object-contain" loading="lazy" />
+                      <feature.icon
+                        aria-label={feature.title}
+                        className="w-6 h-6"
+                        strokeWidth={1.75}
+                        style={{ stroke: `url(#${feature.gradId})` }}
+                      />
                     </div>
                   </div>
                   <ArrowUpRight className="w-4 h-4 text-muted-foreground transition-all duration-300 group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:text-foreground" />
