@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import { ArrowUpRight, Check } from "lucide-react";
+import { ArrowUpRight, Check, Globe2, Zap, ShieldCheck } from "lucide-react";
 import { getAuroraGradient } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +18,7 @@ type Feature = {
   description: string;
   badge?: string;
   gradient: string;
+  chips?: string[];
 };
 
 const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
@@ -50,6 +51,7 @@ const Features = () => {
         "Connect to 1M+ hotels worldwide. From budget stays to luxury resorts, offer your customers the best rates.",
       badge: "Popular",
       gradient: getAuroraGradient(1),
+      chips: ["1M+ properties", "Best-rate match", "Instant confirm"],
     },
     {
       icon: aiBotIcon,
@@ -58,6 +60,7 @@ const Features = () => {
         "Multilingual chatbot and voicebot that converts visitors 24/7. Like a sales team that never sleeps — at a fraction of the cost.",
       badge: "Add-on",
       gradient: getAuroraGradient(2),
+      chips: ["12+ languages", "Voice + chat", "24/7 always-on"],
     },
   ];
 
@@ -68,6 +71,7 @@ const Features = () => {
       description:
         "Streamlined visa processing for 100+ countries. Digital applications, document management, and status tracking.",
       gradient: getAuroraGradient(0),
+      chips: ["100+ countries", "Live status"],
     },
     {
       icon: activitiesIcon,
@@ -75,6 +79,7 @@ const Features = () => {
       description:
         "Tours, experiences, and local activities. Give your customers access to thousands of curated experiences.",
       gradient: getAuroraGradient(1),
+      chips: ["50K+ tours", "Skip-the-line"],
     },
     {
       icon: domainIcon,
@@ -82,6 +87,7 @@ const Features = () => {
       description:
         "Use your own custom domain. Your brand, your identity. No marhabaDMC branding visible to your customers.",
       gradient: getAuroraGradient(2),
+      chips: ["Free SSL", "DNS guided"],
     },
     {
       icon: whiteLabelIcon,
@@ -89,6 +95,7 @@ const Features = () => {
       description:
         "Complete customization with your logo, and available design themes. Make it truly yours with essential branding control.",
       gradient: getAuroraGradient(0),
+      chips: ["Custom logo", "Theme presets"],
     },
   ];
 
