@@ -2,6 +2,7 @@ import { lazy, Suspense } from "react";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import SEOHead from "@/components/seo/SEOHead";
+import { prefetchIdleRoutes } from "@/lib/route-prefetch";
 import {
   organizationSchema,
   websiteSchema,
@@ -45,6 +46,12 @@ const Index = () => {
       }
     }
   }, [location.hash]);
+
+  // Warm up the most common next-route chunks during browser idle time
+  // so navigation to /about, /blog, /categories-destinations feels instant.
+  useEffect(() => {
+    prefetchIdleRoutes(["/about", "/categories-destinations", "/blog"]);
+  }, []);
 
   const homepageFaqs = [
     { question: "How long does it take to set up my portal?", answer: "Most clients have their branded portal live within 2-3 business days, including domain setup, branding, and API integration." },
