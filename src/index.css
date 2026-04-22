@@ -228,6 +228,47 @@
     background-size: 200% auto;
   }
 
+  /* Faint grid overlay for hero feature card */
+  .bg-grid-faint {
+    background-image:
+      linear-gradient(to right, hsl(var(--foreground) / 0.06) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--foreground) / 0.06) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+
+  .dark .bg-grid-faint {
+    background-image:
+      linear-gradient(to right, hsl(0 0% 100% / 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(0 0% 100% / 0.05) 1px, transparent 1px);
+  }
+
+  /* Mouse-follow radial glow on feature cards */
+  .feature-card-glow {
+    position: relative;
+  }
+  .feature-card-glow::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(
+      400px circle at var(--mx, 50%) var(--my, 50%),
+      hsl(var(--primary) / 0.10),
+      transparent 45%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .feature-card-glow:hover::before {
+    opacity: 1;
+  }
+  .feature-card-glow > * {
+    position: relative;
+    z-index: 1;
+  }
+
   /* Static gradient text – no animation, same palette */
   .aurora-gradient-text-static {
     @apply bg-clip-text text-transparent;

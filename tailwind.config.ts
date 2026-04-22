@@ -157,6 +157,10 @@ export default {
           "0%, 100%": { borderColor: "hsl(var(--primary) / 0.3)" },
           "50%": { borderColor: "hsl(var(--primary) / 0.8)" },
         },
+        "orbit": {
+          "0%": { transform: "rotate(0deg) translateX(var(--orbit-r, 44px)) rotate(0deg)" },
+          "100%": { transform: "rotate(360deg) translateX(var(--orbit-r, 44px)) rotate(-360deg)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -178,6 +182,9 @@ export default {
         "text-shimmer": "text-shimmer 4s linear infinite",
         "number-pop": "number-pop 0.5s ease-out",
         "border-flow": "border-flow 2s ease-in-out infinite",
+        "orbit-slow": "orbit 8s linear infinite",
+        "orbit-medium": "orbit 6s linear infinite",
+        "orbit-fast": "orbit 4s linear infinite",
       },
     },
   },
