@@ -2,7 +2,6 @@ import { Badge } from "@/components/ui/badge";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import {
   ArrowUpRight,
-  Check,
   Plane,
   BedDouble,
   Bot,
