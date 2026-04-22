@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import { ArrowUpRight, Check, Globe2, Zap, ShieldCheck } from "lucide-react";
+import { ArrowUpRight, Check } from "lucide-react";
 import { getAuroraGradient } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -18,7 +18,6 @@ type Feature = {
   description: string;
   badge?: string;
   gradient: string;
-  chips?: string[];
 };
 
 const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
@@ -51,7 +50,6 @@ const Features = () => {
         "Connect to 1M+ hotels worldwide. From budget stays to luxury resorts, offer your customers the best rates.",
       badge: "Popular",
       gradient: getAuroraGradient(1),
-      chips: ["1M+ properties", "Best-rate match", "Instant confirm"],
     },
     {
       icon: aiBotIcon,
@@ -60,7 +58,6 @@ const Features = () => {
         "Multilingual chatbot and voicebot that converts visitors 24/7. Like a sales team that never sleeps — at a fraction of the cost.",
       badge: "Add-on",
       gradient: getAuroraGradient(2),
-      chips: ["12+ languages", "Voice + chat", "24/7 always-on"],
     },
   ];
 
@@ -71,7 +68,6 @@ const Features = () => {
       description:
         "Streamlined visa processing for 100+ countries. Digital applications, document management, and status tracking.",
       gradient: getAuroraGradient(0),
-      chips: ["100+ countries", "Live status"],
     },
     {
       icon: activitiesIcon,
@@ -79,7 +75,6 @@ const Features = () => {
       description:
         "Tours, experiences, and local activities. Give your customers access to thousands of curated experiences.",
       gradient: getAuroraGradient(1),
-      chips: ["50K+ tours", "Skip-the-line"],
     },
     {
       icon: domainIcon,
@@ -87,7 +82,6 @@ const Features = () => {
       description:
         "Use your own custom domain. Your brand, your identity. No marhabaDMC branding visible to your customers.",
       gradient: getAuroraGradient(2),
-      chips: ["Free SSL", "DNS guided"],
     },
     {
       icon: whiteLabelIcon,
@@ -95,7 +89,6 @@ const Features = () => {
       description:
         "Complete customization with your logo, and available design themes. Make it truly yours with essential branding control.",
       gradient: getAuroraGradient(0),
-      chips: ["Custom logo", "Theme presets"],
     },
   ];
 
@@ -249,38 +242,11 @@ const Features = () => {
                 ))}
               </ul>
 
-              {/* Mini stats panel — fills hero space, adds proof */}
-              <div className="mt-auto grid grid-cols-3 gap-2 p-3 rounded-2xl glass border border-foreground/5">
-                <div className="flex flex-col items-start gap-1 px-2">
-                  <Globe2 className="w-4 h-4 text-aurora-blue" />
-                  <div className="font-display text-lg font-bold text-foreground leading-none">700+</div>
-                  <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Airlines</div>
-                </div>
-                <div className="flex flex-col items-start gap-1 px-2 border-x border-foreground/5">
-                  <Zap className="w-4 h-4 text-aurora-teal" />
-                  <div className="font-display text-lg font-bold text-foreground leading-none">&lt;800ms</div>
-                  <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Avg search</div>
-                </div>
-                <div className="flex flex-col items-start gap-1 px-2">
-                  <ShieldCheck className="w-4 h-4 text-aurora-purple" />
-                  <div className="font-display text-lg font-bold text-foreground leading-none">99.9%</div>
-                  <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Uptime</div>
-                </div>
-              </div>
-
-              <div className="mt-4 flex items-center justify-between">
+              <div className="mt-auto">
                 <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-foreground group-hover:gap-2.5 transition-all duration-300">
                   Explore Flight API
                   <ArrowUpRight className="w-4 h-4" />
                 </span>
-                <div className="hidden sm:flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                  <span className="flex -space-x-1.5">
-                    <span className="w-5 h-5 rounded-full bg-gradient-to-br from-aurora-blue to-aurora-teal border-2 border-background" />
-                    <span className="w-5 h-5 rounded-full bg-gradient-to-br from-aurora-purple to-aurora-pink border-2 border-background" />
-                    <span className="w-5 h-5 rounded-full bg-gradient-to-br from-aurora-teal to-emerald-500 border-2 border-background" />
-                  </span>
-                  Trusted by 200+ agencies
-                </div>
               </div>
             </div>
           </article>
@@ -323,20 +289,7 @@ const Features = () => {
                     </Badge>
                   )}
                 </div>
-                <p className="text-sm text-muted-foreground leading-relaxed mb-4">{feature.description}</p>
-                {feature.chips && (
-                  <div className="mt-auto flex flex-wrap gap-1.5">
-                    {feature.chips.map((chip) => (
-                      <span
-                        key={chip}
-                        className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-full glass text-foreground/75"
-                      >
-                        <span className={cn("w-1.5 h-1.5 rounded-full bg-gradient-to-br", feature.gradient)} />
-                        {chip}
-                      </span>
-                    ))}
-                  </div>
-                )}
+                <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
               </div>
             </article>
           ))}
@@ -373,20 +326,7 @@ const Features = () => {
                   <ArrowUpRight className="w-4 h-4 text-muted-foreground transition-all duration-300 group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:text-foreground" />
                 </div>
                 <h3 className="text-base font-bold text-foreground mb-1.5">{feature.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed mb-3">{feature.description}</p>
-                {feature.chips && (
-                  <div className="mt-auto flex flex-wrap gap-1.5">
-                    {feature.chips.map((chip) => (
-                      <span
-                        key={chip}
-                        className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full glass text-foreground/75"
-                      >
-                        <span className={cn("w-1 h-1 rounded-full bg-gradient-to-br", feature.gradient)} />
-                        {chip}
-                      </span>
-                    ))}
-                  </div>
-                )}
+                <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
               </div>
             </article>
           ))}
