@@ -37,70 +37,72 @@ const Features = () => {
   const { ref: headerRef, isVisible: headerVisible } = useScrollAnimation();
   const { ref: gridRef, isVisible: gridVisible } = useScrollAnimation();
 
-  const hero: Feature & { bullets: string[] } = {
-    icon: Plane,
-    title: "Flight API",
-    description:
-      "Access real-time flight inventory from global GDS systems. Book domestic and international flights with instant confirmation.",
-    badge: "Popular",
-    gradient: getAuroraGradient(0),
-    gradId: "aurora-grad-hero",
-    bullets: ["Global GDS coverage", "Instant ticketing", "Domestic + international"],
-  };
-
-  const sideFeatures: Feature[] = [
+  const features: (Feature & { highlight?: string })[] = [
+    {
+      icon: Plane,
+      title: "Flight API",
+      description:
+        "Real-time flight inventory from global GDS systems. Book domestic and international with instant confirmation.",
+      badge: "Popular",
+      gradient: getAuroraGradient(0),
+      gradId: "aurora-grad-0",
+      highlight: "Global GDS",
+    },
     {
       icon: BedDouble,
       title: "Hotel API",
       description:
-        "Connect to 1M+ hotels worldwide. From budget stays to luxury resorts, offer your customers the best rates.",
+        "Connect to over 1M hotels worldwide — from budget stays to luxury resorts at the best negotiated rates.",
       badge: "Popular",
       gradient: getAuroraGradient(1),
       gradId: "aurora-grad-1",
+      highlight: "1M+ properties",
     },
     {
       icon: Bot,
       title: "AI Sales Executive",
       description:
-        "Multilingual chatbot and voicebot that converts visitors 24/7. Like a sales team that never sleeps — at a fraction of the cost.",
+        "Multilingual chat and voice bot that converts visitors 24/7 — like a sales team that never sleeps.",
       badge: "Add-on",
       gradient: getAuroraGradient(2),
       gradId: "aurora-grad-2",
+      highlight: "24/7 conversion",
     },
-  ];
-
-  const bottomFeatures: Feature[] = [
     {
       icon: StampIcon,
       title: "Visa API",
       description:
-        "Streamlined visa processing for 100+ countries. Digital applications, document management, and status tracking.",
+        "Streamlined visa processing for 100+ countries. Digital applications, document management and live status tracking.",
       gradient: getAuroraGradient(0),
       gradId: "aurora-grad-3",
+      highlight: "100+ countries",
     },
     {
       icon: Compass,
       title: "Activities API",
       description:
-        "Tours, experiences, and local activities. Give your customers access to thousands of curated experiences.",
+        "Curated tours, experiences and local activities. Give customers access to thousands of bookable adventures.",
       gradient: getAuroraGradient(1),
       gradId: "aurora-grad-4",
+      highlight: "Tours & experiences",
     },
     {
       icon: Globe2,
       title: "Own Domain",
       description:
-        "Use your own custom domain. Your brand, your identity. No marhabaDMC branding visible to your customers.",
+        "Use your own custom domain. Your brand, your identity — no marhabaDMC branding shown to customers.",
       gradient: getAuroraGradient(2),
       gradId: "aurora-grad-5",
+      highlight: "Your brand",
     },
     {
       icon: Palette,
       title: "White-Label Branding",
       description:
-        "Complete customization with your logo, and available design themes. Make it truly yours with essential branding control.",
+        "Complete customization with your logo and design themes. Essential branding control to make the platform truly yours.",
       gradient: getAuroraGradient(0),
       gradId: "aurora-grad-6",
+      highlight: "Fully themable",
     },
   ];
 
