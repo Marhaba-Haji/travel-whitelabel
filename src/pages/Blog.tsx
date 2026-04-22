@@ -8,6 +8,9 @@ import { Clock, BookOpen, X, Search, ChevronLeft, ChevronRight, Rss, Eye, Trendi
 import { Input } from "@/components/ui/input";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
+import SEOHead from "@/components/seo/SEOHead";
+import { breadcrumbSchema, SITE_URL } from "@/lib/seo-schemas";
+import { getSessionId } from "@/hooks/useSessionTracking";
 
 interface BlogPost {
   id: string;
@@ -45,10 +48,6 @@ const Blog = () => {
   const activeSort = searchParams.get("sort") || "latest";
 
   useEffect(() => {
-    document.title = "Blog | Marhaba DMC — Halal Travel Insights & Industry Trends";
-    const meta = document.querySelector('meta[name="description"]');
-    if (meta) meta.setAttribute("content", "Explore expert insights on halal-friendly travel, destination guides, travel technology, and hospitality trends from Marhaba DMC.");
-
     // Add RSS link
     let rssLink = document.querySelector('link[type="application/rss+xml"]');
     if (!rssLink) {
@@ -97,6 +96,21 @@ const Blog = () => {
     return filtered;
   }, [posts, activeCategory, activeTag, activeSearch, activeSort]);
 
+  // Log search queries for content-gap analysis (debounced via useEffect)
+  useEffect(() => {
+    if (!activeSearch || posts.length === 0) return;
+    const t = setTimeout(() => {
+      supabase.from("search_queries").insert([{
+        query: activeSearch,
+        results_count: filteredPosts.length,
+        page_path: "/blog",
+        session_id: getSessionId(),
+        source: "blog_search",
+      }] as any).then(() => {});
+    }, 1500);
+    return () => clearTimeout(t);
+  }, [activeSearch, filteredPosts.length, posts.length]);
+
   const POSTS_PER_PAGE = 9;
   const activePage = parseInt(searchParams.get("page") || "1", 10);
   const totalPages = Math.ceil(filteredPosts.length / POSTS_PER_PAGE);
@@ -138,6 +152,15 @@ const Blog = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Blog — Halal Travel Insights & Industry Trends"
+        description="Expert insights on halal-friendly travel, destination guides, travel technology, and hospitality trends from Marhaba DMC."
+        path="/blog"
+        jsonLd={breadcrumbSchema([
+          { name: "Home", url: SITE_URL },
+          { name: "Blog", url: `${SITE_URL}/blog` },
+        ])}
+      />
       <Header />
       <main className="pt-24 pb-20">
         <div className="container mx-auto px-4">
