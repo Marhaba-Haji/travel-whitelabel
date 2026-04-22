@@ -3,12 +3,12 @@ import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import {
   ArrowUpRight,
   Plane,
-  BedDouble,
+  Hotel,
   Bot,
-  StampIcon,
-  Compass,
-  Globe2,
-  Palette,
+  ScrollText,
+  MountainSnow,
+  Globe,
+  Sparkles,
   type LucideIcon,
 } from "lucide-react";
 import { getAuroraGradient } from "@/lib/design-tokens";
@@ -20,8 +20,8 @@ type Feature = {
   description: string;
   badge?: string;
   gradient: string;
-  /** Stable id used to reference the SVG gradient that strokes the icon */
-  gradId: string;
+  /** Accent color token used for highlight pill + badge */
+  accent: "teal" | "purple" | "blue";
 };
 
 const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
@@ -30,6 +30,27 @@ const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
   const y = ((e.clientY - rect.top) / rect.height) * 100;
   e.currentTarget.style.setProperty("--mx", `${x}%`);
   e.currentTarget.style.setProperty("--my", `${y}%`);
+};
+
+const accentClasses: Record<
+  Feature["accent"],
+  { badge: string; chip: string; chipBg: string }
+> = {
+  teal: {
+    badge: "bg-aurora-teal/10 text-aurora-teal border-aurora-teal/25",
+    chip: "text-aurora-teal",
+    chipBg: "bg-aurora-teal/10 border-aurora-teal/20",
+  },
+  purple: {
+    badge: "bg-aurora-purple/10 text-aurora-purple border-aurora-purple/25",
+    chip: "text-aurora-purple",
+    chipBg: "bg-aurora-purple/10 border-aurora-purple/20",
+  },
+  blue: {
+    badge: "bg-aurora-blue/10 text-aurora-blue border-aurora-blue/25",
+    chip: "text-aurora-blue",
+    chipBg: "bg-aurora-blue/10 border-aurora-blue/20",
+  },
 };
 
 const Features = () => {
@@ -44,17 +65,17 @@ const Features = () => {
         "Real-time flight inventory from global GDS systems. Book domestic and international with instant confirmation.",
       badge: "Popular",
       gradient: getAuroraGradient(0),
-      gradId: "aurora-grad-0",
+      accent: "teal",
       highlight: "Global GDS",
     },
     {
-      icon: BedDouble,
+      icon: Hotel,
       title: "Hotel API",
       description:
         "Connect to over 1M hotels worldwide — from budget stays to luxury resorts at the best negotiated rates.",
       badge: "Popular",
       gradient: getAuroraGradient(1),
-      gradId: "aurora-grad-1",
+      accent: "purple",
       highlight: "1M+ properties",
     },
     {
@@ -64,43 +85,43 @@ const Features = () => {
         "Multilingual chat and voice bot that converts visitors 24/7 — like a sales team that never sleeps.",
       badge: "Add-on",
       gradient: getAuroraGradient(2),
-      gradId: "aurora-grad-2",
+      accent: "teal",
       highlight: "24/7 conversion",
     },
     {
-      icon: StampIcon,
+      icon: ScrollText,
       title: "Visa API",
       description:
         "Streamlined visa processing for 100+ countries. Digital applications, document management and live status tracking.",
       gradient: getAuroraGradient(0),
-      gradId: "aurora-grad-3",
+      accent: "blue",
       highlight: "100+ countries",
     },
     {
-      icon: Compass,
+      icon: MountainSnow,
       title: "Activities API",
       description:
         "Curated tours, experiences and local activities. Give customers access to thousands of bookable adventures.",
       gradient: getAuroraGradient(1),
-      gradId: "aurora-grad-4",
+      accent: "purple",
       highlight: "Tours & experiences",
     },
     {
-      icon: Globe2,
+      icon: Globe,
       title: "Own Domain",
       description:
         "Use your own custom domain. Your brand, your identity — no marhabaDMC branding shown to customers.",
       gradient: getAuroraGradient(2),
-      gradId: "aurora-grad-5",
+      accent: "teal",
       highlight: "Your brand",
     },
     {
-      icon: Palette,
+      icon: Sparkles,
       title: "White-Label Branding",
       description:
         "Complete customization with your logo and design themes. Essential branding control to make the platform truly yours.",
       gradient: getAuroraGradient(0),
-      gradId: "aurora-grad-6",
+      accent: "blue",
       highlight: "Fully themable",
     },
   ];
@@ -114,40 +135,6 @@ const Features = () => {
 
   return (
     <section id="features" className="py-24 relative overflow-hidden">
-      {/* SVG gradient defs for icon strokes — referenced via url(#id) */}
-      <svg width="0" height="0" className="absolute" aria-hidden>
-        <defs>
-          <linearGradient id="aurora-grad-hero" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="hsl(var(--aurora-blue))" />
-            <stop offset="100%" stopColor="hsl(var(--aurora-teal))" />
-          </linearGradient>
-          <linearGradient id="aurora-grad-1" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="hsl(var(--aurora-purple))" />
-            <stop offset="100%" stopColor="hsl(var(--aurora-blue))" />
-          </linearGradient>
-          <linearGradient id="aurora-grad-2" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="hsl(var(--aurora-teal))" />
-            <stop offset="100%" stopColor="hsl(160 84% 39%)" />
-          </linearGradient>
-          <linearGradient id="aurora-grad-3" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="hsl(var(--aurora-blue))" />
-            <stop offset="100%" stopColor="hsl(var(--aurora-teal))" />
-          </linearGradient>
-          <linearGradient id="aurora-grad-4" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="hsl(var(--aurora-purple))" />
-            <stop offset="100%" stopColor="hsl(var(--aurora-blue))" />
-          </linearGradient>
-          <linearGradient id="aurora-grad-5" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="hsl(var(--aurora-teal))" />
-            <stop offset="100%" stopColor="hsl(160 84% 39%)" />
-          </linearGradient>
-          <linearGradient id="aurora-grad-6" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="hsl(var(--aurora-blue))" />
-            <stop offset="100%" stopColor="hsl(var(--aurora-teal))" />
-          </linearGradient>
-        </defs>
-      </svg>
-
       {/* Ambient background */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_hsl(270_70%_58%_/_0.05),_transparent_50%)]" />
       <div
@@ -200,13 +187,14 @@ const Features = () => {
             const colSpanClass = isBottomRow
               ? "lg:col-span-4"
               : "lg:col-span-3";
+            const accent = accentClasses[feature.accent];
             return (
               <article
                 key={feature.title}
                 onMouseMove={handleMouseMove}
                 className={cn(
                   "group relative overflow-hidden rounded-2xl glass-card hover-surface-card feature-card-glow",
-                  "p-5 min-h-[210px] flex transition-all duration-500 motion-safe:hover:-translate-y-1 opacity-0",
+                  "p-6 min-h-[230px] flex transition-all duration-500 motion-safe:hover:-translate-y-1 opacity-0",
                   colSpanClass,
                   gridVisible && "animate-scale-in",
                 )}
@@ -215,41 +203,46 @@ const Features = () => {
                 <div
                   aria-hidden
                   className={cn(
-                    "absolute -top-10 -right-10 w-40 h-40 rounded-full blur-3xl opacity-25 bg-gradient-to-br pointer-events-none",
+                    "absolute -top-12 -right-12 w-44 h-44 rounded-full blur-3xl opacity-30 bg-gradient-to-br pointer-events-none transition-opacity duration-500 group-hover:opacity-50",
                     feature.gradient,
                   )}
                 />
 
                 <div className="relative flex flex-col h-full w-full">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className={cn("rounded-2xl bg-gradient-to-br p-[1.5px]", feature.gradient)}>
-                      <div className="w-12 h-12 rounded-2xl glass flex items-center justify-center transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6">
-                        <feature.icon
-                          aria-label={feature.title}
-                          className="w-6 h-6"
-                          strokeWidth={1.75}
-                          style={{ stroke: `url(#${feature.gradId})` }}
-                        />
-                      </div>
+                  <div className="flex items-start justify-between mb-4">
+                    <div
+                      className={cn(
+                        "w-14 h-14 rounded-2xl bg-gradient-to-br flex items-center justify-center shadow-lg transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-3",
+                        feature.gradient,
+                      )}
+                    >
+                      <feature.icon
+                        aria-label={feature.title}
+                        className="w-7 h-7 text-white"
+                        strokeWidth={2}
+                      />
                     </div>
                     {feature.badge && (
-                      <Badge className="text-[10px] bg-aurora-teal/10 text-aurora-teal border-aurora-teal/25 px-2 py-0">
+                      <Badge className={cn("text-[10px] px-2 py-0.5 font-semibold", accent.badge)}>
                         {feature.badge}
                       </Badge>
                     )}
                   </div>
 
-                  <h3 className="text-base font-bold text-foreground mb-1.5">{feature.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+                  <h3 className="text-lg font-bold text-foreground mb-2">{feature.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-4">
                     {feature.description}
                   </p>
 
-                  <div className="mt-auto pt-2 flex items-center justify-between border-t border-foreground/[0.06]">
+                  <div className="mt-auto pt-3 flex items-center justify-between border-t-surface">
                     {feature.highlight && (
-                      <span className={cn(
-                        "text-[11px] font-semibold uppercase tracking-wider bg-clip-text text-transparent bg-gradient-to-r",
-                        feature.gradient,
-                      )}>
+                      <span
+                        className={cn(
+                          "inline-flex items-center text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full border",
+                          accent.chip,
+                          accent.chipBg,
+                        )}
+                      >
                         {feature.highlight}
                       </span>
                     )}
