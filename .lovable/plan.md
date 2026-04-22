@@ -1,60 +1,195 @@
 
 
-## Plan: Robust AI Blog Builder Overhaul
+# Plan: Behind-the-Scenes SEO/GSO + Lead Magnet Upgrades
 
-### Problems Identified
+A two-phase plan: **(A) Pre-visit** — make the site discoverable, indexable, and quotable by Google + AI engines (ChatGPT, Perplexity, Gemini, Claude). **(B) Post-visit** — convert traffic into leads automatically through silent capture, behavioral triggers, and re-engagement.
 
-1. **Cannibalization is warn-only**: `checkCannibalization()` shows warnings but the pipeline ignores them and generates the article anyway. No auto-fix.
-2. **State sync race conditions**: Pipeline calls `runResearch()` which sets `researchData` via React setState, then immediately calls `callAI("generate_article")` which reads `researchData` from state -- but React hasn't flushed yet, so articles generate without research data.
-3. **No retry on failure**: If image generation or any step fails mid-pipeline, everything stops with no recovery.
-4. **Pipeline doesn't pass cannibalization context to article generation**: Even when overlaps are found, the article generation prompt doesn't receive specific differentiation instructions.
-5. **Duplicate streaming code**: `callAI()` and `interlinkPost()` duplicate the entire SSE streaming logic.
-6. **No slug dedup in pipeline save**: Auto-save at end of pipeline doesn't ensure unique slug for new posts.
+---
 
-### Implementation Plan
+## Current State (audited)
 
-#### 1. Fix Pipeline Data Flow (BlogTab.tsx)
-- Make `runResearch()` return research data instead of only setting state. Pipeline stores it in a local variable and passes it directly to `callAI("generate_article", { research: localResearchData })`.
-- Make `checkCannibalization()` return the overlaps array. Pipeline stores it locally.
-- Pass cannibalization overlaps as `extra` to `callAI("generate_article")` so the prompt includes specific differentiation instructions.
+**Strong already**
+- Sitemap edge function with image + news entries
+- Per-blog JSON-LD (Article, Breadcrumb, FAQ, HowTo, ItemList, WebPage)
+- Robots.txt explicitly allows GPTBot, ClaudeBot, PerplexityBot, Google-Extended
+- IndexNow + Google Indexing API edge function
+- Deferred GA + Meta Pixel
+- Theme-flash prevention script
 
-#### 2. Auto-Fix Cannibalization (blog-ai edge function + BlogTab.tsx)
-- Add a new action `resolve_cannibalization` to the edge function that takes the original title, overlaps, and existing posts, and returns a revised title + revised primary keyword angle that avoids the conflicts.
-- In the pipeline: if `checkCannibalization` finds medium/high severity overlaps, automatically call `resolve_cannibalization` to get a revised title, update `currentPost.title` and `currentPost.slug`, then proceed.
-- Keep the warnings UI but add a "Resolved" state showing the original vs revised title.
+**Critical gaps**
+1. **Client-only rendering** — Google can render JS, but AI crawlers (GPTBot, ClaudeBot, PerplexityBot) often can't. Marketing pages (`/`, `/about`, `/categories-destinations`) ship empty `<div id="root">` to crawlers.
+2. **No per-route meta tags** — only `index.html` has tags. `/about`, `/categories-destinations`, `/blog`, `/login`, `/signup` all share the same homepage title/description in raw HTML.
+3. **No global Organization/WebSite/SiteNavigationElement schema** beyond the basic Organization in index.html. No `sameAs` social profiles, no `SearchAction`.
+4. **No llms.txt** — emerging standard for AI engines to discover authoritative content.
+5. **No exit-intent or scroll-depth lead capture** — only manual contact form.
+6. **No newsletter modal** triggered by behavior — only inline on blog post.
+7. **No abandoned-signup recovery** — `registrations` rows with `pending_payment` sit forever.
+8. **No FAQPage schema on landing page** — even though FAQ component exists.
+9. **No Speakable schema** — voice search misses opportunities.
+10. **No internal search tracking / 404 logging** for content-gap analysis.
 
-#### 3. Add Retry Logic to Pipeline (BlogTab.tsx)
-- Wrap each pipeline step in a retry helper: `retryStep(fn, maxRetries=2, delayMs=3000)`.
-- On transient failures (500, 502, timeout), retry before failing the pipeline.
-- On permanent failures (400, 402), skip retry and fail immediately.
+---
 
-#### 4. Ensure Slug Uniqueness in Pipeline (BlogTab.tsx)
-- Before the final `save(true)` in the pipeline, call `ensureUniquePostSlug()` on the current slug if the post is new (no `id`).
+## Phase A — SEO & GSO Magnet (Pre-Visitor)
 
-#### 5. Extract Shared Streaming Helper (BlogTab.tsx)
-- Create a `streamFromEdgeFunction(body, onChunk)` helper to eliminate the duplicated SSE parsing in `callAI()` and `interlinkPost()`.
+### A1. Per-route HTML meta injection via React Helmet
+Install `react-helmet-async`, wrap App in `HelmetProvider`. Add per-page `<Helmet>` blocks to `Index`, `About`, `Blog`, `BlogPost`, `CategoriesDestinations`, `UmrahVisaCheck`, `Signup`, `Login` setting unique `<title>`, `meta description`, `canonical`, `og:*`, `twitter:*`. Replaces ad-hoc `document.title` mutations in `Blog.tsx` and `BlogPost.tsx`.
 
-#### 6. Pass Full Existing Posts Context to Article Generation (blog-ai edge function)
-- In the `generate_article` case, when cannibalization overlaps are provided via `reqBody.cannibalizationOverlaps`, append explicit differentiation instructions to the prompt: "You MUST differentiate from these specific overlapping posts: [list]. Use these alternative angles: [from overlaps.suggestion]."
+### A2. Edge-side prerendering for crawlers
+New edge function `prerender-bot` that detects bot user-agents (Googlebot, GPTBot, ClaudeBot, PerplexityBot, bingbot, facebookexternalhit, Twitterbot) and returns server-rendered HTML containing the actual page text + meta + JSON-LD. For blog posts it pulls content from `blog_posts` and renders a clean static HTML version. Wire via Lovable hosting headers OR a lightweight script in `index.html` that does nothing for humans (already loaded fast) and ensures the bot path serves enriched HTML.
 
-### Files to Modify
+*Pragmatic alternative if hosting middleware isn't available:* augment `index.html` at build time with a static `<noscript>` block per critical route, plus add static blog snapshots into the sitemap via the existing edge function, and inject route-specific JSON-LD on the server side of the existing `sitemap` function pattern (a sibling `og` edge function that returns static HTML for `/blog/:slug` shareable previews). We'll go with the hybrid: dynamic blog HTML via a `blog-prerender` edge function; static meta for marketing pages via Helmet (which AI crawlers increasingly do execute).
 
-| File | Changes |
-|------|---------|
-| `src/components/admin/BlogTab.tsx` | Fix pipeline data flow, add retry logic, add `resolve_cannibalization` step, extract streaming helper, ensure slug uniqueness |
-| `supabase/functions/blog-ai/index.ts` | Add `resolve_cannibalization` action, enhance `generate_article` prompt with cannibalization differentiation context |
+### A3. Global structured data (homepage)
+Add to `index.html`:
+- `WebSite` schema with `potentialAction` (SearchAction → `/blog?q={search_term_string}`)
+- `Organization` extended with `sameAs` (LinkedIn, X, Instagram, YouTube, Facebook), `contactPoint`, `founder`, `foundingDate`, `aggregateRating` (if testimonials available)
+- `BreadcrumbList` per route (via Helmet)
+- `FAQPage` schema injection on homepage from existing `FAQ.tsx` content
+- `Service` schema for each API capability
+- `Product` + `Offer` schema for each pricing tier
+- `Speakable` schema on hero h1 + FAQ
 
-### Pipeline Sequence (After Fix)
+### A4. AI-engine discovery
+- **`/llms.txt`** in `public/` — Markdown index of all canonical pages, blog posts, key facts ("Marhaba DMC is...", "Our APIs are...", pricing, contact). Format per llmstxt.org.
+- **`/llms-full.txt`** — full content dump of marketing pages + blog excerpts for AI training context.
+- Both auto-regenerated by a new `llms-txt` edge function reading from `blog_posts` (similar pattern to `sitemap`).
+
+### A5. Sitemap upgrades
+Extend existing `sitemap` edge function:
+- Add `/umrah-visa-check`, `/login` (if public), blog category/tag landing URLs
+- Add `xhtml:link rel="alternate"` for hreflang (`en-IN`, `en`)
+- Split into sitemap index: `sitemap-pages.xml`, `sitemap-blog.xml`, `sitemap-news.xml`, `sitemap-images.xml`
+- Add `lastmod` from real `updated_at` of static pages stored in `site_settings`
+
+### A6. Performance & Core Web Vitals
+- Add `<link rel="preload" as="image">` for hero image (LCP)
+- Add `fetchpriority="high"` to LCP image
+- Add `loading="lazy" decoding="async"` audit on all `<img>` (BlurImage already does this)
+- Add `Link: </assets/...>; rel=preload` headers via meta tag fallback
+- Add CSS `content-visibility: auto` on below-fold sections via utility class
+- Inline critical CSS expansion (already partial in `index.html`)
+
+### A7. Internal linking automation
+The blog already has `interlinkPost`. Extend to:
+- Auto-link landing page features → relevant pillar blog posts
+- Auto-link blog posts → relevant landing-page sections (e.g. "Hotel API" mention links to `/#features`)
+- Add a `related_landing_section` field-less heuristic in `BlogPost.tsx` showing 2 contextual landing-page CTAs based on category
+
+### A8. Content-gap intelligence
+- New `search_queries` table logging blog search queries (from `Blog.tsx` `?q=` param) and 404 paths
+- Surface in admin `Analytics` tab → "Top searched terms with no results" → feeds future blog topic ideation
+- Feed `blog-cluster-research` edge function automatically with weekly top-searched queries
+
+---
+
+## Phase B — Lead Magnet (Post-Visitor)
+
+### B1. Behavioral lead capture
+New `LeadMagnetTrigger.tsx` global component that fires:
+- **Exit-intent** (mouse-leave at top of viewport, desktop only)
+- **50% scroll depth + 30s dwell time**
+- **2nd page view** in same session
+Shows a single, dismissible modal offering:
+- Free downloadable PDF: "B2B Travel Business Starter Guide" (gated by email)
+- Captures into `newsletter_subscriptions` + tagged source
+- Frequency-capped via `localStorage` (max 1 show per 7 days)
+
+### B2. Lead magnet asset library
+New `lead_magnets` table (PDFs, checklists, calculators). Admin tab to upload to existing `blog-images` bucket (or new `lead-magnets` bucket). Each has slug + auto-generated landing page `/resource/:slug` with email gate. Captures tagged email + magnet ID.
+
+### B3. Smart contact-form upgrade
+- `contact_enquiries` form: add hidden UTM fields (source, medium, campaign, referrer, landing_page, first_seen_at) — captured from sessionStorage on first hit
+- Auto-classify enquiry intent via Gemini (already has key) → "demo", "pricing", "support", "partnership" → write to new `intent` column
+- Trigger: high-intent enquiries (demo/pricing) auto-fire Slack/WhatsApp notification via existing `send-whatsapp` function
+
+### B4. Abandoned-signup recovery
+- Cron edge function `recover-abandoned-signups` (daily): finds `registrations.status = 'pending_payment'` older than 1 hour, < 7 days
+- Sends sequence: 1h, 24h, 72h reminder emails via existing `send-email` function
+- Each email links back to `/signup?recover=<id>` which pre-fills the form
+- Tracks `recovery_attempts` + `recovered_at` columns
+
+### B5. Newsletter content engine
+- Weekly auto-digest edge function pulling top 3 new blog posts → email to `newsletter_subscriptions`
+- Uses existing `send-email` (Resend already configured)
+- Personalized subject line via Gemini based on subscriber's last opened category (after we add open-tracking pixel)
+
+### B6. Voice AI handoff to email
+Nyra widget already saves leads. Add: when conversation contains pricing/demo intent keywords → automatically email a tailored follow-up via `send-email` within 60 seconds. Already has `voice_ai_leads` table.
+
+### B7. Social proof automation
+- New `LiveActivity.tsx` widget showing rotating real signups ("Rashid from Mumbai joined Growth plan 2 hours ago") — pulled from anonymized `registrations`
+- Trust bar with live counters (registered partners, blog views from `views_count` sum)
+- Both improve conversion + dwell time (helps SEO indirectly)
+
+### B8. UTM + attribution tracking
+- New `visitor_sessions` table: session_id, first_landing_page, utm_*, referrer, device, country (from CF-IPCountry header), first_seen_at, last_seen_at
+- Auto-link to `contact_enquiries`, `registrations`, `newsletter_subscriptions`, `voice_ai_leads` via session_id
+- Admin can see full attribution: "This signup came from a Perplexity citation → blog post X → demo modal"
+
+---
+
+## Database Migrations Required
 
 ```text
-1. Research Topic (returns data directly)
-2. Check Cannibalization (returns overlaps)
-3. IF overlaps found → Resolve Cannibalization (auto-revise title/angle)
-4. Generate Article (receives research + cannibalization context)
-5. Generate Images
-6. Generate Meta + Category + Tags
-7. Generate Excerpt
-8. Add Internal Links
-9. Ensure unique slug → Save
++ search_queries (id, query, results_count, page_path, session_id, created_at)
++ lead_magnets (id, slug, title, description, file_url, gated, downloads_count, created_at)
++ lead_magnet_downloads (id, magnet_id, email, source, utm jsonb, created_at)
++ visitor_sessions (id, session_id, utm_*, referrer, landing_page, country, device, first_seen_at, last_seen_at)
++ contact_enquiries: ADD COLUMN intent text, utm jsonb, session_id text
++ registrations: ADD COLUMN recovery_attempts int default 0, recovered_at timestamptz, last_reminder_at timestamptz, utm jsonb, session_id text
++ newsletter_subscriptions: ADD COLUMN source text, utm jsonb, last_email_opened_at timestamptz, preferred_categories text[]
++ blog_posts: ADD COLUMN ai_summary text (cached for llms.txt + AI snippets), speakable_selector text
 ```
+
+All with RLS: public INSERT where appropriate, superadmin SELECT.
+
+## New Edge Functions
+
+```text
++ blog-prerender         → returns server-rendered HTML for bot user-agents
++ llms-txt               → generates /llms.txt and /llms-full.txt dynamically
++ recover-abandoned-signups (cron) → email sequence
++ newsletter-digest (cron weekly)  → top blog posts to subscribers
++ classify-enquiry       → Gemini-based intent classification on insert
++ track-session          → upsert visitor_sessions (called from main.tsx on mount)
+```
+
+## New Frontend Modules
+
+```text
+src/components/seo/SEOHead.tsx           (Helmet wrapper with sane defaults)
+src/components/lead/LeadMagnetTrigger.tsx (exit-intent + scroll triggers)
+src/components/lead/LeadMagnetModal.tsx
+src/components/lead/LiveActivity.tsx
+src/pages/Resource.tsx                    (gated lead magnet landing)
+src/hooks/useSessionTracking.ts
+src/hooks/useExitIntent.ts
+src/lib/seo-schemas.ts                    (centralised JSON-LD builders)
+```
+
+## Rollout Order
+
+```text
+1. SEO Helmet + per-route meta + global schema  (immediate Google + AI gain)
+2. llms.txt + llms-full.txt edge function       (immediate AI engine gain)
+3. Sitemap split + hreflang                     (cleaner indexing)
+4. blog-prerender edge function                 (AI crawler content access)
+5. Session tracking + UTM capture               (foundation for everything else)
+6. Smart contact form (intent + UTM)            (better lead quality)
+7. Lead magnet system + exit-intent modal       (conversion lift)
+8. Abandoned-signup recovery                    (revenue rescue)
+9. Live activity + social proof                 (trust)
+10. Newsletter digest + Voice AI email handoff  (re-engagement loop)
+11. Search query logging + content gap analytics (compounding SEO)
+```
+
+## Expected Impact
+
+- **AI engine citations** (ChatGPT, Perplexity, Claude): from near-zero to high (llms.txt + prerender + structured data)
+- **Google rich results**: FAQ snippets on `/`, Product cards for pricing, Speakable for voice, Article carousels for blog
+- **Crawl efficiency**: split sitemaps + hreflang reduce wasted crawl budget
+- **Conversion rate**: behavioral lead capture typically lifts 2–5x on B2B SaaS
+- **Recovered revenue**: abandoned-signup sequence typically recovers 8–15% of pending registrations
+- **Attribution clarity**: every lead traceable from first touch to conversion
 
