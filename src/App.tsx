@@ -1,5 +1,6 @@
 import { lazy, Suspense } from "react";
 import { ThemeProvider } from "next-themes";
+import { HelmetProvider } from "react-helmet-async";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,8 +11,11 @@ import { ItineraryProvider } from "@/contexts/ItineraryContext";
 import Index from "./pages/Index";
 import ProtectedRoute from "./components/admin/ProtectedRoute";
 import PageLoader from "./components/PageLoader";
+import SessionTrackingMount from "./components/SessionTrackingMount";
 
 const NyraWidget = lazy(() => import("@/components/NyraWidget"));
+const LeadMagnetTrigger = lazy(() => import("@/components/lead/LeadMagnetTrigger"));
+const LiveActivity = lazy(() => import("@/components/lead/LiveActivity"));
 
 const About = lazy(() => import("./pages/About"));
 const Login = lazy(() => import("./pages/Login"));
@@ -29,10 +33,12 @@ const SharedItinerary = lazy(() => import("./pages/SharedItinerary"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const UmrahVisaCheck = lazy(() => import("./pages/UmrahVisaCheck"));
+const Resource = lazy(() => import("./pages/Resource"));
 
 const queryClient = new QueryClient();
 
 const App = () => (
+  <HelmetProvider>
   <ThemeProvider attribute="class" defaultTheme="light" enableSystem storageKey="aurora-theme">
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
@@ -41,7 +47,12 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+            <SessionTrackingMount />
             <NyraWidget />
+            <Suspense fallback={null}>
+              <LeadMagnetTrigger />
+              <LiveActivity />
+            </Suspense>
             <Suspense fallback={<PageLoader />}>
               <Routes>
                 <Route path="/" element={<Index />} />
@@ -60,6 +71,7 @@ const App = () => (
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/blog/:slug" element={<BlogPost />} />
                 <Route path="/umrah-visa-check" element={<UmrahVisaCheck />} />
+                <Route path="/resource/:slug" element={<Resource />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
@@ -70,6 +82,7 @@ const App = () => (
       </AuthProvider>
     </QueryClientProvider>
   </ThemeProvider>
+  </HelmetProvider>
 );
 
 export default App;
