@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTheme } from "next-themes";
 import AuroraLogo from "@/components/AuroraLogo";
+import { prefetchRoute } from "@/lib/route-prefetch";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -44,6 +45,10 @@ const Header = () => {
   const handlePageNavigation = () => {
     setIsMenuOpen(false);
     window.scrollTo({ top: 0, behavior: "instant" });
+  };
+
+  const handlePrefetch = (href: string) => {
+    prefetchRoute(href);
   };
 
   return (
