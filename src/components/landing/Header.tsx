@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTheme } from "next-themes";
 import AuroraLogo from "@/components/AuroraLogo";
+import { prefetchRoute } from "@/lib/route-prefetch";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -46,6 +47,10 @@ const Header = () => {
     window.scrollTo({ top: 0, behavior: "instant" });
   };
 
+  const handlePrefetch = (href: string) => {
+    prefetchRoute(href);
+  };
+
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -77,6 +82,9 @@ const Header = () => {
                   key={link.name}
                   to={link.href}
                   onClick={handlePageNavigation}
+                  onMouseEnter={() => handlePrefetch(link.href)}
+                  onFocus={() => handlePrefetch(link.href)}
+                  onTouchStart={() => handlePrefetch(link.href)}
                   className="text-sm font-medium text-muted-foreground hover:text-foreground px-3 py-2 rounded-lg hover:bg-muted transition-all"
                 >
                   {link.name}
@@ -165,6 +173,9 @@ const Header = () => {
                     key={link.name}
                     to={link.href}
                     onClick={handlePageNavigation}
+                    onMouseEnter={() => handlePrefetch(link.href)}
+                    onFocus={() => handlePrefetch(link.href)}
+                    onTouchStart={() => handlePrefetch(link.href)}
                     className="text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted px-3 py-2.5 rounded-lg transition-all text-left"
                   >
                     {link.name}
