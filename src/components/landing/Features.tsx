@@ -36,7 +36,7 @@ const Features = () => {
   const { ref: gridRef, isVisible: gridVisible } = useScrollAnimation();
 
   const hero: Feature & { bullets: string[] } = {
-    icon: flightIcon,
+    icon: Plane,
     title: "Flight API",
     description:
       "Access real-time flight inventory from global GDS systems. Book domestic and international flights with instant confirmation.",
@@ -47,7 +47,7 @@ const Features = () => {
 
   const sideFeatures: Feature[] = [
     {
-      icon: hotelIcon,
+      icon: BedDouble,
       title: "Hotel API",
       description:
         "Connect to 1M+ hotels worldwide. From budget stays to luxury resorts, offer your customers the best rates.",
@@ -55,7 +55,7 @@ const Features = () => {
       gradient: getAuroraGradient(1),
     },
     {
-      icon: aiBotIcon,
+      icon: Bot,
       title: "AI Sales Executive",
       description:
         "Multilingual chatbot and voicebot that converts visitors 24/7. Like a sales team that never sleeps — at a fraction of the cost.",
@@ -66,28 +66,28 @@ const Features = () => {
 
   const bottomFeatures: Feature[] = [
     {
-      icon: visaIcon,
+      icon: StampIcon,
       title: "Visa API",
       description:
         "Streamlined visa processing for 100+ countries. Digital applications, document management, and status tracking.",
       gradient: getAuroraGradient(0),
     },
     {
-      icon: activitiesIcon,
+      icon: Compass,
       title: "Activities API",
       description:
         "Tours, experiences, and local activities. Give your customers access to thousands of curated experiences.",
       gradient: getAuroraGradient(1),
     },
     {
-      icon: domainIcon,
+      icon: Globe2,
       title: "Own Domain",
       description:
         "Use your own custom domain. Your brand, your identity. No marhabaDMC branding visible to your customers.",
       gradient: getAuroraGradient(2),
     },
     {
-      icon: whiteLabelIcon,
+      icon: Palette,
       title: "White-Label Branding",
       description:
         "Complete customization with your logo, and available design themes. Make it truly yours with essential branding control.",
