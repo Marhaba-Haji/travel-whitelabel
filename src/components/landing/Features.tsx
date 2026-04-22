@@ -249,11 +249,38 @@ const Features = () => {
                 ))}
               </ul>
 
-              <div className="mt-auto">
+              {/* Mini stats panel — fills hero space, adds proof */}
+              <div className="mt-auto grid grid-cols-3 gap-2 p-3 rounded-2xl glass border border-foreground/5">
+                <div className="flex flex-col items-start gap-1 px-2">
+                  <Globe2 className="w-4 h-4 text-aurora-blue" />
+                  <div className="font-display text-lg font-bold text-foreground leading-none">700+</div>
+                  <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Airlines</div>
+                </div>
+                <div className="flex flex-col items-start gap-1 px-2 border-x border-foreground/5">
+                  <Zap className="w-4 h-4 text-aurora-teal" />
+                  <div className="font-display text-lg font-bold text-foreground leading-none">&lt;800ms</div>
+                  <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Avg search</div>
+                </div>
+                <div className="flex flex-col items-start gap-1 px-2">
+                  <ShieldCheck className="w-4 h-4 text-aurora-purple" />
+                  <div className="font-display text-lg font-bold text-foreground leading-none">99.9%</div>
+                  <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Uptime</div>
+                </div>
+              </div>
+
+              <div className="mt-4 flex items-center justify-between">
                 <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-foreground group-hover:gap-2.5 transition-all duration-300">
                   Explore Flight API
                   <ArrowUpRight className="w-4 h-4" />
                 </span>
+                <div className="hidden sm:flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                  <span className="flex -space-x-1.5">
+                    <span className="w-5 h-5 rounded-full bg-gradient-to-br from-aurora-blue to-aurora-teal border-2 border-background" />
+                    <span className="w-5 h-5 rounded-full bg-gradient-to-br from-aurora-purple to-aurora-pink border-2 border-background" />
+                    <span className="w-5 h-5 rounded-full bg-gradient-to-br from-aurora-teal to-emerald-500 border-2 border-background" />
+                  </span>
+                  Trusted by 200+ agencies
+                </div>
               </div>
             </div>
           </article>
