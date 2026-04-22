@@ -1,23 +1,28 @@
 import { Badge } from "@/components/ui/badge";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import { ArrowUpRight, Check } from "lucide-react";
+import {
+  ArrowUpRight,
+  Check,
+  Plane,
+  BedDouble,
+  Bot,
+  StampIcon,
+  Compass,
+  Globe2,
+  Palette,
+  type LucideIcon,
+} from "lucide-react";
 import { getAuroraGradient } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
-import flightIcon from "@/assets/icons/flight-api.png";
-import hotelIcon from "@/assets/icons/hotel-api.png";
-import aiBotIcon from "@/assets/icons/ai-bot.png";
-import visaIcon from "@/assets/icons/visa-api.png";
-import activitiesIcon from "@/assets/icons/activities-api.png";
-import domainIcon from "@/assets/icons/own-domain.png";
-import whiteLabelIcon from "@/assets/icons/white-label.png";
-
 type Feature = {
-  icon: string;
+  icon: LucideIcon;
   title: string;
   description: string;
   badge?: string;
   gradient: string;
+  /** Stable id used to reference the SVG gradient that strokes the icon */
+  gradId: string;
 };
 
 const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
@@ -33,62 +38,69 @@ const Features = () => {
   const { ref: gridRef, isVisible: gridVisible } = useScrollAnimation();
 
   const hero: Feature & { bullets: string[] } = {
-    icon: flightIcon,
+    icon: Plane,
     title: "Flight API",
     description:
       "Access real-time flight inventory from global GDS systems. Book domestic and international flights with instant confirmation.",
     badge: "Popular",
     gradient: getAuroraGradient(0),
+    gradId: "aurora-grad-hero",
     bullets: ["Global GDS coverage", "Instant ticketing", "Domestic + international"],
   };
 
   const sideFeatures: Feature[] = [
     {
-      icon: hotelIcon,
+      icon: BedDouble,
       title: "Hotel API",
       description:
         "Connect to 1M+ hotels worldwide. From budget stays to luxury resorts, offer your customers the best rates.",
       badge: "Popular",
       gradient: getAuroraGradient(1),
+      gradId: "aurora-grad-1",
     },
     {
-      icon: aiBotIcon,
+      icon: Bot,
       title: "AI Sales Executive",
       description:
         "Multilingual chatbot and voicebot that converts visitors 24/7. Like a sales team that never sleeps — at a fraction of the cost.",
       badge: "Add-on",
       gradient: getAuroraGradient(2),
+      gradId: "aurora-grad-2",
     },
   ];
 
   const bottomFeatures: Feature[] = [
     {
-      icon: visaIcon,
+      icon: StampIcon,
       title: "Visa API",
       description:
         "Streamlined visa processing for 100+ countries. Digital applications, document management, and status tracking.",
       gradient: getAuroraGradient(0),
+      gradId: "aurora-grad-3",
     },
     {
-      icon: activitiesIcon,
+      icon: Compass,
       title: "Activities API",
       description:
         "Tours, experiences, and local activities. Give your customers access to thousands of curated experiences.",
       gradient: getAuroraGradient(1),
+      gradId: "aurora-grad-4",
     },
     {
-      icon: domainIcon,
+      icon: Globe2,
       title: "Own Domain",
       description:
         "Use your own custom domain. Your brand, your identity. No marhabaDMC branding visible to your customers.",
       gradient: getAuroraGradient(2),
+      gradId: "aurora-grad-5",
     },
     {
-      icon: whiteLabelIcon,
+      icon: Palette,
       title: "White-Label Branding",
       description:
         "Complete customization with your logo, and available design themes. Make it truly yours with essential branding control.",
       gradient: getAuroraGradient(0),
+      gradId: "aurora-grad-6",
     },
   ];
 
@@ -101,6 +113,40 @@ const Features = () => {
 
   return (
     <section id="features" className="py-24 relative overflow-hidden">
+      {/* SVG gradient defs for icon strokes — referenced via url(#id) */}
+      <svg width="0" height="0" className="absolute" aria-hidden>
+        <defs>
+          <linearGradient id="aurora-grad-hero" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="hsl(var(--aurora-blue))" />
+            <stop offset="100%" stopColor="hsl(var(--aurora-teal))" />
+          </linearGradient>
+          <linearGradient id="aurora-grad-1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="hsl(var(--aurora-purple))" />
+            <stop offset="100%" stopColor="hsl(var(--aurora-blue))" />
+          </linearGradient>
+          <linearGradient id="aurora-grad-2" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="hsl(var(--aurora-teal))" />
+            <stop offset="100%" stopColor="hsl(160 84% 39%)" />
+          </linearGradient>
+          <linearGradient id="aurora-grad-3" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="hsl(var(--aurora-blue))" />
+            <stop offset="100%" stopColor="hsl(var(--aurora-teal))" />
+          </linearGradient>
+          <linearGradient id="aurora-grad-4" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="hsl(var(--aurora-purple))" />
+            <stop offset="100%" stopColor="hsl(var(--aurora-blue))" />
+          </linearGradient>
+          <linearGradient id="aurora-grad-5" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="hsl(var(--aurora-teal))" />
+            <stop offset="100%" stopColor="hsl(160 84% 39%)" />
+          </linearGradient>
+          <linearGradient id="aurora-grad-6" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="hsl(var(--aurora-blue))" />
+            <stop offset="100%" stopColor="hsl(var(--aurora-teal))" />
+          </linearGradient>
+        </defs>
+      </svg>
+
       {/* Ambient background */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_hsl(270_70%_58%_/_0.05),_transparent_50%)]" />
       <div
@@ -194,11 +240,11 @@ const Features = () => {
                   )}
                 >
                   <div className="w-full h-full rounded-3xl glass flex items-center justify-center transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6">
-                    <img
-                      src={hero.icon}
-                      alt={hero.title}
-                      className="w-16 h-16 object-contain"
-                      loading="lazy"
+                    <hero.icon
+                      aria-label={hero.title}
+                      className="w-12 h-12"
+                      strokeWidth={1.75}
+                      style={{ stroke: `url(#${hero.gradId})` }}
                     />
                   </div>
                 </div>
@@ -275,7 +321,12 @@ const Features = () => {
                 <div className="flex items-start justify-between mb-4">
                   <div className={cn("rounded-2xl bg-gradient-to-br p-[1.5px]", feature.gradient)}>
                     <div className="w-14 h-14 rounded-2xl glass flex items-center justify-center transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6">
-                      <img src={feature.icon} alt={feature.title} className="w-9 h-9 object-contain" loading="lazy" />
+                      <feature.icon
+                        aria-label={feature.title}
+                        className="w-7 h-7"
+                        strokeWidth={1.75}
+                        style={{ stroke: `url(#${feature.gradId})` }}
+                      />
                     </div>
                   </div>
                   <ArrowUpRight className="w-4 h-4 text-muted-foreground transition-all duration-300 group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:text-foreground" />
@@ -320,7 +371,12 @@ const Features = () => {
                 <div className="flex items-start justify-between mb-3">
                   <div className={cn("rounded-2xl bg-gradient-to-br p-[1.5px]", feature.gradient)}>
                     <div className="w-12 h-12 rounded-2xl glass flex items-center justify-center transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6">
-                      <img src={feature.icon} alt={feature.title} className="w-7 h-7 object-contain" loading="lazy" />
+                      <feature.icon
+                        aria-label={feature.title}
+                        className="w-6 h-6"
+                        strokeWidth={1.75}
+                        style={{ stroke: `url(#${feature.gradId})` }}
+                      />
                     </div>
                   </div>
                   <ArrowUpRight className="w-4 h-4 text-muted-foreground transition-all duration-300 group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:text-foreground" />
