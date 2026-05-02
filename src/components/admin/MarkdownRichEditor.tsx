@@ -4,7 +4,7 @@ import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import { Markdown } from "tiptap-markdown";
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, forwardRef } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -21,16 +21,18 @@ interface MarkdownRichEditorProps {
   minHeight?: number;
 }
 
-const ToolbarButton = ({
-  onClick, active, disabled, title, children,
-}: {
-  onClick: () => void;
-  active?: boolean;
-  disabled?: boolean;
-  title: string;
-  children: React.ReactNode;
-}) => (
+const ToolbarButton = forwardRef<
+  HTMLButtonElement,
+  {
+    onClick: () => void;
+    active?: boolean;
+    disabled?: boolean;
+    title: string;
+    children: React.ReactNode;
+  }
+>(({ onClick, active, disabled, title, children }, ref) => (
   <Button
+    ref={ref}
     type="button"
     variant="ghost"
     size="sm"
@@ -44,7 +46,8 @@ const ToolbarButton = ({
   >
     {children}
   </Button>
-);
+));
+ToolbarButton.displayName = "ToolbarButton";
 
 const Toolbar = ({ editor }: { editor: Editor }) => {
   const setLink = useCallback(() => {
