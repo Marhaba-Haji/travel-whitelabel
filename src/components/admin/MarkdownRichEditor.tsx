@@ -165,7 +165,7 @@ export const MarkdownRichEditor = ({
       },
     },
     onUpdate: ({ editor }) => {
-      const md = editor.storage.markdown.getMarkdown() as string;
+      const md = (editor.storage as any).markdown.getMarkdown() as string;
       onChange(md);
     },
   });
@@ -174,7 +174,7 @@ export const MarkdownRichEditor = ({
   // or switching between posts) without clobbering the user's current cursor.
   useEffect(() => {
     if (!editor) return;
-    const current = editor.storage.markdown.getMarkdown() as string;
+    const current = (editor.storage as any).markdown.getMarkdown() as string;
     if ((value || "") !== current) {
       editor.commands.setContent(value || "", { emitUpdate: false });
     }
