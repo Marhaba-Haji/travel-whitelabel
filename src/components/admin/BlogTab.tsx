@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import MarkdownRichEditor from "./MarkdownRichEditor";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -1867,7 +1868,7 @@ const BlogTab = () => {
 
           <div>
             <div className="flex items-center justify-between mb-1">
-              <Label>Content (Markdown)</Label>
+              <Label>Content</Label>
               <div className="flex gap-1">
                 <Button variant="ghost" size="sm" onClick={() => setPreviewing(!previewing)}>
                   {previewing ? <FileText className="h-4 w-4 mr-1" /> : <Eye className="h-4 w-4 mr-1" />}
@@ -1888,11 +1889,11 @@ const BlogTab = () => {
                 </div>
               </Card>
             ) : (
-              <Textarea
+              <MarkdownRichEditor
                 value={currentPost?.content || ""}
-                onChange={(e) => setCurrentPost((p) => p ? { ...p, content: e.target.value } : p)}
-                placeholder="Write your blog content in markdown…"
-                className="min-h-[400px] font-mono text-sm"
+                onChange={(md) => setCurrentPost((p) => p ? { ...p, content: md } : p)}
+                placeholder="Write your blog content…"
+                minHeight={400}
               />
             )}
           </div>
