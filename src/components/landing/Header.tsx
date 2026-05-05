@@ -25,12 +25,10 @@ const Header = () => {
   const navLinks = [
     { name: "Features", href: "#features" },
     { name: "About", href: "/about", isPage: true },
-    { name: "Blog", href: "/blog", isPage: true },
-    { name: "Destinations", href: "/categories-destinations", isPage: true },
     { name: "Pricing", href: "#pricing" },
-    { name: "FAQ", href: "#faq" },
-    { name: "Contact", href: "#contact" },
-    { name: "Book Demo", href: "https://cal.id/harab-rasheed/product-demo?overlayCalendar=true", isExternal: true },
+    { name: "Destinations", href: "/categories-destinations", isPage: true },
+    { name: "Blog", href: "/blog", isPage: true },
+    { name: "Contact Us", href: "#contact" },
   ];
 
   const scrollToSection = (href: string) => {
@@ -62,7 +60,10 @@ const Header = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 lg:h-[4.5rem]">
           {/* Logo */}
-          <AuroraLogo size="sm" />
+          <div className="flex flex-col leading-tight pt-2">
+            <span className="font-poppins font-black text-2xl text-[#3F70E3] tracking-wider">MARHABA</span>
+            <span className="font-poppins font-black text-2xl text-[#3F70E3] tracking-wider">DMC</span>
+          </div>
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-1">
@@ -113,16 +114,16 @@ const Header = () => {
               </button>
             )}
             <a
-              href="/login"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground px-3 py-2 rounded-lg hover:bg-muted transition-all flex items-center gap-1.5"
+              href="https://cal.id/harab-rasheed/product-demo?overlayCalendar=true"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-semibold text-foreground/75 px-6 py-3 rounded-full bg-[#E8E8E8] hover:bg-muted transition-all"
             >
-              <LogIn className="h-4 w-4" />
-              Login
+              Book a Demo
             </a>
-            <Button asChild className="rounded-full px-5 bg-gradient-to-r from-aurora-blue to-primary hover:shadow-[0_0_20px_hsl(210_100%_50%_/_0.25)] transition-shadow">
+            <Button asChild className="rounded-full px-6 py-3 bg-[#412A86] hover:bg-[#412A86]/90 shadow-[0_13px_13px_rgba(119,47,217,0.09)] transition-shadow">
               <a href="/signup">
-                Get Started
-                <ArrowRight className="ml-1.5 h-4 w-4" />
+                Sign Up
               </a>
             </Button>
           </div>

@@ -1,13 +1,11 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { MessageCircle, Mail, Phone, ArrowRight } from "lucide-react";
+import { Map, Compass, MapPin, Building, Car, Home, Ticket, Plus, X } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const FAQ = () => {
   const { ref: headerRef, isVisible: headerVisible } = useScrollAnimation();
   const { ref: accordionRef, isVisible: accordionVisible } = useScrollAnimation();
-  const { ref: ctaRef, isVisible: ctaVisible } = useScrollAnimation();
 
   const faqs = [
     {
@@ -30,143 +28,85 @@ const FAQ = () => {
       question: "What APIs are included in the platform?",
       answer: "The platform includes Flight API (Aggregators integration), Hotel API (1M+ properties), Visa Processing API (50+ countries), and Activities API (tours & experiences). All APIs are included in the annual subscription with no extra charges.",
     },
-    {
-      question: "How does the supplier portal work?",
-      answer: "You can invite unlimited suppliers to your portal. Each supplier gets their own login where they can manage their inventory, rates, and availability. You control their access levels and can track their performance through your admin dashboard.",
-    },
-    {
-      question: "Is there a limit on the number of agents or customers?",
-      answer: "No limits! You can add unlimited B2B agents and serve unlimited B2C customers. The platform scales with your business without additional charges based on user count.",
-    },
-    {
-      question: "What kind of support do you provide?",
-      answer: "We offer 6 working days technical support via email, phone, and WhatsApp. You'll also have a dedicated account manager for the first 30 days to ensure smooth onboarding. Regular training sessions are included.",
-    },
-    {
-      question: "Can I customize the Hajj and Umrah package modules?",
-      answer: "Yes! The Hajj and Umrah modules are fully customizable. You can create packages with different hotels in Makkah and Madinah, various transport options, visa processing, and group management features.",
-    },
-    {
-      question: "What payment methods are supported?",
-      answer: "We integrate with major payment gateways including Razorpay, PayU, CCAvenue, and PayPal. You can also offer credit terms to your B2B agents with a built-in credit management system.",
-    },
   ];
 
-  const scrollToSection = (href: string) => {
-    const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
-  };
+  const categories = [
+    { name: "Tours Booking", icon: Map },
+    { name: "Activities", icon: Compass },
+    { name: "Destinations", icon: MapPin },
+    { name: "Hotels Booking", icon: Building },
+    { name: "Rental Car", icon: Car },
+    { name: "Property", icon: Home },
+    { name: "Tickets Booking", icon: Ticket },
+  ];
 
   return (
-    <section id="faq" className="py-20 bg-muted/30" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 1200px' }}>
-      <div className="container mx-auto px-4">
+    <section id="faq" className="py-24 relative bg-white overflow-hidden" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 1200px' }}>
+      
+      {/* Decorative Background Elements */}
+      <div className="absolute top-10 right-0 w-96 h-96 opacity-10 pointer-events-none" style={{ backgroundImage: 'url("/assets/map-pattern.png")', backgroundSize: 'cover' }}></div>
+      <div className="absolute bottom-0 left-0 w-full h-48 opacity-[0.03] pointer-events-none bg-[url('https://placehold.co/1920x300/000000/transparent?text=Skyline')] bg-repeat-x bg-bottom"></div>
+
+      <div className="container mx-auto px-4 relative z-10">
         <div
           ref={headerRef}
-          className={`text-center mb-16 opacity-0 ${headerVisible ? "animate-fade-in" : ""}`}
+          className={`text-center mb-10 opacity-0 ${headerVisible ? "animate-fade-in" : ""}`}
         >
-          <span className="inline-block text-primary font-semibold text-sm uppercase tracking-wider bg-primary/10 px-4 py-1 rounded-full mb-4">
-            FAQ
-          </span>
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mt-2 mb-4">
+          <h2 className="font-poppins text-4xl md:text-5xl font-bold text-black mb-4">
             Frequently Asked Questions
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Have questions? We've got answers. If you don't find what you're looking for, feel free to contact us.
+          <p className="text-lg text-gray-500 max-w-2xl mx-auto">
+            You need to come at least once in your life
           </p>
         </div>
 
+        {/* Category Pills */}
+        <div className="flex flex-wrap justify-center gap-4 mb-16 max-w-4xl mx-auto">
+          {categories.map((cat, idx) => (
+            <button key={idx} className="flex items-center gap-2 bg-white border border-gray-200 shadow-sm px-4 py-2.5 rounded-lg text-sm font-semibold text-gray-800 hover:border-gray-300 transition-colors">
+              <cat.icon className="w-4 h-4 text-gray-500" />
+              {cat.name}
+            </button>
+          ))}
+        </div>
+
+        {/* FAQ Accordion Box */}
         <div
           ref={accordionRef}
-          className={`max-w-3xl mx-auto opacity-0 ${accordionVisible ? "animate-fade-in" : ""}`}
+          className={`max-w-4xl mx-auto bg-white border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-2xl overflow-hidden opacity-0 ${accordionVisible ? "animate-fade-in" : ""}`}
           style={{ animationDelay: "0.1s" }}
         >
-          <Accordion type="single" collapsible className="space-y-4">
+          <Accordion type="single" collapsible className="w-full">
             {faqs.map((faq, index) => (
               <AccordionItem
                 key={index}
                 value={`item-${index}`}
-                className="bg-card border border-border rounded-lg px-6 data-[state=open]:border-primary/30"
+                className="group border-b border-gray-100 last:border-0 data-[state=open]:bg-[#F6F6F6] transition-colors"
               >
-                <AccordionTrigger className="text-left hover:no-underline">
-                  <span className="font-semibold text-foreground">{faq.question}</span>
+                <AccordionTrigger className="hover:no-underline px-6 md:px-10 py-6 [&>svg]:hidden">
+                  <div className="flex items-center text-left w-full gap-6">
+                    <span className="text-3xl md:text-4xl font-black text-black">
+                      {String(index + 1).padStart(2, '0')}
+                    </span>
+                    <span className="text-lg md:text-xl font-bold text-black flex-1">
+                      {faq.question}
+                    </span>
+                    <div className="w-10 h-10 shrink-0 flex items-center justify-center rounded-md bg-gray-100 group-data-[state=open]:bg-black text-black group-data-[state=open]:text-white transition-colors">
+                      <Plus className="w-5 h-5 group-data-[state=open]:hidden" />
+                      <X className="w-5 h-5 hidden group-data-[state=open]:block" />
+                    </div>
+                  </div>
                 </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground">
-                  {faq.answer}
+                <AccordionContent className="px-6 md:px-10 pb-8 pt-2">
+                  <div className="pl-[3.5rem] md:pl-[4.5rem]">
+                    <p className="text-gray-500 leading-relaxed text-sm md:text-base pr-8">
+                      {faq.answer}
+                    </p>
+                  </div>
                 </AccordionContent>
               </AccordionItem>
             ))}
           </Accordion>
-        </div>
-
-        {/* Still Have Questions CTA */}
-        <div
-          ref={ctaRef}
-          className={`max-w-3xl mx-auto mt-12 opacity-0 ${ctaVisible ? "animate-fade-in" : ""}`}
-          style={{ animationDelay: "0.2s" }}
-        >
-          <Card className="bg-gradient-to-br from-primary/3 to-accent/40 border-primary/15">
-            <CardContent className="p-8">
-              <div className="text-center mb-6">
-                <h3 className="text-2xl font-bold text-foreground mb-2">
-                  Still Have Questions?
-                </h3>
-                <p className="text-muted-foreground">
-                  Our team is here to help. Reach out through any of these channels.
-                </p>
-              </div>
-
-              <div className="grid sm:grid-cols-3 gap-4 mb-6">
-                {/* WhatsApp */}
-                <a
-                  href="https://wa.me/919008447887?text=Hi,%20I'm%20interested%20in%20the%20marhabaDMC%20travel%20portal"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex flex-col items-center gap-2 p-4 bg-card rounded-lg border border-border hover:border-primary/30 hover:shadow-md transition-all group"
-                >
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                    <MessageCircle className="h-6 w-6 text-primary" />
-                  </div>
-                  <span className="font-medium text-foreground">WhatsApp</span>
-                  <span className="text-xs text-muted-foreground">Chat with us</span>
-                </a>
-
-                {/* Email */}
-                <a
-                  href="mailto:hello@marhabadmc.com"
-                  className="flex flex-col items-center gap-2 p-4 bg-card rounded-lg border border-border hover:border-primary/30 hover:shadow-md transition-all group"
-                >
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                    <Mail className="h-6 w-6 text-primary" />
-                  </div>
-                  <span className="font-medium text-foreground">Email</span>
-                  <span className="text-xs text-muted-foreground">hello@marhabadmc.com</span>
-                </a>
-
-                {/* Phone */}
-                <a
-                  href="tel:+919008447887"
-                  className="flex flex-col items-center gap-2 p-4 bg-card rounded-lg border border-border hover:border-primary/30 hover:shadow-md transition-all group"
-                >
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                    <Phone className="h-6 w-6 text-primary" />
-                  </div>
-                  <span className="font-medium text-foreground">Call Us</span>
-                  <span className="text-xs text-muted-foreground">+91 90084 47887</span>
-                </a>
-              </div>
-
-              <div className="text-center">
-                <Button size="lg" asChild className="group">
-                  <a href="/signup">
-                    Get Started Today
-                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                  </a>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </section>

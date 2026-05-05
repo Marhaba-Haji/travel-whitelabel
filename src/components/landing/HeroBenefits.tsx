@@ -1,44 +1,42 @@
-import { Crown, TrendingUp, Plane, Globe, Zap, Sparkles } from "lucide-react";
+import { Globe, Ticket, Luggage, LifeBuoy } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const BENEFITS = [
-  { text: "Be Your Own Boss", icon: Crown, gradient: "from-aurora-blue to-aurora-teal" },
-  { text: "Earning Potential: ₹50,000+/mo", icon: TrendingUp, gradient: "from-aurora-purple to-aurora-blue" },
-  { text: "Travel at Insider Rates", icon: Plane, gradient: "from-aurora-teal to-emerald-500" },
-  { text: "Work From Anywhere", icon: Globe, gradient: "from-aurora-purple to-aurora-blue" },
-  { text: "Launch-Ready in 24 Hours", icon: Zap, gradient: "from-aurora-blue to-aurora-teal" },
-  { text: "Build Your Dream Business", icon: Sparkles, gradient: "from-aurora-purple to-aurora-blue" },
+  { text: "500 + Travel Agencies", subtext: "Make memories around the world.", icon: Globe, blobColor: "bg-[#FFE8E3]" },
+  { text: "50 + Countries", subtext: "Global Coverage", icon: Ticket, blobColor: "bg-[#E6F8F5]" },
+  { text: "1 M + Hotels", subtext: "4.8 stars from 160,000+ Trustpilot\nreviews.", icon: Luggage, blobColor: "bg-[#EBF3FF]" },
+  { text: "24/7 Support", subtext: "Data security through encryption", icon: LifeBuoy, blobColor: "bg-[#F3EFFF]" },
 ];
 
 const HeroBenefits = () => {
   const { ref, isVisible } = useScrollAnimation();
 
   return (
-    <section className="py-14 relative overflow-hidden border-y-surface-muted">
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-card/20 to-background" />
-
-      <div ref={ref} className="container mx-auto px-4 relative z-10">
-        <p className="text-center text-xs font-semibold text-aurora-teal/80 mb-6 uppercase tracking-[0.2em]">
-          Why Start with Marhaba
-        </p>
-
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
+    <section className="py-14 relative overflow-hidden bg-white">
+      <div ref={ref} className="container mx-auto px-4 relative z-10 max-w-6xl">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 md:gap-6">
           {BENEFITS.map((benefit, index) => (
             <div
               key={benefit.text}
-              className={`group glass-card rounded-xl px-4 py-4 md:px-5 md:py-5 flex flex-col items-center text-center hover-surface-card hover:shadow-lg transition-all duration-300 opacity-0 ${
-                isVisible ? "animate-scale-in" : ""
+              className={`group flex flex-col items-center text-center opacity-0 ${
+                isVisible ? "animate-fade-in" : ""
               }`}
-              style={{ animationDelay: `${index * 0.08}s` }}
+              style={{ animationDelay: `${index * 0.1}s` }}
             >
-              <div
-                className={`w-10 h-10 md:w-11 md:h-11 rounded-lg bg-gradient-to-br ${benefit.gradient} flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform duration-300`}
-              >
-                <benefit.icon className="h-5 w-5 text-white" />
+              <div className="relative w-16 h-16 mb-4 flex items-center justify-center">
+                {/* Organic blurred blob background */}
+                <div 
+                  className={`absolute inset-0 ${benefit.blobColor} rounded-[40%_60%_70%_30%/40%_50%_60%_50%] group-hover:rotate-12 group-hover:scale-110 transition-all duration-500 ease-in-out blur-[2px] opacity-80`}
+                ></div>
+                {/* Icon */}
+                <benefit.icon className="h-6 w-6 text-gray-800 relative z-10" strokeWidth={1.5} />
               </div>
-              <span className="text-sm font-medium text-foreground leading-tight">
+              <h4 className="text-lg font-bold text-gray-900 mb-2">
                 {benefit.text}
-              </span>
+              </h4>
+              <p className="text-sm text-gray-500 font-medium whitespace-pre-line leading-relaxed max-w-[220px]">
+                {benefit.subtext}
+              </p>
             </div>
           ))}
         </div>

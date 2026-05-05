@@ -1,17 +1,15 @@
 import { Badge } from "@/components/ui/badge";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import {
-  ArrowUpRight,
   Plane,
-  Hotel,
-  Bot,
-  ScrollText,
-  MountainSnow,
+  Building2,
+  MessageSquare,
+  CreditCard,
+  Map,
   Globe,
-  Sparkles,
+  Palette,
   type LucideIcon,
 } from "lucide-react";
-import { getAuroraGradient } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 type Feature = {
@@ -19,240 +17,140 @@ type Feature = {
   title: string;
   description: string;
   badge?: string;
-  gradient: string;
-  /** Accent color token used for highlight pill + badge */
-  accent: "teal" | "purple" | "blue";
+  colorTheme: "blue" | "teal" | "purple" | "pink" | "orange";
 };
 
-const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
-  const rect = e.currentTarget.getBoundingClientRect();
-  const x = ((e.clientX - rect.left) / rect.width) * 100;
-  const y = ((e.clientY - rect.top) / rect.height) * 100;
-  e.currentTarget.style.setProperty("--mx", `${x}%`);
-  e.currentTarget.style.setProperty("--my", `${y}%`);
-};
-
-const accentClasses: Record<
-  Feature["accent"],
-  { badge: string; chip: string; chipBg: string }
-> = {
-  teal: {
-    badge: "bg-aurora-teal/10 text-aurora-teal border-aurora-teal/25",
-    chip: "text-aurora-teal",
-    chipBg: "bg-aurora-teal/10 border-aurora-teal/20",
-  },
-  purple: {
-    badge: "bg-aurora-purple/10 text-aurora-purple border-aurora-purple/25",
-    chip: "text-aurora-purple",
-    chipBg: "bg-aurora-purple/10 border-aurora-purple/20",
-  },
-  blue: {
-    badge: "bg-aurora-blue/10 text-aurora-blue border-aurora-blue/25",
-    chip: "text-aurora-blue",
-    chipBg: "bg-aurora-blue/10 border-aurora-blue/20",
-  },
+const colorClasses: Record<Feature["colorTheme"], { bg: string; text: string }> = {
+  blue: { bg: "bg-blue-50", text: "text-blue-500" },
+  teal: { bg: "bg-teal-50", text: "text-teal-500" },
+  purple: { bg: "bg-purple-50", text: "text-purple-500" },
+  pink: { bg: "bg-pink-50", text: "text-pink-500" },
+  orange: { bg: "bg-orange-50", text: "text-orange-400" },
 };
 
 const Features = () => {
   const { ref: headerRef, isVisible: headerVisible } = useScrollAnimation();
   const { ref: gridRef, isVisible: gridVisible } = useScrollAnimation();
 
-  const features: (Feature & { highlight?: string })[] = [
+  const features: Feature[] = [
     {
       icon: Plane,
       title: "Flight API",
-      description:
-        "Real-time flight inventory from global GDS systems. Book domestic and international with instant confirmation.",
+      description: "Access real-time flight inventory from global GDS systems. Book domestic & international flights with instant confirmation.",
       badge: "Popular",
-      gradient: getAuroraGradient(0),
-      accent: "teal",
-      highlight: "Global GDS",
+      colorTheme: "blue",
     },
     {
-      icon: Hotel,
+      icon: Building2,
       title: "Hotel API",
-      description:
-        "Connect to over 1M hotels worldwide — from budget stays to luxury resorts at the best negotiated rates.",
+      description: "Connect to 1M+ hotels worldwide. From budget stays to luxury resorts, offer your customers the best rates.",
       badge: "Popular",
-      gradient: getAuroraGradient(1),
-      accent: "purple",
-      highlight: "1M+ properties",
+      colorTheme: "teal",
     },
     {
-      icon: Bot,
+      icon: MessageSquare,
       title: "AI Sales Executive",
-      description:
-        "Multilingual chat and voice bot that converts visitors 24/7 — like a sales team that never sleeps.",
+      description: "Multilingual chatbot and voicebot that converts visitors 24/7. Like a sales team that never sleeps — at a fraction of the cost.",
       badge: "Add-on",
-      gradient: getAuroraGradient(2),
-      accent: "teal",
-      highlight: "24/7 conversion",
+      colorTheme: "purple",
     },
     {
-      icon: ScrollText,
+      icon: CreditCard,
       title: "Visa API",
-      description:
-        "Streamlined visa processing for 100+ countries. Digital applications, document management and live status tracking.",
-      gradient: getAuroraGradient(0),
-      accent: "blue",
-      highlight: "100+ countries",
+      description: "Streamline visa processing for 100+ countries. Digital applications, document management, and status tracking.",
+      colorTheme: "blue",
     },
     {
-      icon: MountainSnow,
+      icon: Map,
       title: "Activities API",
-      description:
-        "Curated tours, experiences and local activities. Give customers access to thousands of bookable adventures.",
-      gradient: getAuroraGradient(1),
-      accent: "purple",
-      highlight: "Tours & experiences",
+      description: "Tours, experiences, and local activities. Give your customers access to thousands of curated experiences.",
+      colorTheme: "purple",
     },
     {
       icon: Globe,
       title: "Own Domain",
-      description:
-        "Use your own custom domain. Your brand, your identity — no marhabaDMC branding shown to customers.",
-      gradient: getAuroraGradient(2),
-      accent: "teal",
-      highlight: "Your brand",
+      description: "Use your own custom domain. Your brand, your identity. No marhabaDMC branding visible to your customers.",
+      colorTheme: "pink",
     },
     {
-      icon: Sparkles,
+      icon: Palette,
       title: "White-Label Branding",
-      description:
-        "Complete customization with your logo and design themes. Essential branding control to make the platform truly yours.",
-      gradient: getAuroraGradient(0),
-      accent: "blue",
-      highlight: "Fully themable",
+      description: "Complete customization with your logo, and available design themes. Make it truly yours with essential branding control.",
+      colorTheme: "orange",
     },
-  ];
-
-  const stats = [
-    { value: "7", label: "APIs" },
-    { value: "100+", label: "countries" },
-    { value: "1M+", label: "hotels" },
-    { value: "24/7", label: "AI agent" },
   ];
 
   return (
-    <section id="features" className="py-24 relative overflow-hidden">
-      {/* Ambient background */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_hsl(270_70%_58%_/_0.05),_transparent_50%)]" />
-      <div
-        aria-hidden
-        className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-aurora-purple/15 blur-3xl motion-safe:animate-float-slow pointer-events-none"
-      />
-      <div
-        aria-hidden
-        className="absolute -bottom-32 -right-24 w-[28rem] h-[28rem] rounded-full bg-aurora-teal/15 blur-3xl motion-safe:animate-float-slow pointer-events-none"
-        style={{ animationDelay: "1.5s" }}
-      />
+    <section id="features" className="py-24 relative overflow-hidden bg-[#FAFAFC] w-full">
+      {/* Decorative Line Art Background at bottom */}
+      <div className="absolute bottom-0 left-0 w-full h-48 opacity-[0.04] pointer-events-none bg-[url('https://placehold.co/1920x300/000000/transparent?text=Skyline')] bg-repeat-x bg-bottom z-0"></div>
 
-      <div className="container mx-auto px-4 relative">
-        {/* Section header */}
+      <div className="container mx-auto px-4 relative z-10">
+        
+        {/* Section Header */}
         <div
           ref={headerRef}
-          className={`text-center mb-14 opacity-0 ${headerVisible ? "animate-fade-in" : ""}`}
+          className={`text-center mb-16 relative opacity-0 ${headerVisible ? "animate-fade-in" : ""}`}
         >
-          <span className="inline-block aurora-gradient-text font-semibold text-xs uppercase tracking-[0.25em] glass px-4 py-1.5 rounded-full mb-5 motion-safe:animate-text-shimmer">
-            Complete API Suite
+          <span className="inline-block bg-cyan-50 text-cyan-600 font-bold tracking-wide text-xs px-4 py-1.5 rounded-full mb-4">
+            COMPLETE API SUITE
           </span>
-          <h2 className="font-display text-3xl md:text-5xl font-bold text-foreground mb-4 max-w-3xl mx-auto leading-tight">
-            Everything you need to run a{" "}
-            <span className="aurora-gradient-text motion-safe:animate-text-shimmer">modern travel business</span>
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 font-poppins">
+            COMPLETE API Suite
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-            One integrated platform — flights, hotels, visas, activities and an AI sales agent that never sleeps.
+          <p className="text-gray-500 text-lg">
+            Your integrated platform for travel business operations.
           </p>
 
-          {/* Stats strip */}
-          <div className="inline-flex flex-wrap items-center justify-center gap-x-6 gap-y-2 glass rounded-full px-6 py-2.5">
-            {stats.map((s, i) => (
-              <div key={s.label} className="flex items-center gap-2">
-                <span className="font-display font-bold text-foreground text-base">{s.value}</span>
-                <span className="text-xs text-muted-foreground uppercase tracking-wider">{s.label}</span>
-                {i < stats.length - 1 && <span className="text-foreground/20 ml-2">•</span>}
-              </div>
-            ))}
-          </div>
+          {/* Decorative Flight Path on Desktop */}
+          <div className="hidden lg:block absolute top-0 right-10 w-64 h-32 opacity-40 pointer-events-none bg-[url('https://placehold.co/400x200/transparent/000000?text=Flight+Path')] bg-no-repeat bg-right mix-blend-multiply" style={{ backgroundImage: 'url("/assets/flight-path.svg")' }}></div>
         </div>
 
-        {/* Unified grid — 7 equal-weight cards (4 + 3 centered on lg) */}
+        {/* 3 Top / 4 Bottom Grid Layout */}
         <div
           ref={gridRef}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-5"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-6"
         >
           {features.map((feature, index) => {
-            // Bottom 3 cards (indices 4,5,6) span 4 cols each on lg → 4-3 layout
-            const isBottomRow = index >= 4;
-            const colSpanClass = isBottomRow
-              ? "lg:col-span-4"
-              : "lg:col-span-3";
-            const accent = accentClasses[feature.accent];
+            // Indices 0,1,2 (Top 3) span 4 cols each (4x3 = 12)
+            // Indices 3,4,5,6 (Bottom 4) span 3 cols each (3x4 = 12)
+            const isTopRow = index < 3;
+            const colSpanClass = isTopRow ? "lg:col-span-4" : "lg:col-span-3";
+            const theme = colorClasses[feature.colorTheme];
+
             return (
               <article
                 key={feature.title}
-                onMouseMove={handleMouseMove}
                 className={cn(
-                  "group relative overflow-hidden rounded-2xl glass-card hover-surface-card feature-card-glow",
-                  "p-6 min-h-[230px] flex transition-all duration-500 motion-safe:hover:-translate-y-1 opacity-0",
+                  "group relative overflow-hidden rounded-3xl bg-white border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]",
+                  "p-8 flex flex-col transition-all duration-300 motion-safe:hover:-translate-y-1 opacity-0",
                   colSpanClass,
-                  gridVisible && "animate-scale-in",
+                  gridVisible && "animate-scale-in"
                 )}
-                style={{ animationDelay: `${index * 0.07}s` }}
+                style={{ animationDelay: `${index * 0.08}s` }}
               >
-                <div
-                  aria-hidden
-                  className={cn(
-                    "absolute -top-12 -right-12 w-44 h-44 rounded-full blur-3xl opacity-30 bg-gradient-to-br pointer-events-none transition-opacity duration-500 group-hover:opacity-50",
-                    feature.gradient,
+                {/* Icon & Badge Row */}
+                <div className="flex items-start justify-between mb-6">
+                  <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-3", theme.bg)}>
+                    <feature.icon className={cn("w-6 h-6", theme.text)} strokeWidth={2} />
+                  </div>
+                  {feature.badge && (
+                    <Badge className="bg-cyan-50 hover:bg-cyan-50 text-cyan-600 border-0 shadow-none font-bold text-[10px] px-2.5 py-0.5 rounded-full">
+                      {feature.badge}
+                    </Badge>
                   )}
-                />
-
-                <div className="relative flex flex-col h-full w-full">
-                  <div className="flex items-start justify-between mb-4">
-                    <div
-                      className={cn(
-                        "w-14 h-14 rounded-2xl bg-gradient-to-br flex items-center justify-center shadow-lg transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-3",
-                        feature.gradient,
-                      )}
-                    >
-                      <feature.icon
-                        aria-label={feature.title}
-                        className="w-7 h-7 text-white"
-                        strokeWidth={2}
-                      />
-                    </div>
-                    {feature.badge && (
-                      <Badge className={cn("text-[10px] px-2 py-0.5 font-semibold", accent.badge)}>
-                        {feature.badge}
-                      </Badge>
-                    )}
-                  </div>
-
-                  <h3 className="text-lg font-bold text-foreground mb-2">{feature.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                    {feature.description}
-                  </p>
-
-                  <div className="mt-auto pt-3 flex items-center justify-between border-t-surface">
-                    {feature.highlight && (
-                      <span
-                        className={cn(
-                          "inline-flex items-center text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full border",
-                          accent.chip,
-                          accent.chipBg,
-                        )}
-                      >
-                        {feature.highlight}
-                      </span>
-                    )}
-                    <ArrowUpRight className="w-4 h-4 text-muted-foreground transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-foreground" />
-                  </div>
                 </div>
+
+                {/* Content */}
+                <h3 className="text-xl font-bold text-gray-900 mb-3">{feature.title}</h3>
+                <p className="text-sm text-gray-500 leading-relaxed">
+                  {feature.description}
+                </p>
               </article>
             );
           })}
         </div>
+        
       </div>
     </section>
   );

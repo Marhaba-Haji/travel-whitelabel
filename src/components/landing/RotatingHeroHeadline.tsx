@@ -31,8 +31,8 @@ const RotatingHeroHeadline = ({
 
   const h1Class =
     variant === "mobile"
-      ? "font-display text-[2.5rem] md:text-5xl font-bold text-foreground leading-[1.1] mb-2 min-h-[3.2em] md:min-h-[3.6em]"
-      : "font-display text-6xl xl:text-7xl font-bold text-foreground leading-[1.08] mb-2 min-h-[3.4em] xl:min-h-[3.8em]";
+      ? "font-poppins text-5xl md:text-6xl font-bold text-gray-900 leading-[1.1] mb-2 min-h-[3.2em] md:min-h-[3.6em]"
+      : "font-poppins text-6xl xl:text-[5rem] font-bold text-gray-900 leading-[1.08] mb-2 min-h-[3.4em] xl:min-h-[3.8em]";
 
   const current = headlines[index];
 
@@ -47,11 +47,11 @@ const RotatingHeroHeadline = ({
           transition={{ duration: 0.35, ease: "easeOut" }}
           className="block"
         >
-          {current.before}
-          <span className="block aurora-gradient-text-static italic py-1">
-            {current.highlight}
+          Travel <span className="text-[#B360E4]">top</span>
+          <span className="block text-[#B360E4] py-1">
+            destination
           </span>
-          {current.after}
+          of the world
         </motion.span>
       </AnimatePresence>
     </h1>

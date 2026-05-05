@@ -26,7 +26,9 @@ const Features = lazy(() => import("@/components/landing/Features"));
 const CompetitiveEdge = lazy(() => import("@/components/landing/CompetitiveEdge"));
 const ProductShowcase = lazy(() => import("@/components/landing/ProductShowcase"));
 const HowItWorks = lazy(() => import("@/components/landing/HowItWorks"));
+const LiveTravelBanner = lazy(() => import("@/components/landing/LiveTravelBanner"));
 const Pricing = lazy(() => import("@/components/landing/Pricing"));
+const Inspiration = lazy(() => import("@/components/landing/Inspiration"));
 const Testimonials = lazy(() => import("@/components/landing/Testimonials"));
 const FAQ = lazy(() => import("@/components/landing/FAQ"));
 const Footer = lazy(() => import("@/components/landing/Footer"));
@@ -85,18 +87,19 @@ const Index = () => {
         jsonLd={jsonLd}
       />
       <Header />
-      <main>
+      <main className="flex flex-col gap-[24px] bg-white w-full overflow-hidden">
         <Hero />
         <Suspense fallback={null}>
-          <TrustedBy />
-          <Stats />
           <HeroBenefits />
-          <Features />
           <CompetitiveEdge />
+          <Stats />
+          <Features />
           <ProductShowcase />
           <HowItWorks />
-          <Pricing />
+          <LiveTravelBanner />
           <Testimonials />
+          <Inspiration />
+          <Pricing />
           <FAQ />
         </Suspense>
       </main>

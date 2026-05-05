@@ -1,198 +1,129 @@
 import { Button } from "@/components/ui/button";
-import {
-  ArrowRight,
-  Star,
-  TrendingUp,
-  Users,
-  MessageCircle,
-  CheckCircle,
-} from "lucide-react";
+import { Briefcase, MapPin, Users } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import AnimatedCounter from "@/components/AnimatedCounter";
-import RotatingHeroHeadline from "@/components/landing/RotatingHeroHeadline";
-
-const HERO_SUBLINE = "White-label platform. Zero setup cost. Real inventory.";
-
-const HERO_HEADLINE_ROTATIONS: { before: string; highlight: string; after: string }[] = [
-  { before: "Start Your Own", highlight: "Travel Agency", after: "in 24 Hours" },
-  { before: "Scale Your", highlight: "Travel Agency", after: "Without the Overhead" },
-  { before: "Launch Your", highlight: "Travel Brand", after: "in 24 Hours" },
-  { before: "Grow Your", highlight: "Agency Revenue", after: "On One Platform" },
-];
 
 const Hero = () => {
   const { ref: heroRef, isVisible: heroVisible } = useScrollAnimation();
 
   return (
-    <section className="relative pt-24 pb-8 lg:pt-32 lg:pb-24 overflow-hidden min-h-screen flex items-center">
-      {/* Aurora gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-muted via-background to-background dark:from-[hsl(230,40%,10%)] dark:via-background dark:to-background" />
-      {/* Light: layered aurora wash so the hero does not read flat vs dark */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_center,_hsl(270_58%_48%_/_0.14),_transparent_55%),radial-gradient(ellipse_at_85%_15%,_hsl(210_85%_50%_/_0.1),_transparent_42%),radial-gradient(ellipse_at_15%_40%,_hsl(175_60%_45%_/_0.06),_transparent_45%)] dark:bg-[radial-gradient(ellipse_at_top_center,_hsl(220_80%_40%_/_0.25),_transparent_60%)]" />
-
-      {/* Ambient blob - single orb kept for hero */}
-      <div className="absolute bottom-32 right-5 w-72 h-72 bg-aurora-purple/15 rounded-full blur-3xl animate-pulse-soft" />
+    <section className="relative pt-24 pb-8 lg:pt-32 lg:pb-24 overflow-hidden min-h-screen flex items-center bg-white w-full">
+      
+      {/* Decorative dashed lines & planes (Background) */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0 hidden lg:block">
+        <svg viewBox="0 0 1440 800" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+          {/* Left curve */}
+          <path d="M -100 400 C 100 600 400 600 600 400" stroke="#F472B6" strokeWidth="1.5" strokeDasharray="4 6" />
+          <path d="M 600 400 L 590 390 M 600 400 L 580 405" stroke="#F472B6" strokeWidth="2" /> {/* Mock Plane */}
+          
+          {/* Right curve */}
+          <path d="M 800 200 C 1000 0 1300 100 1500 300" stroke="#F472B6" strokeWidth="1.5" strokeDasharray="4 6" />
+          <circle cx="1250" cy="220" r="4" fill="#F472B6" /> {/* Map Pin Dot */}
+          <path d="M 1250 224 L 1250 234" stroke="#F472B6" strokeWidth="1.5" />
+        </svg>
+      </div>
 
       <div
         ref={heroRef}
         className={`container mx-auto px-4 relative z-10 opacity-0 ${heroVisible ? "animate-fade-in" : ""}`}
       >
-        {/* =========== MOBILE LAYOUT (centered, single column) =========== */}
-        <div className="flex flex-col items-center text-center lg:hidden">
-          <RotatingHeroHeadline headlines={HERO_HEADLINE_ROTATIONS} variant="mobile" />
-
-          <p className="text-lg text-muted-foreground -mt-0.5 mb-6 font-medium">
-            {HERO_SUBLINE}
-          </p>
-
-          {/* Hero illustration — screen blend makes dark bg invisible */}
-          <div className="relative -mx-6 mb-4">
-            <img
-              src="/assets/hero-globe-illustration.png"
-              alt="3D globe with airplane, compass and suitcase"
-              width={749}
-              height={418}
-              fetchPriority="high"
-              className="w-full max-w-lg mx-auto object-contain"
-            />
-          </div>
-
-          {/* CTA */}
-          <Button
-            size="lg"
-            asChild
-            className="w-full max-w-sm h-14 rounded-full text-lg font-semibold bg-gradient-to-r from-aurora-blue via-primary to-aurora-blue bg-[length:200%_auto] animate-gradient-shift shadow-[0_0_30px_hsl(210_100%_50%_/_0.3)] hover:shadow-[0_0_40px_hsl(210_100%_50%_/_0.5)] transition-shadow group"
-          >
-            <a href="/signup">
-              Start My Travel Business
-              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-            </a>
-          </Button>
-
-          {/* Social proof pill */}
-          <div className="mt-6 flex items-center gap-3 glass px-5 py-3 rounded-full">
-            <div className="flex -space-x-2.5">
-              {["A", "F", "R", "Z", "H"].map((letter, i) => (
-                <div
-                  key={letter}
-                  className="w-8 h-8 rounded-full border-2 border-card bg-gradient-to-br from-primary/30 to-aurora-blue/40 flex items-center justify-center text-[10px] font-bold text-foreground/80"
-                  style={{ zIndex: 5 - i }}
-                >
-                  {letter}
-                </div>
-              ))}
+        <div className="flex flex-col lg:grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+          
+          {/* Left Column — Text & CTA */}
+          <div className="text-center lg:text-left flex flex-col items-center lg:items-start pt-10">
+            <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white shadow-sm mb-6 border border-gray-100">
+              <span className="font-bold text-sm text-[#412A86]">Explore the world!</span>
+              <Briefcase className="w-4 h-4 text-[#412A86]" />
             </div>
-            <span className="text-sm text-muted-foreground">
-              <span className="font-bold text-foreground">5,000+</span> travelers
-            </span>
-          </div>
-        </div>
 
-        {/* =========== DESKTOP LAYOUT (2-column: text left, globe right) =========== */}
-        <div className="hidden lg:grid lg:grid-cols-[1fr_1.1fr] gap-8 xl:gap-12 items-center">
-          {/* Left — Text & CTA */}
-          <div className="text-left">
-            <RotatingHeroHeadline headlines={HERO_HEADLINE_ROTATIONS} variant="desktop" />
+            <h1 className="text-5xl md:text-6xl lg:text-[72px] font-bold text-gray-900 mb-6 font-poppins leading-[1.1] tracking-tight">
+              Travel <span className="text-[#B968C7]">top destination</span><br className="hidden md:block" /> of the world
+            </h1>
 
-            <p className="text-xl text-muted-foreground -mt-0.5 mb-8 font-medium">
-              {HERO_SUBLINE}
+            <p className="text-lg md:text-xl text-gray-500 mb-10 font-medium max-w-lg leading-relaxed">
+              Where adventure meets comfort. We create unforgettable travel experiences
             </p>
 
-            {/* Trust stats row */}
-            <div className="flex flex-wrap items-center gap-4 mb-8">
-              <div className="flex items-center gap-2 glass-card px-3 py-2 rounded-xl">
-                <Users className="w-4 h-4 text-primary" />
-                <span className="text-sm font-medium">
-                  <AnimatedCounter end={2000} suffix="+" className="text-primary font-bold" /> Customers
-                </span>
-              </div>
-              <div className="flex items-center gap-2 glass-card px-3 py-2 rounded-xl">
-                <TrendingUp className="w-4 h-4 text-primary" />
-                <span className="text-sm font-medium">
-                  <span className="text-primary font-bold">₹</span><AnimatedCounter end={5} className="text-primary font-bold" /><span className="text-primary font-bold">Cr+</span> Booked
-                </span>
-              </div>
-              <div className="flex items-center gap-2 glass-card px-3 py-2 rounded-xl">
-                <Star className="w-4 h-4 text-primary fill-primary" />
-                <span className="text-sm font-medium">
-                  <span className="text-primary font-bold">4.7</span> Rating
-                </span>
-              </div>
-            </div>
-
-            {/* CTA + WhatsApp */}
-            <div className="flex items-center gap-4 mb-6">
+            {/* CTA + Avatars */}
+            <div className="flex flex-col sm:flex-row items-center gap-4 mb-14">
               <Button
                 size="lg"
                 asChild
-                className="h-14 rounded-full text-lg font-semibold px-10 bg-gradient-to-r from-aurora-blue via-primary to-aurora-blue bg-[length:200%_auto] animate-gradient-shift shadow-[0_0_30px_hsl(210_100%_50%_/_0.3)] hover:shadow-[0_0_40px_hsl(210_100%_50%_/_0.5)] transition-shadow group"
+                className="h-14 rounded-full text-base font-semibold px-8 bg-[#412A86] hover:bg-[#412A86]/90 text-white shadow-lg transition-shadow"
               >
                 <a href="/signup">
-                  Start My Travel Business
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  Get Started
                 </a>
               </Button>
-            </div>
-
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <MessageCircle className="w-4 h-4 text-primary" />
-              <span>Have questions?</span>
-              <a
-                href="https://wa.me/919008447887"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary font-medium hover:underline"
-              >
-                Talk to a Success Coach
-              </a>
-            </div>
-
-            {/* Avatar row */}
-            <div className="flex items-center gap-4 mt-8">
-              <div className="flex -space-x-2.5">
-                {["A", "F", "R", "Z", "H"].map((letter, i) => (
-                  <div
-                    key={letter}
-                    className="w-9 h-9 rounded-full border-2 border-card bg-gradient-to-br from-primary/30 to-aurora-blue/40 flex items-center justify-center text-[10px] font-bold text-foreground/80"
-                    style={{ zIndex: 5 - i }}
-                  >
-                    {letter}
+              
+              <div className="flex items-center gap-3 bg-white border border-gray-100 shadow-sm px-6 py-2 rounded-full h-14">
+                <div className="flex -space-x-3">
+                  <img src="https://i.pravatar.cc/100?img=1" className="w-8 h-8 rounded-full border-2 border-white shadow-sm" alt="User" />
+                  <img src="https://i.pravatar.cc/100?img=2" className="w-8 h-8 rounded-full border-2 border-white shadow-sm" alt="User" />
+                  <img src="https://i.pravatar.cc/100?img=3" className="w-8 h-8 rounded-full border-2 border-white shadow-sm" alt="User" />
+                  <div className="w-8 h-8 rounded-full border-2 border-white bg-[#412A86] flex items-center justify-center shadow-sm z-10">
+                    <span className="text-white text-xs font-bold">+</span>
                   </div>
-                ))}
-                <div className="w-9 h-9 rounded-full border-2 border-card bg-primary flex items-center justify-center text-xs font-bold text-primary-foreground">
-                  +
                 </div>
+                <span className="text-xs text-gray-600 font-medium max-w-[140px] leading-tight">
+                  <span className="font-bold text-gray-900">5,000+</span> travelers looking for agents
+                </span>
               </div>
-              <span className="text-sm text-muted-foreground">
-                <AnimatedCounter end={5000} suffix="+" className="font-bold text-primary" /> travelers looking for agents
-              </span>
+            </div>
+
+            {/* Partner Logos */}
+            <div className="flex flex-wrap justify-center lg:justify-start items-center gap-8 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
+              <img src="/assets/expedia.png" alt="Expedia" className="h-6 object-contain" onError={(e) => e.currentTarget.src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Expedia_logo.svg/1024px-Expedia_logo.svg.png"} />
+              <img src="/assets/tripadvisor.png" alt="Tripadvisor" className="h-6 object-contain" onError={(e) => e.currentTarget.src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/TripAdvisor_Logo.svg/1024px-TripAdvisor_Logo.svg.png"} />
+              <img src="/assets/booking.png" alt="Booking.com" className="h-6 object-contain" onError={(e) => e.currentTarget.src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Booking.com_logo.svg/1024px-Booking.com_logo.svg.png"} />
+              <img src="/assets/airbnb.png" alt="Airbnb" className="h-6 object-contain" onError={(e) => e.currentTarget.src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Airbnb_Logo_B%C3%A9lo.svg/1024px-Airbnb_Logo_B%C3%A9lo.svg.png"} />
             </div>
           </div>
 
-          {/* Right — Globe illustration, oversized for impact */}
-          <div className="relative -mr-12 xl:-mr-16">
-            <img
-              src="/assets/hero-globe-illustration.png"
-              alt="3D globe with airplane, compass and suitcase"
-              width={1376}
-              height={768}
-              fetchPriority="high"
-              className="w-[115%] max-w-none object-contain"
-            />
+          {/* Right Column — Globe illustration & Floating Cards */}
+          <div className="relative mt-12 lg:mt-0 flex justify-center items-center w-full">
+            
+            {/* The Blue Circle Background */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] sm:w-[500px] sm:h-[500px] bg-[#2D9BFC] rounded-full z-0 overflow-hidden">
+              {/* Faint world map inside the circle */}
+              <div className="absolute inset-0 opacity-20 bg-[url('https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/World_map_-_low_resolution.svg/1024px-World_map_-_low_resolution.svg.png')] bg-center bg-contain bg-no-repeat"></div>
+            </div>
 
-            {/* Floating metric card */}
-            <div className="absolute top-[8%] right-[8%] glass-card rounded-xl p-4 aurora-glow z-10">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                  <CheckCircle className="w-5 h-5 text-primary" />
+            <div className="relative w-full max-w-[500px] z-10 flex justify-center">
+              
+              {/* Floating Card: Top Places */}
+              <div className="absolute bottom-[20%] left-0 sm:-left-[10%] bg-white rounded-full px-5 py-3 shadow-xl z-20 flex items-center gap-3 animate-float-slow">
+                <div className="flex items-center justify-center">
+                  <MapPin className="w-5 h-5 text-yellow-400 fill-yellow-400/20" />
                 </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Earning Potential</p>
-                  <p className="text-lg font-bold text-primary">₹50,000+/mo</p>
-                </div>
+                <span className="font-bold text-sm text-gray-900">Top Places</span>
               </div>
+
+              {/* Floating Card: Earning Potential */}
+              <div className="absolute top-[30%] right-0 sm:-right-[15%] bg-white rounded-xl p-4 shadow-xl z-20 animate-float w-[180px] text-center border border-gray-50">
+                <p className="text-[#5D50C6] font-bold text-base mb-1">₹50,000+/month</p>
+                <p className="text-xs text-gray-500 font-medium">Earning Potential</p>
+              </div>
+
+              {/* Floating Card: Customers */}
+              <div className="absolute bottom-[10%] right-[10%] sm:-right-[5%] bg-white rounded-full px-5 py-3 shadow-xl z-20 flex items-center gap-3 animate-float-slow" style={{ animationDelay: '1s' }}>
+                <div className="flex items-center justify-center">
+                  <Users className="w-5 h-5 text-yellow-400 fill-yellow-400/20" />
+                </div>
+                <span className="font-bold text-sm text-gray-900">2,000 + Customers</span>
+              </div>
+
+              {/* Main Subject Image */}
+              <img
+                src="/assets/hero_woman_tickets.png"
+                alt="Woman holding travel tickets"
+                width={500}
+                height={600}
+                fetchpriority="high"
+                className="w-[85%] sm:w-full h-auto object-contain relative z-10 drop-shadow-2xl"
+              />
             </div>
           </div>
+
         </div>
       </div>
     </section>
