@@ -14,11 +14,13 @@ const Footer = () => {
       <div className="container mx-auto px-4 relative z-10 pb-32">
         {/* Top Section */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
-          {/* Left: Contact Info */}
           <div className="space-y-6">
-            <div className="flex items-center gap-3 mb-6">
-              <img src="/assets/marhaba-dmc-logo.png" alt="Marhaba DMC" className="h-10 w-auto" onError={(e) => e.currentTarget.src = "https://placehold.co/100x40?text=Logo"} />
-              <span className="font-bold text-gray-900 text-lg">Marhaba DMC</span>
+            <div className="flex items-center mb-6">
+              <img src="/assets/logo.png" alt="Marhaba DMC" className="h-10 w-auto object-contain mr-2" />
+              <div className="flex flex-col leading-tight pt-1">
+                <span className="font-poppins font-black text-[20px] text-gray-900 tracking-tight">MARHABA</span>
+                <span className="font-poppins font-black text-[20px] text-[#412A86] tracking-tight -mt-1">DMC</span>
+              </div>
             </div>
             
             <div className="flex items-start gap-3 text-gray-500 text-sm leading-relaxed">

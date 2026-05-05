@@ -1,8 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { Menu, X, LogIn, ArrowRight, Sun, Moon } from "lucide-react";
+import { Menu, X, LogIn, ArrowRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useTheme } from "next-themes";
 import AuroraLogo from "@/components/AuroraLogo";
 import { prefetchRoute } from "@/lib/route-prefetch";
 
@@ -11,7 +10,6 @@ const Header = () => {
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
@@ -53,20 +51,23 @@ const Header = () => {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "glass shadow-lg shadow-black/5 dark:shadow-black/10"
+          ? "bg-white/80 backdrop-blur-lg shadow-sm border-b border-gray-100"
           : "bg-transparent"
       }`}
     >
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16 lg:h-[4.5rem]">
+      <div className="container mx-auto px-4 max-w-7xl">
+        <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <div className="flex flex-col leading-tight pt-2">
-            <span className="font-poppins font-black text-2xl text-[#3F70E3] tracking-wider">MARHABA</span>
-            <span className="font-poppins font-black text-2xl text-[#3F70E3] tracking-wider">DMC</span>
+          <div className="flex items-center cursor-pointer" onClick={() => navigate("/")}>
+            <img src="/assets/logo.png" alt="Marhaba DMC" className="h-10 w-auto object-contain mr-2" />
+            <div className="flex flex-col leading-tight pt-1">
+              <span className="font-poppins font-black text-[22px] text-gray-900 tracking-tight">MARHABA</span>
+              <span className="font-poppins font-black text-[22px] text-[#412A86] tracking-tight -mt-1">DMC</span>
+            </div>
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-1">
+          <nav className="hidden lg:flex items-center gap-8">
             {navLinks.map((link) =>
               link.isExternal ? (
                 <a
@@ -74,7 +75,7 @@ const Header = () => {
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm font-medium text-foreground bg-muted border border-border px-3 py-2 rounded-lg hover:bg-muted/80 transition-all"
+                  className="text-sm font-semibold text-gray-600 hover:text-[#412A86] transition-colors"
                 >
                   {link.name}
                 </a>
@@ -86,7 +87,7 @@ const Header = () => {
                   onMouseEnter={() => handlePrefetch(link.href)}
                   onFocus={() => handlePrefetch(link.href)}
                   onTouchStart={() => handlePrefetch(link.href)}
-                  className="text-sm font-medium text-muted-foreground hover:text-foreground px-3 py-2 rounded-lg hover:bg-muted transition-all"
+                  className="text-sm font-semibold text-gray-600 hover:text-[#412A86] transition-colors"
                 >
                   {link.name}
                 </Link>
@@ -94,7 +95,7 @@ const Header = () => {
                 <button
                   key={link.name}
                   onClick={() => scrollToSection(link.href)}
-                  className="text-sm font-medium text-muted-foreground hover:text-foreground px-3 py-2 rounded-lg hover:bg-muted transition-all"
+                  className="text-sm font-semibold text-gray-600 hover:text-[#412A86] transition-colors"
                 >
                   {link.name}
                 </button>
@@ -103,61 +104,37 @@ const Header = () => {
           </nav>
 
           {/* Desktop CTA */}
-          <div className="hidden lg:flex items-center gap-3">
-            {mounted && (
-              <button
-                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
-                aria-label="Toggle theme"
-              >
-                {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-              </button>
-            )}
+          <div className="hidden lg:flex items-center gap-4">
             <a
               href="https://cal.id/harab-rasheed/product-demo?overlayCalendar=true"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm font-semibold text-foreground/75 px-6 py-3 rounded-full bg-[#E8E8E8] hover:bg-muted transition-all"
+              className="text-sm font-semibold text-gray-900 px-6 py-3 rounded-full bg-gray-100 hover:bg-gray-200 transition-all"
             >
               Book a Demo
             </a>
-            <Button asChild className="rounded-full px-6 py-3 bg-[#412A86] hover:bg-[#412A86]/90 shadow-[0_13px_13px_rgba(119,47,217,0.09)] transition-shadow">
+            <Button asChild className="rounded-full px-7 py-5 bg-[#412A86] hover:bg-[#412A86]/90 text-white font-semibold shadow-lg shadow-[#412A86]/20 transition-all hover:shadow-xl hover:-translate-y-0.5">
               <a href="/signup">
                 Sign Up
               </a>
             </Button>
           </div>
 
-          {/* Mobile / Tablet: Login pill + hamburger */}
-          <div className="flex lg:hidden items-center gap-2">
-            {mounted && (
-              <button
-                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
-                aria-label="Toggle theme"
-              >
-                {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-              </button>
-            )}
-            <a
-              href="/login"
-              className="text-sm font-medium text-foreground/80 px-4 py-1.5 rounded-full border border-border hover:bg-muted transition-colors"
-            >
-              Login
-            </a>
+          {/* Mobile / Tablet: hamburger */}
+          <div className="flex lg:hidden items-center gap-3">
             <button
-              className="p-2 rounded-lg hover:bg-muted transition-colors"
+              className="p-2 -mr-2 rounded-lg text-gray-900 hover:bg-gray-100 transition-colors"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
-              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
           </div>
         </div>
 
         {/* Mobile / Tablet Navigation */}
         {isMenuOpen && (
-          <div className="lg:hidden py-4 border-t border-border animate-fade-in">
-            <nav className="flex flex-col gap-1">
+          <div className="lg:hidden py-6 border-t border-gray-100 bg-white absolute left-0 right-0 px-4 shadow-xl animate-fade-in">
+            <nav className="flex flex-col gap-4">
               {navLinks.map((link) =>
                 link.isExternal ? (
                   <a
@@ -165,7 +142,7 @@ const Header = () => {
                     href={link.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm font-medium text-foreground bg-muted border border-border px-3 py-2.5 rounded-lg hover:bg-muted/80 transition-all text-left"
+                    className="text-base font-semibold text-gray-800 hover:text-[#412A86] transition-all"
                   >
                     {link.name}
                   </a>
@@ -174,10 +151,7 @@ const Header = () => {
                     key={link.name}
                     to={link.href}
                     onClick={handlePageNavigation}
-                    onMouseEnter={() => handlePrefetch(link.href)}
-                    onFocus={() => handlePrefetch(link.href)}
-                    onTouchStart={() => handlePrefetch(link.href)}
-                    className="text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted px-3 py-2.5 rounded-lg transition-all text-left"
+                    className="text-base font-semibold text-gray-800 hover:text-[#412A86] transition-all"
                   >
                     {link.name}
                   </Link>
@@ -185,17 +159,25 @@ const Header = () => {
                   <button
                     key={link.name}
                     onClick={() => scrollToSection(link.href)}
-                    className="text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted px-3 py-2.5 rounded-lg transition-all text-left"
+                    className="text-base font-semibold text-gray-800 hover:text-[#412A86] transition-all text-left"
                   >
                     {link.name}
                   </button>
                 )
               )}
-              <div className="pt-4 mt-2 border-t border-border">
-                <Button asChild className="w-full rounded-full bg-gradient-to-r from-aurora-blue to-primary">
+              <div className="pt-6 mt-2 border-t border-gray-100 flex flex-col gap-3">
+                <a
+                  href="https://cal.id/harab-rasheed/product-demo?overlayCalendar=true"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full text-center text-sm font-semibold text-gray-900 py-3 rounded-full bg-gray-100 hover:bg-gray-200 transition-all"
+                >
+                  Book a Demo
+                </a>
+                <Button asChild className="w-full rounded-full py-6 bg-[#412A86] hover:bg-[#412A86]/90 text-white font-semibold shadow-lg">
                   <a href="/signup">
-                    Get Started
-                    <ArrowRight className="ml-1.5 h-4 w-4" />
+                    Sign Up
+                    <ArrowRight className="ml-2 h-4 w-4" />
                   </a>
                 </Button>
               </div>
