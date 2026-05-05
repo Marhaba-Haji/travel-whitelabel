@@ -90,6 +90,7 @@ const SignupForm = ({ selectedPlanName, planBasePrice, planKey, gstPercent, symb
   const [couponValidation, setCouponValidation] = useState<CouponValidation>({ status: "idle" });
   const [showSummary, setShowSummary] = useState(false);
   const [validatedData, setValidatedData] = useState<SignupFormValues | null>(null);
+  const [registrationId, setRegistrationId] = useState<string | null>(null);
   const subtotalForDiscount = planBasePrice * (1 + gstPercent / 100);
 
   const form = useForm<SignupFormValues>({
@@ -201,6 +202,41 @@ const SignupForm = ({ selectedPlanName, planBasePrice, planKey, gstPercent, symb
 
   const onSubmit = async (data: SignupFormValues) => {
     setValidatedData(data);
+    // Persist the registration immediately (without the password) so we capture
+    // the lead even if the user abandons before payment.
+    try {
+      const cleanedPhone = data.phone.replace(/\D/g, "").slice(-10);
+      const { data: existing } = await supabase
+        .from("registrations")
+        .select("id, status")
+        .eq("email", data.email.trim())
+        .maybeSingle();
+
+      if (existing?.id) {
+        setRegistrationId(existing.id);
+      } else {
+        const { data: inserted, error } = await supabase
+          .from("registrations")
+          .insert({
+            full_name: data.fullName.trim().slice(0, 100),
+            email: data.email.trim().slice(0, 255),
+            phone: cleanedPhone || data.phone.trim(),
+            city: data.city ? data.city.trim().slice(0, 100) : null,
+            terms_accepted: Boolean(data.termsAccepted),
+            plan_name: selectedPlanName,
+            status: "pending_payment",
+          })
+          .select("id")
+          .single();
+        if (error) {
+          console.warn("Pre-payment registration save failed:", error.message);
+        } else if (inserted?.id) {
+          setRegistrationId(inserted.id);
+        }
+      }
+    } catch (e) {
+      console.warn("Pre-payment registration save error:", (e as Error).message);
+    }
     setShowSummary(true);
   };
 
