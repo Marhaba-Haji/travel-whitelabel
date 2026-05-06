@@ -166,6 +166,18 @@ export default {
           "0%": { transform: "rotate(0deg) translateX(var(--orbit-r, 44px)) rotate(0deg)" },
           "100%": { transform: "rotate(360deg) translateX(var(--orbit-r, 44px)) rotate(-360deg)" },
         },
+        "diagonal-tr-bl": {
+          "0%": { transform: "translate(-100%, -100%) rotate(45deg)" },
+          "100%": { transform: "translate(200%, 200%) rotate(45deg)" },
+        },
+        "diagonal-bl-tr": {
+          "0%": { transform: "translate(-100%, 100%) rotate(-45deg)" },
+          "100%": { transform: "translate(200%, -200%) rotate(-45deg)" },
+        },
+        "scroll-cross": {
+          "0%": { transform: "translateX(-50%)" },
+          "100%": { transform: "translateX(0%)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -177,7 +189,7 @@ export default {
         "float": "float 3s ease-in-out infinite",
         "float-slow": "float-slow 4s ease-in-out infinite",
         "pulse-soft": "pulse-soft 2s ease-in-out infinite",
-        "scroll-left": "scroll-left 20s linear infinite",
+        "scroll-left": "scroll-left 100s linear infinite",
         "shimmer": "shimmer 2s linear infinite",
         "glow-pulse": "glow-pulse 2s ease-in-out infinite",
         "bounce-subtle": "bounce-subtle 2s ease-in-out infinite",
@@ -190,6 +202,9 @@ export default {
         "orbit-slow": "orbit 8s linear infinite",
         "orbit-medium": "orbit 6s linear infinite",
         "orbit-fast": "orbit 4s linear infinite",
+        "diagonal-tr-bl": "diagonal-tr-bl 15s linear infinite",
+        "diagonal-bl-tr": "diagonal-bl-tr 15s linear infinite",
+        "scroll-cross": "scroll-cross 30s linear infinite",
       },
     },
   },

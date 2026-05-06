@@ -1,9 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Briefcase, MapPin, Users } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { usePartners } from "@/hooks/usePartners";
 
 const Hero = () => {
   const { ref: heroRef, isVisible: heroVisible } = useScrollAnimation();
+  const { partners, loading } = usePartners();
 
   return (
     <section className="relative pt-24 pb-8 lg:pt-32 lg:pb-24 overflow-hidden min-h-screen flex items-center bg-white w-full">
@@ -70,12 +72,45 @@ const Hero = () => {
               </div>
             </div>
 
-            {/* Partner Logos */}
-            <div className="flex flex-wrap justify-center lg:justify-start items-center gap-8 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
-              <img src="/assets/expedia.png" alt="Expedia" className="h-6 object-contain" onError={(e) => e.currentTarget.src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Expedia_logo.svg/1024px-Expedia_logo.svg.png"} />
-              <img src="/assets/tripadvisor.png" alt="Tripadvisor" className="h-6 object-contain" onError={(e) => e.currentTarget.src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/TripAdvisor_Logo.svg/1024px-TripAdvisor_Logo.svg.png"} />
-              <img src="/assets/booking.png" alt="Booking.com" className="h-6 object-contain" onError={(e) => e.currentTarget.src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Booking.com_logo.svg/1024px-Booking.com_logo.svg.png"} />
-              <img src="/assets/airbnb.png" alt="Airbnb" className="h-6 object-contain" onError={(e) => e.currentTarget.src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Airbnb_Logo_B%C3%A9lo.svg/1024px-Airbnb_Logo_B%C3%A9lo.svg.png"} />
+            {/* Partner Logos — Single Line Scrolling Animation (Database-driven) */}
+            <div className="w-full overflow-hidden relative">
+              {loading ? (
+                <div className="flex gap-12 h-8 animate-pulse">
+                  {[...Array(7)].map((_, i) => (
+                    <div key={i} className="flex-shrink-0 h-6 w-20 bg-gray-200 rounded"></div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex gap-12 animate-scroll-cross">
+                  {/* First set */}
+                  {partners.map((partner) => (
+                    <div key={`${partner.id}-1`} className="flex-shrink-0 flex items-center gap-2">
+                      {partner.logo_url ? (
+                        <img src={partner.logo_url} alt={partner.name} className="h-6 w-6 rounded" />
+                      ) : (
+                        <div className={`h-6 w-6 ${partner.color_badge} rounded flex items-center justify-center text-white text-xs font-bold`}>
+                          {partner.name.split(' ').map(word => word[0]).join('').slice(0, 2)}
+                        </div>
+                      )}
+                      <span className="text-xs font-semibold text-gray-700 whitespace-nowrap">{partner.name}</span>
+                    </div>
+                  ))}
+
+                  {/* Duplicate for seamless loop */}
+                  {partners.map((partner) => (
+                    <div key={`${partner.id}-2`} className="flex-shrink-0 flex items-center gap-2">
+                      {partner.logo_url ? (
+                        <img src={partner.logo_url} alt={partner.name} className="h-6 w-6 rounded" />
+                      ) : (
+                        <div className={`h-6 w-6 ${partner.color_badge} rounded flex items-center justify-center text-white text-xs font-bold`}>
+                          {partner.name.split(' ').map(word => word[0]).join('').slice(0, 2)}
+                        </div>
+                      )}
+                      <span className="text-xs font-semibold text-gray-700 whitespace-nowrap">{partner.name}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 

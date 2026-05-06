@@ -16,6 +16,7 @@ import SiteSettingsTab from "@/components/admin/SiteSettingsTab";
 import BlogTab from "@/components/admin/BlogTab";
 import IndexingLogsTab from "@/components/admin/IndexingLogsTab";
 import UserManagementTab from "@/components/admin/UserManagementTab";
+import PartnersTab from "@/components/admin/PartnersTab";
 
 const tabComponents: Record<string, React.FC> = {
   overview: OverviewTab,
@@ -32,6 +33,7 @@ const tabComponents: Record<string, React.FC> = {
   "ai-agent": AIAgentConfigTab,
   "indexing-logs": IndexingLogsTab,
   settings: SiteSettingsTab,
+  partners: PartnersTab,
   "user-management": UserManagementTab,
 };
 
