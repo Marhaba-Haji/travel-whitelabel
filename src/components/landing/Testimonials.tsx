@@ -5,7 +5,8 @@ import { useTestimonials } from "@/hooks/useTestimonials";
 const Testimonials = () => {
   const { testimonials, loading } = useTestimonials();
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const [isPaused, setIsPaused] = useState(false);
+  const isPausedRef = useRef(false);
+  const rafIdRef = useRef(0);
 
   const getInitials = (name: string) => {
     return name
@@ -17,43 +18,86 @@ const Testimonials = () => {
   };
 
   useEffect(() => {
+    console.log("[Testimonials Debug] Effect triggered. loading:", loading, "testimonials count:", testimonials.length);
     const el = containerRef.current;
-    if (!el) return;
+    
+    if (!el) {
+      console.log("[Testimonials Debug] containerRef is null, returning.");
+      return;
+    }
+    
+    if (loading || testimonials.length === 0) {
+      console.log("[Testimonials Debug] Still loading or no testimonials, returning.");
+      return;
+    }
 
-    let rafId = 0;
-    const speed = 1.2;
+    console.log("[Testimonials Debug] Container found. Setting short timeout to let layout settle...");
 
-    const step = () => {
-      if (!el) return;
-      if (!isPaused) {
-        el.scrollLeft += speed;
-        if (el.scrollLeft >= el.scrollWidth - el.clientWidth - 1) {
-          el.scrollLeft = 0;
-        }
+    // Wait a frame for layout to complete
+    const startTimer = setTimeout(() => {
+      console.log("[Testimonials Debug] Timeout complete. Container dimensions:", {
+        scrollWidth: el.scrollWidth,
+        clientWidth: el.clientWidth,
+        scrollLeft: el.scrollLeft
+      });
+
+      if (el.scrollWidth <= el.clientWidth) {
+        console.log("[Testimonials Debug] WARNING: scrollWidth is not greater than clientWidth. Content is not scrollable.");
+      } else {
+        console.log("[Testimonials Debug] Container is scrollable. Max scroll distance:", el.scrollWidth - el.clientWidth);
       }
-      rafId = requestAnimationFrame(step);
-    };
 
-    const onPointerEnter = () => setIsPaused(true);
-    const onPointerLeave = () => setIsPaused(false);
-    const onPointerDown = () => setIsPaused(true);
-    const onPointerUp = () => setIsPaused(false);
+      const speed = 1.5;
+      const maxScroll = () => el.scrollWidth - el.clientWidth;
 
-    el.addEventListener("mouseenter", onPointerEnter);
-    el.addEventListener("mouseleave", onPointerLeave);
-    el.addEventListener("pointerdown", onPointerDown, { passive: true });
-    window.addEventListener("pointerup", onPointerUp);
+      const handleEnter = () => { 
+        console.log("[Testimonials Debug] Mouse entered - pausing animation.");
+        isPausedRef.current = true; 
+      };
+      const handleLeave = () => { 
+        console.log("[Testimonials Debug] Mouse left - resuming animation.");
+        isPausedRef.current = false; 
+      };
 
-    rafId = requestAnimationFrame(step);
+      let frameCount = 0;
+      const animate = () => {
+        if (!isPausedRef.current) {
+          const oldScrollLeft = el.scrollLeft;
+          el.scrollLeft += speed;
+          
+          if (frameCount % 60 === 0) {
+            console.log(`[Testimonials Debug] Frame ${frameCount} | Intended Scroll: ${(oldScrollLeft + speed).toFixed(2)} | Actual ScrollLeft: ${el.scrollLeft.toFixed(2)}`);
+          }
+
+          if (el.scrollLeft >= maxScroll()) {
+            console.log("[Testimonials Debug] Reached end, resetting to 0.");
+            el.scrollLeft = 0;
+          }
+        }
+        frameCount++;
+        rafIdRef.current = requestAnimationFrame(animate);
+      };
+
+      el.addEventListener("mouseenter", handleEnter);
+      el.addEventListener("mouseleave", handleLeave);
+      
+      console.log("[Testimonials Debug] Starting animation loop.");
+      rafIdRef.current = requestAnimationFrame(animate);
+
+      return () => {
+        console.log("[Testimonials Debug] Cleaning up inner event listeners and RAF.");
+        if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+        el.removeEventListener("mouseenter", handleEnter);
+        el.removeEventListener("mouseleave", handleLeave);
+      };
+    }, 50);
 
     return () => {
-      cancelAnimationFrame(rafId);
-      el.removeEventListener("mouseenter", onPointerEnter);
-      el.removeEventListener("mouseleave", onPointerLeave);
-      el.removeEventListener("pointerdown", onPointerDown);
-      window.removeEventListener("pointerup", onPointerUp);
+      console.log("[Testimonials Debug] Cleaning up overall effect.");
+      clearTimeout(startTimer);
+      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
     };
-  }, [isPaused, testimonials]);
+  }, [loading, testimonials.length]);
 
   return (
     <section className="py-24 relative overflow-hidden bg-white w-full">
@@ -92,7 +136,7 @@ const Testimonials = () => {
             </div>
           ) : (
             (() => {
-              const displayTestimonials = testimonials.length > 1 ? [...testimonials, ...testimonials] : testimonials;
+              const displayTestimonials = [...testimonials, ...testimonials];
               return displayTestimonials.map((testimonial, idx) => (
                 <div
                   key={`${testimonial.id}-${idx}`}
