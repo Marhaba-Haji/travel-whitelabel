@@ -41,7 +41,7 @@ const AIPowered = () => {
           className={`opacity-0 ${isVisible ? "animate-fade-in" : ""}`}
         >
           <div className="text-center mb-14">
-            <span className="inline-block text-aurora-teal font-semibold text-xs uppercase tracking-[0.2em] glass px-4 py-1.5 rounded-full mb-5">
+            <span className="inline-block text-aurora-teal font-semibold text-xs uppercase tracking-[0.2em] bg-white border border-gray-100 shadow-sm px-4 py-1.5 rounded-full mb-5">
               AI Intelligence
             </span>
             <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
@@ -63,7 +63,7 @@ const AIPowered = () => {
             {aiMetrics.map((metric, index) => (
               <div
                 key={metric.label}
-                className={`glass-card rounded-2xl p-4 text-center opacity-0 ${metricsVisible ? "animate-scale-in" : ""}`}
+                className={`rounded-3xl bg-white border border-gray-100 shadow-soft rounded-2xl p-4 text-center opacity-0 ${metricsVisible ? "animate-scale-in" : ""}`}
                 style={{ animationDelay: `${index * 0.08}s` }}
               >
                 <div className="text-2xl font-bold aurora-gradient-text-static mb-1">
@@ -81,7 +81,7 @@ const AIPowered = () => {
           <div className="grid lg:grid-cols-2 gap-10 items-center mb-14">
             {/* Left: Bot Visual */}
             <div className="order-2 lg:order-1">
-              <div className="glass-card rounded-2xl p-6 hover:shadow-2xl transition-shadow">
+              <div className="rounded-3xl bg-white border border-gray-100 shadow-soft rounded-2xl p-6 hover:shadow-2xl transition-shadow">
                 <div className="space-y-4 mb-6">
                   <div className="flex items-start gap-3">
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-aurora-purple to-aurora-blue flex items-center justify-center flex-shrink-0 shadow-lg">
@@ -131,7 +131,7 @@ const AIPowered = () => {
                 {benefits.map((benefit, index) => (
                   <div
                     key={benefit.title}
-                    className={`group glass-card rounded-2xl p-4 hover-surface-card transition-all duration-300 opacity-0 ${
+                    className={`group rounded-3xl bg-white border border-gray-100 shadow-soft rounded-2xl p-4 hover-surface-card transition-all duration-300 opacity-0 ${
                       isVisible ? "animate-scale-in" : ""
                     }`}
                     style={{ animationDelay: `${index * 0.1}s` }}
@@ -152,7 +152,7 @@ const AIPowered = () => {
                 ))}
               </div>
 
-              <div className="glass-card rounded-2xl p-4 mb-6">
+              <div className="rounded-3xl bg-white border border-gray-100 shadow-soft rounded-2xl p-4 mb-6">
                 <p className="text-foreground font-medium text-center">
                   AI works{" "}
                   <span className="aurora-gradient-text animate-text-shimmer bg-[length:200%_auto] font-semibold">alongside agents</span>
@@ -160,7 +160,7 @@ const AIPowered = () => {
                 </p>
               </div>
 
-              <div className="glass-card rounded-2xl p-4">
+              <div className="rounded-3xl bg-white border border-gray-100 shadow-soft rounded-2xl p-4">
                 <h4 className="font-bold text-foreground mb-3 text-sm">Use Cases:</h4>
                 <div className="space-y-2">
                   {["Initial customer enquiries", "Package recommendations", "Booking assistance", "24/7 support"].map((useCase, index) => (

@@ -26,7 +26,7 @@ const TrainingSupport = () => {
           className={`opacity-0 ${isVisible ? "animate-fade-in" : ""}`}
         >
           <div className="text-center mb-14">
-            <span className="inline-block text-aurora-teal font-semibold text-xs uppercase tracking-[0.2em] glass px-4 py-1.5 rounded-full mb-5">
+            <span className="inline-block text-aurora-teal font-semibold text-xs uppercase tracking-[0.2em] bg-white border border-gray-100 shadow-sm px-4 py-1.5 rounded-full mb-5">
               Partner Success
             </span>
             <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
@@ -52,7 +52,7 @@ const TrainingSupport = () => {
                   className={`relative opacity-0 ${isVisible ? "animate-scale-in" : ""}`}
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
-                  <div className="group glass-card rounded-2xl p-6 text-center hover-surface-card transition-all duration-300">
+                  <div className="group rounded-3xl bg-white border border-gray-100 shadow-soft rounded-2xl p-6 text-center hover-surface-card transition-all duration-300">
                     <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${getAuroraGradient(index)} text-white text-sm font-bold flex items-center justify-center mx-auto mb-4 shadow-lg`}>
                       {training.step}
                     </div>
@@ -68,7 +68,7 @@ const TrainingSupport = () => {
           </div>
 
           {/* Certification Badge */}
-          <div className="glass-card rounded-2xl p-8 mb-10">
+          <div className="rounded-3xl bg-white border border-gray-100 shadow-soft rounded-2xl p-8 mb-10">
             <div className="flex items-center justify-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-aurora-purple to-aurora-blue flex items-center justify-center shadow-lg">
                 <Award className="w-5 h-5 text-white" />
@@ -81,7 +81,7 @@ const TrainingSupport = () => {
             </p>
             <div className="grid md:grid-cols-3 gap-4">
               {["Industry Knowledge", "Platform Mastery", "Sales Excellence"].map((cert, index) => (
-                <div key={index} className="flex items-center gap-2 p-3 glass rounded-xl">
+                <div key={index} className="flex items-center gap-2 p-3 bg-white border border-gray-100 shadow-sm rounded-xl">
                   <CheckCircle2 className="w-4 h-4 text-aurora-teal flex-shrink-0" />
                   <span className="text-sm text-muted-foreground">{cert}</span>
                 </div>
@@ -94,7 +94,7 @@ const TrainingSupport = () => {
             className={`text-center mb-10 opacity-0 ${isVisible ? "animate-fade-in" : ""}`}
             style={{ animationDelay: "700ms" }}
           >
-            <div className="glass-card rounded-2xl p-8 max-w-3xl mx-auto">
+            <div className="rounded-3xl bg-white border border-gray-100 shadow-soft rounded-2xl p-8 max-w-3xl mx-auto">
               <p className="text-foreground text-lg font-medium mb-2">
                 Our goal is not just to provide tools—but to ensure partners can
                 <span className="aurora-gradient-text-static font-semibold"> use them effectively</span>.

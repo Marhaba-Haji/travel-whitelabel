@@ -33,7 +33,7 @@ const Philosophy = () => {
             <span className="inline-block text-aurora-teal font-semibold text-xs uppercase tracking-[0.2em] bg-muted/60 backdrop-blur-xl border border-surface px-4 py-1.5 rounded-full mb-5">
               Our Foundation
             </span>
-            <h2 className="font-display text-3xl md:text-5xl font-bold text-foreground mb-4">
+            <h2 className="font-poppins text-3xl md:text-5xl font-bold text-foreground mb-4">
               Our{" "}
               <span className="aurora-gradient-text-static">
                 Philosophy

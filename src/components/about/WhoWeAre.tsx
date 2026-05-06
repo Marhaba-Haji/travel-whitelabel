@@ -18,7 +18,7 @@ const WhoWeAre = () => {
           className={`grid lg:grid-cols-2 gap-12 items-center mb-20 opacity-0 ${isVisible ? "animate-fade-in" : ""}`}
         >
           <div>
-            <span className="inline-block text-aurora-teal font-semibold text-xs uppercase tracking-[0.2em] glass px-4 py-1.5 rounded-full mb-5">
+            <span className="inline-block text-aurora-teal font-semibold text-xs uppercase tracking-[0.2em] bg-white border border-gray-100 shadow-sm px-4 py-1.5 rounded-full mb-5">
               Our Story
             </span>
             <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-6">
@@ -38,7 +38,7 @@ const WhoWeAre = () => {
               and international destinations.
             </p>
 
-            <div className="glass-card rounded-2xl p-6 mb-6 border-l-2 border-l-aurora-teal">
+            <div className="rounded-3xl bg-white border border-gray-100 shadow-soft rounded-2xl p-6 mb-6 border-l-2 border-l-aurora-teal">
               <div className="flex items-start gap-3">
                 <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-aurora-teal to-emerald-500 flex items-center justify-center flex-shrink-0 shadow-lg">
                   <Rocket className="w-4 h-4 text-white" />
@@ -54,7 +54,7 @@ const WhoWeAre = () => {
               </div>
             </div>
 
-            <div className="glass-card rounded-2xl p-6">
+            <div className="rounded-3xl bg-white border border-gray-100 shadow-soft rounded-2xl p-6">
               <div className="flex items-start gap-3">
                 <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-aurora-purple to-aurora-blue flex items-center justify-center flex-shrink-0 shadow-lg">
                   <Heart className="w-4 h-4 text-white" />
@@ -75,7 +75,7 @@ const WhoWeAre = () => {
             ].map((item, index) => (
               <div
                 key={item.title}
-                className={`group glass-card rounded-2xl p-6 hover-surface-card transition-all duration-300 opacity-0 ${isVisible ? "animate-scale-in" : ""}`}
+                className={`group rounded-3xl bg-white border border-gray-100 shadow-soft rounded-2xl p-6 hover-surface-card transition-all duration-300 opacity-0 ${isVisible ? "animate-scale-in" : ""}`}
                 style={{ animationDelay: `${index * 0.12}s` }}
               >
                 <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${item.gradient} flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
@@ -113,7 +113,7 @@ const WhoWeAre = () => {
             ].map((item, index) => (
               <div
                 key={item.title}
-                className={`group glass-card rounded-2xl p-6 text-center hover-surface-card transition-all duration-300 opacity-0 ${whyVisible ? "animate-scale-in" : ""}`}
+                className={`group rounded-3xl bg-white border border-gray-100 shadow-soft rounded-2xl p-6 text-center hover-surface-card transition-all duration-300 opacity-0 ${whyVisible ? "animate-scale-in" : ""}`}
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${getAuroraGradient(index)} flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>

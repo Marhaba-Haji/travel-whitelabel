@@ -41,7 +41,7 @@ const HospitalityTech = () => {
         >
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-14">
-              <div className="inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 mb-5">
+              <div className="inline-flex items-center gap-2 bg-white border border-gray-100 shadow-sm rounded-full px-4 py-1.5 mb-5">
                 <div className="w-2 h-2 rounded-full bg-aurora-pink animate-pulse-soft" />
                 <span className="text-xs font-semibold text-aurora-pink uppercase tracking-[0.2em]">
                   Coming Soon
@@ -60,7 +60,7 @@ const HospitalityTech = () => {
             </div>
 
             {/* Launch Timeline */}
-            <div className="glass-card rounded-2xl p-6 mb-14 text-center">
+            <div className="rounded-3xl bg-white border border-gray-100 shadow-soft rounded-2xl p-6 mb-14 text-center">
               <div className="flex items-center justify-center gap-3 mb-2">
                 <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-aurora-purple to-aurora-blue flex items-center justify-center shadow-lg">
                   <Calendar className="w-4 h-4 text-white" />
@@ -77,7 +77,7 @@ const HospitalityTech = () => {
               {audiences.map((audience) => (
                 <div
                   key={audience.name}
-                  className="flex items-center gap-2 glass rounded-full px-5 py-2.5 hover-surface-chip transition-all"
+                  className="flex items-center gap-2 bg-white border border-gray-100 shadow-sm rounded-full px-5 py-2.5 hover-surface-chip transition-all"
                 >
                   <audience.icon className="w-4 h-4 text-aurora-teal" />
                   <span className="text-foreground text-sm font-medium">{audience.name}</span>
@@ -86,7 +86,7 @@ const HospitalityTech = () => {
             </div>
 
             {/* Capabilities Preview */}
-            <div className="glass-card rounded-2xl p-8 mb-8">
+            <div className="rounded-3xl bg-white border border-gray-100 shadow-soft rounded-2xl p-8 mb-8">
               <h3 className="font-bold text-foreground text-center mb-6 text-lg">
                 Platform Capabilities
               </h3>
@@ -94,7 +94,7 @@ const HospitalityTech = () => {
                 {capabilities.map((cap, index) => (
                   <div
                     key={cap.text}
-                    className={`group flex items-center gap-3 p-4 glass rounded-xl hover-surface-chip transition-all opacity-0 ${
+                    className={`group flex items-center gap-3 p-4 bg-white border border-gray-100 shadow-sm rounded-xl hover-surface-chip transition-all opacity-0 ${
                       isVisible ? "animate-scale-in" : ""
                     }`}
                     style={{ animationDelay: `${index * 0.1}s` }}
@@ -109,7 +109,7 @@ const HospitalityTech = () => {
             </div>
 
             {/* Feature List */}
-            <div className="glass-card rounded-2xl p-8 mb-8">
+            <div className="rounded-3xl bg-white border border-gray-100 shadow-soft rounded-2xl p-8 mb-8">
               <h3 className="text-xl font-bold text-foreground mb-6 text-center">Key Features</h3>
               <div className="grid md:grid-cols-2 gap-3">
                 {features.map((feature, index) => (
@@ -122,7 +122,7 @@ const HospitalityTech = () => {
             </div>
 
             {/* Vision Note */}
-            <div className="glass-card rounded-2xl p-6 mb-10">
+            <div className="rounded-3xl bg-white border border-gray-100 shadow-soft rounded-2xl p-6 mb-10">
               <p className="text-foreground text-center font-medium">
                 This product is being built to complement the halal tourism ecosystem
                 by strengthening the supply side.

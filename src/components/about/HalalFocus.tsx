@@ -34,7 +34,7 @@ const HalalFocus = () => {
           ref={ref}
           className={`text-center mb-12 opacity-0 ${isVisible ? "animate-fade-in" : ""}`}
         >
-          <span className="inline-block text-aurora-teal font-semibold text-xs uppercase tracking-[0.2em] glass px-4 py-1.5 rounded-full mb-5">
+          <span className="inline-block text-aurora-teal font-semibold text-xs uppercase tracking-[0.2em] bg-white border border-gray-100 shadow-sm px-4 py-1.5 rounded-full mb-5">
             End-to-End Halal Tourism
           </span>
           <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
@@ -50,7 +50,7 @@ const HalalFocus = () => {
 
         {/* Market Size Stat */}
         <div className="max-w-2xl mx-auto mb-14">
-          <div className="glass-card rounded-2xl p-6">
+          <div className="rounded-3xl bg-white border border-gray-100 shadow-soft rounded-2xl p-6">
             <div className="flex items-center justify-center gap-6 flex-wrap">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-aurora-teal to-emerald-500 flex items-center justify-center shadow-lg">
                 <TrendingUp className="w-6 h-6 text-white" />
@@ -75,7 +75,7 @@ const HalalFocus = () => {
           {focusAreas.map((area, index) => (
             <div
               key={area.title}
-              className={`group glass-card rounded-2xl p-6 text-center hover-surface-card transition-all duration-300 opacity-0 ${
+              className={`group rounded-3xl bg-white border border-gray-100 shadow-soft rounded-2xl p-6 text-center hover-surface-card transition-all duration-300 opacity-0 ${
                 isVisible ? "animate-scale-in" : ""
               }`}
               style={{ animationDelay: `${index * 0.1}s` }}
@@ -96,7 +96,7 @@ const HalalFocus = () => {
           ref={whyRef}
           className={`grid lg:grid-cols-2 gap-5 mb-14 opacity-0 ${whyVisible ? "animate-fade-in" : ""}`}
         >
-          <div className="glass-card rounded-2xl p-8">
+          <div className="rounded-3xl bg-white border border-gray-100 shadow-soft rounded-2xl p-8">
             <h3 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
               <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-aurora-purple to-aurora-blue flex items-center justify-center shadow-lg">
                 <Shield className="w-4 h-4 text-white" />
@@ -114,7 +114,7 @@ const HalalFocus = () => {
             </p>
           </div>
 
-          <div className="glass-card rounded-2xl p-8">
+          <div className="rounded-3xl bg-white border border-gray-100 shadow-soft rounded-2xl p-8">
             <h3 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
               <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-aurora-teal to-emerald-500 flex items-center justify-center shadow-lg">
                 <CheckCircle2 className="w-4 h-4 text-white" />
@@ -137,7 +137,7 @@ const HalalFocus = () => {
           className={`text-center opacity-0 ${isVisible ? "animate-fade-in" : ""}`}
           style={{ animationDelay: "500ms" }}
         >
-          <div className="glass-card rounded-2xl p-8 max-w-4xl mx-auto">
+          <div className="rounded-3xl bg-white border border-gray-100 shadow-soft rounded-2xl p-8 max-w-4xl mx-auto">
             <p className="text-foreground text-lg font-medium mb-4">
               Every itinerary, product, and content asset is designed to meet the expectations of
               halal-conscious travellers—while remaining commercially viable for agents.
