@@ -20,7 +20,8 @@ const Header = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const navLinks = [
+  type NavLink = { name: string; href: string; isPage?: boolean; isExternal?: boolean };
+  const navLinks: NavLink[] = [
     { name: "Features", href: "#features" },
     { name: "About", href: "/about", isPage: true },
     { name: "Pricing", href: "#pricing" },
