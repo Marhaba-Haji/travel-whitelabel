@@ -3,11 +3,13 @@ import { Briefcase, MapPin, Users } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { usePartners } from "@/hooks/usePartners";
 import { useHeroContent } from "@/hooks/useHeroContent";
+import { useHeroImages } from "@/hooks/useHeroImages";
 
 const Hero = () => {
   const { ref: heroRef, isVisible: heroVisible } = useScrollAnimation();
   const { partners, loading } = usePartners();
   const { heroContent, loading: heroLoading } = useHeroContent();
+  const { heroImage, loading: heroImageLoading } = useHeroImages();
 
   // Render title with highlighted subtitle
   const renderTitle = () => {
@@ -193,14 +195,19 @@ const Hero = () => {
               </div>
 
               {/* Main Subject Image */}
-              <img
-                src="/assets/hero_woman_tickets.png"
-                alt="Woman holding travel tickets"
-                width={500}
-                height={600}
-                fetchPriority="high"
-                className="w-[85%] sm:w-full h-auto object-contain relative z-10 drop-shadow-2xl"
-              />
+              {heroImageLoading ? (
+                <div className="w-[85%] sm:w-full h-[420px] rounded-3xl bg-white/70 animate-pulse shadow-2xl" />
+              ) : (
+                <img
+                  key={heroImage?.id || 'hero-image-fallback'}
+                  src={heroImage?.image_url || "/assets/hero_woman_tickets.png"}
+                  alt={heroImage?.alt_text || "Hero travel illustration"}
+                  width={500}
+                  height={600}
+                  fetchPriority="high"
+                  className="w-[85%] sm:w-full h-auto object-contain relative z-10 drop-shadow-2xl animate-fade-in"
+                />
+              )}
             </div>
           </div>
 

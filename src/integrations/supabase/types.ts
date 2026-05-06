@@ -121,6 +121,42 @@ export type Database = {
         }
         Relationships: []
       }
+      hero_images: {
+        Row: {
+          active: boolean
+          alt_text: string
+          created_at: string
+          display_order: number
+          id: string
+          image_url: string
+          section_key: string
+          storage_path: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          alt_text: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          image_url: string
+          section_key?: string
+          storage_path: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          alt_text?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          image_url?: string
+          section_key?: string
+          storage_path?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       blog_categories: {
         Row: {
           created_at: string
