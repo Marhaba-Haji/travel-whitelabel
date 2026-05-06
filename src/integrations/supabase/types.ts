@@ -76,6 +76,51 @@ export type Database = {
         }
         Relationships: []
       }
+      hero_content: {
+        Row: {
+          active: boolean
+          created_at: string
+          cta_text: string | null
+          cta_url: string | null
+          description: string | null
+          id: string
+          display_order: number
+          section_key: string
+          subtitle: string
+          subtitle_color: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          cta_text?: string | null
+          cta_url?: string | null
+          description?: string | null
+          id?: string
+          display_order?: number
+          section_key?: string
+          subtitle: string
+          subtitle_color?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          cta_text?: string | null
+          cta_url?: string | null
+          description?: string | null
+          id?: string
+          display_order?: number
+          section_key?: string
+          subtitle?: string
+          subtitle_color?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       blog_categories: {
         Row: {
           created_at: string

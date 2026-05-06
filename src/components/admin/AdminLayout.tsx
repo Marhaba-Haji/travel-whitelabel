@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, MessageSquare, Mail, Users, CreditCard,
-  DollarSign, Ticket, Settings, LogOut, Menu, X, Mic, Map, Bot, BarChart3, FileText, Globe, UserCog, Network
+  DollarSign, Ticket, Settings, LogOut, Menu, X, Mic, Map, Bot, BarChart3, FileText, Globe, UserCog, Network, Type
 } from "lucide-react";
 
 const allTabs = [
@@ -21,6 +21,7 @@ const allTabs = [
   { id: "blog", label: "Blog", icon: FileText },
   { id: "ai-agent", label: "AI Agent Config", icon: Bot },
   { id: "indexing-logs", label: "Indexing Logs", icon: Globe },
+  { id: "hero-content", label: "Hero Section", icon: Type },
   { id: "partners", label: "Partners", icon: Network },
   { id: "settings", label: "Site Settings", icon: Settings },
 ];

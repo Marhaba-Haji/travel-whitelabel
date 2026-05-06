@@ -17,6 +17,7 @@ import BlogTab from "@/components/admin/BlogTab";
 import IndexingLogsTab from "@/components/admin/IndexingLogsTab";
 import UserManagementTab from "@/components/admin/UserManagementTab";
 import PartnersTab from "@/components/admin/PartnersTab";
+import HeroContentTab from "@/components/admin/HeroContentTab";
 
 const tabComponents: Record<string, React.FC> = {
   overview: OverviewTab,
@@ -32,6 +33,7 @@ const tabComponents: Record<string, React.FC> = {
   blog: BlogTab,
   "ai-agent": AIAgentConfigTab,
   "indexing-logs": IndexingLogsTab,
+  "hero-content": HeroContentTab,
   settings: SiteSettingsTab,
   partners: PartnersTab,
   "user-management": UserManagementTab,

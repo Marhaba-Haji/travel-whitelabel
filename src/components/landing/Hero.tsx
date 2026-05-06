@@ -2,10 +2,47 @@ import { Button } from "@/components/ui/button";
 import { Briefcase, MapPin, Users } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { usePartners } from "@/hooks/usePartners";
+import { useHeroContent } from "@/hooks/useHeroContent";
 
 const Hero = () => {
   const { ref: heroRef, isVisible: heroVisible } = useScrollAnimation();
   const { partners, loading } = usePartners();
+  const { heroContent, loading: heroLoading } = useHeroContent();
+
+  // Render title with highlighted subtitle
+  const renderTitle = () => {
+    if (!heroContent) {
+      // Fallback title with default purple highlight
+      return (
+        <h1 className="text-5xl md:text-6xl lg:text-[72px] font-bold text-gray-900 mb-6 font-poppins leading-[1.1] tracking-tight">
+          Travel <span style={{ color: '#B968C7' }} className="font-bold">top destination</span>
+          <br className="hidden md:block" />
+          of the world
+        </h1>
+      );
+    }
+
+    const { title, subtitle, subtitle_color } = heroContent;
+    const parts = title.split(subtitle);
+
+    return (
+      <h1 key={heroContent?.id || 'hero-fallback'} className="text-5xl md:text-6xl lg:text-[72px] font-bold text-gray-900 mb-6 font-poppins leading-[1.1] tracking-tight">
+        {parts.map((part, index) => (
+          <span key={index}>
+            {part}
+            {index < parts.length - 1 && (
+              <>
+                <span style={{ color: subtitle_color }} className="font-bold">
+                  {subtitle}
+                </span>
+                <br className="hidden md:block" />
+              </>
+            )}
+          </span>
+        ))}
+      </h1>
+    );
+  };
 
   return (
     <section className="relative pt-24 pb-8 lg:pt-32 lg:pb-24 overflow-hidden min-h-screen flex items-center bg-white w-full">
@@ -37,13 +74,21 @@ const Hero = () => {
               <Briefcase className="w-4 h-4 text-[#412A86]" />
             </div>
 
-            <h1 className="text-5xl md:text-6xl lg:text-[72px] font-bold text-gray-900 mb-6 font-poppins leading-[1.1] tracking-tight">
-              Travel <span className="text-[#B968C7]">top destination</span><br className="hidden md:block" /> of the world
-            </h1>
+            {heroLoading ? (
+              <div className="h-24 bg-gray-200 rounded-lg animate-pulse mb-6"></div>
+            ) : (
+              <div className="animate-fade-in">
+                {renderTitle()}
+              </div>
+            )}
 
-            <p className="text-lg md:text-xl text-gray-500 mb-10 font-medium max-w-lg leading-relaxed">
-              Where adventure meets comfort. We create unforgettable travel experiences
-            </p>
+            {heroLoading ? (
+              <div className="h-12 bg-gray-200 rounded-lg animate-pulse mb-10 w-full max-w-lg"></div>
+            ) : (
+              <p key={heroContent?.id || 'hero-description'} className="text-lg md:text-xl text-gray-500 mb-10 font-medium max-w-lg leading-relaxed animate-fade-in">
+                {heroContent?.description || 'Where adventure meets comfort. We create unforgettable travel experiences'}
+              </p>
+            )}
 
             {/* CTA + Avatars */}
             <div className="flex flex-col sm:flex-row items-center gap-4 mb-14">
@@ -52,8 +97,8 @@ const Hero = () => {
                 asChild
                 className="h-14 rounded-full text-base font-semibold px-8 bg-[#412A86] hover:bg-[#412A86]/90 text-white shadow-lg transition-shadow"
               >
-                <a href="/signup">
-                  Get Started
+                <a key={heroContent?.id || 'hero-cta'} href={heroContent?.cta_url || '/signup'}>
+                  {heroContent?.cta_text || 'Get Started'}
                 </a>
               </Button>
               
