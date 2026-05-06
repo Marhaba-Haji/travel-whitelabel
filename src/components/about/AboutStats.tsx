@@ -88,7 +88,7 @@ const AboutStats = () => {
   ) => (
     <div
       key={stat.label}
-      className={`group glass-card rounded-2xl p-6 text-center hover-surface-card hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 opacity-0 ${
+      className={`group rounded-3xl bg-white border border-gray-100 shadow-soft rounded-2xl p-6 text-center hover-surface-card hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 opacity-0 ${
         isVisible ? "animate-scale-in" : ""
       }`}
       style={{ animationDelay: `${index * 0.1}s` }}
@@ -118,7 +118,7 @@ const AboutStats = () => {
           className={`mb-12 opacity-0 ${row1Visible ? "animate-fade-in" : ""}`}
         >
           <div className="text-center mb-14">
-            <span className="inline-block text-aurora-teal font-semibold text-xs uppercase tracking-[0.2em] glass px-4 py-1.5 rounded-full mb-5">
+            <span className="inline-block text-aurora-teal font-semibold text-xs uppercase tracking-[0.2em] bg-white border border-gray-100 shadow-sm px-4 py-1.5 rounded-full mb-5">
               Our Impact
             </span>
             <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
@@ -154,7 +154,7 @@ const AboutStats = () => {
           className={`mt-14 text-center opacity-0 ${row2Visible ? "animate-fade-in" : ""}`}
           style={{ animationDelay: "0.5s" }}
         >
-          <div className="inline-flex items-center gap-4 glass-card rounded-2xl px-8 py-5">
+          <div className="inline-flex items-center gap-4 rounded-3xl bg-white border border-gray-100 shadow-soft rounded-2xl px-8 py-5">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-aurora-purple to-aurora-blue flex items-center justify-center shadow-lg">
               <Award className="w-5 h-5 text-white" />
             </div>

@@ -33,7 +33,7 @@ const ContractedInventory = () => {
           className={`opacity-0 ${isVisible ? "animate-fade-in" : ""}`}
         >
           <div className="text-center mb-14">
-            <span className="inline-block text-aurora-teal font-semibold text-xs uppercase tracking-[0.2em] glass px-4 py-1.5 rounded-full mb-5">
+            <span className="inline-block text-aurora-teal font-semibold text-xs uppercase tracking-[0.2em] bg-white border border-gray-100 shadow-sm px-4 py-1.5 rounded-full mb-5">
               Global Inventory
             </span>
             <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
@@ -51,7 +51,7 @@ const ContractedInventory = () => {
             {pillars.map((pillar, index) => (
               <div
                 key={pillar.title}
-                className={`group glass-card rounded-2xl p-8 text-center hover-surface-card transition-all duration-300 opacity-0 ${isVisible ? "animate-scale-in" : ""}`}
+                className={`group rounded-3xl bg-white border border-gray-100 shadow-soft rounded-2xl p-8 text-center hover-surface-card transition-all duration-300 opacity-0 ${isVisible ? "animate-scale-in" : ""}`}
                 style={{ animationDelay: `${index * 0.12}s` }}
               >
                 <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${getAuroraGradient(index)} flex items-center justify-center mx-auto mb-5 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
@@ -66,7 +66,7 @@ const ContractedInventory = () => {
           </div>
 
           {/* Partner Types */}
-          <div className="glass-card rounded-2xl p-8 mb-14">
+          <div className="rounded-3xl bg-white border border-gray-100 shadow-soft rounded-2xl p-8 mb-14">
             <h3 className="text-xl font-bold text-foreground mb-6 text-center flex items-center justify-center gap-3">
               <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-aurora-blue to-aurora-teal flex items-center justify-center shadow-lg">
                 <Globe className="w-4 h-4 text-white" />
@@ -75,7 +75,7 @@ const ContractedInventory = () => {
             </h3>
             <div className="grid md:grid-cols-3 gap-4">
               {partnerTypes.map((type, index) => (
-                <div key={index} className="flex items-center gap-2 p-3 glass rounded-xl">
+                <div key={index} className="flex items-center gap-2 p-3 bg-white border border-gray-100 shadow-sm rounded-xl">
                   <CheckCircle2 className="w-4 h-4 text-aurora-teal flex-shrink-0" />
                   <span className="text-sm text-muted-foreground">{type}</span>
                 </div>
@@ -85,7 +85,7 @@ const ContractedInventory = () => {
 
           {/* Competitive Pricing Emphasis */}
           <div
-            className={`glass-card rounded-2xl p-8 text-center mb-10 opacity-0 ${
+            className={`rounded-3xl bg-white border border-gray-100 shadow-soft rounded-2xl p-8 text-center mb-10 opacity-0 ${
               isVisible ? "animate-fade-in" : ""
             }`}
             style={{ animationDelay: "600ms" }}

@@ -52,7 +52,7 @@ const AboutTestimonials = () => {
           ref={headerRef}
           className={`text-center mb-16 opacity-0 ${headerVisible ? "animate-fade-in" : ""}`}
         >
-          <span className="inline-block text-aurora-teal font-semibold text-xs uppercase tracking-[0.2em] glass px-4 py-1.5 rounded-full mb-5">
+          <span className="inline-block text-aurora-teal font-semibold text-xs uppercase tracking-[0.2em] bg-white border border-gray-100 shadow-sm px-4 py-1.5 rounded-full mb-5">
             Trusted Partners
           </span>
           <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
@@ -70,7 +70,7 @@ const AboutTestimonials = () => {
           {testimonials.map((testimonial, index) => (
             <div
               key={testimonial.name}
-              className={`group glass-card rounded-2xl p-6 hover-surface-card hover:shadow-2xl transition-all duration-300 opacity-0 ${
+              className={`group rounded-3xl bg-white border border-gray-100 shadow-soft rounded-2xl p-6 hover-surface-card hover:shadow-2xl transition-all duration-300 opacity-0 ${
                 gridVisible ? "animate-scale-in" : ""
               }`}
               style={{ animationDelay: `${index * 0.12}s` }}

@@ -34,7 +34,7 @@ const TechPlatform = () => {
           className={`opacity-0 ${isVisible ? "animate-fade-in" : ""}`}
         >
           <div className="text-center mb-14">
-            <span className="inline-block text-aurora-teal font-semibold text-xs uppercase tracking-[0.2em] glass px-4 py-1.5 rounded-full mb-5">
+            <span className="inline-block text-aurora-teal font-semibold text-xs uppercase tracking-[0.2em] bg-white border border-gray-100 shadow-sm px-4 py-1.5 rounded-full mb-5">
               Technology Platform
             </span>
             <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
@@ -56,7 +56,7 @@ const TechPlatform = () => {
             {metrics.map((metric, index) => (
               <div
                 key={metric.label}
-                className={`glass-card rounded-2xl p-4 text-center opacity-0 ${metricsVisible ? "animate-scale-in" : ""}`}
+                className={`rounded-3xl bg-white border border-gray-100 shadow-soft rounded-2xl p-4 text-center opacity-0 ${metricsVisible ? "animate-scale-in" : ""}`}
                 style={{ animationDelay: `${index * 0.08}s` }}
               >
                 <div className="text-2xl font-bold aurora-gradient-text-static mb-1">
@@ -71,7 +71,7 @@ const TechPlatform = () => {
             {portals.map((portal, index) => (
               <div
                 key={portal.title}
-                className={`group glass-card rounded-2xl p-6 hover-surface-card transition-all duration-300 opacity-0 ${
+                className={`group rounded-3xl bg-white border border-gray-100 shadow-soft rounded-2xl p-6 hover-surface-card transition-all duration-300 opacity-0 ${
                   isVisible ? "animate-scale-in" : ""
                 }`}
                 style={{ animationDelay: `${index * 0.1}s` }}
@@ -86,7 +86,7 @@ const TechPlatform = () => {
           </div>
 
           {/* Bottom Highlight */}
-          <div className="glass-card rounded-2xl p-8 text-center mb-10">
+          <div className="rounded-3xl bg-white border border-gray-100 shadow-soft rounded-2xl p-8 text-center mb-10">
             <p className="text-foreground text-lg max-w-3xl mx-auto">
               Each agency operates on its own{" "}
               <span className="font-semibold aurora-gradient-text-static">branded ecosystem</span>{" "}

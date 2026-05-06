@@ -544,7 +544,7 @@ const BlogPost = () => {
                     </Link>
                   )}
                 </div>
-                <h1 className="font-display text-3xl md:text-4xl lg:text-[2.75rem] font-bold text-foreground leading-tight tracking-tight mb-6">
+                <h1 className="font-poppins text-3xl md:text-4xl lg:text-[2.75rem] font-bold text-foreground leading-tight tracking-tight mb-6">
                   {post.title}
                 </h1>
                 <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
@@ -607,7 +607,7 @@ const BlogPost = () => {
 
               {/* Mobile TOC (collapsible) */}
               {toc.length > 2 && (
-                <div className="mb-10 lg:hidden glass-card rounded-xl overflow-hidden">
+                <div className="mb-10 lg:hidden rounded-3xl bg-white border border-gray-100 shadow-soft rounded-xl overflow-hidden">
                   <button
                     onClick={() => setTocOpen(!tocOpen)}
                     className="w-full flex items-center justify-between px-5 py-4 hover:bg-muted/60 dark:hover:bg-white/5 transition-colors"
@@ -766,7 +766,7 @@ const BlogPost = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {relatedPosts.map((rp) => (
                   <Link key={rp.id} to={`/blog/${rp.slug}`} className="group">
-                    <Card className="overflow-hidden h-full glass-card hover:border-primary/30 transition-all duration-300 group-hover:shadow-xl">
+                    <Card className="overflow-hidden h-full rounded-3xl bg-white border border-gray-100 shadow-soft hover:border-primary/30 transition-all duration-300 group-hover:shadow-xl">
                       {rp.cover_image_url ? (
                         <div className="h-40 overflow-hidden rounded-t-lg">
                           <img src={rp.cover_image_url} alt={rp.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
@@ -791,7 +791,7 @@ const BlogPost = () => {
 
           {/* Newsletter */}
           <div className="mt-16 pt-10 border-t border-border/60">
-            <Card className="glass-card border-surface overflow-hidden">
+            <Card className="rounded-3xl bg-white border border-gray-100 shadow-soft border-surface overflow-hidden">
               <div className="aurora-gradient p-1">
                 <CardContent className="p-6 md:p-8 text-center bg-card/95 backdrop-blur">
                   <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/20 text-primary mx-auto mb-4">
@@ -849,7 +849,7 @@ const BlogPost = () => {
             {toc.length > 2 && (
               <aside className="hidden lg:block">
                 <div className="sticky top-28">
-                  <div className="glass-card rounded-xl p-5">
+                  <div className="rounded-3xl bg-white border border-gray-100 shadow-soft rounded-xl p-5">
                     <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
                       <List className="h-4 w-4 text-primary" /> On this page
                     </h3>

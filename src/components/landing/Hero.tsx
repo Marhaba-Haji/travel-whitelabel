@@ -118,7 +118,7 @@ const Hero = () => {
                 alt="Woman holding travel tickets"
                 width={500}
                 height={600}
-                fetchpriority="high"
+                fetchPriority="high"
                 className="w-[85%] sm:w-full h-auto object-contain relative z-10 drop-shadow-2xl"
               />
             </div>

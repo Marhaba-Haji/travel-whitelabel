@@ -45,7 +45,7 @@ const WorkWithUs = () => {
         >
           {/* Who We Work With */}
           <div className="text-center mb-16">
-            <span className="inline-block text-aurora-teal font-semibold text-xs uppercase tracking-[0.2em] glass px-4 py-1.5 rounded-full mb-5">
+            <span className="inline-block text-aurora-teal font-semibold text-xs uppercase tracking-[0.2em] bg-white border border-gray-100 shadow-sm px-4 py-1.5 rounded-full mb-5">
               Partnership
             </span>
             <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-6">
@@ -74,7 +74,7 @@ const WorkWithUs = () => {
           {/* Why Partner With Us */}
           <div
             ref={benefitsRef}
-            className={`glass-card rounded-2xl p-8 md:p-12 mb-14 opacity-0 ${benefitsVisible ? "animate-fade-in" : ""}`}
+            className={`rounded-3xl bg-white border border-gray-100 shadow-soft rounded-2xl p-8 md:p-12 mb-14 opacity-0 ${benefitsVisible ? "animate-fade-in" : ""}`}
           >
             <h3 className="text-2xl font-bold text-foreground mb-6 text-center flex items-center justify-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-aurora-purple to-aurora-blue flex items-center justify-center shadow-lg">
@@ -93,7 +93,7 @@ const WorkWithUs = () => {
           </div>
 
           {/* Looking Ahead */}
-          <div className="glass-card rounded-2xl p-8 md:p-12 mb-14">
+          <div className="rounded-3xl bg-white border border-gray-100 shadow-soft rounded-2xl p-8 md:p-12 mb-14">
             <h3 className="text-2xl md:text-3xl font-bold text-foreground text-center mb-6">
               <span className="aurora-gradient-text-static">
                 Looking Ahead
@@ -106,7 +106,7 @@ const WorkWithUs = () => {
               {visionAreas.map((area, index) => (
                 <div
                   key={area.text}
-                  className={`group glass rounded-2xl p-5 text-center hover-surface-card transition-all duration-300 opacity-0 ${
+                  className={`group bg-white border border-gray-100 shadow-sm rounded-2xl p-5 text-center hover-surface-card transition-all duration-300 opacity-0 ${
                     isVisible ? "animate-scale-in" : ""
                   }`}
                   style={{ animationDelay: `${index * 0.1}s` }}
@@ -125,7 +125,7 @@ const WorkWithUs = () => {
           </div>
 
           {/* Success Story */}
-          <div className="glass-card rounded-2xl p-8 mb-14">
+          <div className="rounded-3xl bg-white border border-gray-100 shadow-soft rounded-2xl p-8 mb-14">
             <div className="flex items-center justify-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-aurora-teal to-emerald-500 flex items-center justify-center shadow-lg">
                 <TrendingUp className="w-5 h-5 text-white" />

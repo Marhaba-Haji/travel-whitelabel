@@ -162,20 +162,20 @@ const Blog = () => {
         ])}
       />
       <Header />
-      <main className="pt-24 pb-20">
+      <main className="pt-24 pb-20 bg-white">
         <div className="container mx-auto px-4">
           {/* Hero */}
           <div className="text-center mb-12 max-w-3xl mx-auto">
-            <Badge variant="outline" className="mb-4">
-              <BookOpen className="h-3 w-3 mr-1" /> Our Blog
-            </Badge>
-            <h1 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-4">
-              Insights & Inspiration
+            <span className="inline-flex items-center gap-1.5 bg-cyan-50 text-cyan-600 font-bold tracking-wide text-xs px-4 py-1.5 rounded-full mb-4 uppercase">
+              <BookOpen className="h-3 w-3" /> Our Blog
+            </span>
+            <h1 className="font-poppins text-4xl md:text-5xl font-bold text-gray-900 mb-4 leading-tight">
+              Insights & <span className="text-[#B968C7]">Inspiration</span>
             </h1>
-            <p className="text-lg text-muted-foreground mb-4">
+            <p className="text-lg text-gray-500 mb-6">
               Expert articles on halal travel, destination guides, travel technology, and hospitality industry trends.
             </p>
-            <Button variant="outline" size="sm" asChild>
+            <Button variant="outline" size="sm" asChild className="rounded-full border-gray-200 hover:border-[#412A86]/40 hover:text-[#412A86]">
               <a href={`${(import.meta.env.VITE_SUPABASE_URL || "https://kofijegdzeshitunwddn.supabase.co")}/functions/v1/blog-rss`} target="_blank" rel="noreferrer">
                 <Rss className="h-4 w-4 mr-1" /> RSS Feed
               </a>
@@ -185,33 +185,33 @@ const Blog = () => {
           {/* Search */}
           <div className="max-w-xl mx-auto mb-8">
             <form onSubmit={handleSearch} className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search articles…"
-                className="pl-10 pr-20"
+                className="pl-11 pr-24 h-12 rounded-full bg-white border-gray-200 shadow-soft focus-visible:ring-[#412A86]/30 focus-visible:border-[#412A86]"
               />
-              <Button type="submit" size="sm" className="absolute right-1 top-1/2 -translate-y-1/2 h-8">
+              <Button type="submit" size="sm" className="absolute right-1.5 top-1/2 -translate-y-1/2 h-9 rounded-full bg-[#412A86] hover:bg-[#412A86]/90 text-white px-4">
                 Search
               </Button>
             </form>
             <div className="flex items-center justify-center gap-2 mt-3">
-              <span className="text-xs text-muted-foreground mr-1"><ArrowUpDown className="h-3 w-3 inline mr-1" />Sort:</span>
-              <Badge
-                variant={activeSort === "latest" ? "default" : "outline"}
-                className="cursor-pointer text-xs"
+              <span className="text-xs text-gray-500 mr-1"><ArrowUpDown className="h-3 w-3 inline mr-1" />Sort:</span>
+              <button
+                type="button"
                 onClick={() => setFilter("sort", "")}
+                className={`cursor-pointer text-xs font-bold px-3 py-1 rounded-full transition-colors ${activeSort === "latest" ? "bg-[#412A86] text-white" : "bg-white border border-gray-200 text-gray-600 hover:border-[#412A86]/40"}`}
               >
                 Latest
-              </Badge>
-              <Badge
-                variant={activeSort === "popular" ? "default" : "outline"}
-                className="cursor-pointer text-xs"
+              </button>
+              <button
+                type="button"
                 onClick={() => setFilter("sort", "popular")}
+                className={`cursor-pointer text-xs font-bold px-3 py-1 rounded-full inline-flex items-center transition-colors ${activeSort === "popular" ? "bg-[#412A86] text-white" : "bg-white border border-gray-200 text-gray-600 hover:border-[#412A86]/40"}`}
               >
                 <TrendingUp className="h-3 w-3 mr-1" /> Most Popular
-              </Badge>
+              </button>
             </div>
           </div>
 
@@ -220,33 +220,33 @@ const Blog = () => {
             <div className="mb-8 space-y-4">
               {/* Categories */}
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-sm font-medium text-muted-foreground mr-1">Categories:</span>
-                <Badge
-                  variant={!activeCategory ? "default" : "outline"}
-                  className="cursor-pointer"
+                <span className="text-sm font-medium text-gray-500 mr-1">Categories:</span>
+                <button
+                  type="button"
                   onClick={() => setFilter("category", "")}
+                  className={`cursor-pointer text-xs font-bold px-4 py-1.5 rounded-full transition-colors ${!activeCategory ? "bg-[#412A86] text-white" : "bg-white border border-gray-200 text-gray-600 hover:border-[#412A86]/40"}`}
                 >
                   All
-                </Badge>
+                </button>
                 {categories.map((cat) => (
-                  <Badge
+                  <button
+                    type="button"
                     key={cat.id}
-                    variant={activeCategory === cat.slug ? "default" : "outline"}
-                    className="cursor-pointer"
                     onClick={() => setFilter("category", activeCategory === cat.slug ? "" : cat.slug)}
+                    className={`cursor-pointer text-xs font-bold px-4 py-1.5 rounded-full transition-colors ${activeCategory === cat.slug ? "bg-[#412A86] text-white" : "bg-white border border-gray-200 text-gray-600 hover:border-[#412A86]/40"}`}
                   >
                     {cat.name}
-                  </Badge>
+                  </button>
                 ))}
               </div>
 
               {/* Active filter indicator */}
               {hasFilters && (
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">
+                  <span className="text-sm text-gray-500">
                     Showing {filteredPosts.length} of {posts.length} posts
                   </span>
-                  <Button variant="ghost" size="sm" onClick={clearFilters} className="h-7 px-2 text-xs">
+                  <Button variant="ghost" size="sm" onClick={clearFilters} className="h-7 px-2 text-xs rounded-full">
                     <X className="h-3 w-3 mr-1" /> Clear filters
                   </Button>
                 </div>
@@ -258,23 +258,23 @@ const Blog = () => {
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3].map((i) => (
-                <Card key={i} className="animate-pulse">
-                  <div className="h-48 bg-muted rounded-t-lg" />
-                  <CardContent className="p-5 space-y-3">
-                    <div className="h-4 bg-muted rounded w-3/4" />
-                    <div className="h-3 bg-muted rounded w-full" />
-                    <div className="h-3 bg-muted rounded w-2/3" />
-                  </CardContent>
-                </Card>
+                <div key={i} className="rounded-3xl bg-white border border-gray-100 shadow-soft overflow-hidden animate-pulse">
+                  <div className="h-48 bg-gray-100" />
+                  <div className="p-5 space-y-3">
+                    <div className="h-4 bg-gray-100 rounded w-3/4" />
+                    <div className="h-3 bg-gray-100 rounded w-full" />
+                    <div className="h-3 bg-gray-100 rounded w-2/3" />
+                  </div>
+                </div>
               ))}
             </div>
           ) : filteredPosts.length === 0 ? (
             <div className="text-center py-20">
-              <p className="text-muted-foreground text-lg">
+              <p className="text-gray-500 text-lg">
                 {hasFilters ? "No posts match the selected filters." : "No blog posts published yet. Check back soon!"}
               </p>
               {hasFilters && (
-                <Button variant="outline" className="mt-4" onClick={clearFilters}>
+                <Button variant="outline" className="mt-4 rounded-full" onClick={clearFilters}>
                   Clear filters
                 </Button>
               )}
@@ -283,13 +283,13 @@ const Blog = () => {
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {paginatedPosts.map((post) => (
-                  <Link key={post.id} to={`/blog/${post.slug}`} className="group">
-                    <Card className="overflow-hidden h-full hover:border-primary/30 transition-all duration-300 hover:shadow-lg relative">
+                  <Link key={post.id} to={`/blog/${post.slug}`} className="group block">
+                    <article className="rounded-3xl overflow-hidden bg-white border border-gray-100 shadow-soft transition-all duration-300 motion-safe:group-hover:-translate-y-1 group-hover:shadow-soft-lg h-full relative">
                       {post.post_type === "pillar" && (
-                        <Badge variant="default" className="absolute top-3 right-3 z-10 text-xs">📌 Pillar</Badge>
+                        <span className="absolute top-3 right-3 z-10 text-[10px] font-bold px-2.5 py-1 rounded-full bg-[#412A86] text-white">Pillar</span>
                       )}
                       {post.cover_image_url ? (
-                        <div className="h-48 overflow-hidden">
+                        <div className="aspect-[16/10] overflow-hidden bg-gray-50">
                           <img
                             src={post.cover_image_url}
                             alt={post.title}
@@ -298,30 +298,30 @@ const Blog = () => {
                           />
                         </div>
                       ) : (
-                        <div className="h-48 bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center">
-                          <BookOpen className="h-12 w-12 text-muted-foreground/30" />
+                        <div className="aspect-[16/10] bg-[#FAFAFC] flex items-center justify-center">
+                          <BookOpen className="h-12 w-12 text-gray-300" />
                         </div>
                       )}
-                      <CardContent className="p-5 space-y-3">
+                      <div className="p-6 space-y-3">
                         {post.category && (
-                          <Badge variant="secondary" className="text-xs">
+                          <span className="inline-block text-[10px] font-bold tracking-wide uppercase px-2.5 py-1 rounded-full bg-purple-50 text-purple-600">
                             {categories.find((c) => c.slug === post.category)?.name || post.category}
-                          </Badge>
+                          </span>
                         )}
-                        <h2 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2">
+                        <h2 className="font-poppins text-lg font-bold text-gray-900 group-hover:text-[#412A86] transition-colors line-clamp-2">
                           {post.title}
                         </h2>
                         {post.excerpt && (
-                          <p className="text-sm text-muted-foreground line-clamp-3">{post.excerpt}</p>
+                          <p className="text-sm text-gray-500 line-clamp-3 leading-relaxed">{post.excerpt}</p>
                         )}
                         {(post.tags?.length ?? 0) > 0 && (
                           <div className="flex flex-wrap gap-1">
                             {post.tags!.slice(0, 3).map((tag) => (
-                              <Badge key={tag} variant="outline" className="text-xs">{tag}</Badge>
+                              <span key={tag} className="inline-block text-[10px] px-2 py-0.5 rounded-full bg-gray-50 text-gray-500 border border-gray-100">{tag}</span>
                             ))}
                           </div>
                         )}
-                        <div className="flex items-center justify-between text-xs text-muted-foreground pt-2">
+                        <div className="flex items-center justify-between text-xs text-gray-400 pt-2">
                           <div className="flex items-center gap-3">
                             <span>{post.author_name || "Marhaba DMC"}</span>
                             <span className="flex items-center gap-1">
@@ -333,8 +333,8 @@ const Blog = () => {
                           </div>
                           <span>{post.published_at ? new Date(post.published_at).toLocaleDateString() : ""}</span>
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </article>
                   </Link>
                 ))}
               </div>
@@ -347,6 +347,7 @@ const Blog = () => {
                     size="icon"
                     disabled={activePage <= 1}
                     onClick={() => goToPage(activePage - 1)}
+                    className="rounded-full border-gray-200"
                   >
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
@@ -356,7 +357,7 @@ const Blog = () => {
                       variant={page === activePage ? "default" : "outline"}
                       size="sm"
                       onClick={() => goToPage(page)}
-                      className="min-w-[36px]"
+                      className={`min-w-[36px] rounded-full ${page === activePage ? "bg-[#412A86] hover:bg-[#412A86]/90 text-white" : "border-gray-200"}`}
                     >
                       {page}
                     </Button>
@@ -366,6 +367,7 @@ const Blog = () => {
                     size="icon"
                     disabled={activePage >= totalPages}
                     onClick={() => goToPage(activePage + 1)}
+                    className="rounded-full border-gray-200"
                   >
                     <ChevronRight className="h-4 w-4" />
                   </Button>

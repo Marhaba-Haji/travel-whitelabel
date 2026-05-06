@@ -178,36 +178,29 @@ const CategoriesDestinations = () => {
   const totalCountries = allDestinations.size;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-white">
       <Header />
       <main>
         {/* Enhanced Hero/Intro Section */}
-        <section className="pt-24 pb-16 md:pt-32 md:pb-24 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-accent via-background to-background" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse-soft" />
+        <section className="pt-24 pb-16 md:pt-32 md:pb-24 relative overflow-hidden bg-white">
+          <div className="absolute top-20 right-0 w-[500px] h-[500px] bg-[#2D9BFC]/5 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-10 left-0 w-96 h-96 bg-[#412A86]/5 rounded-full blur-3xl pointer-events-none" />
           
           <div className="container mx-auto px-4 relative">
             <div
               ref={heroRef}
               className={`text-center max-w-4xl mx-auto opacity-0 ${heroVisible ? "animate-fade-in" : ""}`}
             >
-              <Badge className="mb-4 bg-primary/10 text-primary hover:bg-primary/20 border-primary/20">
-                <Sparkles className="h-3 w-3 mr-1.5" />
+              <span className="inline-flex items-center gap-1.5 bg-cyan-50 text-cyan-600 font-bold tracking-wide text-xs px-4 py-1.5 rounded-full mb-4 uppercase">
+                <Sparkles className="h-3 w-3" />
                 Destination Coverage
-              </Badge>
+              </span>
               
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mt-2 mb-6 leading-tight">
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary to-aurora-pink">
-                  Halal Tourism
-                </span>{" "}
-                Destinations Organized by{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary to-aurora-pink">
-                  Travel Intent
-                </span>
+              <h1 className="font-poppins text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mt-2 mb-6 leading-tight">
+                <span className="text-[#B968C7]">Halal Tourism</span> Destinations Organized by <span className="text-[#B968C7]">Travel Intent</span>
               </h1>
               
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8">
+              <p className="text-lg text-gray-500 max-w-2xl mx-auto leading-relaxed mb-8">
                 marhabaDMC's destination coverage is structured by travel purpose, not just geography. 
                 This intent-driven approach helps agents understand where and how they can sell using 
                 marhabaDMC's ecosystem, enabling more effective travel planning and sales conversations.

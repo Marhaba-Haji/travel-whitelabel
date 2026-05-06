@@ -8,6 +8,7 @@ export default {
     fontFamily: {
       sans: ["Inter", "system-ui", "sans-serif"],
       display: ["Sora", "Inter", "system-ui", "sans-serif"],
+      poppins: ["Poppins", "Inter", "system-ui", "sans-serif"],
     },
     container: {
       center: true,
@@ -78,6 +79,10 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      boxShadow: {
+        soft: "0 8px 30px rgb(0 0 0 / 0.04)",
+        "soft-lg": "0 12px 40px rgb(0 0 0 / 0.08)",
       },
       keyframes: {
         "accordion-down": {
