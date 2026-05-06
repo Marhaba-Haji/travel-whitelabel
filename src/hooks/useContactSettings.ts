@@ -11,10 +11,10 @@ interface ContactData {
 }
 
 const defaultContact: ContactData = {
-  whatsapp: "+919008447887",
-  phone: "+919008447887",
-  email: "hello@marhabadmc.com",
-  address: "Paramount Avenue, 63/1, 3rd floor, mosque road cross, frazer town, Bangalore 560005",
+  whatsapp: "",
+  phone: "",
+  email: "",
+  address: "",
 };
 
 export const useContactSettings = () => {
@@ -25,7 +25,7 @@ export const useContactSettings = () => {
         .from("site_settings")
         .select("value")
         .eq("key", "contact")
-        .single();
+        .maybeSingle();
       if (error) throw error;
       const merged = { ...defaultContact, ...(data?.value as Partial<ContactData>) };
       return merged as ContactData;

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, MessageSquare, Mail, Users, CreditCard,
-  DollarSign, Ticket, Settings, LogOut, Menu, X, Mic, Map, Bot, BarChart3, FileText, Globe, UserCog, Network, Type, Image
+  DollarSign, Ticket, Settings, LogOut, Menu, X, Mic, Map, Bot, BarChart3, FileText, Globe, UserCog, Network, Type, Image, Star
 } from "lucide-react";
 
 const allTabs = [
@@ -24,6 +24,7 @@ const allTabs = [
   { id: "hero-content", label: "Hero Section", icon: Type },
   { id: "hero-images", label: "Hero Images", icon: Image },
   { id: "partners", label: "Partners", icon: Network },
+  { id: "testimonials", label: "Testimonials", icon: Star },
   { id: "settings", label: "Site Settings", icon: Settings },
 ];
 

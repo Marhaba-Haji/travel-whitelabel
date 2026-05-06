@@ -42,6 +42,10 @@ const Blog = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, []);
+
   const activeCategory = searchParams.get("category") || "";
   const activeTag = searchParams.get("tag") || "";
   const activeSearch = searchParams.get("q") || "";

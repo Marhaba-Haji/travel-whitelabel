@@ -2,8 +2,11 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Sparkles, Clock, Shield, Headphones, Leaf } from "lucide-react";
 import LogoAnimated from "@/components/landing/LogoAnimated";
 import { useEffect } from "react";
+import { useContactSettings } from "@/hooks/useContactSettings";
 
 const AccountPendingActivation = () => {
+  const { email } = useContactSettings();
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
   }, []);
@@ -108,10 +111,10 @@ const AccountPendingActivation = () => {
             <p className="text-sm text-muted-foreground">
               Questions?{" "}
               <a
-                href="mailto:hello@marhabadmc.com"
+                href={`mailto:${email}`}
                 className="text-primary hover:underline font-medium"
               >
-                hello@marhabadmc.com
+                {email}
               </a>
             </p>
           </div>

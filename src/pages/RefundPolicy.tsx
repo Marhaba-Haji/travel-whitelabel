@@ -1,7 +1,10 @@
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
+import { useContactSettings } from "@/hooks/useContactSettings";
 
 const RefundPolicy = () => {
+  const { email, phone, address } = useContactSettings();
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -58,7 +61,7 @@ const RefundPolicy = () => {
                 To request a refund:
               </p>
               <ol className="list-decimal pl-6 space-y-2 text-muted-foreground">
-                <li>Contact our support team at hello@marhabadmc.com or +91 90084 47887</li>
+                <li>Contact our support team at {email} or {phone}</li>
                 <li>Provide your account information and order/reference number</li>
                 <li>Clearly state the reason for your refund request</li>
                 <li>Include any relevant documentation or evidence</li>
@@ -149,9 +152,9 @@ const RefundPolicy = () => {
               </p>
               <div className="mt-4 p-4 bg-muted rounded-lg">
                 <p className="text-muted-foreground">
-                  <strong>Email:</strong> hello@marhabadmc.com<br />
-                  <strong>Phone:</strong> +91 90084 47887<br />
-                  <strong>Address:</strong> New Delhi, India<br />
+                  <strong>Email:</strong> {email}<br />
+                  <strong>Phone:</strong> {phone}<br />
+                  <strong>Address:</strong> {address}<br />
                   <strong>Business Hours:</strong> Monday - Friday, 9:00 AM - 6:00 PM IST
                 </p>
               </div>

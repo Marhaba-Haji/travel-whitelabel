@@ -1,8 +1,19 @@
-import { MapPin, Clock, Mail, Phone, Instagram, Facebook, Twitter, Youtube, MailOpen } from "lucide-react";
+import { MapPin, Clock, Mail, Phone, Instagram, Facebook, Twitter, Linkedin, MailOpen } from "lucide-react";
 import { useState } from "react";
+import { useSocialSettings } from "@/hooks/useSocialSettings";
+import { useContactSettings } from "@/hooks/useContactSettings";
 
 const Footer = () => {
   const [newsletterEmail, setNewsletterEmail] = useState("");
+  const { socialLinks } = useSocialSettings();
+  const { whatsapp, phone, email, address, isLoading } = useContactSettings();
+
+  const socialIcons = {
+    facebook: Facebook,
+    instagram: Instagram,
+    linkedin: Linkedin,
+    x: Twitter,
+  } as const;
 
   const handleNewsletterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,17 +36,17 @@ const Footer = () => {
             
             <div className="flex items-start gap-3 text-gray-500 text-sm leading-relaxed">
               <MapPin className="w-5 h-5 flex-shrink-0 mt-0.5 text-gray-600" />
-              <span>Paramount Avenue , 63/1 , 3rd Floor Mosque<br/>road cross Frazer Town , Banagalore 560005</span>
+              <span className="whitespace-pre-line">{isLoading ? "Loading contact details..." : address}</span>
             </div>
             
             <div className="flex items-center gap-3 text-gray-500 text-sm">
               <Clock className="w-5 h-5 flex-shrink-0 text-gray-600" />
-              <span>Whatsapp - +9184784492129</span>
+              <span>{isLoading ? "Loading contact details..." : `Whatsapp - ${whatsapp}`}</span>
             </div>
             
             <div className="flex items-center gap-3 text-gray-500 text-sm">
               <Mail className="w-5 h-5 flex-shrink-0 text-gray-600" />
-              <span>Hello@marhabadmc.com</span>
+              <span>{isLoading ? "Loading contact details..." : email}</span>
             </div>
           </div>
 
@@ -83,18 +94,26 @@ const Footer = () => {
           <div>
             <h4 className="font-bold text-gray-900 mb-4 text-base">Follow us</h4>
             <div className="flex gap-3">
-              <a href="#" className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-900 hover:bg-gray-200 transition-colors">
-                <Instagram className="w-4 h-4" />
-              </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-900 hover:bg-gray-200 transition-colors">
-                <Facebook className="w-4 h-4" />
-              </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-900 hover:bg-gray-200 transition-colors">
-                <Twitter className="w-4 h-4" />
-              </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-900 hover:bg-gray-200 transition-colors">
-                <Youtube className="w-4 h-4" />
-              </a>
+              {socialLinks.map(({ platform, url, label }) => {
+                const Icon = socialIcons[platform];
+
+                if (!Icon) {
+                  return null;
+                }
+
+                return (
+                  <a
+                    key={platform}
+                    href={url}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={label}
+                    className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-900 hover:bg-gray-200 transition-colors"
+                  >
+                    <Icon className="w-4 h-4" />
+                  </a>
+                );
+              })}
             </div>
           </div>
 
@@ -104,8 +123,11 @@ const Footer = () => {
               <Phone className="w-5 h-5 text-gray-900" />
               <span className="font-bold text-gray-900 text-base">Need help? Call us</span>
             </div>
-            <a href="tel:18002228888" className="text-2xl font-bold text-gray-900 pl-7 md:pl-0">
-              1-800-222-8888
+            <a
+              href={phone ? `tel:${phone}` : whatsapp ? `tel:${whatsapp}` : undefined}
+              className="text-2xl font-bold text-gray-900 pl-7 md:pl-0"
+            >
+              {isLoading ? "Loading contact details..." : phone || whatsapp || ""}
             </a>
           </div>
 

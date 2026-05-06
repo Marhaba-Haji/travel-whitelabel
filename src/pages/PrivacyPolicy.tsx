@@ -1,7 +1,10 @@
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
+import { useContactSettings } from "@/hooks/useContactSettings";
 
 const PrivacyPolicy = () => {
+  const { email, phone, address } = useContactSettings();
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -145,9 +148,9 @@ const PrivacyPolicy = () => {
               </p>
               <div className="mt-4 p-4 bg-muted rounded-lg">
                 <p className="text-muted-foreground">
-                  <strong>Email:</strong> hello@marhabadmc.com<br />
-                  <strong>Phone:</strong> +91 90084 47887<br />
-                  <strong>Address:</strong> New Delhi, India<br />
+                  <strong>Email:</strong> {email}<br />
+                  <strong>Phone:</strong> {phone}<br />
+                  <strong>Address:</strong> {address}<br />
                   <strong>Data Protection Officer:</strong> privacy@marhabaDMC.com
                 </p>
               </div>

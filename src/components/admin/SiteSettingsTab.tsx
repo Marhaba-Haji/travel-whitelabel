@@ -110,7 +110,7 @@ const SiteSettingsTab = () => {
           </div>
           <div className="space-y-2">
             <Label>Email Address</Label>
-            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="hello@marhabadmc.com" />
+            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder={data?.email || "Email address"} />
           </div>
           <div className="space-y-2">
             <Label>Address (optional)</Label>

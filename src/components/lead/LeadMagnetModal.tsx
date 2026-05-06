@@ -6,6 +6,7 @@ import { Download, CheckCircle2, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { getSessionId, getAttribution } from "@/hooks/useSessionTracking";
+import { useContactSettings } from "@/hooks/useContactSettings";
 
 interface Props {
   open: boolean;
@@ -34,6 +35,7 @@ const LeadMagnetModal = ({
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const { toast } = useToast();
+  const { email: supportEmail } = useContactSettings();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,12 +60,12 @@ const LeadMagnetModal = ({
       setDone(true);
       toast({
         title: "Check your inbox",
-        description: "Your guide is on its way. Add hello@marhabadmc.com to your contacts.",
+        description: `Your guide is on its way. Add ${supportEmail} to your contacts.`,
       });
     } catch (err) {
       toast({
         title: "Something went wrong",
-        description: "Please try again or email hello@marhabadmc.com",
+        description: `Please try again or email ${supportEmail}`,
         variant: "destructive",
       });
     } finally {

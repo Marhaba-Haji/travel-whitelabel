@@ -51,7 +51,7 @@ const EmbracingAdventure = () => {
 
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <h4 className="text-2xl md:text-3xl font-bold text-gray-900 font-poppins mb-1">1000+</h4>
+                <h4 className="text-2xl md:text-3xl font-bold text-gray-900 font-poppins mb-1">2000+</h4>
                 <p className="text-xs md:text-sm text-gray-500 font-medium leading-snug">Customers served</p>
               </div>
               <div>

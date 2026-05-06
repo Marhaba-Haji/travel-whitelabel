@@ -1,41 +1,70 @@
+import { useEffect, useRef, useState } from "react";
 import { Star, ArrowLeft, ArrowRight } from "lucide-react";
+import { useTestimonials } from "@/hooks/useTestimonials";
 
 const Testimonials = () => {
-  const testimonials = [
-    {
-      id: 1,
-      name: "Sara Mohamed",
-      role: "Jakatar",
-      avatar: "https://i.pravatar.cc/150?img=47",
-      content: "I've been using the hotel booking system for several years now, and it's become my go-to platform for planning my trips. The interface is user-friendly, and I appreciate the detailed information and real-time availability of hotels.",
-      title: "The best booking system",
-    },
-    {
-      id: 2,
-      name: "Atend John",
-      role: "Califonia",
-      avatar: "https://i.pravatar.cc/150?img=11",
-      content: "I've been using the hotel booking system for several years now, and it's become my go-to platform for planning my trips. The interface is user-friendly, and I appreciate the detailed information and real-time availability of hotels.",
-      title: "The best booking system",
-    },
-    {
-      id: 3,
-      name: "Sara Mohamed",
-      role: "Jakatar",
-      avatar: "https://i.pravatar.cc/150?img=47",
-      content: "I've been using the hotel booking system for several years now, and it's become my go-to platform for planning my trips. The interface is user-friendly, and I appreciate the detailed information and real-time availability of hotels.",
-      title: "The best booking system",
-    },
-  ];
+  const { testimonials, loading } = useTestimonials();
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [isPaused, setIsPaused] = useState(false);
+
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((word) => word[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    let rafId = 0;
+    const speed = 1.2;
+
+    const step = () => {
+      if (!el) return;
+      if (!isPaused) {
+        el.scrollLeft += speed;
+        if (el.scrollLeft >= el.scrollWidth - el.clientWidth - 1) {
+          el.scrollLeft = 0;
+        }
+      }
+      rafId = requestAnimationFrame(step);
+    };
+
+    const onPointerEnter = () => setIsPaused(true);
+    const onPointerLeave = () => setIsPaused(false);
+    const onPointerDown = () => setIsPaused(true);
+    const onPointerUp = () => setIsPaused(false);
+
+    el.addEventListener("mouseenter", onPointerEnter);
+    el.addEventListener("mouseleave", onPointerLeave);
+    el.addEventListener("pointerdown", onPointerDown, { passive: true });
+    window.addEventListener("pointerup", onPointerUp);
+
+    rafId = requestAnimationFrame(step);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      el.removeEventListener("mouseenter", onPointerEnter);
+      el.removeEventListener("mouseleave", onPointerLeave);
+      el.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("pointerup", onPointerUp);
+    };
+  }, [isPaused, testimonials]);
 
   return (
     <section className="py-24 relative overflow-hidden bg-white w-full">
       {/* Decorative Background Elements */}
-      <div className="absolute top-10 right-0 w-96 h-48 opacity-20 pointer-events-none bg-[url('https://placehold.co/800x400/transparent/000000?text=Flight+Path')] bg-no-repeat bg-right-top mix-blend-multiply" style={{ backgroundImage: 'url("/assets/flight-path.svg")' }}></div>
-      <div className="absolute bottom-0 left-0 w-2/3 h-48 opacity-[0.05] pointer-events-none bg-[url('https://placehold.co/1920x300/000000/transparent?text=Skyline')] bg-repeat-x bg-bottom"></div>
+      <div
+        className="absolute top-10 right-0 w-96 h-48 opacity-20 pointer-events-none bg-no-repeat bg-right-top mix-blend-multiply"
+        style={{ backgroundImage: 'url("/assets/flight-path.svg")' }}
+      />
+      <div className="absolute bottom-0 left-0 w-2/3 h-48 opacity-[0.05] pointer-events-none bg-[url('https://placehold.co/1920x300/000000/transparent?text=Skyline')] bg-repeat-x bg-bottom" />
 
       <div className="container mx-auto px-4 relative z-10">
-        
         {/* Header Block */}
         <div className="mb-16">
           <div className="inline-flex items-center gap-2 bg-[#412A86] rounded-full pl-1 pr-4 py-1 mb-6 shadow-md">
@@ -52,57 +81,69 @@ const Testimonials = () => {
         </div>
 
         {/* Carousel / Cards */}
-        <div className="flex overflow-x-auto gap-6 pb-8 -mx-4 px-4 snap-x hide-scrollbar">
-          {testimonials.map((testimonial) => (
-            <div
-              key={testimonial.id}
-              className="min-w-[320px] md:min-w-[480px] w-[320px] md:w-[480px] shrink-0 snap-start bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between"
-            >
-              <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">{testimonial.title}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed mb-8">
-                  {testimonial.content}
-                </p>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <img src={testimonial.avatar} alt={testimonial.name} className="w-12 h-12 rounded-full object-cover shadow-sm" />
+        <div ref={containerRef} className="flex overflow-x-auto gap-6 pb-8 -mx-4 px-4 snap-x hide-scrollbar">
+          {loading ? (
+            <div className="w-full flex items-center justify-center py-12 text-muted-foreground">
+              Loading testimonials...
+            </div>
+          ) : testimonials.length === 0 ? (
+            <div className="w-full flex items-center justify-center py-12 text-muted-foreground">
+              No testimonials available yet.
+            </div>
+          ) : (
+            (() => {
+              const displayTestimonials = testimonials.length > 1 ? [...testimonials, ...testimonials] : testimonials;
+              return displayTestimonials.map((testimonial, idx) => (
+                <div
+                  key={`${testimonial.id}-${idx}`}
+                  className="min-w-[280px] md:min-w-[360px] w-[280px] md:w-[360px] min-h-[220px] md:min-h-[260px] shrink-0 snap-start bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between"
+                >
                   <div>
-                    <h4 className="font-bold text-gray-900 text-sm">{testimonial.name}</h4>
-                    <p className="text-gray-500 text-xs">{testimonial.role}</p>
+                    <p className="text-gray-500 text-sm leading-relaxed mb-8">
+                      {testimonial.review}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center text-sm font-bold text-white shadow-sm">
+                        {getInitials(testimonial.name)}
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-gray-900 text-sm">{testimonial.name}</h4>
+                      </div>
+                    </div>
+                    <div className="flex gap-0.5">
+                      {Array.from({ length: testimonial.rating }).map((_, i) => (
+                        <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                      ))}
+                    </div>
                   </div>
                 </div>
-                <div className="flex gap-0.5">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star key={star} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                  ))}
-                </div>
-              </div>
-            </div>
-          ))}
+              ));
+            })()
+          )}
         </div>
 
         {/* Carousel Navigation Buttons */}
         <div className="flex justify-end gap-3 mt-4">
-          <button className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
+          <button className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors" aria-label="Previous testimonial">
             <ArrowLeft className="w-4 h-4 text-gray-600" />
           </button>
-          <button className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
+          <button className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors" aria-label="Next testimonial">
             <ArrowRight className="w-4 h-4 text-gray-600" />
           </button>
         </div>
-
       </div>
 
-      <style>{`
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .hide-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
+      <style>{`\
+        .hide-scrollbar::-webkit-scrollbar {\
+          display: none;\
+        }\
+        .hide-scrollbar {\
+          -ms-overflow-style: none;\
+          scrollbar-width: none;\
+        }\
       `}</style>
     </section>
   );

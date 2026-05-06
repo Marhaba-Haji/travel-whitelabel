@@ -17,7 +17,14 @@ export const SOCIAL_PROFILES = [
   "https://www.youtube.com/@marhabadmc",
 ];
 
-export const organizationSchema = () => ({
+export interface ContactSchemaData {
+  email?: string;
+  phone?: string;
+  whatsapp?: string;
+  address?: string;
+}
+
+export const organizationSchema = (contact?: ContactSchemaData) => ({
   "@context": "https://schema.org",
   "@type": ["Organization", "LocalBusiness"],
   "@id": `${SITE_URL}/#organization`,
@@ -29,32 +36,24 @@ export const organizationSchema = () => ({
   url: SITE_URL,
   logo: `${SITE_URL}/assets/marhaba-dmc-logo.png`,
   image: DEFAULT_OG_IMAGE,
-  email: "hello@marhabadmc.com",
-  telephone: "+91-9008447887",
+  email: contact?.email || "",
+  telephone: contact?.phone || contact?.whatsapp || "",
   foundingDate: "2024",
-  address: {
-    "@type": "PostalAddress",
-    streetAddress:
-      "Paramount Avenue, 63/1, 3rd floor, mosque road cross, frazer town",
-    addressLocality: "Bangalore",
-    addressRegion: "KA",
-    postalCode: "560005",
-    addressCountry: "IN",
-  },
+  address: contact?.address
+    ? {
+        "@type": "PostalAddress",
+        streetAddress: contact.address,
+        addressCountry: "IN",
+      }
+    : undefined,
   contactPoint: [
     {
       "@type": "ContactPoint",
       contactType: "customer support",
-      telephone: "+91-9008447887",
-      email: "hello@marhabadmc.com",
+      telephone: contact?.phone || contact?.whatsapp || "",
+      email: contact?.email || "",
       availableLanguage: ["English", "Hindi", "Arabic"],
       areaServed: "Worldwide",
-    },
-    {
-      "@type": "ContactPoint",
-      contactType: "sales",
-      email: "sales@marhabadmc.com",
-      availableLanguage: ["English", "Hindi"],
     },
   ],
   sameAs: SOCIAL_PROFILES,

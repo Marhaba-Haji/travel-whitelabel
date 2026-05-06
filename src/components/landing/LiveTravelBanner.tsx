@@ -1,6 +1,16 @@
-import { Instagram, Facebook, Linkedin, Twitter, Plane, Car, Stamp } from "lucide-react";
+import { Instagram, Facebook, Linkedin, Twitter, Plane, Car } from "lucide-react";
+import { useSocialSettings } from "@/hooks/useSocialSettings";
 
 const LiveTravelBanner = () => {
+  const { instagram, facebook, linkedin, x: twitter } = useSocialSettings();
+
+  const socialItems = [
+    { href: instagram, Icon: Instagram, label: "Instagram" },
+    { href: facebook, Icon: Facebook, label: "Facebook" },
+    { href: linkedin, Icon: Linkedin, label: "LinkedIn" },
+    { href: twitter, Icon: Twitter, label: "X / Twitter" },
+  ].filter((item) => item.href?.trim());
+
   return (
     <div className="container mx-auto px-4 my-16 w-full">
       <div className="relative w-full overflow-hidden rounded-3xl bg-[#FFFBF4] border border-orange-100 shadow-sm min-h-[300px] flex items-center justify-center">
@@ -22,7 +32,7 @@ const LiveTravelBanner = () => {
           {/* Left Polaroid */}
           <div className="hidden md:block relative w-64 h-56 rotate-[-6deg] bg-white p-3 shadow-lg rounded-sm mr-8 hover:rotate-0 transition-transform duration-300">
             <div className="w-full h-full bg-gray-200 overflow-hidden">
-              <img src="https://placehold.co/400x300/4CAF50/white?text=Mountain+View" alt="Mountain View" className="w-full h-full object-cover" />
+              <img src="/assets/mountain-view.jpg" alt="Mountain View" className="w-full h-full object-cover" />
             </div>
             {/* Doodle Icon - Plane */}
             <div className="absolute -bottom-6 -right-6 w-16 h-16 bg-white rounded-full shadow-md flex items-center justify-center rotate-[15deg]">
@@ -36,21 +46,21 @@ const LiveTravelBanner = () => {
             <h2 className="text-5xl md:text-7xl text-[#F98825] mb-2" style={{ fontFamily: 'cursive' }}>Live Travel</h2>
             <p className="text-sm font-bold text-gray-800 tracking-wider mb-3">LIVE STREAM TRAVEL EVERY DAY</p>
             <p className="text-xs text-gray-500 mb-6 max-w-xs mx-auto leading-relaxed">
-              Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt.
+              Join our daily live streams from stunning destinations—real-time tours, local tips, and authentic travel experiences.
             </p>
             <div className="flex items-center justify-center gap-4">
-              <a href="#" className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-gray-50 transition-colors text-gray-700">
-                <Instagram className="w-4 h-4" />
-              </a>
-              <a href="#" className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-gray-50 transition-colors text-gray-700">
-                <Facebook className="w-4 h-4" />
-              </a>
-              <a href="#" className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-gray-50 transition-colors text-gray-700">
-                <Linkedin className="w-4 h-4" />
-              </a>
-              <a href="#" className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-gray-50 transition-colors text-gray-700">
-                <Twitter className="w-4 h-4" />
-              </a>
+              {socialItems.map(({ href, Icon, label }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={label}
+                  className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-gray-50 transition-colors text-gray-700"
+                >
+                  <Icon className="w-4 h-4" />
+                </a>
+              ))}
             </div>
             
             {/* Doodle Stamp */}
@@ -62,7 +72,7 @@ const LiveTravelBanner = () => {
           {/* Right Polaroid */}
           <div className="hidden md:block relative w-64 h-56 rotate-[8deg] bg-white p-3 shadow-lg rounded-sm ml-8 hover:rotate-0 transition-transform duration-300">
             <div className="w-full h-full bg-gray-200 overflow-hidden">
-              <img src="https://placehold.co/400x300/2196F3/white?text=Ocean+View" alt="Ocean View" className="w-full h-full object-cover" />
+              <img src="/assets/ocean-view.jpg" alt="Ocean View" className="w-full h-full object-cover" />
             </div>
             {/* Doodle Icon - Car */}
             <div className="absolute -top-8 -left-8 w-14 h-14 bg-white rounded-full shadow-md flex items-center justify-center rotate-[-15deg]">

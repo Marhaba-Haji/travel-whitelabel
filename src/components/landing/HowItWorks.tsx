@@ -67,7 +67,7 @@ const HowItWorks = () => {
               />
               {/* Floating Pill */}
               <div className="absolute bottom-24 -left-12 bg-white shadow-xl rounded-full px-6 py-3 border border-gray-50 z-20">
-                <span className="text-[#F98825] font-bold tracking-wider">+01 235 368</span>
+                <span className="text-[#F98825] font-bold tracking-wider">2,000+ Customers Served</span>
               </div>
               {/* Starfish (Emojis/SVGs for decoration) */}
               <div className="absolute -bottom-2 right-4 text-3xl opacity-80 rotate-[15deg] z-20 select-none pointer-events-none text-orange-300">

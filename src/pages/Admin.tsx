@@ -17,6 +17,7 @@ import BlogTab from "@/components/admin/BlogTab";
 import IndexingLogsTab from "@/components/admin/IndexingLogsTab";
 import UserManagementTab from "@/components/admin/UserManagementTab";
 import PartnersTab from "@/components/admin/PartnersTab";
+import TestimonialsTab from "@/components/admin/TestimonialsTab";
 import HeroContentTab from "@/components/admin/HeroContentTab";
 import HeroImagesTab from "@/components/admin/HeroImagesTab";
 
@@ -38,6 +39,7 @@ const tabComponents: Record<string, React.FC> = {
   "hero-images": HeroImagesTab,
   settings: SiteSettingsTab,
   partners: PartnersTab,
+  testimonials: TestimonialsTab,
   "user-management": UserManagementTab,
 };
 

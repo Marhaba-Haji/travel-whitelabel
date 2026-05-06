@@ -13,6 +13,7 @@ import {
   breadcrumbSchema,
   SITE_URL,
 } from "@/lib/seo-schemas";
+import { useContactSettings } from "@/hooks/useContactSettings";
 
 // Above-the-fold: load eagerly
 import Header from "@/components/landing/Header";
@@ -37,6 +38,7 @@ const StickyCTA = lazy(() => import("@/components/landing/StickyCTA"));
 
 const Index = () => {
   const location = useLocation();
+  const { email, phone, whatsapp, address } = useContactSettings();
 
   useEffect(() => {
     if (location.hash) {
@@ -65,7 +67,7 @@ const Index = () => {
   ];
 
   const jsonLd = [
-    organizationSchema(),
+    organizationSchema({ email, phone, whatsapp, address }),
     websiteSchema(),
     breadcrumbSchema([{ name: "Home", url: SITE_URL }]),
     faqPageSchema(homepageFaqs),
