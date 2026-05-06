@@ -1,8 +1,37 @@
+"use client";
+
+import { useState } from "react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import { Sparkles, LayoutTemplate, Network, LineChart } from "lucide-react";
+import { Sparkles, LayoutTemplate, Network, LineChart, Settings, Package, Users, ShoppingCart, Check } from "lucide-react";
 
 const ProductShowcase = () => {
   const { ref, isVisible } = useScrollAnimation();
+  const [activeTab, setActiveTab] = useState("admin");
+
+  const tabContent = {
+    admin: {
+      title: "Admin Portal",
+      icon: LayoutTemplate,
+      features: ["Real Time booking", "Nyra AI Tracking", "Revenue Analytics", "Credit Report"],
+    },
+    supplier: {
+      title: "Supplier Portal",
+      icon: LayoutTemplate,
+      features: ["Inventory Management", "Dynamic Pricing", "Service Configuration", "Performance Metrics"],
+    },
+    b2b: {
+      title: "B2B Agent",
+      icon: Network,
+      features: ["Agent Commission Tracking", "Co-branding Options", "Lead Distribution", "Joint Marketing Tools"],
+    },
+    b2c: {
+      title: "B2C Portal",
+      icon: LineChart,
+      features: ["Easy Search & Book", "Secure Payments", "Trip Itineraries", "24/7 Support"],
+    },
+  };
+
+  const activeContent = tabContent[activeTab as keyof typeof tabContent];
 
   return (
     <section className="py-24 relative overflow-hidden bg-white w-full">
@@ -24,16 +53,28 @@ const ProductShowcase = () => {
 
         {/* Tabs Row */}
         <div className="flex flex-wrap justify-center gap-4 mb-14">
-          <button className="bg-[#412A86] text-white font-semibold px-6 py-2.5 rounded-xl shadow-md transition-all">
+          <button 
+            onClick={() => setActiveTab("admin")}
+            className={`font-semibold px-6 py-2.5 rounded-xl shadow-md transition-all ${activeTab === "admin" ? "bg-[#412A86] text-white" : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"}`}
+          >
             Admin Portal
           </button>
-          <button className="bg-white border border-gray-300 text-gray-700 font-semibold px-6 py-2.5 rounded-xl hover:bg-gray-50 transition-all">
+          <button 
+            onClick={() => setActiveTab("supplier")}
+            className={`font-semibold px-6 py-2.5 rounded-xl transition-all ${activeTab === "supplier" ? "bg-[#412A86] text-white shadow-md" : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"}`}
+          >
             Supplier portal
           </button>
-          <button className="bg-white border border-gray-300 text-gray-700 font-semibold px-6 py-2.5 rounded-xl hover:bg-gray-50 transition-all">
+          <button 
+            onClick={() => setActiveTab("b2b")}
+            className={`font-semibold px-6 py-2.5 rounded-xl transition-all ${activeTab === "b2b" ? "bg-[#412A86] text-white shadow-md" : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"}`}
+          >
             B2B Agent
           </button>
-          <button className="bg-white border border-gray-300 text-gray-700 font-semibold px-6 py-2.5 rounded-xl hover:bg-gray-50 transition-all">
+          <button 
+            onClick={() => setActiveTab("b2c")}
+            className={`font-semibold px-6 py-2.5 rounded-xl transition-all ${activeTab === "b2c" ? "bg-[#412A86] text-white shadow-md" : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"}`}
+          >
             B2C Portal
           </button>
         </div>
@@ -43,26 +84,16 @@ const ProductShowcase = () => {
           {/* Active Card */}
           <div className="bg-white rounded-2xl p-8 border border-[#412A86]/30 shadow-[0_8px_30px_rgb(65,42,134,0.08)] relative">
             <div className="flex items-center gap-3 mb-6">
-              <LayoutTemplate className="w-5 h-5 text-gray-700" strokeWidth={1.5} />
-              <h3 className="font-bold text-gray-900 text-lg">Admin Portal</h3>
+              <activeContent.icon className="w-5 h-5 text-gray-700" strokeWidth={1.5} />
+              <h3 className="font-bold text-gray-900 text-lg">{activeContent.title}</h3>
             </div>
             <ul className="space-y-3 text-sm text-gray-500 font-medium ml-2">
-              <li className="flex items-center gap-3">
-                <span className="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
-                Real Time booking
-              </li>
-              <li className="flex items-center gap-3">
-                <span className="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
-                Nyra AI Tracking
-              </li>
-              <li className="flex items-center gap-3">
-                <span className="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
-                Revenue Analytics
-              </li>
-              <li className="flex items-center gap-3">
-                <span className="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
-                Credit Report
-              </li>
+              {activeContent.features.map((feature, index) => (
+                <li key={index} className="flex items-center gap-3">
+                  <span className="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
+                  {feature}
+                </li>
+              ))}
             </ul>
           </div>
 

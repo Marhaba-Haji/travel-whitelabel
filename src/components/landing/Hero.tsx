@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Briefcase, MapPin, Users } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
@@ -5,11 +6,66 @@ import { usePartners } from "@/hooks/usePartners";
 import { useHeroContent } from "@/hooks/useHeroContent";
 import { useHeroImages } from "@/hooks/useHeroImages";
 
+type DisplayedHeroImage = {
+  id: string;
+  src: string;
+  alt: string;
+};
+
 const Hero = () => {
   const { ref: heroRef, isVisible: heroVisible } = useScrollAnimation();
   const { partners, loading } = usePartners();
   const { heroContent, loading: heroLoading } = useHeroContent();
   const { heroImage, loading: heroImageLoading } = useHeroImages();
+  const [displayedHeroImage, setDisplayedHeroImage] = useState<DisplayedHeroImage>({
+    id: 'hero-image-fallback',
+    src: '/assets/hero_woman_tickets.png',
+    alt: 'Hero travel illustration',
+  });
+  const [nextHeroImage, setNextHeroImage] = useState<DisplayedHeroImage | null>(null);
+  const [isImageTransitioning, setIsImageTransitioning] = useState(false);
+  const transitionTimeoutRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const nextSource = heroImage?.image_url;
+    const nextId = heroImage?.id;
+    const nextAlt = heroImage?.alt_text || 'Hero travel illustration';
+
+    if (!nextSource || !nextId || nextSource === displayedHeroImage.src) {
+      return;
+    }
+
+    const preloaded = new window.Image();
+    preloaded.src = nextSource;
+    preloaded.onload = () => {
+      const preparedNextImage = {
+        id: nextId,
+        src: nextSource,
+        alt: nextAlt,
+      };
+
+      setNextHeroImage(preparedNextImage);
+      setIsImageTransitioning(true);
+
+      if (transitionTimeoutRef.current) {
+        window.clearTimeout(transitionTimeoutRef.current);
+      }
+
+      transitionTimeoutRef.current = window.setTimeout(() => {
+        setDisplayedHeroImage(preparedNextImage);
+        setNextHeroImage(null);
+        setIsImageTransitioning(false);
+      }, 700);
+    };
+  }, [heroImage?.id, heroImage?.image_url, heroImage?.alt_text, displayedHeroImage.src]);
+
+  useEffect(() => {
+    return () => {
+      if (transitionTimeoutRef.current) {
+        window.clearTimeout(transitionTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Render title with highlighted subtitle
   const renderTitle = () => {
@@ -195,18 +251,34 @@ const Hero = () => {
               </div>
 
               {/* Main Subject Image */}
-              {heroImageLoading ? (
+              {heroImageLoading && !displayedHeroImage.src ? (
                 <div className="w-[85%] sm:w-full h-[420px] rounded-3xl bg-white/70 animate-pulse shadow-2xl" />
               ) : (
-                <img
-                  key={heroImage?.id || 'hero-image-fallback'}
-                  src={heroImage?.image_url || "/assets/hero_woman_tickets.png"}
-                  alt={heroImage?.alt_text || "Hero travel illustration"}
-                  width={500}
-                  height={600}
-                  fetchPriority="high"
-                  className="w-[85%] sm:w-full h-auto object-contain relative z-10 drop-shadow-2xl animate-fade-in"
-                />
+                <div className="relative w-[85%] sm:w-full z-10">
+                  <img
+                    key={displayedHeroImage.id}
+                    src={displayedHeroImage.src}
+                    alt={displayedHeroImage.alt}
+                    width={500}
+                    height={600}
+                    fetchPriority="high"
+                    className={`w-full h-auto object-contain relative drop-shadow-2xl transition-all duration-700 ease-out ${
+                      isImageTransitioning ? 'opacity-0 scale-[0.985]' : 'opacity-100 scale-100'
+                    }`}
+                  />
+
+                  {nextHeroImage && (
+                    <img
+                      src={nextHeroImage.src}
+                      alt={nextHeroImage.alt}
+                      width={500}
+                      height={600}
+                      className={`absolute inset-0 w-full h-full object-contain drop-shadow-2xl pointer-events-none transition-all duration-700 ease-out ${
+                        isImageTransitioning ? 'opacity-100 scale-100' : 'opacity-0 scale-[1.015]'
+                      }`}
+                    />
+                  )}
+                </div>
               )}
             </div>
           </div>

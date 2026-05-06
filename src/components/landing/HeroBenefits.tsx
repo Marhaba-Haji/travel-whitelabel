@@ -1,11 +1,11 @@
-import { Globe, Ticket, Luggage, LifeBuoy } from "lucide-react";
+import { Building2, Map, Hotel, Headset } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const BENEFITS = [
-  { text: "500 + Travel Agencies", subtext: "Make memories around the world.", icon: Globe, blobColor: "bg-[#FFE8E3]" },
-  { text: "50 + Countries", subtext: "Global Coverage", icon: Ticket, blobColor: "bg-[#E6F8F5]" },
-  { text: "1 M + Hotels", subtext: "4.8 stars from 160,000+ Trustpilot\nreviews.", icon: Luggage, blobColor: "bg-[#EBF3FF]" },
-  { text: "24/7 Support", subtext: "Data security through encryption", icon: LifeBuoy, blobColor: "bg-[#F3EFFF]" },
+  { text: "500 + Travel Agencies", subtext: "Make memories around the world.", icon: Building2, blobColor: "bg-[#FFE8E3]" },
+  { text: "50 + Countries", subtext: "Global Coverage", icon: Map, blobColor: "bg-[#E6F8F5]" },
+  { text: "1 M + Hotels", subtext: "Worldwide hotels available\nfor every journey.", icon: Hotel, blobColor: "bg-[#EBF3FF]" },
+  { text: "Support Availability", subtext: "9am to 7pm\nMonday to Saturday", icon: Headset, blobColor: "bg-[#F3EFFF]" },
 ];
 
 const HeroBenefits = () => {

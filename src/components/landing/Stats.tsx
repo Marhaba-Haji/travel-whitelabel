@@ -6,10 +6,10 @@ const Stats = () => {
   const { ref, isVisible } = useScrollAnimation();
 
   const stats = [
-    { value: 168, suffix: "k", label: "Happy Clients" },
-    { value: 45, prefix: "+", suffix: "k", label: "Destinations" },
-    { value: 49, prefix: "+", label: "Global Branch" },
-    { value: 26, prefix: "+", suffix: "k", label: "Campaigns" },
+    { value: 2000, suffix: "+", label: "Customers" },
+    { value: 50, suffix: "+", label: "Countries" },
+    { value: 500, suffix: "+", label: "Partners" },
+    { value: 1, suffix: "M+", label: "Hotels" },
   ];
 
   return (

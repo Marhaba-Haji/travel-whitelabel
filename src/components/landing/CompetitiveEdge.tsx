@@ -14,7 +14,7 @@ const EmbracingAdventure = () => {
     {
       icon: Luggage,
       title: "Launch-Ready in 24 Hours",
-      description: "4.8 stars from 160,000+ Trustpilot reviews.",
+      description: "4.7 stars from Google.",
       bgColor: "bg-[#E7F8F5]", // Light mint
     },
     {
@@ -43,28 +43,24 @@ const EmbracingAdventure = () => {
               Why book at Marhaba ?
             </span>
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 font-poppins leading-tight">
-              Embracing Adventure Since 2003
+              Embracing Adventure Since 2022
             </h2>
             <p className="text-gray-700 text-lg mb-12 max-w-md">
               Choose one style or create a package, fill your passports with adventures together.
             </p>
 
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div>
-                <h4 className="text-2xl md:text-3xl font-bold text-gray-900 font-poppins mb-1">5,000 +</h4>
-                <p className="text-xs md:text-sm text-gray-500 font-medium leading-snug">Travellers looking<br/>for agents</p>
+                <h4 className="text-2xl md:text-3xl font-bold text-gray-900 font-poppins mb-1">1000+</h4>
+                <p className="text-xs md:text-sm text-gray-500 font-medium leading-snug">Customers served</p>
               </div>
               <div>
                 <h4 className="text-2xl md:text-3xl font-bold text-gray-900 font-poppins mb-1">5CR +</h4>
                 <p className="text-xs md:text-sm text-gray-500 font-medium leading-snug">Bookings</p>
               </div>
               <div>
-                <h4 className="text-2xl md:text-3xl font-bold text-gray-900 font-poppins mb-1">20+</h4>
+                <h4 className="text-2xl md:text-3xl font-bold text-gray-900 font-poppins mb-1">5+</h4>
                 <p className="text-xs md:text-sm text-gray-500 font-medium leading-snug">Years<br/>Experience</p>
-              </div>
-              <div>
-                <h4 className="text-2xl md:text-3xl font-bold text-gray-900 font-poppins mb-1">4.7 K</h4>
-                <p className="text-xs md:text-sm text-gray-500 font-medium leading-snug">Happy<br/>Customers</p>
               </div>
             </div>
           </div>
