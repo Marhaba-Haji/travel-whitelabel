@@ -30,9 +30,10 @@ const Signup = () => {
   const selectedPlan = plans.find((p) => p.key === selectedPlanKey) ?? plans[1];
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-x-hidden bg-background">
-      {/* Aurora Dynamic gradient background */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_hsl(270_70%_58%_/_0.1),_transparent_50%)]" />
+    <div className="min-h-screen flex items-center justify-center relative overflow-x-hidden bg-white">
+      {/* Soft brand wash */}
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#2D9BFC]/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#412A86]/5 rounded-full blur-3xl pointer-events-none" />
 
       <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start min-w-0">
@@ -44,7 +45,7 @@ const Signup = () => {
           >
             <Link
               to="/"
-              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors mb-8 lg:mb-4"
+              className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-[#412A86] transition-colors mb-8 lg:mb-4"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to home
@@ -54,14 +55,14 @@ const Signup = () => {
               <AuroraLogo size="lg" />
             </div>
 
-            <div className="glass-card rounded-2xl p-8">
+            <div className="rounded-3xl bg-white border border-gray-100 shadow-soft p-8">
               <div className="mb-6">
-                <h1 className="text-3xl font-bold text-foreground mb-2">
+                <h1 className="font-poppins text-3xl font-bold text-gray-900 mb-2">
                   Create your account
                 </h1>
-                <p className="text-muted-foreground text-sm">
+                <p className="text-gray-500 text-sm">
                   Subscribing to{" "}
-                  <span className="font-semibold text-primary">{selectedPlan.name}</span>
+                  <span className="font-semibold text-[#412A86]">{selectedPlan.name}</span>
                   {" "}— {symbol}{selectedPlan.basePrice.toLocaleString("en-IN")} + {gstPercent}% GST/year
                 </p>
               </div>
@@ -84,8 +85,8 @@ const Signup = () => {
           >
             <div className="space-y-4">
               <div className="mb-2">
-                <h2 className="text-xl font-bold text-foreground">Choose your plan</h2>
-                <p className="text-sm text-muted-foreground mt-1">
+                <h2 className="font-poppins text-xl font-bold text-gray-900">Choose your plan</h2>
+                <p className="text-sm text-gray-500 mt-1">
                   All plans include core travel infrastructure. Select below.
                 </p>
               </div>
@@ -105,18 +106,18 @@ const Signup = () => {
                       type="button"
                       onClick={() => setSelectedPlanKey(plan.key)}
                       className={cn(
-                        "w-full text-left rounded-2xl border-2 p-5 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                        "w-full text-left rounded-3xl border-2 p-5 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#412A86]",
                         isSelected
-                          ? "border-primary bg-primary/5 shadow-lg shadow-primary/10"
-                          : "border-border bg-card hover:border-primary/40"
+                          ? "border-[#412A86] bg-[#412A86]/5 shadow-soft-lg"
+                          : "border-gray-100 bg-white hover:border-[#412A86]/40 shadow-soft"
                       )}
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1 flex-wrap">
                             <span className={cn(
-                              "font-semibold text-base",
-                              isSelected ? "text-primary" : "text-foreground"
+                              "font-poppins font-semibold text-base",
+                              isSelected ? "text-[#412A86]" : "text-gray-900"
                             )}>
                               {plan.name}
                             </span>
@@ -125,8 +126,8 @@ const Signup = () => {
                                 className={cn(
                                   "text-xs px-2 py-0.5 border-0",
                                   plan.highlight
-                                    ? "bg-primary text-primary-foreground"
-                                    : "bg-muted text-muted-foreground"
+                                    ? "bg-[#412A86] text-white"
+                                    : "bg-gray-100 text-gray-600"
                                 )}
                               >
                                 {plan.badge}
@@ -135,17 +136,17 @@ const Signup = () => {
                           </div>
 
                           <div className="flex items-baseline gap-1 mb-3">
-                            <span className="text-2xl font-bold text-foreground">
+                            <span className="font-poppins text-2xl font-bold text-gray-900">
                               {symbol}{plan.basePrice.toLocaleString("en-IN")}
                             </span>
-                            <span className="text-xs text-muted-foreground">/ year + {gstPercent}% GST</span>
+                            <span className="text-xs text-gray-500">/ year + {gstPercent}% GST</span>
                           </div>
 
                           {plan.extras.length > 0 && (
                             <ul className="space-y-1">
                               {plan.extras.map((extra) => (
-                                <li key={extra} className="flex items-center gap-2 text-xs text-muted-foreground">
-                                  <Check className="h-3 w-3 text-primary flex-shrink-0" />
+                                <li key={extra} className="flex items-center gap-2 text-xs text-gray-600">
+                                  <Check className="h-3 w-3 text-[#412A86] flex-shrink-0" />
                                   {extra}
                                 </li>
                               ))}
@@ -153,7 +154,7 @@ const Signup = () => {
                           )}
 
                           {plan.key === "launch" && (
-                            <p className="text-xs text-muted-foreground">
+                            <p className="text-xs text-gray-500">
                               Core travel infrastructure — all 15 APIs and portals included.
                             </p>
                           )}
@@ -163,11 +164,11 @@ const Signup = () => {
                         <div className={cn(
                           "w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-all",
                           isSelected
-                            ? "border-primary bg-primary"
-                            : "border-border bg-transparent"
+                            ? "border-[#412A86] bg-[#412A86]"
+                            : "border-gray-200 bg-transparent"
                         )}>
                           {isSelected && (
-                            <Check className="h-3 w-3 text-primary-foreground" />
+                            <Check className="h-3 w-3 text-white" />
                           )}
                         </div>
                       </div>
@@ -177,8 +178,8 @@ const Signup = () => {
               )}
 
               {/* Shared infrastructure note */}
-              <div className="bg-muted/50 border border-border rounded-xl p-4 mt-2">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+              <div className="bg-[#FAFAFC] border border-gray-100 rounded-2xl p-4 mt-2">
+                <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
                   All plans include
                 </p>
                 <div className="grid grid-cols-2 gap-1.5">
@@ -188,8 +189,8 @@ const Signup = () => {
                     "Admin Portal", "B2C Booking Website",
                     "Contracted Rates Access", "Halal Content Library",
                   ].map((item) => (
-                    <div key={item} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <Check className="h-3 w-3 text-primary flex-shrink-0" />
+                    <div key={item} className="flex items-center gap-1.5 text-xs text-gray-600">
+                      <Check className="h-3 w-3 text-[#412A86] flex-shrink-0" />
                       {item}
                     </div>
                   ))}

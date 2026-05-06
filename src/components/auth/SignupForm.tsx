@@ -605,30 +605,30 @@ const SignupForm = ({ selectedPlanName, planBasePrice, planKey, gstPercent, symb
 
         <Button
           type="submit"
-          className="w-full h-11 text-base font-semibold bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg"
+          className="w-full h-12 text-base font-semibold rounded-full bg-[#412A86] hover:bg-[#412A86]/90 text-white shadow-lg"
           disabled={isLoading}
         >
           <CreditCard className="mr-2 h-4 w-4" />
           Review Order & Pay {couponSavingsFormatted ? `— Save ${couponSavingsFormatted}` : `${symbol}${Math.round(planBasePrice * (1 + gstPercent / 100)).toLocaleString("en-IN")}`}
         </Button>
 
-        <div className="text-center text-sm text-muted-foreground">
+        <div className="text-center text-sm text-gray-500">
           Already have an account?{" "}
           <Link
             to="/login"
-            className="text-primary hover:underline font-semibold"
+            className="text-[#412A86] hover:underline font-semibold"
           >
             Sign in
           </Link>
         </div>
 
-        <div className="text-center text-sm text-muted-foreground">
+        <div className="text-center text-sm text-gray-500">
           Want to see how it works?{" "}
           <a
             href="https://cal.id/harab-rasheed/product-demo?overlayCalendar=true"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-primary hover:underline font-semibold"
+            className="text-[#412A86] hover:underline font-semibold"
           >
             Book a Demo
           </a>
