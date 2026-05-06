@@ -179,15 +179,19 @@ export default function UmrahVisaCheck() {
   };
 
   return (
-    <div className="min-h-screen bg-background" data-visa-page>
+    <div className="min-h-screen bg-white relative overflow-hidden" data-visa-page>
+      <div className="absolute top-20 right-0 w-[500px] h-[500px] bg-[#2D9BFC]/5 rounded-full blur-3xl pointer-events-none" />
       <Header />
-      <main className={`container mx-auto px-4 sm:px-6 pt-[4.5rem] lg:pt-20 pb-5 sm:pb-10 md:pb-12 ${step === 4 ? "max-w-4xl" : "max-w-xl"}`}>
+      <main className={`container mx-auto px-4 sm:px-6 pt-[4.5rem] lg:pt-20 pb-5 sm:pb-10 md:pb-12 relative z-10 ${step === 4 ? "max-w-4xl" : "max-w-xl"}`}>
         <div className="mb-5 sm:mb-8 text-center space-y-4 sm:space-y-6">
           <div className="space-y-1.5 sm:space-y-2">
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight leading-tight">
-              Umrah Visa Status Check
+            <span className="inline-block bg-cyan-50 text-cyan-600 font-bold tracking-wide text-xs px-4 py-1.5 rounded-full uppercase mb-2">
+              Visa Service
+            </span>
+            <h1 className="font-poppins text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight leading-tight text-gray-900">
+              Umrah Visa <span className="text-[#B968C7]">Status Check</span>
             </h1>
-            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed px-1">
+            <p className="text-sm text-gray-500 leading-relaxed px-1">
               Official MOFA data. Your data is not stored.
             </p>
           </div>
@@ -199,10 +203,10 @@ export default function UmrahVisaCheck() {
           />
         </div>
 
-        <Card className="border shadow-sm">
+        <Card className="rounded-3xl bg-white border border-gray-100 shadow-soft">
           <CardHeader className="p-6 pb-0">
-            <CardTitle className="text-lg font-semibold">{STEPS[step - 1]?.label ?? "Step"}</CardTitle>
-            <CardDescription className="text-sm">
+            <CardTitle className="font-poppins text-lg font-bold text-gray-900">{STEPS[step - 1]?.label ?? "Step"}</CardTitle>
+            <CardDescription className="text-sm text-gray-500">
               {STEPS[step - 1]?.description}
             </CardDescription>
           </CardHeader>
