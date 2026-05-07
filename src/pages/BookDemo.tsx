@@ -81,6 +81,12 @@ const BookDemo = () => {
   const [time, setTime] = useState<string | undefined>(undefined);
   const [bookedSlots, setBookedSlots] = useState<string[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
+  const [scheduleSettings, setScheduleSettings] = useState<Record<number, {
+    start_time: string;
+    end_time: string;
+    unavailable_ranges: { start: string; end: string }[];
+    is_holiday: boolean;
+  }>>({});
 
   // Form state
   const [fullName, setFullName] = useState("");
@@ -106,6 +112,26 @@ const BookDemo = () => {
         setLoadingSlots(false);
       });
   }, [date, dateStr]);
+
+  // Load schedule settings for slot availability
+  useEffect(() => {
+    supabase
+      .from("demo_schedule_settings")
+      .select("day_of_week, start_time, end_time, unavailable_ranges, is_holiday")
+      .then(({ data, error }) => {
+        if (error) return;
+        const map: Record<number, any> = {};
+        (data || []).forEach((r: any) => {
+          map[r.day_of_week] = {
+            start_time: r.start_time || "09:00",
+            end_time: r.end_time || "17:00",
+            unavailable_ranges: Array.isArray(r.unavailable_ranges) ? r.unavailable_ranges : [],
+            is_holiday: Boolean(r.is_holiday),
+          };
+        });
+        setScheduleSettings(map);
+      });
+  }, []);
 
   const goNext = () => setStep((s) => (Math.min(4, s + 1) as Step));
   const goBack = () => setStep((s) => (Math.max(1, s - 1) as Step));
@@ -301,7 +327,7 @@ const BookDemo = () => {
                     <p className="text-sm text-gray-600 mb-4">
                       Choose any weekday that works for you.
                     </p>
-                    <div className="rounded-2xl border border-gray-100 bg-white inline-block w-full overflow-x-auto">
+                    <div className="rounded-2xl border border-gray-100 bg-white block w-full overflow-x-auto">
                       <Calendar
                         mode="single"
                         selected={date}
@@ -314,10 +340,13 @@ const BookDemo = () => {
                           const max = new Date();
                           max.setDate(max.getDate() + 60);
                           if (d > max) return true;
+                          const dow = d.getDay();
+                          const daySettings = scheduleSettings[dow];
+                          if (daySettings?.is_holiday) return true; // Disable if marked as holiday
                           return false;
                         }}
                         initialFocus
-                        className="p-3 pointer-events-auto mx-auto"
+                        className="p-3 pointer-events-auto w-full"
                       />
                     </div>
                     <div className="mt-6 flex justify-end">
@@ -351,29 +380,64 @@ const BookDemo = () => {
                       </div>
                     ) : (
                       <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
-                        {ALL_SLOTS.map((slot) => {
-                          const taken = bookedSlots.includes(slot);
-                          const selected = time === slot;
-                          return (
-                            <button
-                              key={slot}
-                              type="button"
-                              disabled={taken}
-                              onClick={() => setTime(slot)}
-                              className={cn(
-                                "py-2.5 rounded-full text-sm font-semibold border transition-all",
-                                taken &&
-                                  "bg-gray-50 text-gray-300 border-gray-100 cursor-not-allowed line-through",
-                                !taken && !selected &&
-                                  "bg-white border-gray-200 text-gray-700 hover:border-[#412A86] hover:text-[#412A86]",
-                                selected &&
-                                  "bg-[#412A86] text-white border-[#412A86] shadow-soft",
-                              )}
-                            >
-                              {slot}
-                            </button>
-                          );
-                        })}
+                        {(() => {
+                          if (!date) return null;
+                          const dow = date.getDay();
+                          const cfg = scheduleSettings[dow] || { start_time: "09:00", end_time: "17:00", unavailable_ranges: [], is_holiday: false };
+
+                          // Helper to add 30 minutes to a time string (HH:MM)
+                          const addMinutes = (time: string, mins: number): string => {
+                            const [h, m] = time.split(":").map(Number);
+                            const total = h * 60 + m + mins;
+                            const newH = Math.floor(total / 60) % 24;
+                            const newM = total % 60;
+                            return `${String(newH).padStart(2, "0")}:${String(newM).padStart(2, "0")}`;
+                          };
+
+                          const between = (t: string, start: string, end: string) => {
+                            // For a 30-minute slot starting at t, check if it fits between start and end
+                            // Slot occupies time [t, t+30min), so we check if t >= start and t+30min <= end
+                            const slotEnd = addMinutes(t, 30);
+                            return t >= start && slotEnd <= end;
+                          };
+
+                          const overlapsUnavailable = (t: string): boolean => {
+                            // Check if slot [t, t+30min) overlaps with any unavailable range
+                            // Two ranges overlap if: range_start < slot_end AND range_end > slot_start
+                            const slotEnd = addMinutes(t, 30);
+                            for (const r of cfg.unavailable_ranges || []) {
+                              if (!r || !r.start || !r.end) continue;
+                              if (r.start < slotEnd && r.end > t) return true; // Overlap detected
+                            }
+                            return false;
+                          };
+
+                          const visibleSlots = ALL_SLOTS.filter((s) => between(s, cfg.start_time, cfg.end_time) && !overlapsUnavailable(s));
+
+                          return visibleSlots.map((slot) => {
+                            const taken = bookedSlots.includes(slot);
+                            const selected = time === slot;
+                            return (
+                              <button
+                                key={slot}
+                                type="button"
+                                disabled={taken}
+                                onClick={() => setTime(slot)}
+                                className={cn(
+                                  "py-2.5 rounded-full text-sm font-semibold border transition-all",
+                                  taken &&
+                                    "bg-gray-50 text-gray-300 border-gray-100 cursor-not-allowed line-through",
+                                  !taken && !selected &&
+                                    "bg-white border-gray-200 text-gray-700 hover:border-[#412A86] hover:text-[#412A86]",
+                                  selected &&
+                                    "bg-[#412A86] text-white border-[#412A86] shadow-soft",
+                                )}
+                              >
+                                {slot}
+                              </button>
+                            );
+                          });
+                        })()}
                       </div>
                     )}
 
@@ -552,36 +616,6 @@ const BookDemo = () => {
             </div>
           </div>
 
-          {/* Mini FAQ */}
-          <div className="mt-16 max-w-3xl mx-auto">
-            <div className="text-center mb-8">
-              <EyebrowChip className="mx-auto bg-blue-50 text-[#412A86]">FAQ</EyebrowChip>
-              <h2 className="mt-3 font-poppins font-extrabold text-2xl sm:text-3xl text-gray-900">
-                Quick answers
-              </h2>
-            </div>
-            <div className="grid sm:grid-cols-3 gap-4">
-              {[
-                {
-                  q: "Can I reschedule?",
-                  a: "Yes — reply to our WhatsApp confirmation and we'll move the slot for you.",
-                },
-                {
-                  q: "Will it be recorded?",
-                  a: "Only on request. We're happy to share a recording after the call.",
-                },
-                {
-                  q: "Who should attend?",
-                  a: "Founders, ops leads, or anyone evaluating travel platforms for their agency.",
-                },
-              ].map((f) => (
-                <SoftCard key={f.q} className="p-5">
-                  <div className="font-semibold text-gray-900 text-sm">{f.q}</div>
-                  <div className="mt-1.5 text-sm text-gray-600">{f.a}</div>
-                </SoftCard>
-              ))}
-            </div>
-          </div>
         </div>
       </section>
 

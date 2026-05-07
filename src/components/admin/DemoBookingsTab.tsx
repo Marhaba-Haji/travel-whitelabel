@@ -58,8 +58,28 @@ const statusColors: Record<string, string> = {
 const DemoBookingsTab = () => {
   const [bookings, setBookings] = useState<DemoBooking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [scheduleLoading, setScheduleLoading] = useState(false);
+  const [scheduleDirty, setScheduleDirty] = useState(false);
+  const [schedule, setSchedule] = useState<{
+    day_of_week: number;
+    start_time: string;
+    end_time: string;
+    unavailable_ranges: { start: string; end: string }[];
+    is_holiday: boolean;
+  }[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+
+  const WEEKDAYS = [
+    { id: 0, label: "Sunday" },
+    { id: 1, label: "Monday" },
+    { id: 2, label: "Tuesday" },
+    { id: 3, label: "Wednesday" },
+    { id: 4, label: "Thursday" },
+    { id: 5, label: "Friday" },
+    { id: 6, label: "Saturday" },
+  ];
+  const [copySourceDay, setCopySourceDay] = useState<number>(1);
 
   const load = async () => {
     setLoading(true);
@@ -75,7 +95,76 @@ const DemoBookingsTab = () => {
 
   useEffect(() => {
     load();
+    loadSchedule();
   }, []);
+
+  const loadSchedule = async () => {
+    setScheduleLoading(true);
+    const { data, error } = await supabase
+      .from("demo_schedule_settings")
+      .select("day_of_week, start_time, end_time, unavailable_ranges, is_holiday");
+    if (error) {
+      toast.error(error.message);
+      setScheduleLoading(false);
+      return;
+    }
+
+    // build default week
+    const defaults = WEEKDAYS.map((d) => ({
+      day_of_week: d.id,
+      start_time: "09:00",
+      end_time: "17:00",
+      unavailable_ranges: [] as { start: string; end: string }[],
+      is_holiday: false,
+    }));
+
+    (data || []).forEach((row: any) => {
+      const idx = defaults.findIndex((d) => d.day_of_week === row.day_of_week);
+      if (idx >= 0) {
+        defaults[idx] = {
+          day_of_week: row.day_of_week,
+          start_time: row.start_time || "09:00",
+          end_time: row.end_time || "17:00",
+          unavailable_ranges: Array.isArray(row.unavailable_ranges)
+            ? row.unavailable_ranges
+            : [],
+          is_holiday: Boolean(row.is_holiday),
+        };
+      }
+    });
+
+    setSchedule(defaults);
+    setScheduleLoading(false);
+    setScheduleDirty(false);
+  };
+
+  const saveSchedule = async () => {
+    setScheduleLoading(true);
+    try {
+      const payload = schedule.map((s) => ({
+        day_of_week: s.day_of_week,
+        start_time: s.start_time,
+        end_time: s.end_time,
+        unavailable_ranges: s.unavailable_ranges,
+        is_holiday: s.is_holiday,
+      }));
+
+      const { error } = await supabase
+        .from("demo_schedule_settings")
+        .upsert(payload, { onConflict: "day_of_week" });
+      if (error) {
+        toast.error(error.message);
+      } else {
+        toast.success("Schedule saved");
+        setScheduleDirty(false);
+        loadSchedule();
+      }
+    } catch (e: any) {
+      toast.error(e.message || "Save failed");
+    } finally {
+      setScheduleLoading(false);
+    }
+  };
 
   const updateStatus = async (id: string, status: string) => {
     const { error } = await supabase
@@ -181,6 +270,107 @@ const DemoBookingsTab = () => {
         <Button onClick={exportCSV} variant="outline" size="sm">
           <Download className="h-4 w-4 mr-1.5" /> Export CSV
         </Button>
+      </div>
+
+      {/* Schedule Settings */}
+      <div className="rounded-2xl bg-white border border-gray-100 p-4 shadow-soft">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <div className="text-sm font-semibold">Demo Schedule</div>
+            <div className="text-xs text-muted-foreground">Control start/end time and unavailable ranges per weekday.</div>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="hidden sm:flex items-center gap-2">
+              <div className="text-xs text-muted-foreground">Source</div>
+              <Select value={`${copySourceDay}`} onValueChange={(v)=>setCopySourceDay(Number(v))}>
+                <SelectTrigger className="w-36 h-8">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {WEEKDAYS.map((d)=> (
+                    <SelectItem key={d.id} value={`${d.id}`}>{d.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button size="sm" variant="outline" onClick={()=>{
+                // copy to all days
+                const src = schedule.find(s=>s.day_of_week===copySourceDay);
+                if(!src) return toast.error('No source data');
+                setSchedule(prev=>prev.map(p=>({ ...p, start_time: src.start_time, end_time: src.end_time, unavailable_ranges: JSON.parse(JSON.stringify(src.unavailable_ranges)) })));
+                setScheduleDirty(true);
+              }}>Copy to all</Button>
+              <Button size="sm" variant="outline" onClick={()=>{
+                const src = schedule.find(s=>s.day_of_week===copySourceDay);
+                if(!src) return toast.error('No source data');
+                const weekdays = [1,2,3,4,5];
+                setSchedule(prev=>prev.map(p=>weekdays.includes(p.day_of_week)?{ ...p, start_time: src.start_time, end_time: src.end_time, unavailable_ranges: JSON.parse(JSON.stringify(src.unavailable_ranges)) }:p));
+                setScheduleDirty(true);
+              }}>Copy to weekdays</Button>
+              <Button size="sm" variant="outline" onClick={()=>{
+                const src = schedule.find(s=>s.day_of_week===copySourceDay);
+                if(!src) return toast.error('No source data');
+                const weekends = [0,6];
+                setSchedule(prev=>prev.map(p=>weekends.includes(p.day_of_week)?{ ...p, start_time: src.start_time, end_time: src.end_time, unavailable_ranges: JSON.parse(JSON.stringify(src.unavailable_ranges)) }:p));
+                setScheduleDirty(true);
+              }}>Copy to weekends</Button>
+            </div>
+            <Button size="sm" variant="ghost" onClick={loadSchedule} disabled={scheduleLoading}>Reload</Button>
+            <Button size="sm" onClick={saveSchedule} disabled={scheduleLoading || !scheduleDirty}>{scheduleLoading ? "Saving..." : "Save Schedule"}</Button>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left text-xs text-muted-foreground">
+                <th className="py-2">Day</th>
+                <th className="py-2">Holiday</th>
+                <th className="py-2">Start</th>
+                <th className="py-2">End</th>
+                <th className="py-2">Unavailable ranges (comma separated, e.g. 12:00-13:00,15:30-16:00)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {schedule.map((s) => (
+                <tr key={s.day_of_week} className="border-t border-gray-100">
+                  <td className="py-3 font-medium">{WEEKDAYS.find(w=>w.id===s.day_of_week)?.label}</td>
+                  <td className="py-3">
+                    <input type="checkbox" checked={s.is_holiday} onChange={(e)=>{
+                      const v = e.target.checked;
+                      setSchedule((prev)=>prev.map(p=>p.day_of_week===s.day_of_week?{...p,is_holiday:v}:p));
+                      setScheduleDirty(true);
+                    }} className="cursor-pointer" />
+                  </td>
+                  <td className="py-3">
+                    <input type="time" value={s.start_time} disabled={s.is_holiday} onChange={(e)=>{
+                      const v = e.target.value;
+                      setSchedule((prev)=>prev.map(p=>p.day_of_week===s.day_of_week?{...p,start_time:v}:p));
+                      setScheduleDirty(true);
+                    }} className={`border rounded px-2 py-1 ${s.is_holiday ? 'opacity-50 bg-gray-100 cursor-not-allowed' : ''}`} />
+                  </td>
+                  <td className="py-3">
+                    <input type="time" value={s.end_time} disabled={s.is_holiday} onChange={(e)=>{
+                      const v = e.target.value;
+                      setSchedule((prev)=>prev.map(p=>p.day_of_week===s.day_of_week?{...p,end_time:v}:p));
+                      setScheduleDirty(true);
+                    }} className={`border rounded px-2 py-1 ${s.is_holiday ? 'opacity-50 bg-gray-100 cursor-not-allowed' : ''}`} />
+                  </td>
+                  <td className="py-3">
+                    <input type="text" value={s.unavailable_ranges.map(r=>`${r.start}-${r.end}`).join(",")} disabled={s.is_holiday} onChange={(e)=>{
+                      const v = e.target.value;
+                      const ranges = v.split(",").map(r=>r.trim()).filter(Boolean).map(r=>{
+                        const [start, end] = r.split("-").map(x=>x.trim());
+                        return { start: start||"00:00", end: end||"00:00" };
+                      });
+                      setSchedule((prev)=>prev.map(p=>p.day_of_week===s.day_of_week?{...p,unavailable_ranges:ranges}:p));
+                      setScheduleDirty(true);
+                    }} className={`w-full border rounded px-2 py-1 ${s.is_holiday ? 'opacity-50 bg-gray-100 cursor-not-allowed' : ''}`} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Stats */}
