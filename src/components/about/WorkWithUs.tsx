@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Compass, Globe, Cpu, Building, CheckCircle2, Star, TrendingUp } from "lucide-react";
@@ -155,10 +156,10 @@ const WorkWithUs = () => {
                 asChild
                 className="rounded-full px-8 bg-gradient-to-r from-aurora-blue via-primary to-aurora-blue bg-[length:200%_auto] animate-gradient-shift shadow-[0_0_20px_hsl(210_100%_50%_/_0.2)] hover:shadow-[0_0_30px_hsl(210_100%_50%_/_0.3)] transition-shadow"
               >
-                <a href="/signup">
+                <Link to="/signup">
                   Apply for Partner Access
                   <ArrowRight className="ml-2 h-4 w-4" />
-                </a>
+                </Link>
               </Button>
               <Button
                 size="lg"
@@ -169,7 +170,7 @@ const WorkWithUs = () => {
                 <a href="/contact">
                   Request a Platform Overview
                   <ArrowRight className="ml-2 h-4 w-4" />
-                </a>
+                </Link>
               </Button>
             </div>
             <p className="text-sm text-muted-foreground mt-6">

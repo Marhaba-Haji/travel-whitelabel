@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { Button } from "@/components/ui/button";
 import { Plane, Building2, Car, Globe, TrendingDown, ArrowRight, CheckCircle2 } from "lucide-react";
@@ -112,10 +113,10 @@ const ContractedInventory = () => {
               asChild
               className="rounded-full px-8 bg-gradient-to-r from-aurora-blue via-primary to-aurora-blue shadow-[0_0_20px_hsl(210_100%_50%_/_0.2)] hover:shadow-[0_0_30px_hsl(210_100%_50%_/_0.3)] transition-shadow"
             >
-              <a href="/signup">
+              <Link to="/signup">
                 Get Partner Access
                 <ArrowRight className="ml-2 h-4 w-4" />
-              </a>
+              </Link>
             </Button>
           </div>
         </div>

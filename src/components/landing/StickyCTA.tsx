@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, X } from "lucide-react";
@@ -61,10 +62,10 @@ const StickyCTA = () => {
               asChild
               className="group"
             >
-              <a href="/signup">
+              <Link to="/signup">
                 Get Started
                 <ArrowRight className="ml-1 h-3 w-3 group-hover:translate-x-1 transition-transform" />
-              </a>
+              </Link>
             </Button>
             <button
               onClick={handleDismiss}

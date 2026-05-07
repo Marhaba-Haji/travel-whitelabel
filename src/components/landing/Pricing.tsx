@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -145,7 +146,7 @@ const PlanCard = ({
     </div>
 
     <Button variant={highlight ? "default" : "outline"} className={ctaClassName} asChild>
-      <a href={ctaHref}>Get Started</a>
+      <a href={ctaHref}>Get Started</Link>
     </Button>
   </div>
 );
@@ -317,10 +318,10 @@ const Pricing = () => {
             <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6 font-poppins">Ready to Build Your Travel Business?</h3>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button size="lg" className="h-14 rounded-full px-8 bg-[#412A86] hover:bg-[#412A86]/90 text-white shadow-lg" asChild>
-                <a href="/signup">Get Started Now</a>
+                <Link to="/signup">Get Started Now</Link>
               </Button>
               <Button size="lg" variant="outline" className="h-14 rounded-full px-8 border-gray-200 bg-white text-gray-900 hover:border-[#412A86]/30 hover:bg-white" asChild>
-                <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">Talk to Our Team</a>
+                <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">Talk to Our Team</Link>
               </Button>
             </div>
           </div>
