@@ -33,10 +33,11 @@ const AuroraLogo = ({ size = "md", className = "" }: AuroraLogoProps) => {
   return (
     <a href="/" className={`flex items-center ${s.gap} group ${className}`}>
       <img
-        src="/assets/marhaba-logo-m.png"
+        src="/assets/marhaba-logo-m.webp"
         alt="Marhaba DMC"
         width={56}
         height={56}
+        decoding="async"
         className={`${s.icon} w-auto object-contain flex-shrink-0 group-hover:scale-105 transition-transform duration-300`}
       />
       <div className={`flex flex-col ${s.leading}`}>
