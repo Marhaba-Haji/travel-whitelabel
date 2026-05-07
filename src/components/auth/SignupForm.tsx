@@ -624,14 +624,12 @@ const SignupForm = ({ selectedPlanName, planBasePrice, planKey, gstPercent, symb
 
         <div className="text-center text-sm text-gray-500">
           Want to see how it works?{" "}
-          <a
-            href="https://cal.id/harab-rasheed/product-demo?overlayCalendar=true"
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            to="/book-demo"
             className="text-[#412A86] hover:underline font-semibold"
           >
             Book a Demo
-          </a>
+          </Link>
         </div>
       </form>
     </Form>
