@@ -102,15 +102,24 @@ const BookDemo = () => {
   useEffect(() => {
     if (!date) return;
     setLoadingSlots(true);
-    supabase
-      .from("demo_bookings")
-      .select("booking_time")
-      .eq("booking_date", dateStr)
-      .neq("status", "cancelled")
-      .then(({ data, error }) => {
-        if (!error && data) setBookedSlots(data.map((r) => r.booking_time));
-        setLoadingSlots(false);
+    supabase.functions
+      .invoke("demo-booked-slots", { method: "GET" as any, body: undefined as any })
+      .then(async () => {
+        // Fallback: call via fetch with query string
       });
+    (async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke<{ slots: string[] }>(
+          `demo-booked-slots?date=${dateStr}`,
+          { method: "GET" as any },
+        );
+        if (!error && data?.slots) setBookedSlots(data.slots);
+      } catch (_e) {
+        setBookedSlots([]);
+      } finally {
+        setLoadingSlots(false);
+      }
+    })();
   }, [date, dateStr]);
 
   // Load schedule settings for slot availability
