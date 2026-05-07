@@ -1,34 +1,58 @@
-## Add "Our Services" section to home page
+## Goal
 
-Add a new section showcasing 8 service offerings, inspired by flyshop.in's Our Services block but rebuilt in our design system. Place it directly after "Embracing Adventure Since 2022" (CompetitiveEdge) and before Stats.
+Fix the readability/contrast issues the user spotted: faded text in the admin panel, the date picker on `/book-demo`, and several low-contrast buttons across the site. Changes are purely visual (color/opacity tokens) — no layout, copy, or behavior changes.
 
-### Section content
-- **Heading**: "Our Services"
-- **Subheading**: "We offer white-label solutions that let you launch your own branded product quickly and effortlessly. You sell under your name—we manage the technology behind the scenes."
-- **8 service cards** (each with icon, title, short description):
-  1. **Hajj Packages** — Curated Hajj journeys with vetted operators and end-to-end support. (icon: `Moon`)
-  2. **Umrah Packages** — Year-round Umrah departures with visa, transport, and ziyarat. (icon: `Star`)
-  3. **Halal Holiday Packages** — Family-friendly halal-certified getaways across the globe. (icon: `Palmtree`)
-  4. **Car & Transport** — Private transfers, intercity cabs, and luxury fleet bookings. (icon: `Car`)
-  5. **Activities Booking** — Tours, experiences and tickets in 100+ destinations. (icon: `Ticket`)
-  6. **Group Packages** — Custom group itineraries with negotiated fares for flights & hotels. (icon: `Users`)
-  7. **Independent Packages** — Tailor-made FIT itineraries with full flexibility. (icon: `Compass`)
-  8. **Guide Booking** — Certified local guides bookable on-demand in any language. (icon: `MapPinned`)
+## What I found
 
-### Design (matches our system)
-- Section: `py-24 bg-white` (or alternating soft tint to break monotony from the prior white section — use `bg-[#F7FAFF]`).
-- Heading block: `EyebrowChip` ("Our Services" pill in indigo `#412A86`) + bold poppins H2 with `Our` in `#412A86` highlight. Subheading in `text-gray-500`.
-- Cards: built with `SoftCard` (rounded-3xl, white, hairline border, soft shadow, hover lift). Reuse the blob-icon treatment from `Features.tsx`:
-  - 16×16 organic-blob shaped tinted background, inner 11×11 white circle holding the lucide icon.
-  - Cycle through the 7 surface tones already defined in `Features.tsx` (`featureSurfaces`) so palette stays consistent.
-- Layout: responsive grid — 1 col mobile, 2 cols sm, 4 cols lg (8 cards = 2 neat rows on desktop).
-- Animations: reuse `useScrollAnimation` for header + staggered `animate-scale-in` per card (delay `index * 0.06s`), matching `Features.tsx`.
+**1. Calendar (`/book-demo` and any other usage)** — `src/components/ui/calendar.tsx`
+- `day_outside` uses `opacity-50` on top of already-muted text → numbers nearly invisible on white.
+- `day_disabled` uses `opacity-50 text-muted-foreground` → disabled weekdays/Sundays look ghosted.
+- `head_cell` (Mon/Tue/…) is `text-muted-foreground` at `text-[0.8rem]` → low contrast.
+- `nav_button` uses `opacity-50` → arrows nearly invisible until hover.
 
-### Files
-- **Create** `src/components/landing/OurServices.tsx` — new section component.
-- **Edit** `src/pages/Index.tsx` — lazy-import `OurServices` and render it in the `<Suspense>` block right after `<CompetitiveEdge />` and before `<Stats />`.
+**2. Admin panel** — `src/components/admin/AdminLayout.tsx` + tabs
+- Sidebar inactive items are `text-sidebar-foreground` (HSL `240 5% 26%`) — OK, but the *active* state uses `bg-sidebar-accent` (very pale violet `270 55% 95%`) with `text-sidebar-accent-foreground` (`270 60% 40%`) — passes AA but feels washed on white. We'll deepen the active foreground to `270 65% 30%` and bump active background to `270 55% 92%` for a clearer selected state.
+- `text-muted-foreground` is used heavily for table secondary cells (`NewsletterTab`, `OverviewTab`, etc.). Light-mode token is `215 18% 42%` — borderline. Bumping to `215 22% 32%` improves legibility in tables/cards without affecting dark mode.
+- Sub-admin badge (`text-xs text-muted-foreground`) and user email in sidebar footer become readable as a side effect.
 
-### Notes
-- No new dependencies, no DB or API changes.
-- Pure presentational; no admin CMS hookup (can be added later if requested).
-- Fully mobile responsive with our standard container + spacing tokens.
+**3. Buttons** — `src/components/ui/button.tsx`
+- `variant="ghost"` has no text color → inherits page color. On colored hero/footer backgrounds it can disappear. Add explicit `text-foreground`.
+- `variant="outline"` uses `bg-background` + default text inheritance. Add explicit `text-foreground` so it never inherits a faded parent color.
+- `variant="link"` is fine.
+- The custom `SECONDARY_BTN` in `src/lib/design-tokens.ts` uses `text-gray-900` on `bg-white` — fine. No change.
+
+**4. BookDemo time-slot grid** — `src/pages/BookDemo.tsx` line ~471
+- Disabled (booked) slots use `text-gray-300` on `bg-gray-50` — fails AA. Change to `text-gray-400` on `bg-gray-100` with `line-through` retained, so users still understand they're unavailable but can read the time.
+
+## Changes (minimal)
+
+### `src/components/ui/calendar.tsx`
+- `head_cell`: `text-muted-foreground` → `text-foreground/70 font-medium`
+- `nav_button`: drop `opacity-50 hover:opacity-100` (keep hover bg)
+- `day_outside`: `opacity-50` → `opacity-70` and use `text-foreground/55`
+- `day_disabled`: `opacity-50` → keep `text-muted-foreground` but raise to `opacity-70` + add `line-through` for clarity
+
+### `src/index.css` (light mode tokens only)
+- `--muted-foreground: 215 18% 42%` → `215 22% 32%`
+- `--sidebar-accent: 270 55% 95%` → `270 60% 92%`
+- `--sidebar-accent-foreground: 270 60% 40%` → `270 65% 28%`
+
+(Dark mode tokens untouched.)
+
+### `src/components/ui/button.tsx`
+- `ghost`: add `text-foreground` to the variant class
+- `outline`: add `text-foreground` to the variant class
+
+### `src/pages/BookDemo.tsx` (line ~471)
+- Booked slot class: `bg-gray-50 text-gray-300 border-gray-100` → `bg-gray-100 text-gray-400 border-gray-200`
+
+## Out of scope / will NOT change
+
+- Brand palette (indigo `#412A86`, violet `#B968C7`, etc.)
+- Hero/landing page typography colors (already AA)
+- Dark-mode tokens (no reported issue)
+- Any component layout, spacing, or behavior
+
+## Verification
+
+After approval I'll spot-check: `/admin` (Overview, Newsletter table, sidebar active state), `/book-demo` (calendar past/Sunday cells, booked time slots), and a ghost/outline button on the landing page header.
