@@ -77,8 +77,7 @@ const Inspiration = () => {
   };
 
   const getAvatarUrl = (post: InspirationPost) => {
-    const seed = post.author_name || post.id;
-    return `https://i.pravatar.cc/150?u=${encodeURIComponent(seed)}`;
+    return "/assets/marhaba-dmc-logo.png";
   };
 
   const getImageUrl = (post: InspirationPost) => {
