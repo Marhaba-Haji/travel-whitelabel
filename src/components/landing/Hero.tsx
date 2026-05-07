@@ -126,7 +126,7 @@ const Hero = () => {
         <div className="flex flex-col lg:grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
           
           {/* Left Column — Text & CTA */}
-          <div className="text-center lg:text-left flex flex-col items-center lg:items-start pt-10">
+          <div className="w-full text-center lg:text-left flex flex-col items-center lg:items-start pt-10">
             <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white shadow-sm mb-6 border border-gray-100">
               <span className="font-bold text-sm text-[#412A86]">Explore the world!</span>
               <Briefcase className="w-4 h-4 text-[#412A86]" />
@@ -143,7 +143,7 @@ const Hero = () => {
             {heroLoading ? (
               <div className="h-12 bg-gray-200 rounded-lg animate-pulse mb-10 w-full max-w-lg"></div>
             ) : (
-              <p key={heroContent?.id || 'hero-description'} className="text-base sm:text-lg md:text-xl text-gray-500 mb-10 font-medium max-w-full lg:max-w-lg leading-relaxed animate-fade-in">
+              <p key={heroContent?.id || 'hero-description'} className="text-base sm:text-lg md:text-xl text-gray-500 mb-10 font-medium max-w-lg leading-relaxed animate-fade-in">
                 {heroContent?.description || 'Where adventure meets comfort. We create unforgettable travel experiences'}
               </p>
             )}
