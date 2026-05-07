@@ -297,12 +297,19 @@ export default function NyraWidget() {
 
   // Persist analytics data to session
   const persistAnalytics = useCallback((source: 'voice' | 'chat') => {
-    supabase.from("voice_ai_sessions").update({
-      source,
-      message_count: messageCountRef.current,
-      tool_calls: toolCallCountsRef.current as any,
-      connected_at: connectedAtRef.current || new Date().toISOString(),
-    }).eq("session_id", sessionId).then(() => {}, (err) => console.warn('Analytics persist failed:', err));
+    // Direct table updates are no longer permitted for anonymous users.
+    // Route analytics through the voice-ai-session edge function (service role).
+    supabase.functions.invoke('voice-ai-session', {
+      body: {
+        session_id: sessionId,
+        analytics: {
+          source,
+          message_count: messageCountRef.current,
+          tool_calls: toolCallCountsRef.current,
+          connected_at: connectedAtRef.current || new Date().toISOString(),
+        },
+      },
+    }).catch((err) => console.warn('Analytics persist failed:', err));
   }, [sessionId]);
 
   const handleDisconnect = useCallback(async () => {

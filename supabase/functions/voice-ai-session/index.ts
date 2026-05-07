@@ -42,7 +42,7 @@ Deno.serve(async (req) => {
 
     if (req.method === "POST") {
       const body = await req.json();
-      const { session_id, conversation_summary, itinerary_state, visitor_name, visitor_email } = body;
+      const { session_id, conversation_summary, itinerary_state, visitor_name, visitor_email, analytics } = body;
 
       if (!session_id) {
         return new Response(JSON.stringify({ error: "session_id required" }), {
@@ -60,6 +60,10 @@ Deno.serve(async (req) => {
             ...(itinerary_state !== undefined && { itinerary_state }),
             ...(visitor_name !== undefined && { visitor_name }),
             ...(visitor_email !== undefined && { visitor_email }),
+            ...(analytics?.source !== undefined && { source: analytics.source }),
+            ...(analytics?.message_count !== undefined && { message_count: analytics.message_count }),
+            ...(analytics?.tool_calls !== undefined && { tool_calls: analytics.tool_calls }),
+            ...(analytics?.connected_at !== undefined && { connected_at: analytics.connected_at }),
             last_active_at: new Date().toISOString(),
           },
           { onConflict: "session_id" }
