@@ -468,7 +468,7 @@ const BookDemo = () => {
                                 className={cn(
                                   "py-2.5 rounded-full text-sm font-semibold border transition-all",
                                   taken &&
-                                    "bg-gray-50 text-gray-300 border-gray-100 cursor-not-allowed line-through",
+                                    "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed line-through",
                                   !taken && !selected &&
                                     "bg-white border-gray-200 text-gray-700 hover:border-[#412A86] hover:text-[#412A86]",
                                   selected &&
