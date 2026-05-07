@@ -115,9 +115,9 @@ const Header = () => {
               Book a Demo
             </Link>
             <Button asChild className="rounded-full px-7 py-5 bg-[#412A86] hover:bg-[#412A86]/90 text-white font-semibold shadow-lg shadow-[#412A86]/20 transition-all hover:shadow-xl hover:-translate-y-0.5">
-              <a href="/signup">
+              <Link to="/signup" onClick={handlePageNavigation} onMouseEnter={() => handlePrefetch("/signup")}>
                 Sign Up
-              </a>
+              </Link>
             </Button>
           </div>
 
@@ -175,10 +175,10 @@ const Header = () => {
                   Book a Demo
                 </Link>
                 <Button asChild className="w-full rounded-full py-6 bg-[#412A86] hover:bg-[#412A86]/90 text-white font-semibold shadow-lg">
-                  <a href="/signup">
+                  <Link to="/signup" onClick={handlePageNavigation}>
                     Sign Up
                     <ArrowRight className="ml-2 h-4 w-4" />
-                  </a>
+                  </Link>
                 </Button>
               </div>
             </nav>
