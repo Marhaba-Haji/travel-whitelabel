@@ -371,7 +371,7 @@ export default function NyraWidget() {
               {/* Header bar */}
               <div className="flex items-center justify-between px-4 py-3 border-b-surface bg-gradient-to-r from-primary/90 via-aurora-blue/80 to-primary/90">
                 <div className="flex items-center gap-2">
-                  <img src="/assets/nyra-avatar.png" alt="Nyra" width={56} height={56} className="w-7 h-7 rounded-full object-cover object-top ring-2 ring-white/20" />
+                  <img src="/assets/nyra-avatar.webp" alt="Nyra" width={56} height={56} className="w-7 h-7 rounded-full object-cover object-top ring-2 ring-white/20" />
                   <div>
                     <h3 className="text-sm font-bold text-primary-foreground">Nyra</h3>
                     <p className="text-[9px] text-primary-foreground/80 uppercase tracking-widest">Marhaba DMC</p>
@@ -533,7 +533,7 @@ export default function NyraWidget() {
             {/* Widget Header */}
             <div className="bg-gradient-to-r from-primary/95 via-aurora-blue/90 to-primary/95 text-primary-foreground p-4 flex justify-between items-center border-b-surface">
               <div className="flex items-center gap-3">
-                <img src="/assets/nyra-avatar.png" alt="Nyra" width={64} height={64} className="w-8 h-8 rounded-full object-cover object-top ring-2 ring-white/20" />
+                <img src="/assets/nyra-avatar.webp" alt="Nyra" width={64} height={64} className="w-8 h-8 rounded-full object-cover object-top ring-2 ring-white/20" />
                 <div>
                   <h3 className="font-semibold text-sm tracking-wide">Nyra</h3>
                   <p className="text-[10px] text-primary-foreground/80 uppercase tracking-wider">Marhaba DMC Agent</p>
@@ -723,7 +723,7 @@ export default function NyraWidget() {
               <X size={28} />
             ) : (
               <img
-                src="/assets/nyra-avatar.png"
+                src="/assets/nyra-avatar.webp"
                 alt="Nyra"
                 width={104}
                 height={104}
