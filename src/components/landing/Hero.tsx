@@ -220,12 +220,6 @@ const Hero = () => {
           {/* Right Column — Globe illustration & Floating Cards */}
           <div className="relative mt-12 lg:mt-0 flex justify-center items-center w-full">
             
-            {/* The Blue Circle Background */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[280px] h-[280px] sm:w-[400px] sm:h-[400px] md:w-[500px] md:h-[500px] bg-[#2D9BFC] rounded-full z-0 overflow-hidden">
-              {/* Faint world map inside the circle */}
-              <div className="absolute inset-0 opacity-20 bg-[url('https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/World_map_-_low_resolution.svg/1024px-World_map_-_low_resolution.svg.png')] bg-center bg-contain bg-no-repeat"></div>
-            </div>
-
             <div className="relative w-full max-w-[500px] z-10 flex justify-center">
               
               {/* Floating Card: Top Places */}
