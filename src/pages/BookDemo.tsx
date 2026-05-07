@@ -77,10 +77,10 @@ const detailsSchema = z.object({
 type Step = 1 | 2 | 3 | 4;
 
 const FIELD_CLASS =
-  "mt-1.5 h-11 rounded-3xl border-gray-200 bg-white shadow-sm focus-visible:ring-2 focus-visible:ring-[#412A86]/20 focus-visible:ring-offset-2";
+  "mt-1.5 h-11 rounded-3xl border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 shadow-sm focus-visible:ring-2 focus-visible:ring-[#412A86]/20 focus-visible:ring-offset-2";
 
 const TEXTAREA_CLASS =
-  "mt-1.5 min-h-[90px] rounded-3xl border-gray-200 bg-white shadow-sm focus-visible:ring-2 focus-visible:ring-[#412A86]/20 focus-visible:ring-offset-2";
+  "mt-1.5 min-h-[90px] rounded-3xl border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 shadow-sm focus-visible:ring-2 focus-visible:ring-[#412A86]/20 focus-visible:ring-offset-2";
 
 const SELECT_TRIGGER_CLASS =
   "h-11 rounded-3xl border-gray-200 bg-white shadow-sm focus:ring-2 focus:ring-[#412A86]/20 focus:ring-offset-2";

@@ -34,9 +34,9 @@ const enquirySchema = z.object({
 });
 
 const FIELD =
-  "mt-1.5 h-12 rounded-2xl border-gray-200 bg-gray-50/50 shadow-sm focus-visible:ring-2 focus-visible:ring-[#412A86]/20 focus-visible:ring-offset-2 focus-visible:bg-white transition-colors";
+  "mt-1.5 h-12 rounded-2xl border-gray-200 bg-gray-50/50 text-gray-900 placeholder:text-gray-400 shadow-sm focus-visible:ring-2 focus-visible:ring-[#412A86]/20 focus-visible:ring-offset-2 focus-visible:bg-white transition-colors";
 const TEXTAREA_CLS =
-  "mt-1.5 min-h-[130px] rounded-2xl border-gray-200 bg-gray-50/50 shadow-sm focus-visible:ring-2 focus-visible:ring-[#412A86]/20 focus-visible:ring-offset-2 focus-visible:bg-white transition-colors";
+  "mt-1.5 min-h-[130px] rounded-2xl border-gray-200 bg-gray-50/50 text-gray-900 placeholder:text-gray-400 shadow-sm focus-visible:ring-2 focus-visible:ring-[#412A86]/20 focus-visible:ring-offset-2 focus-visible:bg-white transition-colors";
 const SEL_TRIGGER =
   "h-12 rounded-2xl border-gray-200 bg-gray-50/50 shadow-sm focus:ring-2 focus:ring-[#412A86]/20 focus:ring-offset-2";
 
