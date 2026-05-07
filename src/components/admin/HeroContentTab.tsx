@@ -338,14 +338,14 @@ const HeroContentTab = () => {
 
       <div className="bg-card rounded-lg border overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-sm text-foreground">
             <thead className="bg-muted border-b">
               <tr>
-                <th className="text-left px-4 py-2 font-medium">Order</th>
-                <th className="text-left px-4 py-2 font-medium">Title</th>
-                <th className="text-left px-4 py-2 font-medium">Subtitle</th>
-                <th className="text-left px-4 py-2 font-medium">Status</th>
-                <th className="text-right px-4 py-2 font-medium">Actions</th>
+                <th className="text-left px-4 py-3 font-semibold text-foreground">Order</th>
+                <th className="text-left px-4 py-3 font-semibold text-foreground">Title</th>
+                <th className="text-left px-4 py-3 font-semibold text-foreground">Subtitle</th>
+                <th className="text-left px-4 py-3 font-semibold text-foreground">Status</th>
+                <th className="text-right px-4 py-3 font-semibold text-foreground">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -357,10 +357,10 @@ const HeroContentTab = () => {
                 </tr>
               ) : (
                 heroVariants.map((variant) => (
-                  <tr key={variant.id} className="border-b hover:bg-muted/50 transition">
-                    <td className="px-4 py-2">{variant.display_order}</td>
-                    <td className="px-4 py-2">{variant.title}</td>
-                    <td className="px-4 py-2" style={{ color: variant.subtitle_color }}>
+                  <tr key={variant.id} className="border-b hover:bg-muted/50 transition text-foreground">
+                    <td className="px-4 py-3 font-medium">{variant.display_order}</td>
+                    <td className="px-4 py-3 font-medium">{variant.title}</td>
+                    <td className="px-4 py-3 font-semibold" style={{ color: variant.subtitle_color }}>
                       {variant.subtitle}
                     </td>
                     <td className="px-4 py-2">
