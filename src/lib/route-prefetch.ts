@@ -9,6 +9,8 @@ const loaders: Record<string, () => Promise<unknown>> = {
   "/umrah-visa-check": () => import("@/pages/UmrahVisaCheck"),
   "/login": () => import("@/pages/Login"),
   "/signup": () => import("@/pages/Signup"),
+  "/book-demo": () => import("@/pages/BookDemo"),
+  "/contact": () => import("@/pages/Contact"),
 };
 
 const prefetched = new Set<string>();
