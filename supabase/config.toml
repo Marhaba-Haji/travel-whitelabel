@@ -77,3 +77,6 @@ verify_jwt = false
 
 [functions.blog-prerender]
 verify_jwt = false
+
+[functions.demo-booked-slots]
+verify_jwt = false
