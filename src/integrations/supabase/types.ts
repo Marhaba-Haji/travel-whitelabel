@@ -388,6 +388,39 @@ export type Database = {
         }
         Relationships: []
       }
+      demo_schedule_settings: {
+        Row: {
+          created_at: string | null
+          day_of_week: number
+          end_time: string
+          id: string
+          is_holiday: boolean | null
+          start_time: string
+          unavailable_ranges: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          day_of_week: number
+          end_time: string
+          id?: string
+          is_holiday?: boolean | null
+          start_time: string
+          unavailable_ranges?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          day_of_week?: number
+          end_time?: string
+          id?: string
+          is_holiday?: boolean | null
+          start_time?: string
+          unavailable_ranges?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       hero_content: {
         Row: {
           active: boolean
