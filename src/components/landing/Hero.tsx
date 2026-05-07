@@ -39,7 +39,7 @@ const PartnersScroller = memo(({ partners, loading }: { partners: Partner[]; loa
   );
 
   return (
-    <div className="flex gap-14 items-center animate-scroll-cross" style={{ animationDuration: '40s' }}>
+    <div className="flex gap-14 items-center animate-scroll-cross" style={{ animationDuration: '10s' }}>
       {partners.map((p) => renderItem(p, '1'))}
       {partners.map((p) => renderItem(p, '2'))}
     </div>
