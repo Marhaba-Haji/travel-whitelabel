@@ -187,7 +187,7 @@ const HeroImagesTab = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold">Hero Section Images</h2>
+          <h2 className="text-2xl font-bold text-foreground">Hero Section Images</h2>
           <p className="text-muted-foreground mt-1">
             Upload local images for the homepage hero illustration. Active images will rotate on the homepage.
           </p>
@@ -212,7 +212,7 @@ const HeroImagesTab = () => {
       {showForm && (
         <form onSubmit={handleSubmit} className="bg-card rounded-lg p-6 border space-y-6">
           <div className="flex items-center justify-between gap-4">
-            <h3 className="text-lg font-semibold">
+            <h3 className="text-lg font-semibold text-foreground">
               {editingId ? 'Edit Hero Image' : 'Add Hero Image'}
             </h3>
             <Button type="button" variant="outline" onClick={resetForm} disabled={actionLoading || uploadLoading}>
@@ -222,36 +222,36 @@ const HeroImagesTab = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Alt Text</label>
+              <label className="block text-sm font-medium mb-2 text-foreground">Alt Text</label>
               <input
                 type="text"
                 value={formData.alt_text || ''}
                 onChange={(e) => setFormData({ ...formData, alt_text: e.target.value })}
-                className="w-full px-3 py-2 border border-border rounded-md text-sm"
+                className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background text-foreground"
                 placeholder="Family on a holiday trip"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Display Order</label>
+              <label className="block text-sm font-medium mb-2 text-foreground">Display Order</label>
               <input
                 type="number"
                 value={formData.display_order ?? 0}
                 onChange={(e) => setFormData({ ...formData, display_order: Number(e.target.value) })}
-                className="w-full px-3 py-2 border border-border rounded-md text-sm"
+                className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background text-foreground"
                 min="0"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Upload Image</label>
+            <label className="block text-sm font-medium mb-2 text-foreground">Upload Image</label>
             <input
               type="file"
               accept="image/*"
               onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-              className="w-full text-sm"
+              className="w-full text-sm text-foreground"
             />
             <p className="text-xs text-muted-foreground mt-1">PNG, JPG, WebP or SVG. Max size: 5MB.</p>
           </div>
@@ -275,7 +275,7 @@ const HeroImagesTab = () => {
               className="w-4 h-4"
               id="hero-image-active"
             />
-            <label htmlFor="hero-image-active" className="text-sm font-medium cursor-pointer">
+            <label htmlFor="hero-image-active" className="text-sm font-medium cursor-pointer text-foreground">
               Active (Display on homepage)
             </label>
           </div>
@@ -290,14 +290,14 @@ const HeroImagesTab = () => {
 
       <div className="bg-card rounded-lg border overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-sm text-foreground">
             <thead className="bg-muted border-b">
               <tr>
-                <th className="text-left px-4 py-2 font-medium">Preview</th>
-                <th className="text-left px-4 py-2 font-medium">Alt Text</th>
-                <th className="text-left px-4 py-2 font-medium">Order</th>
-                <th className="text-left px-4 py-2 font-medium">Status</th>
-                <th className="text-right px-4 py-2 font-medium">Actions</th>
+                <th className="text-left px-4 py-2 font-semibold text-foreground">Preview</th>
+                <th className="text-left px-4 py-2 font-semibold text-foreground">Alt Text</th>
+                <th className="text-left px-4 py-2 font-semibold text-foreground">Order</th>
+                <th className="text-left px-4 py-2 font-semibold text-foreground">Status</th>
+                <th className="text-right px-4 py-2 font-semibold text-foreground">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -317,8 +317,8 @@ const HeroImagesTab = () => {
                         className="h-16 w-24 object-contain rounded-md bg-muted"
                       />
                     </td>
-                    <td className="px-4 py-2">{heroImage.alt_text}</td>
-                    <td className="px-4 py-2">{heroImage.display_order}</td>
+                    <td className="px-4 py-2 font-medium text-foreground">{heroImage.alt_text}</td>
+                    <td className="px-4 py-2 font-medium text-foreground">{heroImage.display_order}</td>
                     <td className="px-4 py-2">
                       <span className={`text-xs px-2 py-1 rounded ${heroImage.active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
                         {heroImage.active ? 'Active' : 'Hidden'}
