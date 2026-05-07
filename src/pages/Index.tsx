@@ -69,7 +69,7 @@ const Index = () => {
     // Note: /categories-destinations is intentionally excluded — its chunk
     // is very large (bundles country flag SVGs) and prefetching it tanks
     // homepage TTI on slower devices. It will load on demand on click.
-    prefetchIdleRoutes(["/about", "/blog"]);
+    prefetchIdleRoutes(["/about", "/blog", "/book-demo", "/contact"]);
   }, []);
 
   const homepageFaqs =
