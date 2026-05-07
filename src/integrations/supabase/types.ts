@@ -337,6 +337,57 @@ export type Database = {
         }
         Relationships: []
       }
+      demo_bookings: {
+        Row: {
+          booking_date: string
+          booking_time: string
+          country_code: string
+          created_at: string
+          email: string | null
+          full_name: string
+          id: string
+          notes: string | null
+          session_id: string | null
+          status: string
+          timezone: string
+          updated_at: string
+          utm: Json | null
+          whatsapp_number: string
+        }
+        Insert: {
+          booking_date: string
+          booking_time: string
+          country_code: string
+          created_at?: string
+          email?: string | null
+          full_name: string
+          id?: string
+          notes?: string | null
+          session_id?: string | null
+          status?: string
+          timezone?: string
+          updated_at?: string
+          utm?: Json | null
+          whatsapp_number: string
+        }
+        Update: {
+          booking_date?: string
+          booking_time?: string
+          country_code?: string
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+          notes?: string | null
+          session_id?: string | null
+          status?: string
+          timezone?: string
+          updated_at?: string
+          utm?: Json | null
+          whatsapp_number?: string
+        }
+        Relationships: []
+      }
       hero_content: {
         Row: {
           active: boolean
