@@ -58,7 +58,10 @@ const Index = () => {
   // Warm up the most common next-route chunks during browser idle time
   // so navigation to /about, /blog, /categories-destinations feels instant.
   useEffect(() => {
-    prefetchIdleRoutes(["/about", "/categories-destinations", "/blog"]);
+    // Note: /categories-destinations is intentionally excluded — its chunk
+    // is very large (bundles country flag SVGs) and prefetching it tanks
+    // homepage TTI on slower devices. It will load on demand on click.
+    prefetchIdleRoutes(["/about", "/blog"]);
   }, []);
 
   const homepageFaqs =
