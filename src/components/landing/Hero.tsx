@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, memo } from "react";
 import { Button } from "@/components/ui/button";
 import { Briefcase, MapPin, Users } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { usePartners } from "@/hooks/usePartners";
+import type { Partner } from "@/hooks/usePartners";
 import { useHeroContent } from "@/hooks/useHeroContent";
 import { useHeroImages } from "@/hooks/useHeroImages";
 
@@ -11,6 +12,40 @@ type DisplayedHeroImage = {
   src: string;
   alt: string;
 };
+
+// Memoized so hero image state changes don't re-render / reset the scroll animation
+const PartnersScroller = memo(({ partners, loading }: { partners: Partner[]; loading: boolean }) => {
+  if (loading) {
+    return (
+      <div className="flex gap-12 h-10 animate-pulse">
+        {[...Array(7)].map((_, i) => (
+          <div key={i} className="flex-shrink-0 h-8 w-24 bg-gray-200 rounded" />
+        ))}
+      </div>
+    );
+  }
+
+  const renderItem = (partner: Partner, suffix: string) => (
+    <div key={`${partner.id}-${suffix}`} className="flex-shrink-0 flex items-center gap-2.5">
+      {partner.logo_url ? (
+        <img src={partner.logo_url} alt={partner.name} className="h-8 w-8 rounded object-contain" />
+      ) : (
+        <div className={`h-8 w-8 ${partner.color_badge} rounded flex items-center justify-center text-white text-xs font-bold`}>
+          {partner.name.split(' ').map((w) => w[0]).join('').slice(0, 2)}
+        </div>
+      )}
+      <span className="text-sm font-semibold text-gray-700 whitespace-nowrap">{partner.name}</span>
+    </div>
+  );
+
+  return (
+    <div className="flex gap-12 items-center animate-scroll-cross" style={{ animationDuration: '60s' }}>
+      {partners.map((p) => renderItem(p, '1'))}
+      {partners.map((p) => renderItem(p, '2'))}
+    </div>
+  );
+});
+PartnersScroller.displayName = 'PartnersScroller';
 
 const Hero = () => {
   const { ref: heroRef, isVisible: heroVisible } = useScrollAnimation();
@@ -176,44 +211,8 @@ const Hero = () => {
             </div>
 
             {/* Partner Logos — Single Line Scrolling Animation (Database-driven) */}
-            <div className="w-full overflow-hidden relative">
-              {loading ? (
-                <div className="flex gap-12 h-8 animate-pulse">
-                  {[...Array(7)].map((_, i) => (
-                    <div key={i} className="flex-shrink-0 h-6 w-20 bg-gray-200 rounded"></div>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex gap-12 animate-scroll-cross">
-                  {/* First set */}
-                  {partners.map((partner) => (
-                    <div key={`${partner.id}-1`} className="flex-shrink-0 flex items-center gap-2">
-                      {partner.logo_url ? (
-                        <img src={partner.logo_url} alt={partner.name} className="h-6 w-6 rounded" />
-                      ) : (
-                        <div className={`h-6 w-6 ${partner.color_badge} rounded flex items-center justify-center text-white text-xs font-bold`}>
-                          {partner.name.split(' ').map(word => word[0]).join('').slice(0, 2)}
-                        </div>
-                      )}
-                      <span className="text-xs font-semibold text-gray-700 whitespace-nowrap">{partner.name}</span>
-                    </div>
-                  ))}
-
-                  {/* Duplicate for seamless loop */}
-                  {partners.map((partner) => (
-                    <div key={`${partner.id}-2`} className="flex-shrink-0 flex items-center gap-2">
-                      {partner.logo_url ? (
-                        <img src={partner.logo_url} alt={partner.name} className="h-6 w-6 rounded" />
-                      ) : (
-                        <div className={`h-6 w-6 ${partner.color_badge} rounded flex items-center justify-center text-white text-xs font-bold`}>
-                          {partner.name.split(' ').map(word => word[0]).join('').slice(0, 2)}
-                        </div>
-                      )}
-                      <span className="text-xs font-semibold text-gray-700 whitespace-nowrap">{partner.name}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
+            <div className="w-full overflow-hidden relative py-2 min-h-[3rem]">
+              <PartnersScroller partners={partners} loading={loading} />
             </div>
           </div>
 
