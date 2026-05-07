@@ -69,7 +69,7 @@ const Hero = () => {
   const { heroImage, loading: heroImageLoading } = useHeroImages();
   const [displayedHeroImage, setDisplayedHeroImage] = useState<DisplayedHeroImage>({
     id: 'hero-image-fallback',
-    src: '/assets/hero_woman_tickets.png',
+    src: '/assets/hero_woman_tickets.webp',
     alt: 'Hero travel illustration',
   });
   const [nextHeroImage, setNextHeroImage] = useState<DisplayedHeroImage | null>(null);
