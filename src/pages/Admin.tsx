@@ -21,6 +21,7 @@ import TestimonialsTab from "@/components/admin/TestimonialsTab";
 import HeroContentTab from "@/components/admin/HeroContentTab";
 import HeroImagesTab from "@/components/admin/HeroImagesTab";
 import HomeFaqsTab from "@/components/admin/HomeFaqsTab";
+import DemoBookingsTab from "@/components/admin/DemoBookingsTab";
 
 const tabComponents: Record<string, React.FC> = {
   overview: OverviewTab,
@@ -43,6 +44,7 @@ const tabComponents: Record<string, React.FC> = {
   partners: PartnersTab,
   testimonials: TestimonialsTab,
   "user-management": UserManagementTab,
+  "demo-bookings": DemoBookingsTab,
 };
 
 const Admin = () => {

@@ -337,33 +337,54 @@ export type Database = {
         }
         Relationships: []
       }
-      home_faqs: {
+      demo_bookings: {
         Row: {
-          active: boolean
-          answer: string
+          booking_date: string
+          booking_time: string
+          country_code: string
           created_at: string
-          display_order: number
+          email: string | null
+          full_name: string
           id: string
-          question: string
+          notes: string | null
+          session_id: string | null
+          status: string
+          timezone: string
           updated_at: string
+          utm: Json | null
+          whatsapp_number: string
         }
         Insert: {
-          active?: boolean
-          answer: string
+          booking_date: string
+          booking_time: string
+          country_code: string
           created_at?: string
-          display_order?: number
+          email?: string | null
+          full_name: string
           id?: string
-          question: string
+          notes?: string | null
+          session_id?: string | null
+          status?: string
+          timezone?: string
           updated_at?: string
+          utm?: Json | null
+          whatsapp_number: string
         }
         Update: {
-          active?: boolean
-          answer?: string
+          booking_date?: string
+          booking_time?: string
+          country_code?: string
           created_at?: string
-          display_order?: number
+          email?: string | null
+          full_name?: string
           id?: string
-          question?: string
+          notes?: string | null
+          session_id?: string | null
+          status?: string
+          timezone?: string
           updated_at?: string
+          utm?: Json | null
+          whatsapp_number?: string
         }
         Relationships: []
       }
@@ -444,6 +465,36 @@ export type Database = {
           image_url?: string
           section_key?: string
           storage_path?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      home_faqs: {
+        Row: {
+          active: boolean
+          answer: string
+          created_at: string
+          display_order: number
+          id: string
+          question: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          answer: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          question: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          answer?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          question?: string
           updated_at?: string
         }
         Relationships: []

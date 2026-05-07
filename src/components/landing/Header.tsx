@@ -106,14 +106,14 @@ const Header = () => {
 
           {/* Desktop CTA */}
           <div className="hidden lg:flex items-center gap-4">
-            <a
-              href="https://cal.id/harab-rasheed/product-demo?overlayCalendar=true"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              to="/book-demo"
+              onClick={handlePageNavigation}
+              onMouseEnter={() => handlePrefetch("/book-demo")}
               className="text-sm font-semibold text-gray-900 px-6 py-3 rounded-full bg-gray-100 hover:bg-gray-200 transition-all"
             >
               Book a Demo
-            </a>
+            </Link>
             <Button asChild className="rounded-full px-7 py-5 bg-[#412A86] hover:bg-[#412A86]/90 text-white font-semibold shadow-lg shadow-[#412A86]/20 transition-all hover:shadow-xl hover:-translate-y-0.5">
               <a href="/signup">
                 Sign Up
@@ -167,14 +167,13 @@ const Header = () => {
                 )
               )}
               <div className="pt-6 mt-2 border-t border-gray-100 flex flex-col gap-3">
-                <a
-                  href="https://cal.id/harab-rasheed/product-demo?overlayCalendar=true"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <Link
+                  to="/book-demo"
+                  onClick={handlePageNavigation}
                   className="w-full text-center text-sm font-semibold text-gray-900 py-3 rounded-full bg-gray-100 hover:bg-gray-200 transition-all"
                 >
                   Book a Demo
-                </a>
+                </Link>
                 <Button asChild className="w-full rounded-full py-6 bg-[#412A86] hover:bg-[#412A86]/90 text-white font-semibold shadow-lg">
                   <a href="/signup">
                     Sign Up
