@@ -72,7 +72,7 @@ const Hero = () => {
     if (!heroContent) {
       // Fallback title with default purple highlight
       return (
-        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[72px] font-bold text-gray-900 mb-6 font-poppins leading-[1.1] tracking-tight">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-[72px] font-bold text-gray-900 mb-6 font-poppins leading-[1.1] tracking-tight">
           Travel <span style={{ color: '#B968C7' }} className="font-bold">top destination</span>
           <br className="hidden md:block" />
           of the world
@@ -84,7 +84,7 @@ const Hero = () => {
     const parts = title.split(subtitle);
 
     return (
-      <h1 key={heroContent?.id || 'hero-fallback'} className="text-4xl sm:text-5xl md:text-6xl lg:text-[72px] font-bold text-gray-900 mb-6 font-poppins leading-[1.1] tracking-tight">
+      <h1 key={heroContent?.id || 'hero-fallback'} className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-[72px] font-bold text-gray-900 mb-6 font-poppins leading-[1.1] tracking-tight">
         {parts.map((part, index) => (
           <span key={index}>
             {part}
