@@ -223,25 +223,25 @@ const Hero = () => {
             <div className="relative w-full max-w-[500px] z-10 flex justify-center">
               
               {/* Floating Card: Top Places */}
-              <div className="absolute bottom-[20%] -left-[5%] sm:-left-[10%] bg-white rounded-full px-3 py-2 sm:px-5 sm:py-3 shadow-xl z-20 flex items-center gap-2 sm:gap-3 animate-float-slow scale-75 sm:scale-100 origin-bottom-left">
-                <div className="flex items-center justify-center">
-                  <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 fill-yellow-400/20" />
+              <div className="absolute bottom-[22%] -left-[6%] sm:-left-[14%] bg-white/80 backdrop-blur-xl rounded-full pl-2.5 pr-4 py-2 sm:pl-3 sm:pr-5 sm:py-2.5 shadow-[0_18px_40px_-18px_rgba(15,23,42,0.25)] ring-1 ring-slate-900/5 z-20 flex items-center gap-2.5 sm:gap-3 animate-float-slow scale-75 sm:scale-100 origin-bottom-left">
+                <div className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-amber-50 ring-1 ring-amber-100">
+                  <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500" />
                 </div>
-                <span className="font-bold text-xs sm:text-sm text-gray-900">Top Places</span>
+                <span className="font-semibold text-xs sm:text-sm text-slate-800 tracking-tight">Top Places</span>
               </div>
 
               {/* Floating Card: Earning Potential */}
-              <div className="absolute top-[30%] -right-[5%] sm:-right-[15%] bg-white rounded-xl p-2 sm:p-4 shadow-xl z-20 animate-float w-[140px] sm:w-[180px] text-center border border-gray-50 scale-75 sm:scale-100 origin-top-right">
-                <p className="text-[#5D50C6] font-bold text-sm sm:text-base mb-1">₹50,000+/mo</p>
-                <p className="text-[10px] sm:text-xs text-gray-500 font-medium">Earning Potential</p>
+              <div className="absolute top-[28%] -right-[6%] sm:-right-[18%] bg-white/80 backdrop-blur-xl rounded-2xl px-4 py-3 sm:px-5 sm:py-4 shadow-[0_22px_50px_-20px_rgba(93,80,198,0.35)] ring-1 ring-slate-900/5 z-20 animate-float w-[150px] sm:w-[190px] text-left scale-75 sm:scale-100 origin-top-right">
+                <p className="text-[10px] sm:text-[11px] uppercase tracking-[0.12em] text-slate-400 font-medium mb-1">Earning Potential</p>
+                <p className="text-[#5D50C6] font-bold text-base sm:text-lg leading-tight">₹50,000<span className="text-slate-400 font-medium text-xs sm:text-sm">+/mo</span></p>
               </div>
 
               {/* Floating Card: Customers */}
-              <div className="absolute bottom-[10%] -right-[5%] sm:-right-[5%] bg-white rounded-full px-3 py-2 sm:px-5 sm:py-3 shadow-xl z-20 flex items-center gap-2 sm:gap-3 animate-float-slow scale-75 sm:scale-100 origin-bottom-right" style={{ animationDelay: '1s' }}>
-                <div className="flex items-center justify-center">
-                  <Users className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 fill-yellow-400/20" />
+              <div className="absolute bottom-[8%] -right-[4%] sm:-right-[8%] bg-white/80 backdrop-blur-xl rounded-full pl-2.5 pr-4 py-2 sm:pl-3 sm:pr-5 sm:py-2.5 shadow-[0_18px_40px_-18px_rgba(15,23,42,0.25)] ring-1 ring-slate-900/5 z-20 flex items-center gap-2.5 sm:gap-3 animate-float-slow scale-75 sm:scale-100 origin-bottom-right" style={{ animationDelay: '1s' }}>
+                <div className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-emerald-50 ring-1 ring-emerald-100">
+                  <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-500" />
                 </div>
-                <span className="font-bold text-xs sm:text-sm text-gray-900">2,000+ Customers</span>
+                <span className="font-semibold text-xs sm:text-sm text-slate-800 tracking-tight">2,000+ Customers</span>
               </div>
 
               {/* Main Subject Image */}
