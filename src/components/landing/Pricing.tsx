@@ -146,7 +146,7 @@ const PlanCard = ({
     </div>
 
     <Button variant={highlight ? "default" : "outline"} className={ctaClassName} asChild>
-      <a href={ctaHref}>Get Started</Link>
+      <Link to={ctaHref}>Get Started</Link>
     </Button>
   </div>
 );
@@ -321,7 +321,7 @@ const Pricing = () => {
                 <Link to="/signup">Get Started Now</Link>
               </Button>
               <Button size="lg" variant="outline" className="h-14 rounded-full px-8 border-gray-200 bg-white text-gray-900 hover:border-[#412A86]/30 hover:bg-white" asChild>
-                <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">Talk to Our Team</Link>
+                <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">Talk to Our Team</a>
               </Button>
             </div>
           </div>
