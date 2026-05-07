@@ -69,7 +69,6 @@ const Stats = () => {
                 style={{ animationDelay: `${index * 0.15}s` }}
               >
                 <div className="text-4xl md:text-5xl lg:text-[56px] font-bold mb-3 flex items-baseline justify-center font-poppins leading-none tracking-tight">
-                  {stat.prefix && <span>{stat.prefix}</span>}
                   <AnimatedCounter end={stat.value} />
                   {stat.suffix && <span>{stat.suffix}</span>}
                 </div>

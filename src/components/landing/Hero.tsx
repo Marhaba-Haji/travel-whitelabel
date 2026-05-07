@@ -72,9 +72,9 @@ const Hero = () => {
     if (!heroContent) {
       // Fallback title with default purple highlight
       return (
-        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[72px] font-bold text-gray-900 mb-6 font-poppins leading-[1.1] tracking-tight">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-[72px] font-bold text-gray-900 mb-6 font-poppins leading-[1.1] tracking-tight">
           Travel <span style={{ color: '#B968C7' }} className="font-bold">top destination</span>
-          <br className="hidden md:block" />
+          <br />
           of the world
         </h1>
       );
@@ -84,7 +84,7 @@ const Hero = () => {
     const parts = title.split(subtitle);
 
     return (
-      <h1 key={heroContent?.id || 'hero-fallback'} className="text-4xl sm:text-5xl md:text-6xl lg:text-[72px] font-bold text-gray-900 mb-6 font-poppins leading-[1.1] tracking-tight">
+      <h1 key={heroContent?.id || 'hero-fallback'} className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-[72px] font-bold text-gray-900 mb-6 font-poppins leading-[1.1] tracking-tight">
         {parts.map((part, index) => (
           <span key={index}>
             {part}
@@ -93,7 +93,7 @@ const Hero = () => {
                 <span style={{ color: subtitle_color }} className="font-bold">
                   {subtitle}
                 </span>
-                <br className="hidden md:block" />
+                <br />
               </>
             )}
           </span>
@@ -126,7 +126,7 @@ const Hero = () => {
         <div className="flex flex-col lg:grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
           
           {/* Left Column — Text & CTA */}
-          <div className="text-center lg:text-left flex flex-col items-center lg:items-start pt-10">
+          <div className="w-full text-center lg:text-left flex flex-col items-center lg:items-start pt-10">
             <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white shadow-sm mb-6 border border-gray-100">
               <span className="font-bold text-sm text-[#412A86]">Explore the world!</span>
               <Briefcase className="w-4 h-4 text-[#412A86]" />
@@ -143,7 +143,7 @@ const Hero = () => {
             {heroLoading ? (
               <div className="h-12 bg-gray-200 rounded-lg animate-pulse mb-10 w-full max-w-lg"></div>
             ) : (
-              <p key={heroContent?.id || 'hero-description'} className="text-lg md:text-xl text-gray-500 mb-10 font-medium max-w-lg leading-relaxed animate-fade-in">
+              <p key={heroContent?.id || 'hero-description'} className="text-base sm:text-lg md:text-xl text-gray-500 mb-10 font-medium max-w-lg leading-relaxed animate-fade-in">
                 {heroContent?.description || 'Where adventure meets comfort. We create unforgettable travel experiences'}
               </p>
             )}
@@ -261,7 +261,7 @@ const Hero = () => {
                     alt={displayedHeroImage.alt}
                     width={500}
                     height={600}
-                    fetchpriority="high"
+                    fetchPriority="high"
                     className={`w-full h-auto object-contain relative drop-shadow-2xl transition-all duration-700 ease-out ${
                       isImageTransitioning ? 'opacity-0 scale-[0.985]' : 'opacity-100 scale-100'
                     }`}
