@@ -76,87 +76,6 @@ export type Database = {
         }
         Relationships: []
       }
-      hero_content: {
-        Row: {
-          active: boolean
-          created_at: string
-          cta_text: string | null
-          cta_url: string | null
-          description: string | null
-          id: string
-          display_order: number
-          section_key: string
-          subtitle: string
-          subtitle_color: string
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          active?: boolean
-          created_at?: string
-          cta_text?: string | null
-          cta_url?: string | null
-          description?: string | null
-          id?: string
-          display_order?: number
-          section_key?: string
-          subtitle: string
-          subtitle_color?: string
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          active?: boolean
-          created_at?: string
-          cta_text?: string | null
-          cta_url?: string | null
-          description?: string | null
-          id?: string
-          display_order?: number
-          section_key?: string
-          subtitle?: string
-          subtitle_color?: string
-          title?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      hero_images: {
-        Row: {
-          active: boolean
-          alt_text: string
-          created_at: string
-          display_order: number
-          id: string
-          image_url: string
-          section_key: string
-          storage_path: string
-          updated_at: string
-        }
-        Insert: {
-          active?: boolean
-          alt_text: string
-          created_at?: string
-          display_order?: number
-          id?: string
-          image_url: string
-          section_key?: string
-          storage_path: string
-          updated_at?: string
-        }
-        Update: {
-          active?: boolean
-          alt_text?: string
-          created_at?: string
-          display_order?: number
-          id?: string
-          image_url?: string
-          section_key?: string
-          storage_path?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       blog_categories: {
         Row: {
           created_at: string
@@ -418,6 +337,87 @@ export type Database = {
         }
         Relationships: []
       }
+      hero_content: {
+        Row: {
+          active: boolean
+          created_at: string
+          cta_text: string | null
+          cta_url: string | null
+          description: string | null
+          display_order: number
+          id: string
+          section_key: string
+          subtitle: string
+          subtitle_color: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          cta_text?: string | null
+          cta_url?: string | null
+          description?: string | null
+          display_order?: number
+          id?: string
+          section_key?: string
+          subtitle: string
+          subtitle_color?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          cta_text?: string | null
+          cta_url?: string | null
+          description?: string | null
+          display_order?: number
+          id?: string
+          section_key?: string
+          subtitle?: string
+          subtitle_color?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      hero_images: {
+        Row: {
+          active: boolean
+          alt_text: string
+          created_at: string
+          display_order: number
+          id: string
+          image_url: string
+          section_key: string
+          storage_path: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          alt_text: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          image_url: string
+          section_key?: string
+          storage_path: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          alt_text?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          image_url?: string
+          section_key?: string
+          storage_path?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       indexing_logs: {
         Row: {
           action: string
@@ -567,6 +567,39 @@ export type Database = {
           subscribed_at?: string
           unsubscribed_at?: string | null
           utm?: Json | null
+        }
+        Relationships: []
+      }
+      partners: {
+        Row: {
+          active: boolean
+          color_badge: string
+          created_at: string
+          display_order: number
+          id: string
+          logo_url: string | null
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          color_badge?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          logo_url?: string | null
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          color_badge?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          logo_url?: string | null
+          name?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -838,6 +871,39 @@ export type Database = {
           updated_at?: string
           updated_by?: string | null
           value?: Json
+        }
+        Relationships: []
+      }
+      testimonials: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          display_order: number | null
+          id: string
+          name: string
+          rating: number
+          review: string
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          name: string
+          rating: number
+          review: string
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          name?: string
+          rating?: number
+          review?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
