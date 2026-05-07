@@ -1,22 +1,6 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="dark">
   <head>
-    <!-- Sync theme class before paint to match next-themes localStorage (storageKey: aurora-theme) -->
-    <script>
-      (function () {
-        try {
-          var k = "aurora-theme";
-          var t = localStorage.getItem(k);
-          if (t === "dark") document.documentElement.classList.add("dark");
-          else if (
-            t === "system" &&
-            window.matchMedia &&
-            window.matchMedia("(prefers-color-scheme: dark)").matches
-          )
-            document.documentElement.classList.add("dark");
-        } catch (e) {}
-      })();
-    </script>
     <!-- GA & FB Pixel: deferred until first user interaction to minimize main-thread work -->
     <script>
       (function(){
@@ -39,19 +23,12 @@
         setTimeout(loadAnalytics,5000);
       })();
     </script>
-    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="icon" type="image/png" href="/favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preconnect" href="https://kofijegdzeshitunwddn.supabase.co" crossorigin />
-    <link rel="preload" as="image" href="/assets/hero_woman_tickets.webp" fetchpriority="high" />
+    <link rel="preconnect" href="https://kofijegdzeshitunwddn.supabase.co" />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
-      rel="stylesheet"
-      media="print"
-      onload="this.media='all'"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
       media="print"
       onload="this.media='all'"
@@ -61,37 +38,24 @@
         href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
         rel="stylesheet"
       />
-      <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet"
-      />
     </noscript>
     <meta name="facebook-domain-verification" content="c6ucl7sgdghnb3ur86rr954v3a5w8o" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="canonical" href="https://marhabadmc.com/" />
-    <title>marhabaDMC - White Label Travel Portal for Agents & Entrepreneurs</title>
-    <meta
-      name="description"
-      content="Start your own travel business from home. marhabaDMC gives travel agents & entrepreneurs a white label portal, training, and support. Launch in 24 hours."
-    />
+    <title>marhabaDMC - White Label Travel Portal for Agents &amp; Entrepreneurs</title>
+    <meta name="description" content="Start your own travel business from home. marhabaDMC gives travel agents &amp; entrepreneurs a white label portal, training, and support. Launch in 24 hours.">
     <meta name="author" content="marhabaDMC" />
     <meta
       name="keywords"
       content="travel agents, travel agency business, work from home travel, white label travel portal, travel entrepreneur, travel business startup, B2B travel, travel agent training, halal tourism"
     />
 
-    <meta property="og:title" content="marhabaDMC - White Label Travel Portal for Agents & Entrepreneurs" />
-    <meta
-      property="og:description"
-      content="Start your own travel business from home. marhabaDMC gives travel agents & entrepreneurs a white label portal, training, and support. Launch in 24 hours."
-    />
+    
+    
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://marhabadmc.com/" />
-    <meta
-      property="og:image"
-      content="https://res.cloudinary.com/doxoxzz02/image/upload/v1771003247/Global_Halal_Destination_Management_Company_ydzhvo.jpg"
-    />
+    <meta property="og:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/kaGjaO2cEJTu1icx1bt9c3YRZnz2/social-images/social-1778154524847-marhaba_dmc_social_share.webp">
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:site_name" content="marhabaDMC" />
@@ -99,15 +63,9 @@
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@marhabaDMC" />
-    <meta name="twitter:title" content="marhabaDMC - White Label Travel Portal for Agents & Entrepreneurs" />
-    <meta
-      name="twitter:description"
-      content="Start your own travel business from home. marhabaDMC gives travel agents & entrepreneurs a white label portal, training, and support. Launch in 24 hours."
-    />
-    <meta
-      name="twitter:image"
-      content="https://res.cloudinary.com/doxoxzz02/image/upload/v1771003247/Global_Halal_Destination_Management_Company_ydzhvo.jpg"
-    />
+    
+    
+    <meta name="twitter:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/kaGjaO2cEJTu1icx1bt9c3YRZnz2/social-images/social-1778154524847-marhaba_dmc_social_share.webp">
     <meta name="twitter:image:alt" content="marhabaDMC - White Label Travel Portal for Travel Agents & Entrepreneurs" />
 
     <script type="application/ld+json">
@@ -130,7 +88,11 @@
         "email": "hello@marhabadmc.com"
       }
     </script>
-  </head>
+    <meta property="og:title" content="marhabaDMC - White Label Travel Portal for Agents &amp; Entrepreneurs">
+  <meta name="twitter:title" content="marhabaDMC - White Label Travel Portal for Agents &amp; Entrepreneurs">
+  <meta property="og:description" content="Start your own travel business from home. marhabaDMC gives travel agents &amp; entrepreneurs a white label portal, training, and support. Launch in 24 hours.">
+  <meta name="twitter:description" content="Start your own travel business from home. marhabaDMC gives travel agents &amp; entrepreneurs a white label portal, training, and support. Launch in 24 hours.">
+</head>
 
   <body>
     <!-- Meta Pixel noscript fallback -->
@@ -139,11 +101,10 @@
     /></noscript>
     <!-- Inline critical CSS for instant FCP before main stylesheet loads -->
     <style>
-      :root{color-scheme:light}
-      html.dark{color-scheme:dark}
-      body{margin:0;font-family:Inter,system-ui,-apple-system,sans-serif;background:#faf8f5;color:#0f172a}
-      html.dark body{background:#0a0b14;color:#e2e8f0}
+      :root{color-scheme:dark}
+      body{margin:0;font-family:Inter,system-ui,-apple-system,sans-serif;background:#0a0b14;color:#e2e8f0}
       #root{min-height:100vh}
+      .dark{--background:230 25% 5%;--foreground:210 40% 90%}
     </style>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
