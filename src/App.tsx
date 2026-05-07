@@ -12,6 +12,7 @@ import Index from "./pages/Index";
 import ProtectedRoute from "./components/admin/ProtectedRoute";
 import PageLoader from "./components/PageLoader";
 import SessionTrackingMount from "./components/SessionTrackingMount";
+import DeferredMount from "./components/DeferredMount";
 
 const NyraWidget = lazy(() => import("@/components/NyraWidget"));
 const LeadMagnetTrigger = lazy(() => import("@/components/lead/LeadMagnetTrigger"));
@@ -37,7 +38,16 @@ const Resource = lazy(() => import("./pages/Resource"));
 const BookDemo = lazy(() => import("./pages/BookDemo"));
 const Contact = lazy(() => import("./pages/Contact"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60_000,
+      gcTime: 5 * 60_000,
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 const App = () => (
   <HelmetProvider>
@@ -50,11 +60,17 @@ const App = () => (
           <Sonner />
           <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <SessionTrackingMount />
-            <NyraWidget />
-            <Suspense fallback={null}>
-              <LeadMagnetTrigger />
-              <LiveActivity />
-            </Suspense>
+            <DeferredMount delay={1500}>
+              <Suspense fallback={null}>
+                <NyraWidget />
+              </Suspense>
+            </DeferredMount>
+            <DeferredMount delay={3000}>
+              <Suspense fallback={null}>
+                <LeadMagnetTrigger />
+                <LiveActivity />
+              </Suspense>
+            </DeferredMount>
             <Suspense fallback={<PageLoader />}>
               <Routes>
                 <Route path="/" element={<Index />} />

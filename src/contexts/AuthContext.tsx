@@ -36,24 +36,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (sessionData?.user) {
       const userId = sessionData.user.id;
 
-      // Check superadmin
-      const { data: saData } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", userId)
-        .eq("role", "superadmin")
-        .maybeSingle();
-      const sa = !!saData;
+      // Run role checks in parallel to cut auth resolution time roughly in half
+      const [saRes, adminRes] = await Promise.all([
+        supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", userId)
+          .eq("role", "superadmin")
+          .maybeSingle(),
+        supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", userId)
+          .eq("role", "admin")
+          .maybeSingle(),
+      ]);
+      const sa = !!saRes.data;
+      const adm = !!adminRes.data;
       setIsSuperadmin(sa);
-
-      // Check admin role
-      const { data: adminRoleData } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", userId)
-        .eq("role", "admin")
-        .maybeSingle();
-      const adm = !!adminRoleData;
       setIsAdmin(adm);
 
       if (adm && !sa) {
