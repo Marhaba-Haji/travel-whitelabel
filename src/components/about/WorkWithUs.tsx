@@ -167,7 +167,7 @@ const WorkWithUs = () => {
                 asChild
                 className="rounded-full px-8 border-surface hover:bg-muted/70 hover:border-primary/35 dark:hover:bg-white/5 dark:hover:border-white/30"
               >
-                <a href="/contact">
+                <Link to="/contact">
                   Request a Platform Overview
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
