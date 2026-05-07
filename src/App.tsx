@@ -1,11 +1,11 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { ThemeProvider } from "next-themes";
 import { HelmetProvider } from "react-helmet-async";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ItineraryProvider } from "@/contexts/ItineraryContext";
 import Index from "./pages/Index";
@@ -13,6 +13,15 @@ import ProtectedRoute from "./components/admin/ProtectedRoute";
 import PageLoader from "./components/PageLoader";
 import SessionTrackingMount from "./components/SessionTrackingMount";
 import DeferredMount from "./components/DeferredMount";
+
+const ScrollToTop = () => {
+  const { pathname, hash } = useLocation();
+  useEffect(() => {
+    if (hash) return;
+    window.scrollTo(0, 0);
+  }, [pathname, hash]);
+  return null;
+};
 
 const NyraWidget = lazy(() => import("@/components/NyraWidget"));
 const LeadMagnetTrigger = lazy(() => import("@/components/lead/LeadMagnetTrigger"));
@@ -60,6 +69,7 @@ const App = () => (
           <Sonner />
           <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <SessionTrackingMount />
+            <ScrollToTop />
             <DeferredMount delay={1500}>
               <Suspense fallback={null}>
                 <NyraWidget />
