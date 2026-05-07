@@ -115,15 +115,24 @@ const BookDemo = () => {
   useEffect(() => {
     if (!date) return;
     setLoadingSlots(true);
-    supabase
-      .from("demo_bookings")
-      .select("booking_time")
-      .eq("booking_date", dateStr)
-      .neq("status", "cancelled")
-      .then(({ data, error }) => {
-        if (!error && data) setBookedSlots(data.map((r) => r.booking_time));
+    (async () => {
+      try {
+        const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/demo-booked-slots?date=${dateStr}`;
+        const res = await fetch(url, {
+          headers: {
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string,
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string}`,
+          },
+        });
+        const json = await res.json();
+        if (Array.isArray(json?.slots)) setBookedSlots(json.slots);
+        else setBookedSlots([]);
+      } catch (_e) {
+        setBookedSlots([]);
+      } finally {
         setLoadingSlots(false);
-      });
+      }
+    })();
   }, [date, dateStr]);
 
   // Load schedule settings for slot availability
