@@ -35,6 +35,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { CARD_BASE, PRIMARY_BTN, SECONDARY_BTN, SECTION_CONTAINER, SECTION_PY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { DIAL_CODES } from "@/lib/dial-codes";
@@ -74,6 +75,18 @@ const detailsSchema = z.object({
 });
 
 type Step = 1 | 2 | 3 | 4;
+
+const FIELD_CLASS =
+  "mt-1.5 h-11 rounded-3xl border-gray-200 bg-white shadow-sm focus-visible:ring-2 focus-visible:ring-[#412A86]/20 focus-visible:ring-offset-2";
+
+const TEXTAREA_CLASS =
+  "mt-1.5 min-h-[90px] rounded-3xl border-gray-200 bg-white shadow-sm focus-visible:ring-2 focus-visible:ring-[#412A86]/20 focus-visible:ring-offset-2";
+
+const SELECT_TRIGGER_CLASS =
+  "h-11 rounded-3xl border-gray-200 bg-white shadow-sm focus:ring-2 focus:ring-[#412A86]/20 focus:ring-offset-2";
+
+const PRIMARY_BUTTON_CLASS = cn(PRIMARY_BTN, "px-6");
+const SECONDARY_BUTTON_CLASS = cn(SECONDARY_BTN, "h-11 px-5");
 
 const BookDemo = () => {
   const [step, setStep] = useState<Step>(1);
@@ -199,7 +212,7 @@ const BookDemo = () => {
   const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   return (
-    <div className="min-h-screen bg-[#FAFAFC]">
+    <div className="min-h-screen bg-background">
       <Helmet>
         <title>Book a Free Demo | Marhaba DMC</title>
         <meta
@@ -211,49 +224,54 @@ const BookDemo = () => {
 
       <Header />
 
-      {/* Hero band */}
-      <section className="relative pt-32 pb-12 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-violet-50/60 via-white to-transparent pointer-events-none" />
-        <div className="container mx-auto px-4 max-w-7xl relative">
-          <div className="text-center max-w-3xl mx-auto">
-            <EyebrowChip className="mx-auto bg-violet-100 text-[#412A86]">
-              <Sparkles className="h-3.5 w-3.5" /> Live Demo
-            </EyebrowChip>
-            <h1 className="mt-5 font-poppins font-black text-4xl sm:text-5xl md:text-6xl tracking-tight text-gray-900 leading-[1.05]">
-              See Marhaba DMC <span className="text-[#B968C7]">in action</span>
-            </h1>
-            <p className="mt-5 text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
-              Book a free 30-minute personalised walkthrough with our team. Discover how
-              agencies are launching white-label travel portals in days, not months.
-            </p>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm">
-              {[
-                { icon: Clock, label: "30 minutes" },
-                { icon: Video, label: "1-on-1 call" },
-                { icon: ShieldCheck, label: "100% free" },
-                { icon: CheckCircle2, label: "No card required" },
-              ].map((b) => (
-                <span
-                  key={b.label}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-gray-100 shadow-soft text-gray-700"
-                >
-                  <b.icon className="h-3.5 w-3.5 text-[#412A86]" />
-                  {b.label}
-                </span>
-              ))}
+      <main className="bg-white w-full overflow-hidden">
+        {/* Hero band */}
+        <section className="relative overflow-hidden pt-24 pb-16 lg:pt-32 lg:pb-20">
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute -top-24 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-[#2D9BFC]/10 blur-3xl" />
+            <div className="absolute bottom-0 right-0 h-64 w-64 rounded-full bg-[#B968C7]/10 blur-3xl" />
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
+          </div>
+          <div className={cn(SECTION_CONTAINER, "max-w-7xl relative")}>
+            <div className="text-center max-w-3xl mx-auto">
+              <EyebrowChip color="indigo" className="mx-auto">
+                <Sparkles className="h-3.5 w-3.5" /> Live Demo
+              </EyebrowChip>
+              <h1 className="mt-5 font-poppins font-black text-4xl sm:text-5xl md:text-6xl tracking-tight text-gray-900 leading-[1.05]">
+                See Marhaba DMC <span className="text-[#B968C7]">in action</span>
+              </h1>
+              <p className="mt-5 text-base sm:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
+                Book a free 30-minute personalised walkthrough with our team. Discover how
+                agencies are launching white-label travel portals in days, not months.
+              </p>
+              <div className="mt-8 flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm">
+                {[
+                  { icon: Clock, label: "30 minutes" },
+                  { icon: Video, label: "1-on-1 call" },
+                  { icon: ShieldCheck, label: "100% free" },
+                  { icon: CheckCircle2, label: "No card required" },
+                ].map((b) => (
+                  <span
+                    key={b.label}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-gray-100 shadow-soft text-gray-700"
+                  >
+                    <b.icon className="h-3.5 w-3.5 text-[#412A86]" />
+                    {b.label}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Booking grid */}
-      <section className="pb-20">
-        <div className="container mx-auto px-4 max-w-7xl">
+        {/* Booking grid */}
+        <section className={cn(SECTION_PY, "pt-0")}>
+          <div className={cn(SECTION_CONTAINER, "max-w-7xl")}>
           <div className="grid lg:grid-cols-12 gap-6 lg:gap-8">
             {/* LEFT: Demo overview */}
             <div className="lg:col-span-5">
               <SoftCard className="p-6 sm:p-8 sticky top-24">
-                <EyebrowChip className="bg-blue-50 text-[#412A86]">About this demo</EyebrowChip>
+                <EyebrowChip color="indigo">About this demo</EyebrowChip>
                 <h2 className="mt-4 font-poppins font-extrabold text-2xl sm:text-3xl text-gray-900 leading-tight">
                   Your end-to-end platform tour
                 </h2>
@@ -277,9 +295,9 @@ const BookDemo = () => {
                 </div>
 
                 {/* Host card */}
-                <div className="mt-7 p-4 rounded-2xl bg-gradient-to-br from-violet-50 to-blue-50 border border-white">
+                <div className={cn("mt-7 p-4", CARD_BASE)}>
                   <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-full bg-gradient-to-br from-[#412A86] to-[#B968C7] flex items-center justify-center text-white font-bold">
+                    <div className="h-12 w-12 rounded-2xl bg-[#412A86]/10 flex items-center justify-center text-[#412A86] font-bold">
                       MD
                     </div>
                     <div>
@@ -327,7 +345,7 @@ const BookDemo = () => {
                     <p className="text-sm text-gray-600 mb-4">
                       Choose any weekday that works for you.
                     </p>
-                    <div className="rounded-2xl border border-gray-100 bg-white block w-full overflow-x-auto">
+                    <div className={cn(CARD_BASE, "block w-full overflow-x-auto")}>
                       <Calendar
                         mode="single"
                         selected={date}
@@ -353,7 +371,7 @@ const BookDemo = () => {
                       <Button
                         onClick={goNext}
                         disabled={!date}
-                        className="rounded-full bg-[#412A86] hover:bg-[#412A86]/90 px-6"
+                        className={PRIMARY_BUTTON_CLASS}
                       >
                         Continue <ArrowRight className="h-4 w-4 ml-1" />
                       </Button>
@@ -460,14 +478,14 @@ const BookDemo = () => {
                       <Button
                         variant="ghost"
                         onClick={goBack}
-                        className="text-gray-600 hover:text-[#412A86]"
+                        className={SECONDARY_BUTTON_CLASS}
                       >
                         <ArrowLeft className="h-4 w-4 mr-1" /> Back
                       </Button>
                       <Button
                         onClick={goNext}
                         disabled={!time}
-                        className="rounded-full bg-[#412A86] hover:bg-[#412A86]/90 px-6"
+                        className={PRIMARY_BUTTON_CLASS}
                       >
                         Continue <ArrowRight className="h-4 w-4 ml-1" />
                       </Button>
@@ -498,7 +516,7 @@ const BookDemo = () => {
                           value={fullName}
                           onChange={(e) => setFullName(e.target.value)}
                           placeholder="Your full name"
-                          className="mt-1.5 h-11 rounded-xl"
+                          className={FIELD_CLASS}
                         />
                       </div>
 
@@ -506,7 +524,7 @@ const BookDemo = () => {
                         <Label>WhatsApp number *</Label>
                         <div className="mt-1.5 flex gap-2">
                           <Select value={countryCode} onValueChange={setCountryCode}>
-                            <SelectTrigger className="w-[130px] h-11 rounded-xl">
+                            <SelectTrigger className={cn("w-[130px]", SELECT_TRIGGER_CLASS)}>
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent className="max-h-72">
@@ -524,7 +542,7 @@ const BookDemo = () => {
                               setWhatsapp(e.target.value.replace(/\D/g, ""))
                             }
                             placeholder="9876543210"
-                            className="h-11 rounded-xl flex-1"
+                            className={cn(FIELD_CLASS, "flex-1")}
                           />
                         </div>
                       </div>
@@ -537,7 +555,7 @@ const BookDemo = () => {
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           placeholder="you@company.com"
-                          className="mt-1.5 h-11 rounded-xl"
+                          className={FIELD_CLASS}
                         />
                       </div>
 
@@ -548,7 +566,7 @@ const BookDemo = () => {
                           value={notes}
                           onChange={(e) => setNotes(e.target.value)}
                           placeholder="e.g. Focus on B2C portal & flight API integration"
-                          className="mt-1.5 rounded-xl min-h-[90px]"
+                          className={TEXTAREA_CLASS}
                           maxLength={500}
                         />
                       </div>
@@ -562,7 +580,7 @@ const BookDemo = () => {
                       <Button
                         variant="ghost"
                         onClick={goBack}
-                        className="text-gray-600 hover:text-[#412A86]"
+                        className={SECONDARY_BUTTON_CLASS}
                         disabled={submitting}
                       >
                         <ArrowLeft className="h-4 w-4 mr-1" /> Back
@@ -570,7 +588,7 @@ const BookDemo = () => {
                       <Button
                         onClick={handleSubmit}
                         disabled={submitting}
-                        className="rounded-full bg-[#412A86] hover:bg-[#412A86]/90 px-7 h-11"
+                        className={cn(PRIMARY_BUTTON_CLASS, "px-7")}
                       >
                         {submitting ? (
                           <>
@@ -586,7 +604,7 @@ const BookDemo = () => {
 
                 {step === 4 && (
                   <div className="text-center py-6">
-                    <div className="mx-auto h-16 w-16 rounded-full bg-emerald-100 flex items-center justify-center">
+                    <div className="mx-auto h-16 w-16 rounded-full bg-[#412A86]/10 flex items-center justify-center">
                       <CheckCircle2 className="h-9 w-9 text-emerald-600" />
                     </div>
                     <h3 className="mt-5 font-poppins font-bold text-2xl text-gray-900">
@@ -615,12 +633,12 @@ const BookDemo = () => {
                       <Button
                         onClick={handleDownloadICS}
                         variant="outline"
-                        className="rounded-full border-[#412A86]/30 text-[#412A86] hover:bg-[#412A86]/5"
+                        className={SECONDARY_BUTTON_CLASS}
                       >
                         <Download className="h-4 w-4 mr-1.5" /> Add to calendar
                       </Button>
                       <Link to="/">
-                        <Button className="rounded-full bg-[#412A86] hover:bg-[#412A86]/90">
+                        <Button className={PRIMARY_BUTTON_CLASS}>
                           <Home className="h-4 w-4 mr-1.5" /> Back to home
                         </Button>
                       </Link>
@@ -631,8 +649,9 @@ const BookDemo = () => {
             </div>
           </div>
 
-        </div>
-      </section>
+          </div>
+        </section>
+      </main>
 
       <Footer />
     </div>
