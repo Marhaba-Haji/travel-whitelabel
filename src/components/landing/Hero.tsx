@@ -261,7 +261,7 @@ const Hero = () => {
                     alt={displayedHeroImage.alt}
                     width={500}
                     height={600}
-                    fetchpriority="high"
+                    fetchPriority="high"
                     className={`w-full h-auto object-contain relative drop-shadow-2xl transition-all duration-700 ease-out ${
                       isImageTransitioning ? 'opacity-0 scale-[0.985]' : 'opacity-100 scale-100'
                     }`}
