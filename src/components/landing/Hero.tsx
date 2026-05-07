@@ -7,6 +7,13 @@ import type { Partner } from "@/hooks/usePartners";
 import { useHeroContent } from "@/hooks/useHeroContent";
 import { useHeroImages } from "@/hooks/useHeroImages";
 
+// Use Supabase image transformation to serve a small partner logo instead of full-size PNG
+const optimizePartnerLogo = (url: string): string => {
+  if (!url || !url.includes("/storage/v1/object/public/")) return url;
+  const transformed = url.replace("/storage/v1/object/public/", "/storage/v1/render/image/public/");
+  return `${transformed}?width=96&height=96&resize=contain&quality=70`;
+};
+
 type DisplayedHeroImage = {
   id: string;
   src: string;
