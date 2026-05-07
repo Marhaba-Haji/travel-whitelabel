@@ -1,124 +1,34 @@
+## Add "Our Services" section to home page
 
-## Book a Demo — Calendly-style Booking System
+Add a new section showcasing 8 service offerings, inspired by flyshop.in's Our Services block but rebuilt in our design system. Place it directly after "Embracing Adventure Since 2022" (CompetitiveEdge) and before Stats.
 
-A modern public booking page at `/book-demo` where prospects can pick a date and time slot, enter their details, and confirm a 30-minute demo. All bookings are stored in Supabase and exposed in the admin dashboard.
+### Section content
+- **Heading**: "Our Services"
+- **Subheading**: "We offer white-label solutions that let you launch your own branded product quickly and effortlessly. You sell under your name—we manage the technology behind the scenes."
+- **8 service cards** (each with icon, title, short description):
+  1. **Hajj Packages** — Curated Hajj journeys with vetted operators and end-to-end support. (icon: `Moon`)
+  2. **Umrah Packages** — Year-round Umrah departures with visa, transport, and ziyarat. (icon: `Star`)
+  3. **Halal Holiday Packages** — Family-friendly halal-certified getaways across the globe. (icon: `Palmtree`)
+  4. **Car & Transport** — Private transfers, intercity cabs, and luxury fleet bookings. (icon: `Car`)
+  5. **Activities Booking** — Tours, experiences and tickets in 100+ destinations. (icon: `Ticket`)
+  6. **Group Packages** — Custom group itineraries with negotiated fares for flights & hotels. (icon: `Users`)
+  7. **Independent Packages** — Tailor-made FIT itineraries with full flexibility. (icon: `Compass`)
+  8. **Guide Booking** — Certified local guides bookable on-demand in any language. (icon: `MapPinned`)
 
-### 1. Database (new migration)
+### Design (matches our system)
+- Section: `py-24 bg-white` (or alternating soft tint to break monotony from the prior white section — use `bg-[#F7FAFF]`).
+- Heading block: `EyebrowChip` ("Our Services" pill in indigo `#412A86`) + bold poppins H2 with `Our` in `#412A86` highlight. Subheading in `text-gray-500`.
+- Cards: built with `SoftCard` (rounded-3xl, white, hairline border, soft shadow, hover lift). Reuse the blob-icon treatment from `Features.tsx`:
+  - 16×16 organic-blob shaped tinted background, inner 11×11 white circle holding the lucide icon.
+  - Cycle through the 7 surface tones already defined in `Features.tsx` (`featureSurfaces`) so palette stays consistent.
+- Layout: responsive grid — 1 col mobile, 2 cols sm, 4 cols lg (8 cards = 2 neat rows on desktop).
+- Animations: reuse `useScrollAnimation` for header + staggered `animate-scale-in` per card (delay `index * 0.06s`), matching `Features.tsx`.
 
-Create `demo_bookings` table:
+### Files
+- **Create** `src/components/landing/OurServices.tsx` — new section component.
+- **Edit** `src/pages/Index.tsx` — lazy-import `OurServices` and render it in the `<Suspense>` block right after `<CompetitiveEdge />` and before `<Stats />`.
 
-| column | type | notes |
-|---|---|---|
-| id | uuid PK | gen_random_uuid() |
-| full_name | text NOT NULL | |
-| country_code | text NOT NULL | e.g. "+91" |
-| whatsapp_number | text NOT NULL | digits only |
-| email | text NULL | optional |
-| booking_date | date NOT NULL | |
-| booking_time | text NOT NULL | "HH:mm" 24h |
-| timezone | text NOT NULL DEFAULT 'Asia/Kolkata' | |
-| notes | text NULL | optional message |
-| status | text NOT NULL DEFAULT 'confirmed' | confirmed / cancelled / completed |
-| utm | jsonb DEFAULT '{}' | |
-| session_id | text NULL | |
-| created_at, updated_at | timestamptz | |
-
-Constraints / indexes:
-- UNIQUE (booking_date, booking_time) — prevents double booking of the same slot
-- index on booking_date
-- updated_at trigger using existing `update_updated_at_column()`
-
-RLS:
-- Enable RLS
-- INSERT for `public` with check `true`
-- SELECT for authenticated where `has_role(auth.uid(), 'superadmin')`
-- UPDATE for superadmin (status changes)
-
-### 2. Public page `/book-demo`
-
-Route added in `src/App.tsx` (lazy). Linked from Header desktop + mobile nav as a pill CTA "Book a Demo", and from Hero secondary CTA.
-
-Layout (responsive, design-system compliant — white surfaces, indigo `#412A86` accents, violet highlights, Poppins headings, `SoftCard`, `EyebrowChip`, `rounded-3xl`, `shadow-soft`):
-
-```text
-[Hero band]
-  Eyebrow: "Live Demo"
-  H1: "See Marhaba DMC in action"
-  Subheading + 4 trust badges (30 min, 1-on-1, free, no card)
-
-[Two-column grid on lg, stacked on mobile]
-  LEFT  (≈40%)  — "About this demo" SoftCard
-    - Title, description
-    - "What's covered" checklist (6 items: Portal walkthrough, Inventory & contracting, AI Sales Assistant, White-label setup, Pricing & GST, Q&A)
-    - Host card (avatar, name, role)
-    - Decorative travel imagery (skyline.svg / flight-path.svg already in /public/assets)
-
-  RIGHT (≈60%) — Booking wizard SoftCard, 3 steps
-    Step 1: Select Date
-      - shadcn Calendar (mode="single", disable past + Sundays)
-      - Timezone display
-    Step 2: Select Time
-      - Grid of time-slot pills (09:00 – 18:00, 30-min increments)
-      - Greyed-out / disabled if already booked (queried from demo_bookings for that date)
-      - Selected slot highlighted indigo
-      - Back button
-    Step 3: Your Details
-      - Full Name (required)
-      - Country code Select (reusing/extending COUNTRIES list with dial codes) + WhatsApp number (required, digits 6–15)
-      - Email (optional, valid format if provided)
-      - Notes (optional textarea)
-      - Terms micro-text
-      - "Confirm Booking" primary button
-    Confirmation state
-      - Success card with check icon, summary of date/time, "Add to calendar" .ics download, link back home
-
-Validation: zod schema. Disable confirm button while submitting. Toast on success/error.
-
-[Below grid]
-  - Mini FAQ (3 items: rescheduling, recording, who should attend)
-  - Footer reuse
-```
-
-### 3. Slot availability logic
-
-- On date select, query `demo_bookings` where `booking_date = selected` and `status != 'cancelled'`, then filter the static slot list.
-- On submit, rely on UNIQUE constraint as the source of truth; if Postgres returns a unique violation, show "This slot was just taken — please pick another" and bounce back to step 2.
-
-### 4. Admin tab "Demo Bookings"
-
-- New file `src/components/admin/DemoBookingsTab.tsx`
-- Register in `tabComponents` in `src/pages/Admin.tsx` and `allTabs` in `AdminLayout.tsx` (icon: `CalendarCheck`)
-- Permissions: superadmin always; others if `hasAccess('demo-bookings','view')` — same pattern as other tabs
-- Features:
-  - Stats strip: Total, Upcoming, This week, Cancelled
-  - Filters: status, date range, search (name/email/phone)
-  - Table: Date, Time, Name, WhatsApp (with country code), Email, Status badge, Notes, Created
-  - Row actions: mark Completed, Cancel (UPDATE status), Open WhatsApp link (`https://wa.me/<code><number>`), Copy email
-  - CSV export
-
-### 5. Files
-
-Create:
-- `supabase/migrations/<ts>_demo_bookings.sql`
-- `src/pages/BookDemo.tsx`
-- `src/components/booking/BookingCalendar.tsx`
-- `src/components/booking/TimeSlotPicker.tsx`
-- `src/components/booking/BookingDetailsForm.tsx`
-- `src/components/booking/BookingSuccess.tsx`
-- `src/components/booking/DemoOverview.tsx`
-- `src/lib/dial-codes.ts` (country + dial code list)
-- `src/lib/ics.ts` (tiny ICS generator)
-- `src/components/admin/DemoBookingsTab.tsx`
-
-Modify:
-- `src/App.tsx` — add lazy route `/book-demo`
-- `src/components/landing/Header.tsx` — add "Book a Demo" CTA (desktop + mobile)
-- `src/components/landing/Hero.tsx` — add secondary CTA linking to `/book-demo`
-- `src/pages/Admin.tsx` — register new tab component
-- `src/components/admin/AdminLayout.tsx` — add tab entry
-
-### 6. Out of scope (can be added later if requested)
-
-- Email/WhatsApp confirmation to the prospect (would need Resend/Twilio edge-function trigger)
-- Admin-configurable working hours / blackout dates
-- Google Calendar sync
+### Notes
+- No new dependencies, no DB or API changes.
+- Pure presentational; no admin CMS hookup (can be added later if requested).
+- Fully mobile responsive with our standard container + spacing tokens.
