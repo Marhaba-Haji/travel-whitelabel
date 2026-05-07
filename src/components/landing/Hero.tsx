@@ -7,6 +7,13 @@ import type { Partner } from "@/hooks/usePartners";
 import { useHeroContent } from "@/hooks/useHeroContent";
 import { useHeroImages } from "@/hooks/useHeroImages";
 
+// Use Supabase image transformation to serve a small partner logo instead of full-size PNG
+const optimizePartnerLogo = (url: string): string => {
+  if (!url || !url.includes("/storage/v1/object/public/")) return url;
+  const transformed = url.replace("/storage/v1/object/public/", "/storage/v1/render/image/public/");
+  return `${transformed}?width=96&height=96&resize=contain&quality=70`;
+};
+
 type DisplayedHeroImage = {
   id: string;
   src: string;
@@ -28,7 +35,15 @@ const PartnersScroller = memo(({ partners, loading }: { partners: Partner[]; loa
   const renderItem = (partner: Partner, suffix: string) => (
     <div key={`${partner.id}-${suffix}`} className="flex-shrink-0 flex items-center gap-3">
       {partner.logo_url ? (
-        <img src={partner.logo_url} alt={partner.name} className="h-12 w-12 rounded-lg object-contain bg-white shadow-sm ring-1 ring-gray-100 p-1" />
+        <img
+          src={optimizePartnerLogo(partner.logo_url)}
+          alt={partner.name}
+          width={48}
+          height={48}
+          loading="lazy"
+          decoding="async"
+          className="h-12 w-12 rounded-lg object-contain bg-white shadow-sm ring-1 ring-gray-100 p-1"
+        />
       ) : (
         <div className={`h-12 w-12 ${partner.color_badge} rounded-lg flex items-center justify-center text-white text-sm font-bold shadow-sm`}>
           {partner.name.split(' ').map((w) => w[0]).join('').slice(0, 2)}
@@ -54,7 +69,7 @@ const Hero = () => {
   const { heroImage, loading: heroImageLoading } = useHeroImages();
   const [displayedHeroImage, setDisplayedHeroImage] = useState<DisplayedHeroImage>({
     id: 'hero-image-fallback',
-    src: '/assets/hero_woman_tickets.png',
+    src: '/assets/hero_woman_tickets.webp',
     alt: 'Hero travel illustration',
   });
   const [nextHeroImage, setNextHeroImage] = useState<DisplayedHeroImage | null>(null);
@@ -271,7 +286,7 @@ const Hero = () => {
                     alt={displayedHeroImage.alt}
                     width={500}
                     height={600}
-                    fetchPriority="high"
+                    {...({ fetchpriority: "high" } as Record<string, string>)}
                     className={`w-full h-auto object-contain relative drop-shadow-lg sm:drop-shadow-2xl transition-all duration-700 ease-out ${
                       isImageTransitioning ? 'opacity-0 scale-[0.985]' : 'opacity-100 scale-100'
                     }`}

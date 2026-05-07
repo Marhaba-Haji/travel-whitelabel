@@ -60,9 +60,13 @@ const HowItWorks = () => {
           {/* Center Image */}
           <div className="w-full lg:w-[30%] flex justify-center my-16 lg:my-0 relative z-10">
             <div className="relative">
-              <img 
-                src="/assets/man_with_backpack.png" 
-                alt="Traveler with backpack" 
+              <img
+                src="/assets/man_with_backpack.webp"
+                alt="Traveler with backpack"
+                width={700}
+                height={900}
+                loading="lazy"
+                decoding="async"
                 className="w-full max-w-[350px] object-contain drop-shadow-2xl relative z-10"
               />
               {/* Floating Pill */}
