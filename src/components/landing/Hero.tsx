@@ -28,7 +28,15 @@ const PartnersScroller = memo(({ partners, loading }: { partners: Partner[]; loa
   const renderItem = (partner: Partner, suffix: string) => (
     <div key={`${partner.id}-${suffix}`} className="flex-shrink-0 flex items-center gap-3">
       {partner.logo_url ? (
-        <img src={partner.logo_url} alt={partner.name} className="h-12 w-12 rounded-lg object-contain bg-white shadow-sm ring-1 ring-gray-100 p-1" />
+        <img
+          src={optimizePartnerLogo(partner.logo_url)}
+          alt={partner.name}
+          width={48}
+          height={48}
+          loading="lazy"
+          decoding="async"
+          className="h-12 w-12 rounded-lg object-contain bg-white shadow-sm ring-1 ring-gray-100 p-1"
+        />
       ) : (
         <div className={`h-12 w-12 ${partner.color_badge} rounded-lg flex items-center justify-center text-white text-sm font-bold shadow-sm`}>
           {partner.name.split(' ').map((w) => w[0]).join('').slice(0, 2)}
