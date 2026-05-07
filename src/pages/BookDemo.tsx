@@ -385,6 +385,14 @@ const BookDemo = () => {
                           const dow = date.getDay();
                           const cfg = scheduleSettings[dow] || { start_time: "09:00", end_time: "17:00", unavailable_ranges: [], is_holiday: false };
 
+                          // Normalize time format: strip seconds if present (e.g. "09:00:00" → "09:00")
+                          const normalizeTime = (time: string): string => {
+                            return time.split(":").slice(0, 2).join(":");
+                          };
+
+                          const normalizedStart = normalizeTime(cfg.start_time);
+                          const normalizedEnd = normalizeTime(cfg.end_time);
+
                           // Helper to add 30 minutes to a time string (HH:MM)
                           const addMinutes = (time: string, mins: number): string => {
                             const [h, m] = time.split(":").map(Number);
@@ -394,11 +402,15 @@ const BookDemo = () => {
                             return `${String(newH).padStart(2, "0")}:${String(newM).padStart(2, "0")}`;
                           };
 
-                          const between = (t: string, start: string, end: string) => {
-                            // For a 30-minute slot starting at t, check if it fits between start and end
-                            // Slot occupies time [t, t+30min), so we check if t >= start and t+30min <= end
-                            const slotEnd = addMinutes(t, 30);
-                            return t >= start && slotEnd <= end;
+                          // Generate all 30-minute slots between start and end times
+                          const generateSlots = (start: string, end: string): string[] => {
+                            const slots: string[] = [];
+                            let current = start;
+                            while (current < end) {
+                              slots.push(current);
+                              current = addMinutes(current, 30);
+                            }
+                            return slots;
                           };
 
                           const overlapsUnavailable = (t: string): boolean => {
@@ -407,12 +419,15 @@ const BookDemo = () => {
                             const slotEnd = addMinutes(t, 30);
                             for (const r of cfg.unavailable_ranges || []) {
                               if (!r || !r.start || !r.end) continue;
-                              if (r.start < slotEnd && r.end > t) return true; // Overlap detected
+                              const rStart = normalizeTime(r.start);
+                              const rEnd = normalizeTime(r.end);
+                              if (rStart < slotEnd && rEnd > t) return true; // Overlap detected
                             }
                             return false;
                           };
 
-                          const visibleSlots = ALL_SLOTS.filter((s) => between(s, cfg.start_time, cfg.end_time) && !overlapsUnavailable(s));
+                          const allSlots = generateSlots(normalizedStart, normalizedEnd);
+                          const visibleSlots = allSlots.filter((s) => !overlapsUnavailable(s));
 
                           return visibleSlots.map((slot) => {
                             const taken = bookedSlots.includes(slot);
