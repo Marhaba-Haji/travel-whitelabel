@@ -136,7 +136,7 @@ const PartnersTab = () => {
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-3 py-2 border border-border rounded-md text-sm"
+                className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background text-foreground placeholder:text-muted-foreground"
                 placeholder="e.g., MakeMyTrip"
                 required
               />
@@ -148,7 +148,7 @@ const PartnersTab = () => {
                 type="url"
                 value={formData.logo_url || ''}
                 onChange={(e) => setFormData({ ...formData, logo_url: e.target.value || null })}
-                className="w-full px-3 py-2 border border-border rounded-md text-sm"
+                className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background text-foreground placeholder:text-muted-foreground"
                 placeholder="https://example.com/logo.png"
               />
               <p className="text-xs text-muted-foreground mt-1">Or upload an image below</p>
@@ -176,7 +176,7 @@ const PartnersTab = () => {
               <select
                 value={formData.color_badge}
                 onChange={(e) => setFormData({ ...formData, color_badge: e.target.value })}
-                className="w-full px-3 py-2 border border-border rounded-md text-sm"
+                className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background text-foreground"
               >
                 {colorOptions.map(color => (
                   <option key={color} value={color}>{color}</option>
@@ -190,7 +190,7 @@ const PartnersTab = () => {
                 type="number"
                 value={formData.display_order}
                 onChange={(e) => setFormData({ ...formData, display_order: parseInt(e.target.value) })}
-                className="w-full px-3 py-2 border border-border rounded-md text-sm"
+                className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background text-foreground"
                 min="0"
               />
             </div>
@@ -221,7 +221,7 @@ const PartnersTab = () => {
       )}
 
       {/* Partners List */}
-      <div className="bg-card rounded-lg border overflow-hidden">
+      <div className="bg-card text-card-foreground rounded-lg border overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-muted border-b">
