@@ -74,7 +74,7 @@ const Hero = () => {
       return (
         <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-[72px] font-bold text-gray-900 mb-6 font-poppins leading-[1.1] tracking-tight">
           Travel <span style={{ color: '#B968C7' }} className="font-bold">top destination</span>
-          <br className="hidden md:block" />
+          <br />
           of the world
         </h1>
       );
@@ -93,7 +93,7 @@ const Hero = () => {
                 <span style={{ color: subtitle_color }} className="font-bold">
                   {subtitle}
                 </span>
-                <br className="hidden md:block" />
+                <br />
               </>
             )}
           </span>
