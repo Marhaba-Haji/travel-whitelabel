@@ -17,29 +17,29 @@ type DisplayedHeroImage = {
 const PartnersScroller = memo(({ partners, loading }: { partners: Partner[]; loading: boolean }) => {
   if (loading) {
     return (
-      <div className="flex gap-12 h-10 animate-pulse">
+      <div className="flex gap-14 h-16 animate-pulse">
         {[...Array(7)].map((_, i) => (
-          <div key={i} className="flex-shrink-0 h-8 w-24 bg-gray-200 rounded" />
+          <div key={i} className="flex-shrink-0 h-12 w-32 bg-gray-200 rounded" />
         ))}
       </div>
     );
   }
 
   const renderItem = (partner: Partner, suffix: string) => (
-    <div key={`${partner.id}-${suffix}`} className="flex-shrink-0 flex items-center gap-2.5">
+    <div key={`${partner.id}-${suffix}`} className="flex-shrink-0 flex items-center gap-3">
       {partner.logo_url ? (
-        <img src={partner.logo_url} alt={partner.name} className="h-8 w-8 rounded object-contain" />
+        <img src={partner.logo_url} alt={partner.name} className="h-12 w-12 rounded-lg object-contain bg-white shadow-sm ring-1 ring-gray-100 p-1" />
       ) : (
-        <div className={`h-8 w-8 ${partner.color_badge} rounded flex items-center justify-center text-white text-xs font-bold`}>
+        <div className={`h-12 w-12 ${partner.color_badge} rounded-lg flex items-center justify-center text-white text-sm font-bold shadow-sm`}>
           {partner.name.split(' ').map((w) => w[0]).join('').slice(0, 2)}
         </div>
       )}
-      <span className="text-sm font-semibold text-gray-700 whitespace-nowrap">{partner.name}</span>
+      <span className="text-base font-semibold text-gray-700 whitespace-nowrap">{partner.name}</span>
     </div>
   );
 
   return (
-    <div className="flex gap-12 items-center animate-scroll-cross" style={{ animationDuration: '60s' }}>
+    <div className="flex gap-14 items-center animate-scroll-cross" style={{ animationDuration: '40s' }}>
       {partners.map((p) => renderItem(p, '1'))}
       {partners.map((p) => renderItem(p, '2'))}
     </div>
@@ -211,7 +211,7 @@ const Hero = () => {
             </div>
 
             {/* Partner Logos — Single Line Scrolling Animation (Database-driven) */}
-            <div className="w-full overflow-hidden relative py-2 min-h-[3rem]">
+            <div className="w-full overflow-hidden relative py-3 min-h-[5rem]">
               <PartnersScroller partners={partners} loading={loading} />
             </div>
           </div>
