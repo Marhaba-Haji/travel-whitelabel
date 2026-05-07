@@ -337,36 +337,6 @@ export type Database = {
         }
         Relationships: []
       }
-      home_faqs: {
-        Row: {
-          active: boolean
-          answer: string
-          created_at: string
-          display_order: number
-          id: string
-          question: string
-          updated_at: string
-        }
-        Insert: {
-          active?: boolean
-          answer: string
-          created_at?: string
-          display_order?: number
-          id?: string
-          question: string
-          updated_at?: string
-        }
-        Update: {
-          active?: boolean
-          answer?: string
-          created_at?: string
-          display_order?: number
-          id?: string
-          question?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       hero_content: {
         Row: {
           active: boolean
@@ -444,6 +414,36 @@ export type Database = {
           image_url?: string
           section_key?: string
           storage_path?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      home_faqs: {
+        Row: {
+          active: boolean
+          answer: string
+          created_at: string
+          display_order: number
+          id: string
+          question: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          answer: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          question: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          answer?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          question?: string
           updated_at?: string
         }
         Relationships: []
