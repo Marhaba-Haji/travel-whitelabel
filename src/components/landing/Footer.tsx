@@ -21,7 +21,7 @@ const Footer = () => {
   };
 
   return (
-    <footer className="relative bg-white pt-20 overflow-hidden w-full">
+    <footer id="contact" className="relative bg-white pt-20 overflow-hidden w-full">
       <div className="container mx-auto px-4 relative z-10 pb-32">
         {/* Top Section */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">

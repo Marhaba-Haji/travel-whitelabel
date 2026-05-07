@@ -135,7 +135,7 @@ const HospitalityTech = () => {
                 asChild
                 className="rounded-full px-8 bg-gradient-to-r from-aurora-purple via-aurora-blue to-aurora-purple shadow-[0_0_20px_hsl(270_60%_58%_/_0.2)] hover:shadow-[0_0_30px_hsl(270_60%_58%_/_0.3)] transition-shadow"
               >
-                <a href="#contact">
+                <a href="/contact">
                   Request Early Access
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </a>

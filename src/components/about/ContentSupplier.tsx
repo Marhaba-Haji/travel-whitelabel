@@ -161,7 +161,7 @@ const ContentSupplier = () => {
           {/* CTA */}
           <div className="text-center">
             <Button size="lg" asChild>
-              <a href="#contact">
+              <a href="/contact">
                 Explore Content Library
                 <ArrowRight className="ml-2 h-4 w-4" />
               </a>

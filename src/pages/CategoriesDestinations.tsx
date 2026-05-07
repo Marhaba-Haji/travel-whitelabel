@@ -208,27 +208,27 @@ const CategoriesDestinations = () => {
 
               {/* Quick Stats Row */}
               <div className="flex flex-wrap items-center justify-center gap-4 mb-6">
-                <div className="flex items-center gap-2 bg-card border border-border px-4 py-2 rounded-lg shadow-sm">
-                  <Globe className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-medium">
-                    <AnimatedCounter end={200} suffix="+" className="text-primary font-bold" /> Destinations
+                <div className="flex items-center gap-2 bg-white border border-gray-200 px-4 py-2 rounded-lg shadow-sm">
+                  <Globe className="w-4 h-4 text-[#412A86]" />
+                  <span className="text-sm font-medium text-gray-700">
+                    <AnimatedCounter end={200} suffix="+" className="text-[#412A86] font-bold" /> Destinations
                   </span>
                 </div>
-                <div className="flex items-center gap-2 bg-card border border-border px-4 py-2 rounded-lg shadow-sm">
-                  <MapPin className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-medium">
-                    <AnimatedCounter end={30} suffix="+" className="text-primary font-bold" /> Countries
+                <div className="flex items-center gap-2 bg-white border border-gray-200 px-4 py-2 rounded-lg shadow-sm">
+                  <MapPin className="w-4 h-4 text-[#412A86]" />
+                  <span className="text-sm font-medium text-gray-700">
+                    <AnimatedCounter end={30} suffix="+" className="text-[#412A86] font-bold" /> Countries
                   </span>
                 </div>
-                <div className="flex items-center gap-2 bg-card border border-border px-4 py-2 rounded-lg shadow-sm">
-                  <Star className="w-4 h-4 text-aurora-pink fill-aurora-pink" />
-                  <span className="text-sm font-medium">
-                    <span className="text-aurora-pink font-bold">4</span> Categories
+                <div className="flex items-center gap-2 bg-white border border-gray-200 px-4 py-2 rounded-lg shadow-sm">
+                  <Star className="w-4 h-4 text-[#B968C7] fill-[#B968C7]" />
+                  <span className="text-sm font-medium text-gray-700">
+                    <span className="text-[#B968C7] font-bold">4</span> Categories
                   </span>
                 </div>
-                <div className="flex items-center gap-2 bg-card border border-border px-4 py-2 rounded-lg shadow-sm">
-                  <CheckCircle className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-medium">Global Coverage</span>
+                <div className="flex items-center gap-2 bg-white border border-gray-200 px-4 py-2 rounded-lg shadow-sm">
+                  <CheckCircle className="w-4 h-4 text-[#412A86]" />
+                  <span className="text-sm font-medium text-gray-700">Global Coverage</span>
                 </div>
               </div>
             </div>
@@ -631,9 +631,9 @@ const CategoriesDestinations = () => {
                       </Link>
                     </Button>
                     <Button size="lg" variant="outline" asChild className="hover:bg-primary/10 hover:border-primary/50 transition-all">
-                      <a href="#contact">
+                      <Link to="/contact">
                         Request Coverage Details
-                      </a>
+                      </Link>
                     </Button>
                   </div>
                 </div>

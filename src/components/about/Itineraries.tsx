@@ -170,7 +170,7 @@ const Itineraries = () => {
           {/* CTA */}
           <div className="text-center">
             <Button size="lg" asChild>
-              <a href="#contact">
+              <a href="/contact">
                 View Sample Itineraries
                 <ArrowRight className="ml-2 h-4 w-4" />
               </a>

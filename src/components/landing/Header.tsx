@@ -27,7 +27,7 @@ const Header = () => {
     { name: "Pricing", href: "#pricing" },
     { name: "Destinations", href: "/categories-destinations", isPage: true },
     { name: "Blog", href: "/blog", isPage: true },
-    { name: "Contact Us", href: "#contact" },
+    { name: "Contact Us", href: "/contact", isPage: true },
   ];
 
   const scrollToSection = (href: string) => {

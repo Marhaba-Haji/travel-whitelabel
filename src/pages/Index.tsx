@@ -46,12 +46,20 @@ const Index = () => {
 
   useEffect(() => {
     if (location.hash) {
-      const element = document.querySelector(location.hash);
-      if (element) {
-        setTimeout(() => {
+      // Lazy-loaded sections (e.g. #contact in Footer) may not be in the DOM
+      // yet, so we poll briefly until the element appears.
+      let attempts = 0;
+      const maxAttempts = 20;
+      const interval = setInterval(() => {
+        const element = document.querySelector(location.hash);
+        if (element) {
+          clearInterval(interval);
           element.scrollIntoView({ behavior: "smooth" });
-        }, 100);
-      }
+        } else if (++attempts >= maxAttempts) {
+          clearInterval(interval);
+        }
+      }, 100);
+      return () => clearInterval(interval);
     }
   }, [location.hash]);
 
