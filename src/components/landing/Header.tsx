@@ -60,7 +60,7 @@ const Header = () => {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <div className="flex items-center cursor-pointer" onClick={() => navigate("/")}>
-            <img src="/assets/logo.webp" alt="Marhaba DMC" className="h-10 w-auto object-contain mr-2" />
+            <img src="/assets/logo.webp" alt="Marhaba DMC" width={140} height={40} className="h-10 w-auto object-contain mr-2" />
             <div className="flex flex-col leading-tight pt-1">
               <span className="font-poppins font-black text-[22px] text-gray-900 tracking-tight">MARHABA</span>
               <span className="font-poppins font-black text-[22px] text-[#412A86] tracking-tight -mt-1">DMC</span>
