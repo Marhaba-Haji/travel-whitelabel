@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { initializeAutoPreload } from '@/lib/route-prefetch';
+import { prefetchIdleRoutes } from '@/lib/route-prefetch';
 
 /**
  * Component to initialize automatic route prefetching on app load
@@ -7,8 +7,14 @@ import { initializeAutoPreload } from '@/lib/route-prefetch';
  */
 export const AutoPrefetchInitializer = () => {
   useEffect(() => {
-    // Initialize prefetching on mount
-    initializeAutoPreload();
+    // Warm up commonly visited routes during idle time
+    prefetchIdleRoutes([
+      '/about',
+      '/blog',
+      '/categories-destinations',
+      '/login',
+      '/signup',
+    ]);
   }, []);
 
   return null;

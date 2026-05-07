@@ -1,6 +1,5 @@
 import { memo, Suspense } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { Category } from "@/lib/destinations-data";
 import DestinationCard from "./DestinationCard";
@@ -38,11 +37,6 @@ export const CategorySection = memo(function CategorySection({
           <div className="w-10 h-10 flex items-center justify-center text-2xl">{icon}</div>
           <div>
             <h3 className="text-2xl font-bold">{category.name}</h3>
-            {category.featured && (
-              <Badge variant="default" className="mt-1">
-                Featured
-              </Badge>
-            )}
           </div>
         </div>
         <p className="text-gray-600 dark:text-gray-400 text-sm max-w-2xl">
