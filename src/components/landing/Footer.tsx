@@ -27,7 +27,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
           <div className="space-y-6">
             <div className="flex items-center mb-6">
-              <img src="/assets/logo.png" alt="Marhaba DMC" className="h-10 w-auto object-contain mr-2" />
+              <img src="/assets/logo.webp" alt="Marhaba DMC" className="h-10 w-auto object-contain mr-2" />
               <div className="flex flex-col leading-tight pt-1">
                 <span className="font-poppins font-black text-[20px] text-gray-900 tracking-tight">MARHABA</span>
                 <span className="font-poppins font-black text-[20px] text-[#412A86] tracking-tight -mt-1">DMC</span>
