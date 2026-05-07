@@ -102,18 +102,18 @@ const BookDemo = () => {
   useEffect(() => {
     if (!date) return;
     setLoadingSlots(true);
-    supabase.functions
-      .invoke("demo-booked-slots", { method: "GET" as any, body: undefined as any })
-      .then(async () => {
-        // Fallback: call via fetch with query string
-      });
     (async () => {
       try {
-        const { data, error } = await supabase.functions.invoke<{ slots: string[] }>(
-          `demo-booked-slots?date=${dateStr}`,
-          { method: "GET" as any },
-        );
-        if (!error && data?.slots) setBookedSlots(data.slots);
+        const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/demo-booked-slots?date=${dateStr}`;
+        const res = await fetch(url, {
+          headers: {
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string,
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string}`,
+          },
+        });
+        const json = await res.json();
+        if (Array.isArray(json?.slots)) setBookedSlots(json.slots);
+        else setBookedSlots([]);
       } catch (_e) {
         setBookedSlots([]);
       } finally {
