@@ -193,7 +193,7 @@ const HeroContentTab = () => {
       )}
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-card rounded-lg p-6 border space-y-6">
+        <form onSubmit={handleSubmit} className="bg-card text-foreground rounded-lg p-6 border space-y-6 [&_input]:text-foreground [&_textarea]:text-foreground [&_input]:bg-background [&_textarea]:bg-background [&_label]:text-foreground">
           <div className="flex items-center justify-between gap-4">
             <h3 className="text-lg font-semibold">
               {editingId ? 'Edit Hero Variant' : 'Add Hero Variant'}
