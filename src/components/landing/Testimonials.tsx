@@ -18,74 +18,37 @@ const Testimonials = () => {
   };
 
   useEffect(() => {
-    console.log("[Testimonials Debug] Effect triggered. loading:", loading, "testimonials count:", testimonials.length);
     const el = containerRef.current;
-    
-    if (!el) {
-      console.log("[Testimonials Debug] containerRef is null, returning.");
-      return;
-    }
-    
-    if (loading || testimonials.length === 0) {
-      console.log("[Testimonials Debug] Still loading or no testimonials, returning.");
-      return;
-    }
+    if (!el || loading || testimonials.length === 0) return;
 
-    console.log("[Testimonials Debug] Container found. Setting short timeout to let layout settle...");
-
-    // Wait a frame for layout to complete
     const startTimer = setTimeout(() => {
-      console.log("[Testimonials Debug] Timeout complete. Container dimensions:", {
-        scrollWidth: el.scrollWidth,
-        clientWidth: el.clientWidth,
-        scrollLeft: el.scrollLeft
-      });
-
-      if (el.scrollWidth <= el.clientWidth) {
-        console.log("[Testimonials Debug] WARNING: scrollWidth is not greater than clientWidth. Content is not scrollable.");
-      } else {
-        console.log("[Testimonials Debug] Container is scrollable. Max scroll distance:", el.scrollWidth - el.clientWidth);
-      }
-
       const speed = 1.5;
       const maxScroll = () => el.scrollWidth - el.clientWidth;
+      let currentScroll = el.scrollLeft;
 
-      const handleEnter = () => { 
-        console.log("[Testimonials Debug] Mouse entered - pausing animation.");
-        isPausedRef.current = true; 
-      };
-      const handleLeave = () => { 
-        console.log("[Testimonials Debug] Mouse left - resuming animation.");
-        isPausedRef.current = false; 
-      };
+      const handleEnter = () => { isPausedRef.current = true; };
+      const handleLeave = () => { isPausedRef.current = false; };
 
-      let frameCount = 0;
       const animate = () => {
         if (!isPausedRef.current) {
-          const oldScrollLeft = el.scrollLeft;
-          el.scrollLeft += speed;
-          
-          if (frameCount % 60 === 0) {
-            console.log(`[Testimonials Debug] Frame ${frameCount} | Intended Scroll: ${(oldScrollLeft + speed).toFixed(2)} | Actual ScrollLeft: ${el.scrollLeft.toFixed(2)}`);
+          currentScroll += speed;
+          if (currentScroll >= maxScroll()) {
+            currentScroll = 0;
           }
-
-          if (el.scrollLeft >= maxScroll()) {
-            console.log("[Testimonials Debug] Reached end, resetting to 0.");
-            el.scrollLeft = 0;
-          }
+          el.scrollLeft = currentScroll;
+        } else {
+          // If paused (e.g. user is dragging/scrolling manually), sync the variable
+          currentScroll = el.scrollLeft;
         }
-        frameCount++;
         rafIdRef.current = requestAnimationFrame(animate);
       };
 
       el.addEventListener("mouseenter", handleEnter);
       el.addEventListener("mouseleave", handleLeave);
       
-      console.log("[Testimonials Debug] Starting animation loop.");
       rafIdRef.current = requestAnimationFrame(animate);
 
       return () => {
-        console.log("[Testimonials Debug] Cleaning up inner event listeners and RAF.");
         if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
         el.removeEventListener("mouseenter", handleEnter);
         el.removeEventListener("mouseleave", handleLeave);
@@ -93,7 +56,6 @@ const Testimonials = () => {
     }, 50);
 
     return () => {
-      console.log("[Testimonials Debug] Cleaning up overall effect.");
       clearTimeout(startTimer);
       if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
     };
@@ -125,7 +87,7 @@ const Testimonials = () => {
         </div>
 
         {/* Carousel / Cards */}
-        <div ref={containerRef} className="flex overflow-x-auto gap-6 pb-8 -mx-4 px-4 snap-x hide-scrollbar">
+        <div ref={containerRef} className="flex overflow-x-auto gap-6 pb-8 -mx-4 px-4 hide-scrollbar cursor-pointer">
           {loading ? (
             <div className="w-full flex items-center justify-center py-12 text-muted-foreground">
               Loading testimonials...
@@ -140,7 +102,7 @@ const Testimonials = () => {
               return displayTestimonials.map((testimonial, idx) => (
                 <div
                   key={`${testimonial.id}-${idx}`}
-                  className="min-w-[280px] md:min-w-[360px] w-[280px] md:w-[360px] min-h-[220px] md:min-h-[260px] shrink-0 snap-start bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between"
+                  className="min-w-[280px] md:min-w-[360px] w-[280px] md:w-[360px] min-h-[220px] md:min-h-[260px] shrink-0 bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col justify-between hover:-translate-y-1 transition-transform duration-300"
                 >
                   <div>
                     <p className="text-gray-500 text-sm leading-relaxed mb-8">

@@ -72,7 +72,7 @@ const Hero = () => {
     if (!heroContent) {
       // Fallback title with default purple highlight
       return (
-        <h1 className="text-5xl md:text-6xl lg:text-[72px] font-bold text-gray-900 mb-6 font-poppins leading-[1.1] tracking-tight">
+        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[72px] font-bold text-gray-900 mb-6 font-poppins leading-[1.1] tracking-tight">
           Travel <span style={{ color: '#B968C7' }} className="font-bold">top destination</span>
           <br className="hidden md:block" />
           of the world
@@ -84,7 +84,7 @@ const Hero = () => {
     const parts = title.split(subtitle);
 
     return (
-      <h1 key={heroContent?.id || 'hero-fallback'} className="text-5xl md:text-6xl lg:text-[72px] font-bold text-gray-900 mb-6 font-poppins leading-[1.1] tracking-tight">
+      <h1 key={heroContent?.id || 'hero-fallback'} className="text-4xl sm:text-5xl md:text-6xl lg:text-[72px] font-bold text-gray-900 mb-6 font-poppins leading-[1.1] tracking-tight">
         {parts.map((part, index) => (
           <span key={index}>
             {part}
@@ -221,7 +221,7 @@ const Hero = () => {
           <div className="relative mt-12 lg:mt-0 flex justify-center items-center w-full">
             
             {/* The Blue Circle Background */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] sm:w-[500px] sm:h-[500px] bg-[#2D9BFC] rounded-full z-0 overflow-hidden">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[280px] h-[280px] sm:w-[400px] sm:h-[400px] md:w-[500px] md:h-[500px] bg-[#2D9BFC] rounded-full z-0 overflow-hidden">
               {/* Faint world map inside the circle */}
               <div className="absolute inset-0 opacity-20 bg-[url('https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/World_map_-_low_resolution.svg/1024px-World_map_-_low_resolution.svg.png')] bg-center bg-contain bg-no-repeat"></div>
             </div>
@@ -229,25 +229,25 @@ const Hero = () => {
             <div className="relative w-full max-w-[500px] z-10 flex justify-center">
               
               {/* Floating Card: Top Places */}
-              <div className="absolute bottom-[20%] left-0 sm:-left-[10%] bg-white rounded-full px-5 py-3 shadow-xl z-20 flex items-center gap-3 animate-float-slow">
+              <div className="absolute bottom-[20%] -left-[5%] sm:-left-[10%] bg-white rounded-full px-3 py-2 sm:px-5 sm:py-3 shadow-xl z-20 flex items-center gap-2 sm:gap-3 animate-float-slow scale-75 sm:scale-100 origin-bottom-left">
                 <div className="flex items-center justify-center">
-                  <MapPin className="w-5 h-5 text-yellow-400 fill-yellow-400/20" />
+                  <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 fill-yellow-400/20" />
                 </div>
-                <span className="font-bold text-sm text-gray-900">Top Places</span>
+                <span className="font-bold text-xs sm:text-sm text-gray-900">Top Places</span>
               </div>
 
               {/* Floating Card: Earning Potential */}
-              <div className="absolute top-[30%] right-0 sm:-right-[15%] bg-white rounded-xl p-4 shadow-xl z-20 animate-float w-[180px] text-center border border-gray-50">
-                <p className="text-[#5D50C6] font-bold text-base mb-1">₹50,000+/month</p>
-                <p className="text-xs text-gray-500 font-medium">Earning Potential</p>
+              <div className="absolute top-[30%] -right-[5%] sm:-right-[15%] bg-white rounded-xl p-2 sm:p-4 shadow-xl z-20 animate-float w-[140px] sm:w-[180px] text-center border border-gray-50 scale-75 sm:scale-100 origin-top-right">
+                <p className="text-[#5D50C6] font-bold text-sm sm:text-base mb-1">₹50,000+/mo</p>
+                <p className="text-[10px] sm:text-xs text-gray-500 font-medium">Earning Potential</p>
               </div>
 
               {/* Floating Card: Customers */}
-              <div className="absolute bottom-[10%] right-[10%] sm:-right-[5%] bg-white rounded-full px-5 py-3 shadow-xl z-20 flex items-center gap-3 animate-float-slow" style={{ animationDelay: '1s' }}>
+              <div className="absolute bottom-[10%] -right-[5%] sm:-right-[5%] bg-white rounded-full px-3 py-2 sm:px-5 sm:py-3 shadow-xl z-20 flex items-center gap-2 sm:gap-3 animate-float-slow scale-75 sm:scale-100 origin-bottom-right" style={{ animationDelay: '1s' }}>
                 <div className="flex items-center justify-center">
-                  <Users className="w-5 h-5 text-yellow-400 fill-yellow-400/20" />
+                  <Users className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 fill-yellow-400/20" />
                 </div>
-                <span className="font-bold text-sm text-gray-900">2,000 + Customers</span>
+                <span className="font-bold text-xs sm:text-sm text-gray-900">2,000+ Customers</span>
               </div>
 
               {/* Main Subject Image */}
