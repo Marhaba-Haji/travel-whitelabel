@@ -14,32 +14,35 @@ export interface HeroContent {
   active: boolean;
 }
 
+let heroContentCache: HeroContent[] | null = null;
+let heroContentInflight: Promise<HeroContent[]> | null = null;
+
 export const useHeroContent = () => {
-  const [heroContents, setHeroContents] = useState<HeroContent[]>([]);
-  const [heroContent, setHeroContent] = useState<HeroContent | null>(null);
+  const [heroContents, setHeroContents] = useState<HeroContent[]>(heroContentCache ?? []);
+  const [heroContent, setHeroContent] = useState<HeroContent | null>(heroContentCache?.[0] ?? null);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(heroContentCache === null);
   const [error, setError] = useState<string | null>(null);
 
   const fetchHeroContent = async () => {
     try {
-      setLoading(true);
-      const { data, error: fetchError } = await supabase
-        .from('hero_content')
-        .select('*')
-        .eq('section_key', 'main_hero')
-        .eq('active', true)
-        .order('display_order', { ascending: true })
-        .order('created_at', { ascending: true });
-
-      console.log('[useHeroContent] Query result - Data:', data, 'Error:', fetchError);
-
-      if (fetchError && fetchError.code !== 'PGRST116') {
-        const message = fetchError.message || JSON.stringify(fetchError);
-        throw new Error(message);
+      if (!heroContentInflight) {
+        heroContentInflight = (async () => {
+          const { data, error: fetchError } = await supabase
+            .from('hero_content')
+            .select('*')
+            .eq('section_key', 'main_hero')
+            .eq('active', true)
+            .order('display_order', { ascending: true })
+            .order('created_at', { ascending: true });
+          if (fetchError && fetchError.code !== 'PGRST116') {
+            throw new Error(fetchError.message || JSON.stringify(fetchError));
+          }
+          heroContentCache = ((data || []) as HeroContent[]);
+          return heroContentCache;
+        })();
       }
-
-      const variants = (data || []) as HeroContent[];
+      const variants = await heroContentInflight;
       setHeroContents(variants);
       setCurrentIndex(0);
       setHeroContent(variants[0] || null);
@@ -48,12 +51,14 @@ export const useHeroContent = () => {
       const errorMessage = err instanceof Error ? err.message : JSON.stringify(err) || 'Failed to fetch hero content';
       setError(errorMessage);
       console.error('Error fetching hero content:', err);
+      heroContentInflight = null;
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    if (heroContentCache) return;
     fetchHeroContent();
   }, []);
 

@@ -10,38 +10,45 @@ export interface Partner {
   active?: boolean;
 }
 
+let partnersCache: Partner[] | null = null;
+let partnersInflight: Promise<Partner[]> | null = null;
+
 export const usePartners = () => {
-  const [partners, setPartners] = useState<Partner[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [partners, setPartners] = useState<Partner[]>(partnersCache ?? []);
+  const [loading, setLoading] = useState(partnersCache === null);
   const [error, setError] = useState<string | null>(null);
 
   const fetchPartners = async () => {
     try {
-      setLoading(true);
-      const { data, error: fetchError } = await supabase
-        .from('partners')
-        .select('*')
-        .eq('active', true)
-        .order('display_order', { ascending: true });
-
-      if (fetchError) {
-        throw fetchError;
+      if (!partnersInflight) {
+        partnersInflight = (async () => {
+          const { data, error: fetchError } = await supabase
+            .from('partners')
+            .select('*')
+            .eq('active', true)
+            .order('display_order', { ascending: true });
+          if (fetchError) throw fetchError;
+          partnersCache = (data as Partner[]) || [];
+          return partnersCache;
+        })();
       }
-
-      setPartners(data || []);
+      const result = await partnersInflight;
+      setPartners(result);
       setError(null);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch partners';
       setError(errorMessage);
       console.error('Error fetching partners:', err);
+      partnersInflight = null;
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    if (partnersCache) return; // already loaded once
     fetchPartners();
   }, []);
 
-  return { partners, loading, error, refetch: fetchPartners };
+  return { partners, loading, error, refetch: () => { partnersInflight = null; partnersCache = null; return fetchPartners(); } };
 };
