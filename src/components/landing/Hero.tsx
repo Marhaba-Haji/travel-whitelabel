@@ -143,7 +143,7 @@ const Hero = () => {
             {heroLoading ? (
               <div className="h-12 bg-gray-200 rounded-lg animate-pulse mb-10 w-full max-w-lg"></div>
             ) : (
-              <p key={heroContent?.id || 'hero-description'} className="text-base sm:text-lg md:text-xl text-gray-500 mb-10 font-medium max-w-lg leading-relaxed animate-fade-in px-2 lg:px-0">
+              <p key={heroContent?.id || 'hero-description'} className="text-base sm:text-lg md:text-xl text-gray-500 mb-10 font-medium w-full max-w-lg leading-relaxed animate-fade-in px-2 lg:px-0">
                 {heroContent?.description || 'Where adventure meets comfort. We create unforgettable travel experiences'}
               </p>
             )}
