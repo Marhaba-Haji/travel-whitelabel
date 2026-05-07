@@ -27,6 +27,7 @@ const TrustedBy = lazy(() => import("@/components/landing/TrustedBy"));
 const Stats = lazy(() => import("@/components/landing/Stats"));
 const Features = lazy(() => import("@/components/landing/Features"));
 const CompetitiveEdge = lazy(() => import("@/components/landing/CompetitiveEdge"));
+const OurServices = lazy(() => import("@/components/landing/OurServices"));
 const ProductShowcase = lazy(() => import("@/components/landing/ProductShowcase"));
 const HowItWorks = lazy(() => import("@/components/landing/HowItWorks"));
 const LiveTravelBanner = lazy(() => import("@/components/landing/LiveTravelBanner"));
@@ -93,6 +94,7 @@ const Index = () => {
         <Suspense fallback={null}>
           <HeroBenefits />
           <CompetitiveEdge />
+          <OurServices />
           <Stats />
           <Features />
           <ProductShowcase />
