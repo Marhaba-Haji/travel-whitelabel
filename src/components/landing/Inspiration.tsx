@@ -135,7 +135,7 @@ const Inspiration = () => {
 
         {/* Carousel / Grid */}
         {/* Using a flex container with overflow-x-auto for the carousel effect */}
-        <div ref={carouselRef} className="flex overflow-x-auto gap-6 pb-8 -mx-4 px-4 snap-x hide-scrollbar scroll-smooth">
+          <div ref={carouselRef} className="flex overflow-x-auto gap-6 pb-8 -mx-0 md:-mx-4 px-4 snap-x hide-scrollbar scroll-smooth">
           {loading ? (
             [1, 2, 3, 4].map((item) => (
               <div key={item} className="min-w-[320px] md:min-w-[380px] w-[320px] md:w-[380px] shrink-0 snap-start bg-white rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col animate-pulse">

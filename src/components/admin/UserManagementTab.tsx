@@ -30,6 +30,7 @@ const MODULES = [
   { id: "blog", label: "Blog" },
   { id: "ai-agent", label: "AI Agent Config" },
   { id: "indexing-logs", label: "Indexing Logs" },
+  { id: "faqs", label: "FAQs" },
   { id: "settings", label: "Site Settings" },
 ];
 

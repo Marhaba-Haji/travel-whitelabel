@@ -7,8 +7,8 @@ const Stats = () => {
 
   const stats = [
     { value: 2000, suffix: "+", label: "Customers" },
-    { value: 50, suffix: "+", label: "Countries" },
-    { value: 500, suffix: "+", label: "Partners" },
+    { value: 30, suffix: "+", label: "Countries" },
+    { value: 100, suffix: "+", label: "Partners" },
     { value: 1, suffix: "M+", label: "Hotels" },
   ];
 

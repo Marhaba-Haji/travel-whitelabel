@@ -20,6 +20,7 @@ import PartnersTab from "@/components/admin/PartnersTab";
 import TestimonialsTab from "@/components/admin/TestimonialsTab";
 import HeroContentTab from "@/components/admin/HeroContentTab";
 import HeroImagesTab from "@/components/admin/HeroImagesTab";
+import HomeFaqsTab from "@/components/admin/HomeFaqsTab";
 
 const tabComponents: Record<string, React.FC> = {
   overview: OverviewTab,
@@ -37,6 +38,7 @@ const tabComponents: Record<string, React.FC> = {
   "indexing-logs": IndexingLogsTab,
   "hero-content": HeroContentTab,
   "hero-images": HeroImagesTab,
+  faqs: HomeFaqsTab,
   settings: SiteSettingsTab,
   partners: PartnersTab,
   testimonials: TestimonialsTab,

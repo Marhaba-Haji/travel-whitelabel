@@ -49,7 +49,7 @@ const EmbracingAdventure = () => {
               Choose one style or create a package, fill your passports with adventures together.
             </p>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-3 gap-4 text-center">
               <div>
                 <h4 className="text-2xl md:text-3xl font-bold text-gray-900 font-poppins mb-1">2000+</h4>
                 <p className="text-xs md:text-sm text-gray-500 font-medium leading-snug">Customers served</p>

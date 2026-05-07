@@ -23,7 +23,7 @@ const TrustedBy = () => {
         className={`container mx-auto px-4 relative opacity-0 ${isVisible ? "animate-fade-in" : ""}`}
       >
         <p className="text-center text-xs font-semibold text-aurora-teal/80 mb-6 uppercase tracking-[0.2em]">
-          Trusted by 500+ Travel Agencies Worldwide
+          Trusted by 100+ Travel Agencies Worldwide
         </p>
 
         <div className="relative">

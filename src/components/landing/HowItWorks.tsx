@@ -66,8 +66,8 @@ const HowItWorks = () => {
                 className="w-full max-w-[350px] object-contain drop-shadow-2xl relative z-10"
               />
               {/* Floating Pill */}
-              <div className="absolute bottom-24 -left-12 bg-white shadow-xl rounded-full px-6 py-3 border border-gray-50 z-20">
-                <span className="text-[#F98825] font-bold tracking-wider">2,000+ Customers Served</span>
+              <div className="absolute bottom-24 left-0 sm:left-0 md:-left-12 bg-white shadow-xl rounded-full px-4 sm:px-6 py-2 sm:py-3 border border-gray-50 z-20 w-fit max-w-xs sm:max-w-none">
+                <span className="text-[#F98825] font-bold tracking-wider text-xs sm:text-sm">2,000+ Customers Served</span>
               </div>
               {/* Starfish (Emojis/SVGs for decoration) */}
               <div className="absolute -bottom-2 right-4 text-3xl opacity-80 rotate-[15deg] z-20 select-none pointer-events-none text-orange-300">

@@ -120,30 +120,33 @@ const ProductShowcase = () => {
 
         {/* Tabs Row */}
         <div className="flex flex-wrap justify-center gap-4 mb-14">
-          <button 
+          <button
             onClick={() => setActiveTab("admin")}
-            className={`font-semibold px-6 py-2.5 rounded-xl shadow-md transition-all ${activeTab === "admin" ? "bg-[#412A86] text-white" : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"}`}
+            className={`font-semibold px-6 py-2.5 rounded-xl shadow-md transition-all w-full sm:w-auto max-w-md text-center ${activeTab === "admin" ? "bg-[#412A86] text-white" : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"}`}
           >
             <Settings className="w-4 h-4 inline mr-2" />
             Admin Portal
           </button>
-          <button 
+
+          <button
             onClick={() => setActiveTab("supplier")}
-            className={`font-semibold px-6 py-2.5 rounded-xl transition-all ${activeTab === "supplier" ? "bg-[#412A86] text-white shadow-md" : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"}`}
+            className={`font-semibold px-6 py-2.5 rounded-xl transition-all w-full sm:w-auto text-center ${activeTab === "supplier" ? "bg-[#412A86] text-white shadow-md" : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"}`}
           >
             <Package className="w-4 h-4 inline mr-2" />
             Supplier portal
           </button>
-          <button 
+
+          <button
             onClick={() => setActiveTab("b2b")}
-            className={`font-semibold px-6 py-2.5 rounded-xl transition-all ${activeTab === "b2b" ? "bg-[#412A86] text-white shadow-md" : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"}`}
+            className={`font-semibold px-6 py-2.5 rounded-xl transition-all w-full sm:w-auto text-center ${activeTab === "b2b" ? "bg-[#412A86] text-white shadow-md" : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"}`}
           >
             <Users className="w-4 h-4 inline mr-2" />
             B2B Agent
           </button>
-          <button 
+
+          <button
             onClick={() => setActiveTab("b2c")}
-            className={`font-semibold px-6 py-2.5 rounded-xl transition-all ${activeTab === "b2c" ? "bg-[#412A86] text-white shadow-md" : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"}`}
+            className={`font-semibold px-6 py-2.5 rounded-xl transition-all w-full sm:w-auto text-center ${activeTab === "b2c" ? "bg-[#412A86] text-white shadow-md" : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"}`}
           >
             <ShoppingCart className="w-4 h-4 inline mr-2" />
             B2C Portal
@@ -153,7 +156,7 @@ const ProductShowcase = () => {
         {/* Features 3-Column Row */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
           {/* Active Card */}
-          <div className="bg-white rounded-2xl p-8 border border-[#412A86]/30 shadow-[0_8px_30px_rgb(65,42,134,0.08)] relative">
+          <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative">
             <div className="flex items-center gap-3 mb-6">
               <activeContent.icon className="w-5 h-5 text-gray-700" strokeWidth={1.5} />
               <h3 className="font-bold text-gray-900 text-lg">{activeContent.title}</h3>

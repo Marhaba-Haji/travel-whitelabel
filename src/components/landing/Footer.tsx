@@ -91,9 +91,9 @@ const Footer = () => {
         {/* Middle Section (Socials, Phone, Payments) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-10 items-center">
           {/* Follow us */}
-          <div>
-            <h4 className="font-bold text-gray-900 mb-4 text-base">Follow us</h4>
-            <div className="flex gap-3">
+          <div className="text-center md:text-left">
+            <h4 className="font-bold text-gray-900 mb-4 text-base text-center md:text-left">Follow us</h4>
+            <div className="flex gap-3 justify-center md:justify-start">
               {socialLinks.map(({ platform, url, label }) => {
                 const Icon = socialIcons[platform];
 
@@ -118,14 +118,14 @@ const Footer = () => {
           </div>
 
           {/* Need help */}
-          <div className="flex flex-col md:items-center">
+          <div className="flex flex-col items-center md:items-center">
             <div className="flex items-center gap-2 mb-1">
               <Phone className="w-5 h-5 text-gray-900" />
               <span className="font-bold text-gray-900 text-base">Need help? Call us</span>
             </div>
             <a
               href={phone ? `tel:${phone}` : whatsapp ? `tel:${whatsapp}` : undefined}
-              className="text-2xl font-bold text-gray-900 pl-7 md:pl-0"
+              className="text-2xl font-bold text-gray-900 pl-0 md:pl-0 text-center"
             >
               {isLoading ? "Loading contact details..." : phone || whatsapp || ""}
             </a>

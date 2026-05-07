@@ -14,6 +14,8 @@ import {
   SITE_URL,
 } from "@/lib/seo-schemas";
 import { useContactSettings } from "@/hooks/useContactSettings";
+import { useHomeFaqs } from "@/hooks/useHomeFaqs";
+import { DEFAULT_HOME_FAQS } from "@/lib/home-faqs";
 
 // Above-the-fold: load eagerly
 import Header from "@/components/landing/Header";
@@ -39,6 +41,7 @@ const StickyCTA = lazy(() => import("@/components/landing/StickyCTA"));
 const Index = () => {
   const location = useLocation();
   const { email, phone, whatsapp, address } = useContactSettings();
+  const { faqs: dbFaqs } = useHomeFaqs();
 
   useEffect(() => {
     if (location.hash) {
@@ -57,14 +60,10 @@ const Index = () => {
     prefetchIdleRoutes(["/about", "/categories-destinations", "/blog"]);
   }, []);
 
-  const homepageFaqs = [
-    { question: "How long does it take to set up my portal?", answer: "Most clients have their branded portal live within 2-3 business days, including domain setup, branding, and API integration." },
-    { question: "Can I use my own domain name?", answer: "Yes. You can use any custom domain (e.g., book.youragency.com). DNS and SSL setup are included." },
-    { question: "What APIs are included?", answer: "Flight, Hotel (1M+ properties), Visa (50+ countries), and Activities APIs are all included in the annual subscription." },
-    { question: "How does the AI Sales Assistant work?", answer: "Multilingual chatbot and voicebot that handles inquiries 24/7 in Hindi, English and more — billed on consumption (per conversation)." },
-    { question: "Is there a limit on agents or customers?", answer: "No — unlimited B2B agents and B2C customers, no per-user fees." },
-    { question: "What kind of support do you provide?", answer: "Six-day technical support via email, phone, and WhatsApp, plus a dedicated account manager for the first 30 days." },
-  ];
+  const homepageFaqs =
+    dbFaqs.length > 0
+      ? dbFaqs.map((faq) => ({ question: faq.question, answer: faq.answer }))
+      : DEFAULT_HOME_FAQS;
 
   const jsonLd = [
     organizationSchema({ email, phone, whatsapp, address }),
@@ -102,7 +101,7 @@ const Index = () => {
           <Testimonials />
           <Inspiration />
           <Pricing />
-          <FAQ />
+          <FAQ faqs={homepageFaqs} />
         </Suspense>
       </main>
       <Suspense fallback={null}>

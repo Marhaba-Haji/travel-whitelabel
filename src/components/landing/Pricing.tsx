@@ -103,7 +103,7 @@ const Pricing = () => {
                 </ul>
               </div>
 
-              <Button variant="outline" className="w-full h-14 rounded-full border-gray-200 bg-white text-gray-900 hover:border-[#412A86]/30 hover:bg-white" asChild>
+              <Button variant="outline" className="w-full h-14 rounded-full border-cyan-100 bg-cyan-50 text-cyan-700 hover:bg-cyan-100 hover:border-cyan-200" asChild>
                 <a href="/signup?plan=launch">Get Started</a>
               </Button>
             </div>
@@ -200,7 +200,7 @@ const Pricing = () => {
                 </ul>
               </div>
 
-              <Button variant="outline" className="w-full h-14 rounded-full border-gray-200 bg-white text-gray-900 hover:border-[#412A86]/30 hover:bg-white" asChild>
+              <Button variant="outline" className="w-full h-14 rounded-full border-cyan-100 bg-cyan-50 text-cyan-700 hover:bg-cyan-100 hover:border-cyan-200" asChild>
                 <a href="/signup?plan=authority">Get Started</a>
               </Button>
             </div>

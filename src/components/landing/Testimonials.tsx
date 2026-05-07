@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Star, ArrowLeft, ArrowRight } from "lucide-react";
+import { Star } from "lucide-react";
 import { useTestimonials } from "@/hooks/useTestimonials";
 
 const Testimonials = () => {
@@ -68,7 +68,20 @@ const Testimonials = () => {
         className="absolute top-10 right-0 w-96 h-48 opacity-20 pointer-events-none bg-no-repeat bg-right-top mix-blend-multiply"
         style={{ backgroundImage: 'url("/assets/flight-path.svg")' }}
       />
-      <div className="absolute bottom-0 left-0 w-2/3 h-48 opacity-[0.05] pointer-events-none bg-[url('https://placehold.co/1920x300/000000/transparent?text=Skyline')] bg-repeat-x bg-bottom" />
+      <div className="absolute bottom-0 left-0 w-2/3 h-48 pointer-events-none z-0">
+        <svg
+          className="w-full h-full"
+          viewBox="0 0 1200 200"
+          preserveAspectRatio="xMinYMax slice"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <g opacity="0.06" stroke="#e5e7eb" strokeWidth="2" fill="none">
+            <path d="M0 140 L40 120 L80 140 L120 100 L160 140 L200 80 L240 140 L280 60 L320 140 L360 110 L400 140 L440 90 L480 140 L520 130 L560 140 L600 100 L640 140 L680 110 L720 140 L760 90 L800 140 L840 120 L880 140 L920 100 L960 140 L1000 110 L1040 140 L1080 80 L1120 140 L1160 120 L1200 140" />
+            <path d="M300 60 q40 -30 80 0" strokeWidth="1.5" />
+          </g>
+        </svg>
+      </div>
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Header Block */}
@@ -129,16 +142,6 @@ const Testimonials = () => {
               ));
             })()
           )}
-        </div>
-
-        {/* Carousel Navigation Buttons */}
-        <div className="flex justify-end gap-3 mt-4">
-          <button className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors" aria-label="Previous testimonial">
-            <ArrowLeft className="w-4 h-4 text-gray-600" />
-          </button>
-          <button className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors" aria-label="Next testimonial">
-            <ArrowRight className="w-4 h-4 text-gray-600" />
-          </button>
         </div>
       </div>
 
