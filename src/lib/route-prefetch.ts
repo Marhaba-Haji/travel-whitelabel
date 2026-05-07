@@ -26,13 +26,21 @@ export const prefetchRoute = (path: string) => {
 
 export const prefetchIdleRoutes = (paths: string[]) => {
   if (typeof window === "undefined") return;
+  // Respect data-saver / slow connections — don't waste bytes prefetching.
+  const conn = (navigator as unknown as {
+    connection?: { saveData?: boolean; effectiveType?: string };
+  }).connection;
+  if (conn?.saveData) return;
+  if (conn?.effectiveType && /(^|-)2g$/.test(conn.effectiveType)) return;
   const run = () => paths.forEach(prefetchRoute);
   const ric = (window as unknown as {
     requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
   }).requestIdleCallback;
   if (typeof ric === "function") {
-    ric(run, { timeout: 2000 });
+    // Use a longer timeout window so prefetch only happens after the
+    // page is truly idle, well past TTI.
+    ric(run, { timeout: 10000 });
   } else {
-    setTimeout(run, 1500);
+    setTimeout(run, 5000);
   }
 };
