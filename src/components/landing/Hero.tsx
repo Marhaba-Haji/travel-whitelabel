@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useRef, useState, memo } from "react";
 import { Button } from "@/components/ui/button";
-import { Briefcase, MapPin, Users, Plane, Globe2, Compass } from "lucide-react";
+import { Briefcase, MapPin, Users } from "lucide-react";
+import kaabaIcon from "@/assets/landmarks/kaaba.png";
+import eiffelIcon from "@/assets/landmarks/eiffel.png";
+import pyramidsIcon from "@/assets/landmarks/pyramids.png";
+import pisaIcon from "@/assets/landmarks/pisa.png";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { usePartners } from "@/hooks/usePartners";
 import type { Partner } from "@/hooks/usePartners";
@@ -212,21 +216,30 @@ const Hero = () => {
               
               <div className="flex items-center gap-3 bg-white/95 sm:bg-white border border-gray-100 shadow-sm px-6 py-2 rounded-full h-14">
                 <div className="flex -space-x-2">
-                  <div className="w-8 h-8 rounded-full border-2 border-white bg-amber-100 flex items-center justify-center shadow-sm">
-                    <MapPin className="w-4 h-4 text-amber-700" />
-                  </div>
-                  <div className="w-8 h-8 rounded-full border-2 border-white bg-sky-100 flex items-center justify-center shadow-sm">
-                    <Plane className="w-4 h-4 text-sky-700" />
-                  </div>
-                  <div className="w-8 h-8 rounded-full border-2 border-white bg-emerald-100 flex items-center justify-center shadow-sm">
-                    <Globe2 className="w-4 h-4 text-emerald-700" />
-                  </div>
-                  <div className="w-8 h-8 rounded-full border-2 border-white bg-[#412A86] flex items-center justify-center shadow-sm z-10">
-                    <Compass className="w-4 h-4 text-white" />
-                  </div>
+                  {[
+                    { src: kaabaIcon, alt: "Kaaba, Makkah", bg: "bg-slate-100" },
+                    { src: eiffelIcon, alt: "Eiffel Tower, Paris", bg: "bg-sky-50" },
+                    { src: pyramidsIcon, alt: "Pyramids of Giza", bg: "bg-amber-50" },
+                    { src: pisaIcon, alt: "Leaning Tower of Pisa", bg: "bg-emerald-50" },
+                  ].map((d) => (
+                    <div
+                      key={d.alt}
+                      className={`w-8 h-8 rounded-full border-2 border-white ${d.bg} flex items-center justify-center shadow-sm overflow-hidden`}
+                    >
+                      <img
+                        src={d.src}
+                        alt={d.alt}
+                        width={28}
+                        height={28}
+                        loading="lazy"
+                        decoding="async"
+                        className="w-5 h-5 object-contain"
+                      />
+                    </div>
+                  ))}
                 </div>
-                <span className="text-xs text-slate-700 font-medium max-w-[180px] leading-tight">
-                  <span className="font-bold text-slate-900">5,000+</span> travelers exploring destinations every minute
+                <span className="text-xs text-slate-700 font-medium max-w-[200px] leading-tight">
+                  <span className="font-bold text-slate-900">5,000+</span> travelers discovering destinations every minute
                 </span>
               </div>
             </div>
