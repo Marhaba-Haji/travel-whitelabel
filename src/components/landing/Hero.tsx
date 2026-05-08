@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, memo } from "react";
 import { Button } from "@/components/ui/button";
-import { Briefcase, MapPin, Users } from "lucide-react";
+import { Briefcase, MapPin, Users, Plane, Globe2, Compass } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { usePartners } from "@/hooks/usePartners";
 import type { Partner } from "@/hooks/usePartners";
@@ -211,16 +211,22 @@ const Hero = () => {
               </Button>
               
               <div className="flex items-center gap-3 bg-white/95 sm:bg-white border border-gray-100 shadow-sm px-6 py-2 rounded-full h-14">
-                <div className="flex -space-x-3">
-                  <img src="https://i.pravatar.cc/100?img=1" className="w-8 h-8 rounded-full border-2 border-white shadow-sm" alt="User" />
-                  <img src="https://i.pravatar.cc/100?img=2" className="w-8 h-8 rounded-full border-2 border-white shadow-sm" alt="User" />
-                  <img src="https://i.pravatar.cc/100?img=3" className="w-8 h-8 rounded-full border-2 border-white shadow-sm" alt="User" />
+                <div className="flex -space-x-2">
+                  <div className="w-8 h-8 rounded-full border-2 border-white bg-amber-100 flex items-center justify-center shadow-sm">
+                    <MapPin className="w-4 h-4 text-amber-700" />
+                  </div>
+                  <div className="w-8 h-8 rounded-full border-2 border-white bg-sky-100 flex items-center justify-center shadow-sm">
+                    <Plane className="w-4 h-4 text-sky-700" />
+                  </div>
+                  <div className="w-8 h-8 rounded-full border-2 border-white bg-emerald-100 flex items-center justify-center shadow-sm">
+                    <Globe2 className="w-4 h-4 text-emerald-700" />
+                  </div>
                   <div className="w-8 h-8 rounded-full border-2 border-white bg-[#412A86] flex items-center justify-center shadow-sm z-10">
-                    <span className="text-white text-xs font-bold">+</span>
+                    <Compass className="w-4 h-4 text-white" />
                   </div>
                 </div>
-                <span className="text-xs text-slate-700 font-medium max-w-[140px] leading-tight">
-                  <span className="font-bold text-slate-900">5,000+</span> travelers looking for agents
+                <span className="text-xs text-slate-700 font-medium max-w-[180px] leading-tight">
+                  <span className="font-bold text-slate-900">5,000+</span> travelers exploring destinations every minute
                 </span>
               </div>
             </div>
