@@ -38,7 +38,7 @@ const PartnersScroller = memo(
             alt={partner.name}
             width={48}
             height={48}
-            loading="lazy"
+            loading="eager"
             decoding="async"
             className="h-12 w-12 rounded-lg object-contain bg-white shadow-sm ring-1 ring-gray-100 p-1"
           />
@@ -57,9 +57,9 @@ const PartnersScroller = memo(
       </div>
     );
 
-    // Slower duration so all logos have time to be read; longer track = longer travel time
-    // Animation duration scales with logo count to keep a consistent, comfortable pace
-    const duration = Math.max(30, partners.length * 3.5);
+    // 5 seconds of screen time per logo — guarantees every partner gets equal exposure
+    // and the loop length always scales with the number of partners coming from the DB.
+    const duration = Math.max(10, partners.length * 5);
 
     return (
       <div
