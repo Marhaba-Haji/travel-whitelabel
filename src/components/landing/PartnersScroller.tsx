@@ -78,8 +78,8 @@ const PartnersScroller = memo(
       </div>
     );
 
-    // Entire loop completes in ~5 seconds regardless of partner count (3x faster scroll).
-    const duration = 5;
+    // Entire loop completes in ~10 seconds regardless of partner count.
+    const duration = 10;
 
     return (
       <div
