@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, memo } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Briefcase, MapPin, Users } from "lucide-react";
 import kaabaIcon from "@/assets/landmarks/kaaba.png";
@@ -7,16 +7,9 @@ import pyramidsIcon from "@/assets/landmarks/pyramids.png";
 import pisaIcon from "@/assets/landmarks/pisa.png";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { usePartners } from "@/hooks/usePartners";
-import type { Partner } from "@/hooks/usePartners";
 import { useHeroContent } from "@/hooks/useHeroContent";
 import { useHeroImages } from "@/hooks/useHeroImages";
-
-// Use Supabase image transformation to serve a small partner logo instead of full-size PNG
-const optimizePartnerLogo = (url: string): string => {
-  if (!url || !url.includes("/storage/v1/object/public/")) return url;
-  const transformed = url.replace("/storage/v1/object/public/", "/storage/v1/render/image/public/");
-  return `${transformed}?width=96&height=96&resize=contain&quality=70`;
-};
+import PartnersScroller from "./PartnersScroller";
 
 type DisplayedHeroImage = {
   id: string;
@@ -24,47 +17,6 @@ type DisplayedHeroImage = {
   alt: string;
 };
 
-// Memoized so hero image state changes don't re-render / reset the scroll animation
-const PartnersScroller = memo(({ partners, loading }: { partners: Partner[]; loading: boolean }) => {
-  if (loading) {
-    return (
-      <div className="flex gap-14 h-16 animate-pulse">
-        {[...Array(7)].map((_, i) => (
-          <div key={i} className="flex-shrink-0 h-12 w-32 bg-gray-200 rounded" />
-        ))}
-      </div>
-    );
-  }
-
-  const renderItem = (partner: Partner, suffix: string) => (
-    <div key={`${partner.id}-${suffix}`} className="flex-shrink-0 flex items-center gap-3">
-      {partner.logo_url ? (
-        <img
-          src={optimizePartnerLogo(partner.logo_url)}
-          alt={partner.name}
-          width={48}
-          height={48}
-          loading="lazy"
-          decoding="async"
-          className="h-12 w-12 rounded-lg object-contain bg-white shadow-sm ring-1 ring-gray-100 p-1"
-        />
-      ) : (
-        <div className={`h-12 w-12 ${partner.color_badge} rounded-lg flex items-center justify-center text-white text-sm font-bold shadow-sm`}>
-          {partner.name.split(' ').map((w) => w[0]).join('').slice(0, 2)}
-        </div>
-      )}
-      <span className="text-base font-semibold text-gray-700 whitespace-nowrap">{partner.name}</span>
-    </div>
-  );
-
-  return (
-    <div className="flex gap-14 items-center animate-scroll-cross" style={{ animationDuration: '10s' }}>
-      {partners.map((p) => renderItem(p, '1'))}
-      {partners.map((p) => renderItem(p, '2'))}
-    </div>
-  );
-});
-PartnersScroller.displayName = 'PartnersScroller';
 
 const Hero = () => {
   const { ref: heroRef, isVisible: heroVisible } = useScrollAnimation();
@@ -214,8 +166,8 @@ const Hero = () => {
                 </a>
               </Button>
               
-              <div className="flex items-center gap-3 bg-white/95 sm:bg-white border border-gray-100 shadow-sm px-6 py-2 rounded-full h-14">
-                <div className="flex -space-x-2">
+              <div className="flex items-center gap-3 bg-white/95 sm:bg-white border border-gray-100 shadow-sm pl-2 pr-5 py-2 rounded-full h-16">
+                <div className="flex -space-x-2.5">
                   {[
                     { src: kaabaIcon, alt: "Kaaba, Makkah", bg: "bg-slate-100" },
                     { src: eiffelIcon, alt: "Eiffel Tower, Paris", bg: "bg-sky-50" },
@@ -224,16 +176,17 @@ const Hero = () => {
                   ].map((d) => (
                     <div
                       key={d.alt}
-                      className={`w-8 h-8 rounded-full border-2 border-white ${d.bg} flex items-center justify-center shadow-sm overflow-hidden`}
+                      title={d.alt}
+                      className={`w-12 h-12 rounded-full border-2 border-white ${d.bg} flex items-center justify-center shadow-sm overflow-hidden ring-1 ring-slate-900/5`}
                     >
                       <img
                         src={d.src}
                         alt={d.alt}
-                        width={28}
-                        height={28}
+                        width={44}
+                        height={44}
                         loading="lazy"
                         decoding="async"
-                        className="w-5 h-5 object-contain"
+                        className="w-9 h-9 object-contain"
                       />
                     </div>
                   ))}
