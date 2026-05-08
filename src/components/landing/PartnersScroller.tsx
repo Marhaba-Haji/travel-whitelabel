@@ -62,11 +62,15 @@ const PartnersScroller = memo(
 
     return (
       <div
-        className="flex gap-14 items-center animate-scroll-cross will-change-transform"
+        className="flex w-max min-w-max items-center animate-scroll-cross will-change-transform"
         style={{ animationDuration: `${duration}s` }}
       >
-        {partners.map((p) => renderItem(p, "1"))}
-        {partners.map((p) => renderItem(p, "2"))}
+        <div className="flex flex-none items-center gap-14 pr-14">
+          {partners.map((p) => renderItem(p, "1"))}
+        </div>
+        <div aria-hidden="true" className="flex flex-none items-center gap-14 pr-14">
+          {partners.map((p) => renderItem(p, "2"))}
+        </div>
       </div>
     );
   },
