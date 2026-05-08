@@ -296,6 +296,26 @@
   .animate-bounce-subtle {
     animation: none !important;
   }
+
+  .partner-marquee-track {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+.partner-marquee-track {
+  animation-name: partner-marquee-scroll;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes partner-marquee-scroll {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(calc(-1 * var(--partner-scroll-distance, 0px)), 0, 0);
+  }
 }
 
 /* Blog article prose – applied dynamically to all blog content */
