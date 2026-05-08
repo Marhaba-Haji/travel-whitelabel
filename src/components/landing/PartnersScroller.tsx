@@ -57,9 +57,8 @@ const PartnersScroller = memo(
       </div>
     );
 
-    // 5 seconds of screen time per logo — guarantees every partner gets equal exposure
-    // and the loop length always scales with the number of partners coming from the DB.
-    const duration = Math.max(10, partners.length * 5);
+    // Entire loop completes in ~5 seconds regardless of partner count (3x faster scroll).
+    const duration = 5;
 
     return (
       <div
