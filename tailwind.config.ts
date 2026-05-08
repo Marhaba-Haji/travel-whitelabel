@@ -176,7 +176,7 @@ export default {
         },
         "scroll-cross": {
           "0%": { transform: "translateX(0%)" },
-          "100%": { transform: "translateX(calc(-50% + 1.75rem))" },
+          "100%": { transform: "translateX(-50%)" },
         },
       },
       animation: {
