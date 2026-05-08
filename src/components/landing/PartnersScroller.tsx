@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import type { Partner } from "@/hooks/usePartners";
 
 // Use Supabase image transformation to serve a small partner logo instead of full-size PNG
@@ -20,6 +20,27 @@ interface PartnersScrollerProps {
  */
 const PartnersScroller = memo(
   ({ partners, loading }: PartnersScrollerProps) => {
+    const firstTrackRef = useRef<HTMLDivElement | null>(null);
+    const [scrollDistance, setScrollDistance] = useState(0);
+
+    useEffect(() => {
+      const element = firstTrackRef.current;
+      if (!element) return;
+
+      const updateScrollDistance = () => {
+        setScrollDistance(element.scrollWidth);
+      };
+
+      updateScrollDistance();
+
+      const resizeObserver = new ResizeObserver(() => {
+        updateScrollDistance();
+      });
+
+      resizeObserver.observe(element);
+      return () => resizeObserver.disconnect();
+    }, [partners]);
+
     if (loading) {
       return (
         <div className="flex gap-14 h-16 animate-pulse">
@@ -62,10 +83,13 @@ const PartnersScroller = memo(
 
     return (
       <div
-        className="flex w-max min-w-max items-center animate-scroll-cross will-change-transform"
-        style={{ animationDuration: `${duration}s` }}
+        className="partner-marquee-track flex w-max min-w-max items-center will-change-transform"
+        style={{
+          animationDuration: `${duration}s`,
+          ["--partner-scroll-distance" as string]: `${scrollDistance}px`,
+        }}
       >
-        <div className="flex flex-none items-center gap-14 pr-14">
+        <div ref={firstTrackRef} className="flex flex-none items-center gap-14 pr-14">
           {partners.map((p) => renderItem(p, "1"))}
         </div>
         <div aria-hidden="true" className="flex flex-none items-center gap-14 pr-14">
