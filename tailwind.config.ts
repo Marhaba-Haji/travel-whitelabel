@@ -175,8 +175,8 @@ export default {
           "100%": { transform: "translate(200%, -200%) rotate(-45deg)" },
         },
         "scroll-cross": {
-          "0%": { transform: "translateX(-50%)" },
-          "100%": { transform: "translateX(0%)" },
+          "0%": { transform: "translateX(0%)" },
+          "100%": { transform: "translateX(calc(-50% + 1.75rem))" },
         },
       },
       animation: {
