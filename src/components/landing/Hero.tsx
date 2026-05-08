@@ -166,8 +166,8 @@ const Hero = () => {
                 </a>
               </Button>
               
-              <div className="flex items-center gap-3 bg-white/95 sm:bg-white border border-gray-100 shadow-sm px-6 py-2 rounded-full h-14">
-                <div className="flex -space-x-2">
+              <div className="flex items-center gap-3 bg-white/95 sm:bg-white border border-gray-100 shadow-sm pl-2 pr-5 py-2 rounded-full h-16">
+                <div className="flex -space-x-2.5">
                   {[
                     { src: kaabaIcon, alt: "Kaaba, Makkah", bg: "bg-slate-100" },
                     { src: eiffelIcon, alt: "Eiffel Tower, Paris", bg: "bg-sky-50" },
@@ -176,16 +176,17 @@ const Hero = () => {
                   ].map((d) => (
                     <div
                       key={d.alt}
-                      className={`w-8 h-8 rounded-full border-2 border-white ${d.bg} flex items-center justify-center shadow-sm overflow-hidden`}
+                      title={d.alt}
+                      className={`w-12 h-12 rounded-full border-2 border-white ${d.bg} flex items-center justify-center shadow-sm overflow-hidden ring-1 ring-slate-900/5`}
                     >
                       <img
                         src={d.src}
                         alt={d.alt}
-                        width={28}
-                        height={28}
+                        width={44}
+                        height={44}
                         loading="lazy"
                         decoding="async"
-                        className="w-5 h-5 object-contain"
+                        className="w-9 h-9 object-contain"
                       />
                     </div>
                   ))}
