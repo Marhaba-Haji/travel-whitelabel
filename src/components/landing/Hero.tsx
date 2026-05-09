@@ -259,7 +259,9 @@ const Hero = () => {
                 <div className="relative w-[85%] sm:w-full z-10">
                   <img
                     key={displayedHeroImage.id}
-                    src={displayedHeroImage.src}
+                    src={transformSupabaseImage(displayedHeroImage.src, { width: 900 }) || displayedHeroImage.src}
+                    srcSet={buildSupabaseSrcSet(displayedHeroImage.src, HERO_WIDTHS) || undefined}
+                    sizes={HERO_SIZES}
                     alt={displayedHeroImage.alt}
                     width={500}
                     height={600}
@@ -271,7 +273,9 @@ const Hero = () => {
 
                   {nextHeroImage && (
                     <img
-                      src={nextHeroImage.src}
+                      src={transformSupabaseImage(nextHeroImage.src, { width: 900 }) || nextHeroImage.src}
+                      srcSet={buildSupabaseSrcSet(nextHeroImage.src, HERO_WIDTHS) || undefined}
+                      sizes={HERO_SIZES}
                       alt={nextHeroImage.alt}
                       width={500}
                       height={600}
