@@ -51,7 +51,7 @@ const AdminLayout = ({ activeTab, onTabChange, children }: AdminLayoutProps) => 
     : visibleTabs;
 
   return (
-    <div className="min-h-screen flex bg-muted/30">
+    <div data-admin-page className="min-h-screen flex bg-background">
       {sidebarOpen && (
         <div className="fixed inset-0 z-40 bg-foreground/60 md:hidden" onClick={() => setSidebarOpen(false)} />
       )}
