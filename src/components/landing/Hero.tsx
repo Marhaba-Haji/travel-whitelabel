@@ -10,6 +10,10 @@ import { usePartners } from "@/hooks/usePartners";
 import { useHeroContent } from "@/hooks/useHeroContent";
 import { useHeroImages } from "@/hooks/useHeroImages";
 import PartnersScroller from "./PartnersScroller";
+import { transformSupabaseImage, buildSupabaseSrcSet } from "@/lib/supabase-image";
+
+const HERO_WIDTHS = [400, 600, 900, 1200];
+const HERO_SIZES = "(max-width: 640px) 320px, (max-width: 1024px) 500px, 600px";
 
 type DisplayedHeroImage = {
   id: string;
@@ -42,7 +46,8 @@ const Hero = () => {
     }
 
     const preloaded = new window.Image();
-    preloaded.src = nextSource;
+    // Preload the medium variant (matches ~600w typical hero render width)
+    preloaded.src = transformSupabaseImage(nextSource, { width: 900 }) || nextSource;
     preloaded.onload = () => {
       const preparedNextImage = {
         id: nextId,
