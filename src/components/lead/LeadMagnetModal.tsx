@@ -80,21 +80,21 @@ const LeadMagnetModal = ({
           <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
             <Download className="h-6 w-6 text-primary" />
           </div>
-          <DialogTitle className="text-center text-2xl font-display">{title}</DialogTitle>
-          <DialogDescription className="text-center">{description}</DialogDescription>
+          <DialogTitle className="text-center text-2xl font-display text-foreground">{title}</DialogTitle>
+          <DialogDescription className="text-center text-foreground/80">{description}</DialogDescription>
         </DialogHeader>
 
         {done ? (
           <div className="flex flex-col items-center gap-3 py-6 text-center">
             <CheckCircle2 className="h-12 w-12 text-primary" />
-            <p className="font-medium">You're in. The guide is on its way.</p>
-            <p className="text-sm text-muted-foreground">
+            <p className="font-medium text-foreground">You're in. The guide is on its way.</p>
+            <p className="text-sm text-foreground/75">
               We'll also share occasional industry insights — no spam, unsubscribe anytime.
             </p>
           </div>
         ) : (
           <>
-            <ul className="space-y-2 text-sm">
+            <ul className="space-y-2 text-sm text-foreground">
               {benefitBullets.map((b) => (
                 <li key={b} className="flex items-start gap-2">
                   <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
@@ -127,7 +127,7 @@ const LeadMagnetModal = ({
                   <>Send Me the Free Guide</>
                 )}
               </Button>
-              <p className="text-center text-xs text-muted-foreground">
+              <p className="text-center text-xs text-foreground/70">
                 We respect your inbox. Unsubscribe with one click.
               </p>
             </form>
