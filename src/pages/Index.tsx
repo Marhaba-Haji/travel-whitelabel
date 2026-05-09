@@ -20,6 +20,7 @@ import { DEFAULT_HOME_FAQS } from "@/lib/home-faqs";
 // Above-the-fold: load eagerly
 import Header from "@/components/landing/Header";
 import Hero from "@/components/landing/Hero";
+import LazyOnVisible from "@/components/LazyOnVisible";
 
 // Below-the-fold: lazy load to reduce initial JS bundle and improve TTI
 const HeroBenefits = lazy(() => import("@/components/landing/HeroBenefits"));
@@ -107,18 +108,18 @@ const Index = () => {
           <CompetitiveEdge />
           <OurServices />
           <Stats />
-          <Features />
-          <ProductShowcase />
-          <HowItWorks />
-          <LiveTravelBanner />
-          <Testimonials />
-          <Inspiration />
-          <Pricing />
-          <FAQ faqs={homepageFaqs} />
+          <LazyOnVisible label="features" minHeight={600}><Features /></LazyOnVisible>
+          <LazyOnVisible label="product-showcase" minHeight={600}><ProductShowcase /></LazyOnVisible>
+          <LazyOnVisible label="how-it-works" minHeight={600}><HowItWorks /></LazyOnVisible>
+          <LazyOnVisible label="live-travel-banner" minHeight={300}><LiveTravelBanner /></LazyOnVisible>
+          <LazyOnVisible label="testimonials" minHeight={500}><Testimonials /></LazyOnVisible>
+          <LazyOnVisible label="inspiration" minHeight={500}><Inspiration /></LazyOnVisible>
+          <LazyOnVisible label="pricing" minHeight={700}><Pricing /></LazyOnVisible>
+          <LazyOnVisible label="faq" minHeight={400}><FAQ faqs={homepageFaqs} /></LazyOnVisible>
         </Suspense>
       </main>
       <Suspense fallback={null}>
-        <Footer />
+        <LazyOnVisible label="footer" minHeight={400}><Footer /></LazyOnVisible>
         <FloatingWhatsApp />
         <StickyCTA />
       </Suspense>

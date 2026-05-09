@@ -10,6 +10,10 @@ import { usePartners } from "@/hooks/usePartners";
 import { useHeroContent } from "@/hooks/useHeroContent";
 import { useHeroImages } from "@/hooks/useHeroImages";
 import PartnersScroller from "./PartnersScroller";
+import { transformSupabaseImage, buildSupabaseSrcSet } from "@/lib/supabase-image";
+
+const HERO_WIDTHS = [400, 600, 900, 1200];
+const HERO_SIZES = "(max-width: 640px) 320px, (max-width: 1024px) 500px, 600px";
 
 type DisplayedHeroImage = {
   id: string;
@@ -42,7 +46,8 @@ const Hero = () => {
     }
 
     const preloaded = new window.Image();
-    preloaded.src = nextSource;
+    // Preload the medium variant (matches ~600w typical hero render width)
+    preloaded.src = transformSupabaseImage(nextSource, { width: 900 }) || nextSource;
     preloaded.onload = () => {
       const preparedNextImage = {
         id: nextId,
@@ -254,7 +259,9 @@ const Hero = () => {
                 <div className="relative w-[85%] sm:w-full z-10">
                   <img
                     key={displayedHeroImage.id}
-                    src={displayedHeroImage.src}
+                    src={transformSupabaseImage(displayedHeroImage.src, { width: 900 }) || displayedHeroImage.src}
+                    srcSet={buildSupabaseSrcSet(displayedHeroImage.src, HERO_WIDTHS) || undefined}
+                    sizes={HERO_SIZES}
                     alt={displayedHeroImage.alt}
                     width={500}
                     height={600}
@@ -266,7 +273,9 @@ const Hero = () => {
 
                   {nextHeroImage && (
                     <img
-                      src={nextHeroImage.src}
+                      src={transformSupabaseImage(nextHeroImage.src, { width: 900 }) || nextHeroImage.src}
+                      srcSet={buildSupabaseSrcSet(nextHeroImage.src, HERO_WIDTHS) || undefined}
+                      sizes={HERO_SIZES}
                       alt={nextHeroImage.alt}
                       width={500}
                       height={600}
