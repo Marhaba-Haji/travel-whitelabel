@@ -418,3 +418,15 @@
   --destructive: var(--visa-error);
   --ring: var(--visa-accent);
 }
+
+/* Admin Page – lighter surfaces, darker text for readability */
+[data-admin-page] {
+  --background: 0 0% 100%;
+  --card: 0 0% 100%;
+  --muted: 210 30% 97%;
+  --muted-foreground: 215 35% 18%;
+  --foreground: 222 47% 8%;
+  --border: 214 25% 84%;
+  --sidebar-background: 210 30% 98%;
+  --sidebar-foreground: 222 47% 12%;
+}
