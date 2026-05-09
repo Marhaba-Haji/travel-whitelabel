@@ -430,3 +430,9 @@
   --sidebar-background: 210 30% 98%;
   --sidebar-foreground: 222 47% 12%;
 }
+
+/* Admin tables – force darker text on all cells */
+[data-admin-page] table { color: hsl(var(--foreground)); }
+[data-admin-page] table td { color: hsl(var(--foreground)); font-weight: 500; }
+[data-admin-page] table th { color: hsl(222 47% 20%); font-weight: 600; }
+[data-admin-page] .text-muted-foreground { color: hsl(215 35% 22%); }
