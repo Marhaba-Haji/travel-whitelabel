@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, type ComponentType, type ReactNode } from "react";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import SEOHead from "@/components/seo/SEOHead";
@@ -39,6 +39,13 @@ const FAQ = lazy(() => import("@/components/landing/FAQ"));
 const Footer = lazy(() => import("@/components/landing/Footer"));
 const FloatingWhatsApp = lazy(() => import("@/components/landing/FloatingWhatsApp"));
 const StickyCTA = lazy(() => import("@/components/landing/StickyCTA"));
+
+// Wrap each lazy section in its OWN Suspense boundary so a newly-loading
+// chunk can't unmount its already-mounted siblings (which caused the
+// "all sections vanish on hero rotation" bug).
+const Section = ({ children }: { children: ReactNode }) => (
+  <Suspense fallback={null}>{children}</Suspense>
+);
 
 const Index = () => {
   const location = useLocation();
@@ -103,26 +110,22 @@ const Index = () => {
       <Header />
       <main className="flex flex-col gap-[24px] bg-white w-full overflow-hidden">
         <Hero />
-        <Suspense fallback={null}>
-          <HeroBenefits />
-          <CompetitiveEdge />
-          <OurServices />
-          <Stats />
-          <LazyOnVisible label="features" minHeight={600}><Features /></LazyOnVisible>
-          <LazyOnVisible label="product-showcase" minHeight={600}><ProductShowcase /></LazyOnVisible>
-          <LazyOnVisible label="how-it-works" minHeight={600}><HowItWorks /></LazyOnVisible>
-          <LazyOnVisible label="live-travel-banner" minHeight={300}><LiveTravelBanner /></LazyOnVisible>
-          <LazyOnVisible label="testimonials" minHeight={500}><Testimonials /></LazyOnVisible>
-          <LazyOnVisible label="inspiration" minHeight={500}><Inspiration /></LazyOnVisible>
-          <LazyOnVisible label="pricing" minHeight={700}><Pricing /></LazyOnVisible>
-          <LazyOnVisible label="faq" minHeight={400}><FAQ faqs={homepageFaqs} /></LazyOnVisible>
-        </Suspense>
+        <Section><HeroBenefits /></Section>
+        <Section><CompetitiveEdge /></Section>
+        <Section><OurServices /></Section>
+        <Section><Stats /></Section>
+        <Section><LazyOnVisible label="features" minHeight={600}><Features /></LazyOnVisible></Section>
+        <Section><LazyOnVisible label="product-showcase" minHeight={600}><ProductShowcase /></LazyOnVisible></Section>
+        <Section><LazyOnVisible label="how-it-works" minHeight={600}><HowItWorks /></LazyOnVisible></Section>
+        <Section><LazyOnVisible label="live-travel-banner" minHeight={300}><LiveTravelBanner /></LazyOnVisible></Section>
+        <Section><LazyOnVisible label="testimonials" minHeight={500}><Testimonials /></LazyOnVisible></Section>
+        <Section><LazyOnVisible label="inspiration" minHeight={500}><Inspiration /></LazyOnVisible></Section>
+        <Section><LazyOnVisible label="pricing" minHeight={700}><Pricing /></LazyOnVisible></Section>
+        <Section><LazyOnVisible label="faq" minHeight={400}><FAQ faqs={homepageFaqs} /></LazyOnVisible></Section>
       </main>
-      <Suspense fallback={null}>
-        <LazyOnVisible label="footer" minHeight={400}><Footer /></LazyOnVisible>
-        <FloatingWhatsApp />
-        <StickyCTA />
-      </Suspense>
+      <Section><LazyOnVisible label="footer" minHeight={400}><Footer /></LazyOnVisible></Section>
+      <Section><FloatingWhatsApp /></Section>
+      <Section><StickyCTA /></Section>
     </div>
   );
 };
