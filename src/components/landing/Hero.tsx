@@ -1,5 +1,3 @@
-import { useEffect, useRef, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Briefcase, MapPin, Users } from "lucide-react";
 import kaabaIcon from "@/assets/landmarks/kaaba.png";
 import eiffelIcon from "@/assets/landmarks/eiffel.png";
@@ -7,111 +5,14 @@ import pyramidsIcon from "@/assets/landmarks/pyramids.png";
 import pisaIcon from "@/assets/landmarks/pisa.png";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { usePartners } from "@/hooks/usePartners";
-import { useHeroContent } from "@/hooks/useHeroContent";
-import { useHeroImages } from "@/hooks/useHeroImages";
 import PartnersScroller from "./PartnersScroller";
-import { transformSupabaseImage, buildSupabaseSrcSet } from "@/lib/supabase-image";
-
-const HERO_WIDTHS = [400, 600, 900, 1200];
-const HERO_SIZES = "(max-width: 640px) 320px, (max-width: 1024px) 500px, 600px";
-
-type DisplayedHeroImage = {
-  id: string;
-  src: string;
-  alt: string;
-};
-
+import HeroRotatingTitle from "./HeroRotatingTitle";
+import HeroRotatingCTA from "./HeroRotatingCTA";
+import HeroRotatingImage from "./HeroRotatingImage";
 
 const Hero = () => {
   const { ref: heroRef, isVisible: heroVisible } = useScrollAnimation();
   const { partners, loading } = usePartners();
-  const { heroContent, loading: heroLoading } = useHeroContent();
-  const { heroImage, loading: heroImageLoading } = useHeroImages();
-  const [displayedHeroImage, setDisplayedHeroImage] = useState<DisplayedHeroImage>({
-    id: 'hero-image-fallback',
-    src: '/assets/hero_woman_tickets.webp',
-    alt: 'Hero travel illustration',
-  });
-  const [nextHeroImage, setNextHeroImage] = useState<DisplayedHeroImage | null>(null);
-  const [isImageTransitioning, setIsImageTransitioning] = useState(false);
-  const transitionTimeoutRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    const nextSource = heroImage?.image_url;
-    const nextId = heroImage?.id;
-    const nextAlt = heroImage?.alt_text || 'Hero travel illustration';
-
-    if (!nextSource || !nextId || nextSource === displayedHeroImage.src) {
-      return;
-    }
-
-    const preloaded = new window.Image();
-    // Preload the medium variant (matches ~600w typical hero render width)
-    preloaded.src = transformSupabaseImage(nextSource, { width: 900 }) || nextSource;
-    preloaded.onload = () => {
-      const preparedNextImage = {
-        id: nextId,
-        src: nextSource,
-        alt: nextAlt,
-      };
-
-      setNextHeroImage(preparedNextImage);
-      setIsImageTransitioning(true);
-
-      if (transitionTimeoutRef.current) {
-        window.clearTimeout(transitionTimeoutRef.current);
-      }
-
-      transitionTimeoutRef.current = window.setTimeout(() => {
-        setDisplayedHeroImage(preparedNextImage);
-        setNextHeroImage(null);
-        setIsImageTransitioning(false);
-      }, 700);
-    };
-  }, [heroImage?.id, heroImage?.image_url, heroImage?.alt_text, displayedHeroImage.src]);
-
-  useEffect(() => {
-    return () => {
-      if (transitionTimeoutRef.current) {
-        window.clearTimeout(transitionTimeoutRef.current);
-      }
-    };
-  }, []);
-
-  // Render title with highlighted subtitle
-  const renderTitle = () => {
-    if (!heroContent) {
-      // Fallback title with default purple highlight
-      return (
-        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-[72px] font-bold text-gray-900 mb-6 font-poppins leading-[1.1] tracking-tight">
-          Travel <span style={{ color: '#B968C7' }} className="font-bold">top destination</span>
-          <br />
-          of the world
-        </h1>
-      );
-    }
-
-    const { title, subtitle, subtitle_color } = heroContent;
-    const parts = title.split(subtitle);
-
-    return (
-      <h1 key={heroContent?.id || 'hero-fallback'} className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-[72px] font-bold text-gray-900 mb-6 font-poppins leading-[1.1] tracking-tight">
-        {parts.map((part, index) => (
-          <span key={index}>
-            {part}
-            {index < parts.length - 1 && (
-              <>
-                <span style={{ color: subtitle_color }} className="font-bold">
-                  {subtitle}
-                </span>
-                <br />
-              </>
-            )}
-          </span>
-        ))}
-      </h1>
-    );
-  };
 
   return (
     <section className="relative pt-24 pb-8 lg:pt-32 lg:pb-24 overflow-hidden min-h-screen flex items-center bg-white w-full">
@@ -143,33 +44,11 @@ const Hero = () => {
               <Briefcase className="w-4 h-4 text-[#412A86]" />
             </div>
 
-            {heroLoading ? (
-              <div className="h-24 bg-gray-200 rounded-lg animate-pulse mb-6"></div>
-            ) : (
-              <div className="animate-fade-in">
-                {renderTitle()}
-              </div>
-            )}
-
-            {heroLoading ? (
-              <div className="h-12 bg-gray-200 rounded-lg animate-pulse mb-10 w-full max-w-lg"></div>
-            ) : (
-              <p key={heroContent?.id || 'hero-description'} className="text-base sm:text-lg md:text-xl text-gray-500 mb-10 font-medium max-w-lg leading-relaxed animate-fade-in">
-                {heroContent?.description || 'Where adventure meets comfort. We create unforgettable travel experiences'}
-              </p>
-            )}
+            <HeroRotatingTitle />
 
             {/* CTA + Avatars */}
             <div className="flex flex-col sm:flex-row items-center gap-4 mb-14">
-              <Button
-                size="lg"
-                asChild
-                className="h-14 rounded-full text-base font-semibold px-8 bg-[#412A86] hover:bg-[#412A86]/90 text-white shadow-lg transition-shadow"
-              >
-                <a key={heroContent?.id || 'hero-cta'} href={heroContent?.cta_url || '/signup'}>
-                  {heroContent?.cta_text || 'Get Started'}
-                </a>
-              </Button>
+              <HeroRotatingCTA />
               
               <div className="flex items-center gap-3 bg-white/95 sm:bg-white border border-gray-100 shadow-sm pl-2 pr-5 py-2 rounded-full h-16">
                 <div className="flex -space-x-2.5">
@@ -252,40 +131,8 @@ const Hero = () => {
                 <span className="font-semibold text-xs sm:text-sm text-slate-900 tracking-tight">2,000+ Customers</span>
               </div>
 
-              {/* Main Subject Image */}
-              {heroImageLoading && !displayedHeroImage.src ? (
-                <div className="w-[85%] sm:w-full h-[420px] rounded-3xl bg-white/70 animate-pulse shadow-lg sm:shadow-2xl" />
-              ) : (
-                <div className="relative w-[85%] sm:w-full z-10">
-                  <img
-                    key={displayedHeroImage.id}
-                    src={transformSupabaseImage(displayedHeroImage.src, { width: 900 }) || displayedHeroImage.src}
-                    srcSet={buildSupabaseSrcSet(displayedHeroImage.src, HERO_WIDTHS) || undefined}
-                    sizes={HERO_SIZES}
-                    alt={displayedHeroImage.alt}
-                    width={500}
-                    height={600}
-                    {...({ fetchpriority: "high" } as Record<string, string>)}
-                    className={`w-full h-auto object-contain relative drop-shadow-lg sm:drop-shadow-2xl transition-all duration-700 ease-out ${
-                      isImageTransitioning ? 'opacity-0 scale-[0.985]' : 'opacity-100 scale-100'
-                    }`}
-                  />
-
-                  {nextHeroImage && (
-                    <img
-                      src={transformSupabaseImage(nextHeroImage.src, { width: 900 }) || nextHeroImage.src}
-                      srcSet={buildSupabaseSrcSet(nextHeroImage.src, HERO_WIDTHS) || undefined}
-                      sizes={HERO_SIZES}
-                      alt={nextHeroImage.alt}
-                      width={500}
-                      height={600}
-                      className={`absolute inset-0 w-full h-full object-contain drop-shadow-lg sm:drop-shadow-2xl pointer-events-none transition-all duration-700 ease-out ${
-                        isImageTransitioning ? 'opacity-100 scale-100' : 'opacity-0 scale-[1.015]'
-                      }`}
-                    />
-                  )}
-                </div>
-              )}
+              {/* Main Subject Image (memoized to isolate rotation re-renders) */}
+              <HeroRotatingImage />
             </div>
           </div>
 
