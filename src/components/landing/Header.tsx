@@ -34,7 +34,21 @@ const Header = () => {
     if (location.pathname !== "/") {
       navigate(`/${href}`);
     } else {
-      document.querySelector(href)?.scrollIntoView({ behavior: "smooth" });
+      // Section may be inside a LazyOnVisible boundary and not yet mounted.
+      // Poll briefly until it appears, then scroll.
+      let attempts = 0;
+      const maxAttempts = 30;
+      const interval = setInterval(() => {
+        const el = document.querySelector(href);
+        if (el) {
+          clearInterval(interval);
+          el.scrollIntoView({ behavior: "smooth" });
+        } else if (++attempts >= maxAttempts) {
+          clearInterval(interval);
+        }
+      }, 100);
+      // Nudge scroll down to trigger LazyOnVisible mounting if needed.
+      window.scrollBy({ top: 1, behavior: "instant" as ScrollBehavior });
     }
     setIsMenuOpen(false);
   };
