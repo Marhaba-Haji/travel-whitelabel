@@ -7,7 +7,6 @@ const corsHeaders = {
 };
 
 const ADMIN_EMAIL = "harab.business@gmail.com";
-const ADMIN_WHATSAPP = "+919008447887";
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_calendar/calendar/v3";
 
 function pad(n: number) { return String(n).padStart(2, "0"); }
@@ -70,22 +69,6 @@ function emailHtml(opts: {
     </td></tr>
   </table>
 </body></html>`;
-}
-
-function whatsappText(opts: {
-  name: string;
-  date: string;
-  time: string;
-  tz: string;
-  meetLink: string;
-  isAdmin: boolean;
-  email?: string | null;
-  phone?: string | null;
-}) {
-  if (opts.isAdmin) {
-    return `New Marhaba DMC demo booked\n\nName: ${opts.name}\nDate: ${opts.date}\nTime: ${opts.time} (${opts.tz})\nEmail: ${opts.email || "—"}\nWhatsApp: ${opts.phone || "—"}\n\nMeet: ${opts.meetLink}`;
-  }
-  return `Hi ${opts.name}, your Marhaba DMC demo is confirmed for ${opts.date} at ${opts.time} (${opts.tz}).\n\nJoin via Google Meet: ${opts.meetLink}\n\nA calendar invite has been sent to your email. See you soon!`;
 }
 
 Deno.serve(async (req) => {
@@ -216,24 +199,9 @@ Deno.serve(async (req) => {
       } catch (e) { console.error("send-email exception", to, e); }
     };
 
-    const sendWa = async (to: string, isAdmin: boolean) => {
-      const message = whatsappText({
-        name: booking.full_name, date: dateLabel, time: startTime, tz,
-        meetLink, isAdmin, email: booking.email, phone: phoneFull,
-      });
-      try {
-        const { error } = await supabase.functions.invoke("send-whatsapp", {
-          body: { to, message },
-        });
-        if (error) console.error("send-whatsapp error", to, error);
-      } catch (e) { console.error("send-whatsapp exception", to, e); }
-    };
-
     const tasks: Promise<unknown>[] = [];
     if (booking.email) tasks.push(sendEmail(booking.email, false));
     tasks.push(sendEmail(ADMIN_EMAIL, true));
-    tasks.push(sendWa(phoneFull, false));
-    tasks.push(sendWa(ADMIN_WHATSAPP, true));
     await Promise.all(tasks);
 
     await supabase
