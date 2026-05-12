@@ -34,7 +34,29 @@ const Header = () => {
     if (location.pathname !== "/") {
       navigate(`/${href}`);
     } else {
-      document.querySelector(href)?.scrollIntoView({ behavior: "smooth" });
+      const sectionId = href.replace(/^#/, "");
+      const direct = document.querySelector(href);
+      if (direct) {
+        direct.scrollIntoView({ behavior: "smooth" });
+      } else {
+        // Section is still inside a LazyOnVisible placeholder. Jump to the
+        // placeholder first so the IntersectionObserver mounts it, then
+        // poll for the real element and smooth-scroll to it.
+        const placeholder = document.querySelector(
+          `[data-lazy-section="${sectionId}"]`,
+        );
+        placeholder?.scrollIntoView({ behavior: "instant" as ScrollBehavior });
+        let attempts = 0;
+        const interval = setInterval(() => {
+          const el = document.querySelector(href);
+          if (el) {
+            clearInterval(interval);
+            el.scrollIntoView({ behavior: "smooth" });
+          } else if (++attempts >= 30) {
+            clearInterval(interval);
+          }
+        }, 100);
+      }
     }
     setIsMenuOpen(false);
   };
