@@ -1,4 +1,4 @@
-import { Briefcase, MapPin, Users, CalendarCheck, ArrowRight } from "lucide-react";
+import { Briefcase, MapPin, Users, CalendarCheck } from "lucide-react";
 import kaabaIcon from "@/assets/landmarks/kaaba.png";
 import eiffelIcon from "@/assets/landmarks/eiffel.png";
 import pyramidsIcon from "@/assets/landmarks/pyramids.png";
