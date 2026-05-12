@@ -174,17 +174,21 @@ const BookDemo = () => {
     }
 
     setSubmitting(true);
-    const { error } = await supabase.from("demo_bookings").insert({
-      full_name: parsed.data.full_name,
-      country_code: parsed.data.country_code,
-      whatsapp_number: parsed.data.whatsapp_number,
-      email: parsed.data.email || null,
-      notes: parsed.data.notes || null,
-      booking_date: dateStr,
-      booking_time: time,
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Kolkata",
-      session_id: typeof window !== "undefined" ? sessionStorage.getItem("session_id") : null,
-    });
+    const { data: inserted, error } = await supabase
+      .from("demo_bookings")
+      .insert({
+        full_name: parsed.data.full_name,
+        country_code: parsed.data.country_code,
+        whatsapp_number: parsed.data.whatsapp_number,
+        email: parsed.data.email || null,
+        notes: parsed.data.notes || null,
+        booking_date: dateStr,
+        booking_time: time,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Kolkata",
+        session_id: typeof window !== "undefined" ? sessionStorage.getItem("session_id") : null,
+      })
+      .select("id")
+      .single();
     setSubmitting(false);
 
     if (error) {
@@ -198,6 +202,12 @@ const BookDemo = () => {
       }
       toast.error(error.message || "Could not save booking. Please try again.");
       return;
+    }
+    if (inserted?.id) {
+      // Fire-and-forget: schedule Google Meet + send notifications.
+      supabase.functions
+        .invoke("demo-booking-confirm", { body: { bookingId: inserted.id } })
+        .catch((e) => console.error("demo-booking-confirm failed", e));
     }
     toast.success("Demo booked! We'll be in touch on WhatsApp shortly.");
     setStep(4);
