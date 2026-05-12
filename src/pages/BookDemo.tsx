@@ -1,7 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { format } from "date-fns";
-import { z } from "zod";
 import {
   CalendarDays,
   Clock,
@@ -12,10 +11,7 @@ import {
   Loader2,
   Sparkles,
   ShieldCheck,
-  User as UserIcon,
   Globe,
-  Download,
-  Home,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -25,22 +21,15 @@ import SoftCard from "@/components/ui/SoftCard";
 import EyebrowChip from "@/components/ui/EyebrowChip";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { CARD_BASE, PRIMARY_BTN, SECONDARY_BTN, SECTION_CONTAINER, SECTION_PY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
-import { DIAL_CODES } from "@/lib/dial-codes";
-import { buildICS, downloadICS } from "@/lib/ics";
-import { Link } from "react-router-dom";
+
+// Lazy-loaded steps — keep initial bundle lean (zod, dial-codes, select, ics, etc. load on demand)
+const DetailsStep = lazy(() => import("@/components/book-demo/DetailsStep"));
+const ConfirmationStep = lazy(() => import("@/components/book-demo/ConfirmationStep"));
+const prefetchDetailsStep = () => import("@/components/book-demo/DetailsStep");
+const prefetchConfirmationStep = () => import("@/components/book-demo/ConfirmationStep");
 
 const ALL_SLOTS = [
   "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
@@ -56,23 +45,6 @@ const COVERED = [
   "Pricing, GST and subscription model",
   "Live Q&A with our solutions team",
 ];
-
-const detailsSchema = z.object({
-  full_name: z.string().trim().min(2, "Please enter your full name").max(100),
-  country_code: z.string().min(2),
-  whatsapp_number: z
-    .string()
-    .trim()
-    .regex(/^\d{6,15}$/, "Enter a valid WhatsApp number (digits only)"),
-  email: z
-    .string()
-    .trim()
-    .email("Invalid email")
-    .max(255)
-    .optional()
-    .or(z.literal("")),
-  notes: z.string().max(500).optional(),
-});
 
 type Step = 1 | 2 | 3 | 4;
 
