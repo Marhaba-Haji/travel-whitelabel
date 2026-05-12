@@ -65,7 +65,7 @@ const Hero = () => {
                         "linear-gradient(135deg, rgba(65,42,134,0.06) 0%, rgba(93,80,198,0.10) 100%)",
                     }}
                   />
-                  <CalendarCheck className="relative w-4.5 h-4.5 w-[18px] h-[18px]" />
+                  <CalendarCheck className="relative w-[18px] h-[18px]" />
                   <span className="relative">Book a Demo</span>
                   <ArrowRight className="relative w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5" />
                 </a>
