@@ -411,12 +411,13 @@ const BookDemo = () => {
                       <span className="text-gray-500">{tz}</span>
                     </p>
 
-                    {loadingSlots ? (
-                      <div className="py-12 flex items-center justify-center text-gray-500">
-                        <Loader2 className="h-5 w-5 animate-spin" />
+                    {loadingSlots && (
+                      <div className="mb-3 inline-flex items-center gap-2 text-xs text-gray-500">
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        Checking availability…
                       </div>
-                    ) : (
-                      <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
+                    )}
+                    <div className={cn("grid grid-cols-3 sm:grid-cols-4 gap-2.5", loadingSlots && "opacity-90")}>
                         {(() => {
                           if (!date) return null;
                           const dow = date.getDay();
@@ -490,8 +491,7 @@ const BookDemo = () => {
                             );
                           });
                         })()}
-                      </div>
-                    )}
+                    </div>
 
                     <div className="mt-6 flex items-center justify-between">
                       <Button
