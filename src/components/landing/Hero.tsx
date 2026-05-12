@@ -1,4 +1,4 @@
-import { Briefcase, MapPin, Users } from "lucide-react";
+import { Briefcase, MapPin, Users, CalendarCheck, ArrowRight } from "lucide-react";
 import kaabaIcon from "@/assets/landmarks/kaaba.png";
 import eiffelIcon from "@/assets/landmarks/eiffel.png";
 import pyramidsIcon from "@/assets/landmarks/pyramids.png";
@@ -48,8 +48,29 @@ const Hero = () => {
 
             {/* CTA + Avatars */}
             <div className="flex flex-col sm:flex-row items-center gap-4 mb-14">
-              <HeroRotatingCTA />
-              
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+                <HeroRotatingCTA />
+
+                {/* Book a Demo — secondary CTA */}
+                <a
+                  href="/book-demo"
+                  aria-label="Book a personalized demo"
+                  className="group relative inline-flex items-center justify-center gap-2 h-14 px-7 rounded-full font-semibold text-base text-[#412A86] bg-white/80 backdrop-blur-sm border border-[#412A86]/20 shadow-[0_8px_24px_-12px_rgba(65,42,134,0.35)] hover:shadow-[0_16px_36px_-14px_rgba(65,42,134,0.45)] hover:border-[#412A86]/40 hover:-translate-y-0.5 transition-all duration-300 overflow-hidden"
+                >
+                  <span
+                    aria-hidden="true"
+                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, rgba(65,42,134,0.06) 0%, rgba(93,80,198,0.10) 100%)",
+                    }}
+                  />
+                  <CalendarCheck className="relative w-4.5 h-4.5 w-[18px] h-[18px]" />
+                  <span className="relative">Book a Demo</span>
+                  <ArrowRight className="relative w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+                </a>
+              </div>
+
               <div className="flex items-center gap-3 bg-white/95 sm:bg-white border border-gray-100 shadow-sm pl-2 pr-5 py-2 rounded-full h-16">
                 <div className="flex -space-x-2.5">
                   {[
