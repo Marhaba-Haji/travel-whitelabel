@@ -26,7 +26,7 @@ function emailHtml(opts: {
   date: string;
   time: string;
   tz: string;
-  meetLink: string;
+  meetLink?: string | null;
   isAdmin: boolean;
   email?: string | null;
   phone?: string | null;
@@ -38,6 +38,7 @@ function emailHtml(opts: {
   const intro = opts.isAdmin
     ? `A new demo has been booked. Details below.`
     : `Hi ${opts.name}, thanks for booking a demo with Marhaba DMC. Your slot is confirmed.`;
+  const hasMeetLink = isUsableMeetLink(opts.meetLink);
   const adminBlock = opts.isAdmin
     ? `<tr><td style="padding:8px 0;color:#374151;font-size:14px;"><strong>Email:</strong> ${opts.email || "—"}<br/><strong>WhatsApp:</strong> ${opts.phone || "—"}<br/><strong>Notes:</strong> ${opts.notes || "—"}</td></tr>`
     : "";
@@ -56,17 +57,19 @@ function emailHtml(opts: {
               <div><strong>Date:</strong> ${opts.date}</div>
               <div><strong>Time:</strong> ${opts.time} (${opts.tz})</div>
               <div><strong>Duration:</strong> 30 minutes</div>
-              <div><strong>Where:</strong> Google Meet</div>
+              <div><strong>Where:</strong> ${hasMeetLink ? "Google Meet" : "Online — meeting link will be shared separately"}</div>
             </td></tr>
           </table>
         </td></tr>
-        <tr><td style="padding:24px 32px 8px;" align="center">
+        ${hasMeetLink ? `<tr><td style="padding:24px 32px 8px;" align="center">
           <a href="${opts.meetLink}" style="display:inline-block;background:#412A86;color:#ffffff;text-decoration:none;font-weight:600;padding:12px 24px;border-radius:999px;font-size:15px;">Join Google Meet</a>
           <div style="margin-top:10px;font-size:12px;color:#6b7280;word-break:break-all;">${opts.meetLink}</div>
-        </td></tr>
+        </td></tr>` : `<tr><td style="padding:24px 32px 8px;color:#374151;font-size:14px;line-height:1.7;" align="center">
+          We could not generate the Google Meet link automatically yet. Our team will send the meeting link separately.
+        </td></tr>`}
         ${adminBlock ? `<tr><td style="padding:16px 32px 0;"><table width="100%" style="border-top:1px solid #eef0f5;">${adminBlock}</table></td></tr>` : ""}
         <tr><td style="padding:24px 32px;color:#6b7280;font-size:12px;line-height:1.6;">
-          A Google Calendar invite has also been sent. To reschedule, reply to this email or contact us at hello@marhabadmc.com.
+          ${hasMeetLink ? "A Google Calendar invite has also been sent." : "We will follow up with the calendar invite as soon as the meeting link is ready."} To reschedule, reply to this email or contact us at hello@marhabadmc.com.
         </td></tr>
       </table>
       <div style="margin-top:14px;color:#9ca3af;font-size:11px;">© Marhaba DMC · marhabadmc.com</div>
@@ -179,17 +182,6 @@ Deno.serve(async (req) => {
         .eq("id", bookingId);
     }
 
-    if (!hasRealMeetLink) {
-      return new Response(JSON.stringify({
-        ok: false,
-        error: "Google Meet link could not be created",
-        warnings: calendarErrors.length ? calendarErrors : ["No valid Google Meet link returned by Google Calendar"],
-      }), {
-        status: 502,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
     const dateLabel = new Date(`${booking.booking_date}T${startTime}:00`).toLocaleDateString("en-GB", {
       weekday: "long", day: "numeric", month: "long", year: "numeric",
     });
@@ -207,23 +199,39 @@ Deno.serve(async (req) => {
         const { error } = await supabase.functions.invoke("send-email", {
           body: { to, subject, body: html, reply_to: isAdmin ? booking.email || undefined : undefined },
         });
-        if (error) console.error("send-email error", to, error);
-      } catch (e) { console.error("send-email exception", to, e); }
+        if (error) {
+          console.error("send-email error", to, error);
+          return { to, ok: false, error: error.message || "Unknown send-email error" };
+        }
+        return { to, ok: true };
+      } catch (e) {
+        console.error("send-email exception", to, e);
+        return { to, ok: false, error: e instanceof Error ? e.message : "Unknown send-email exception" };
+      }
     };
 
-    const tasks: Promise<unknown>[] = [];
+    const tasks: Promise<{ to: string; ok: boolean; error?: string }>[] = [];
     if (booking.email) tasks.push(sendEmail(booking.email, false));
     tasks.push(sendEmail(ADMIN_EMAIL, true));
-    await Promise.all(tasks);
+    const emailResults = await Promise.all(tasks);
+    const emailFailures = emailResults.filter((result) => !result.ok);
 
-    await supabase
-      .from("demo_bookings")
-      .update({ notifications_sent_at: new Date().toISOString() })
-      .eq("id", bookingId);
+    if (emailFailures.length === 0) {
+      await supabase
+        .from("demo_bookings")
+        .update({ notifications_sent_at: new Date().toISOString() })
+        .eq("id", bookingId);
+    }
 
     return new Response(JSON.stringify({
-      ok: true, meetLink, googleEventId,
-      warnings: calendarErrors.length ? calendarErrors : undefined,
+      ok: emailFailures.length === 0,
+      meetLink,
+      googleEventId,
+      warnings: [
+        ...calendarErrors,
+        ...(!hasRealMeetLink ? ["No valid Google Meet link returned by Google Calendar"] : []),
+        ...emailFailures.map((failure) => `email to ${failure.to} failed: ${failure.error}`),
+      ].filter(Boolean),
     }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (err) {
     console.error("demo-booking-confirm error:", err);
