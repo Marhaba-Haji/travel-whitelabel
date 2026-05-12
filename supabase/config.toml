@@ -80,3 +80,6 @@ verify_jwt = false
 
 [functions.demo-booked-slots]
 verify_jwt = false
+
+[functions.demo-booking-confirm]
+verify_jwt = false
