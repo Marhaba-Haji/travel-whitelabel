@@ -34,21 +34,29 @@ const Header = () => {
     if (location.pathname !== "/") {
       navigate(`/${href}`);
     } else {
-      // Section may be inside a LazyOnVisible boundary and not yet mounted.
-      // Poll briefly until it appears, then scroll.
-      let attempts = 0;
-      const maxAttempts = 30;
-      const interval = setInterval(() => {
-        const el = document.querySelector(href);
-        if (el) {
-          clearInterval(interval);
-          el.scrollIntoView({ behavior: "smooth" });
-        } else if (++attempts >= maxAttempts) {
-          clearInterval(interval);
-        }
-      }, 100);
-      // Nudge scroll down to trigger LazyOnVisible mounting if needed.
-      window.scrollBy({ top: 1, behavior: "instant" as ScrollBehavior });
+      const sectionId = href.replace(/^#/, "");
+      const direct = document.querySelector(href);
+      if (direct) {
+        direct.scrollIntoView({ behavior: "smooth" });
+      } else {
+        // Section is still inside a LazyOnVisible placeholder. Jump to the
+        // placeholder first so the IntersectionObserver mounts it, then
+        // poll for the real element and smooth-scroll to it.
+        const placeholder = document.querySelector(
+          `[data-lazy-section="${sectionId}"]`,
+        );
+        placeholder?.scrollIntoView({ behavior: "instant" as ScrollBehavior });
+        let attempts = 0;
+        const interval = setInterval(() => {
+          const el = document.querySelector(href);
+          if (el) {
+            clearInterval(interval);
+            el.scrollIntoView({ behavior: "smooth" });
+          } else if (++attempts >= 30) {
+            clearInterval(interval);
+          }
+        }, 100);
+      }
     }
     setIsMenuOpen(false);
   };
