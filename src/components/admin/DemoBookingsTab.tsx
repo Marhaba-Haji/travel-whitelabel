@@ -13,6 +13,7 @@ import {
   TrendingUp,
   ChevronLeft,
   ChevronRight,
+  Send,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -183,6 +184,20 @@ const DemoBookingsTab = () => {
     setBookings((prev) =>
       prev.map((b) => (b.id === id ? { ...b, status } : b)),
     );
+  };
+
+  const resendInvite = async (id: string) => {
+    toast.loading("Sending invite...", { id: `resend-${id}` });
+    try {
+      const { data, error } = await supabase.functions.invoke("demo-booking-confirm", {
+        body: { bookingId: id, resend: true },
+      });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      toast.success("Invite re-sent", { id: `resend-${id}` });
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to resend invite", { id: `resend-${id}` });
+    }
   };
 
   const filtered = useMemo(() => {
