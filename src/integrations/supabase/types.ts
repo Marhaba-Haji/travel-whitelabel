@@ -345,8 +345,11 @@ export type Database = {
           created_at: string
           email: string | null
           full_name: string
+          google_event_id: string | null
           id: string
+          meet_link: string | null
           notes: string | null
+          notifications_sent_at: string | null
           session_id: string | null
           status: string
           timezone: string
@@ -361,8 +364,11 @@ export type Database = {
           created_at?: string
           email?: string | null
           full_name: string
+          google_event_id?: string | null
           id?: string
+          meet_link?: string | null
           notes?: string | null
+          notifications_sent_at?: string | null
           session_id?: string | null
           status?: string
           timezone?: string
@@ -377,8 +383,11 @@ export type Database = {
           created_at?: string
           email?: string | null
           full_name?: string
+          google_event_id?: string | null
           id?: string
+          meet_link?: string | null
           notes?: string | null
+          notifications_sent_at?: string | null
           session_id?: string | null
           status?: string
           timezone?: string
