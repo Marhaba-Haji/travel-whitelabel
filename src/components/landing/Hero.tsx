@@ -51,14 +51,17 @@ const Hero = () => {
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto [&>*]:w-full sm:[&>*]:w-auto [&_a]:w-full sm:[&_a]:w-auto">
                 <HeroRotatingCTA />
 
-                {/* Book a Demo — secondary CTA */}
+                {/* Book Demo — secondary CTA (prefetches the route on hover/touch for instant nav) */}
                 <a
                   href="/book-demo"
-                  aria-label="Book a personalized demo"
-                  className="group relative inline-flex items-center justify-center gap-2 h-12 sm:h-12 px-6 rounded-full font-semibold text-sm sm:text-[15px] text-[#412A86] bg-white border border-[#412A86]/25 shadow-[0_6px_18px_-10px_rgba(65,42,134,0.35)] hover:bg-[#412A86]/[0.04] hover:border-[#412A86]/50 hover:shadow-[0_12px_28px_-12px_rgba(65,42,134,0.45)] hover:-translate-y-0.5 transition-all duration-300"
+                  aria-label="Book a demo"
+                  onMouseEnter={() => { void import("@/pages/BookDemo"); }}
+                  onTouchStart={() => { void import("@/pages/BookDemo"); }}
+                  onFocus={() => { void import("@/pages/BookDemo"); }}
+                  className="group relative inline-flex items-center justify-center gap-2 h-12 px-6 rounded-full font-semibold text-sm sm:text-[15px] whitespace-nowrap text-[#412A86] bg-white border border-[#412A86]/25 shadow-[0_6px_18px_-10px_rgba(65,42,134,0.35)] hover:bg-[#412A86]/[0.04] hover:border-[#412A86]/50 hover:shadow-[0_12px_28px_-12px_rgba(65,42,134,0.45)] hover:-translate-y-0.5 transition-all duration-300"
                 >
-                  <CalendarCheck className="w-4 h-4" strokeWidth={2.25} />
-                  <span>Book a Demo</span>
+                  <CalendarCheck className="w-4 h-4 shrink-0" strokeWidth={2.25} />
+                  <span>Book Demo</span>
                 </a>
               </div>
 
