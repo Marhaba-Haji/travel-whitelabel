@@ -1219,6 +1219,10 @@ export type Database = {
     }
     Functions: {
       clear_must_change_password: { Args: never; Returns: undefined }
+      has_admin_edit: {
+        Args: { _module: string; _user_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
