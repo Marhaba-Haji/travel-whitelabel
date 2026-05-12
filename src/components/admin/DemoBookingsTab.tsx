@@ -658,6 +658,14 @@ const DemoBookingsTab = () => {
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-1.5">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => resendInvite(b.id)}
+                              title="Resend Google Meet invite (email + WhatsApp)"
+                            >
+                              <Send className="h-4 w-4 text-indigo-600" />
+                            </Button>
                             {b.status !== "completed" && (
                               <Button
                                 size="sm"
