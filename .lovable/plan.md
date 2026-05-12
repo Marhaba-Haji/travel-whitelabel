@@ -1,58 +1,84 @@
-## Goal
+# Demo Bookings: Overview Stats + Google Meet Auto-Provisioning + Notifications
 
-Fix the readability/contrast issues the user spotted: faded text in the admin panel, the date picker on `/book-demo`, and several low-contrast buttons across the site. Changes are purely visual (color/opacity tokens) — no layout, copy, or behavior changes.
+## 1. Admin Overview — Demo Bookings summary
 
-## What I found
+Add Demo Bookings cards to `src/components/admin/OverviewTab.tsx`:
+- **Total demo bookings**
+- **Upcoming** (booking_date >= today, status != cancelled)
+- **Completed**
+- **Cancelled**
 
-**1. Calendar (`/book-demo` and any other usage)** — `src/components/ui/calendar.tsx`
-- `day_outside` uses `opacity-50` on top of already-muted text → numbers nearly invisible on white.
-- `day_disabled` uses `opacity-50 text-muted-foreground` → disabled weekdays/Sundays look ghosted.
-- `head_cell` (Mon/Tue/…) is `text-muted-foreground` at `text-[0.8rem]` → low contrast.
-- `nav_button` uses `opacity-50` → arrows nearly invisible until hover.
+Single query against `demo_bookings`, computed client-side. Uses existing `CalendarCheck` icon style.
 
-**2. Admin panel** — `src/components/admin/AdminLayout.tsx` + tabs
-- Sidebar inactive items are `text-sidebar-foreground` (HSL `240 5% 26%`) — OK, but the *active* state uses `bg-sidebar-accent` (very pale violet `270 55% 95%`) with `text-sidebar-accent-foreground` (`270 60% 40%`) — passes AA but feels washed on white. We'll deepen the active foreground to `270 65% 30%` and bump active background to `270 55% 92%` for a clearer selected state.
-- `text-muted-foreground` is used heavily for table secondary cells (`NewsletterTab`, `OverviewTab`, etc.). Light-mode token is `215 18% 42%` — borderline. Bumping to `215 22% 32%` improves legibility in tables/cards without affecting dark mode.
-- Sub-admin badge (`text-xs text-muted-foreground`) and user email in sidebar footer become readable as a side effect.
+## 2. Google Calendar + Meet integration
 
-**3. Buttons** — `src/components/ui/button.tsx`
-- `variant="ghost"` has no text color → inherits page color. On colored hero/footer backgrounds it can disappear. Add explicit `text-foreground`.
-- `variant="outline"` uses `bg-background` + default text inheritance. Add explicit `text-foreground` so it never inherits a faded parent color.
-- `variant="link"` is fine.
-- The custom `SECONDARY_BTN` in `src/lib/design-tokens.ts` uses `text-gray-900` on `bg-white` — fine. No change.
+**Connector:** Use the Lovable `google_calendar` connector (gateway-based). This connects **your** Google account (harab.business@gmail.com) — not the customer's. Events are created on your calendar with the customer added as an attendee, which:
+- Auto-generates a Google Meet link (via `conferenceData.createRequest`)
+- Sends the calendar invite to the customer through Google
+- Puts the event on your Google Calendar automatically (this is the "sync")
 
-**4. BookDemo time-slot grid** — `src/pages/BookDemo.tsx` line ~471
-- Disabled (booked) slots use `text-gray-300` on `bg-gray-50` — fails AA. Change to `text-gray-400` on `bg-gray-100` with `line-through` retained, so users still understand they're unavailable but can read the time.
+You'll need to click a Connect button when prompted to authorize Google Calendar.
 
-## Changes (minimal)
+### New Edge Function: `demo-booking-confirm`
+Triggered after a booking is inserted. Steps:
+1. Fetch booking row by id (service role).
+2. Build start/end datetimes from `booking_date + booking_time + timezone` (30 min slots).
+3. POST to `https://connector-gateway.lovable.dev/google_calendar/calendar/v3/calendars/primary/events?conferenceDataVersion=1&sendUpdates=all` with:
+   - summary: "Marhaba DMC Demo — {full_name}"
+   - description: notes + contact details
+   - start/end with timezone
+   - attendees: `[{ email: customer.email }, { email: "harab.business@gmail.com" }]`
+   - `conferenceData.createRequest` with random `requestId` → returns `hangoutLink`
+4. Persist `google_event_id` and `meet_link` back to `demo_bookings`.
+5. Trigger transactional email (template `demo-booking-confirmation`) to customer **and** to `harab.business@gmail.com`.
+6. Trigger WhatsApp (existing `send-whatsapp` function) to customer **and** to admin (+919008447887).
 
-### `src/components/ui/calendar.tsx`
-- `head_cell`: `text-muted-foreground` → `text-foreground/70 font-medium`
-- `nav_button`: drop `opacity-50 hover:opacity-100` (keep hover bg)
-- `day_outside`: `opacity-50` → `opacity-70` and use `text-foreground/55`
-- `day_disabled`: `opacity-50` → keep `text-muted-foreground` but raise to `opacity-70` + add `line-through` for clarity
+### DB migration
+Add columns to `demo_bookings`:
+- `google_event_id text`
+- `meet_link text`
+- `notifications_sent_at timestamptz`
 
-### `src/index.css` (light mode tokens only)
-- `--muted-foreground: 215 18% 42%` → `215 22% 32%`
-- `--sidebar-accent: 270 55% 95%` → `270 60% 92%`
-- `--sidebar-accent-foreground: 270 60% 40%` → `270 65% 28%`
+## 3. Email template
 
-(Dark mode tokens untouched.)
+Create React Email template `demo-booking-confirmation.tsx` under `supabase/functions/_shared/transactional-email-templates/`. Includes: greeting, date/time/timezone, Meet link button, reschedule contact info, brand styling matching existing emails. One template, sent to both customer and admin (admin version uses same content + "New booking" preview).
 
-### `src/components/ui/button.tsx`
-- `ghost`: add `text-foreground` to the variant class
-- `outline`: add `text-foreground` to the variant class
+Requires Lovable Email infrastructure (`setup_email_infra` + `scaffold_transactional_email`) if not already in place. I'll detect and run the prerequisite step automatically.
 
-### `src/pages/BookDemo.tsx` (line ~471)
-- Booked slot class: `bg-gray-50 text-gray-300 border-gray-100` → `bg-gray-100 text-gray-400 border-gray-200`
+## 4. WhatsApp message
 
-## Out of scope / will NOT change
+Reuse `supabase/functions/send-whatsapp` (Twilio). New helper builds a plain-text template:
+> "Hi {name}, your Marhaba DMC demo is confirmed for {date} at {time} ({tz}). Join here: {meet_link}"
 
-- Brand palette (indigo `#412A86`, violet `#B968C7`, etc.)
-- Hero/landing page typography colors (already AA)
-- Dark-mode tokens (no reported issue)
-- Any component layout, spacing, or behavior
+Sent to `+{country_code}{whatsapp_number}` and to admin number `+919008447887`.
 
-## Verification
+## 5. Trigger wiring
 
-After approval I'll spot-check: `/admin` (Overview, Newsletter table, sidebar active state), `/book-demo` (calendar past/Sunday cells, booked time slots), and a ghost/outline button on the landing page header.
+In `BookDemo.tsx` (the public booking page), after the existing `insert` succeeds, call:
+```ts
+supabase.functions.invoke('demo-booking-confirm', { body: { bookingId } })
+```
+Fail-soft: booking is still confirmed in UI even if notifications fail (errors logged).
+
+## 6. Admin manual resend
+
+Add a "Resend invite" action in `DemoBookingsTab` row menu that re-invokes `demo-booking-confirm` with `{ bookingId, resend: true }`.
+
+## Files
+
+**New**
+- `supabase/functions/demo-booking-confirm/index.ts`
+- `supabase/functions/_shared/transactional-email-templates/demo-booking-confirmation.tsx`
+- Migration: add 3 columns to `demo_bookings`
+
+**Edited**
+- `src/components/admin/OverviewTab.tsx` — 4 new cards
+- `src/pages/BookDemo.tsx` — invoke confirm function after insert
+- `src/components/admin/DemoBookingsTab.tsx` — Resend action
+- `_shared/transactional-email-templates/registry.ts` — register new template
+- `supabase/config.toml` — `verify_jwt = false` for new function
+
+## Prerequisites you'll be prompted to approve
+1. Connect **Google Calendar** (one-click OAuth) — uses your account
+2. Set up Lovable Email infrastructure (if not already done) for the demo confirmation email template
+3. Approve the DB migration adding 3 columns
