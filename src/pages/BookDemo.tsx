@@ -130,30 +130,25 @@ const BookDemo = () => {
   const goNext = () => setStep((s) => (Math.min(4, s + 1) as Step));
   const goBack = () => setStep((s) => (Math.max(1, s - 1) as Step));
 
-  const handleSubmit = async () => {
+  const handleValidSubmit = async (values: {
+    full_name: string;
+    country_code: string;
+    whatsapp_number: string;
+    email?: string;
+    notes?: string;
+  }) => {
     if (!date || !time) return;
-    const parsed = detailsSchema.safeParse({
-      full_name: fullName,
-      country_code: countryCode,
-      whatsapp_number: whatsapp,
-      email: email || undefined,
-      notes,
-    });
-    if (!parsed.success) {
-      const first = Object.values(parsed.error.flatten().fieldErrors)[0]?.[0];
-      toast.error(first || "Please check your details");
-      return;
-    }
-
     setSubmitting(true);
+    // Warm up the confirmation chunk while we await the insert
+    void prefetchConfirmationStep();
     const { data: inserted, error } = await supabase
       .from("demo_bookings")
       .insert({
-        full_name: parsed.data.full_name,
-        country_code: parsed.data.country_code,
-        whatsapp_number: parsed.data.whatsapp_number,
-        email: parsed.data.email || null,
-        notes: parsed.data.notes || null,
+        full_name: values.full_name,
+        country_code: values.country_code,
+        whatsapp_number: values.whatsapp_number,
+        email: values.email || null,
+        notes: values.notes || null,
         booking_date: dateStr,
         booking_time: time,
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Kolkata",
@@ -185,22 +180,13 @@ const BookDemo = () => {
     setStep(4);
   };
 
-  const handleDownloadICS = () => {
-    if (!date || !time) return;
-    const [h, m] = time.split(":").map(Number);
-    const start = new Date(date);
-    start.setHours(h, m, 0, 0);
-    const ics = buildICS({
-      title: "Marhaba DMC — Live Demo",
-      description: "Live walkthrough of the Marhaba DMC platform.",
-      location: "Online (link will be shared on WhatsApp)",
-      start,
-      durationMinutes: 30,
-    });
-    downloadICS(`marhaba-demo-${dateStr}-${time}.ics`, ics);
-  };
-
   const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  // Prefetch the details step chunk as soon as the user advances to time selection,
+  // so it's ready by the time they hit "Continue".
+  useEffect(() => {
+    if (step === 2) void prefetchDetailsStep();
+  }, [step]);
 
   return (
     <div className="min-h-screen bg-background">
