@@ -17,6 +17,10 @@ function buildEndTime(time: string): string {
   return `${pad(Math.floor(total / 60) % 24)}:${pad(total % 60)}`;
 }
 
+function isUsableMeetLink(value: string | null | undefined): value is string {
+  return typeof value === "string" && /^https:\/\//.test(value);
+}
+
 function emailHtml(opts: {
   name: string;
   date: string;
@@ -111,7 +115,7 @@ Deno.serve(async (req) => {
     const startISO = `${booking.booking_date}T${startTime}:00`;
     const endISO = `${booking.booking_date}T${endTime}:00`;
 
-    let meetLink = booking.meet_link as string | null;
+    let meetLink = isUsableMeetLink(booking.meet_link) ? booking.meet_link : null;
     let googleEventId = booking.google_event_id as string | null;
 
     // 1) Create or reuse Google Calendar event with Meet link
@@ -162,20 +166,28 @@ Deno.serve(async (req) => {
       }
     }
 
-    if (!meetLink) {
-      // Fallback: still send email/whatsapp without a Meet link
-      meetLink = "Will be shared shortly";
-    }
+    const hasRealMeetLink = isUsableMeetLink(meetLink);
 
     // Persist event id + meet link
-    if (googleEventId || meetLink) {
+    if (googleEventId || hasRealMeetLink) {
       await supabase
         .from("demo_bookings")
         .update({
           google_event_id: googleEventId,
-          meet_link: meetLink,
+          meet_link: hasRealMeetLink ? meetLink : null,
         })
         .eq("id", bookingId);
+    }
+
+    if (!hasRealMeetLink) {
+      return new Response(JSON.stringify({
+        ok: false,
+        error: "Google Meet link could not be created",
+        warnings: calendarErrors.length ? calendarErrors : ["No valid Google Meet link returned by Google Calendar"],
+      }), {
+        status: 502,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const dateLabel = new Date(`${booking.booking_date}T${startTime}:00`).toLocaleDateString("en-GB", {
