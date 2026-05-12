@@ -162,20 +162,28 @@ Deno.serve(async (req) => {
       }
     }
 
-    if (!meetLink) {
-      // Fallback: still send email/whatsapp without a Meet link
-      meetLink = "Will be shared shortly";
-    }
+    const hasRealMeetLink = typeof meetLink === "string" && /^https:\/\//.test(meetLink);
 
     // Persist event id + meet link
-    if (googleEventId || meetLink) {
+    if (googleEventId || hasRealMeetLink) {
       await supabase
         .from("demo_bookings")
         .update({
           google_event_id: googleEventId,
-          meet_link: meetLink,
+          meet_link: hasRealMeetLink ? meetLink : null,
         })
         .eq("id", bookingId);
+    }
+
+    if (!hasRealMeetLink) {
+      return new Response(JSON.stringify({
+        ok: false,
+        error: "Google Meet link could not be created",
+        warnings: calendarErrors.length ? calendarErrors : ["No valid Google Meet link returned by Google Calendar"],
+      }), {
+        status: 502,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const dateLabel = new Date(`${booking.booking_date}T${startTime}:00`).toLocaleDateString("en-GB", {
