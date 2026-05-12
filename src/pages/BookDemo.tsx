@@ -470,157 +470,57 @@ const BookDemo = () => {
                   </div>
                 )}
 
-                {step === 3 && (
-                  <div>
-                    <div className="flex items-center gap-2 mb-3">
-                      <UserIcon className="h-5 w-5 text-[#412A86]" />
-                      <h3 className="font-poppins font-bold text-xl text-gray-900">
-                        Your details
-                      </h3>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-5">
-                      Booking for{" "}
-                      <span className="font-semibold text-gray-900">
-                        {date ? format(date, "EEE, d MMM") : ""} at {time}
-                      </span>
-                    </p>
-
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="full_name">Full name *</Label>
-                        <Input
-                          id="full_name"
-                          value={fullName}
-                          onChange={(e) => setFullName(e.target.value)}
-                          placeholder="Your full name"
-                          className={FIELD_CLASS}
-                        />
+                {step === 3 && date && time && (
+                  <Suspense
+                    fallback={
+                      <div className="py-16 flex items-center justify-center text-gray-500">
+                        <Loader2 className="h-5 w-5 animate-spin" />
                       </div>
-
-                      <div>
-                        <Label>WhatsApp number *</Label>
-                        <div className="mt-1.5 flex gap-2">
-                          <Select value={countryCode} onValueChange={setCountryCode}>
-                            <SelectTrigger className={cn("w-[130px]", SELECT_TRIGGER_CLASS)}>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent className="max-h-72">
-                              {DIAL_CODES.map((c) => (
-                                <SelectItem key={c.code} value={c.dial}>
-                                  {c.flag} {c.dial}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <Input
-                            inputMode="numeric"
-                            value={whatsapp}
-                            onChange={(e) =>
-                              setWhatsapp(e.target.value.replace(/\D/g, ""))
-                            }
-                            placeholder="9876543210"
-                            className={cn(FIELD_CLASS, "flex-1")}
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <Label htmlFor="email">Email (optional)</Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          placeholder="you@company.com"
-                          className={FIELD_CLASS}
-                        />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="notes">Anything specific you'd like to see? (optional)</Label>
-                        <Textarea
-                          id="notes"
-                          value={notes}
-                          onChange={(e) => setNotes(e.target.value)}
-                          placeholder="e.g. Focus on B2C portal & flight API integration"
-                          className={TEXTAREA_CLASS}
-                          maxLength={500}
-                        />
-                      </div>
-
-                      <p className="text-xs text-gray-500">
-                        By confirming, you agree to be contacted by our team about this demo.
-                      </p>
-                    </div>
-
-                    <div className="mt-6 flex items-center justify-between">
-                      <Button
-                        variant="ghost"
-                        onClick={goBack}
-                        className={SECONDARY_BUTTON_CLASS}
-                        disabled={submitting}
-                      >
-                        <ArrowLeft className="h-4 w-4 mr-1" /> Back
-                      </Button>
-                      <Button
-                        onClick={handleSubmit}
-                        disabled={submitting}
-                        className={cn(PRIMARY_BUTTON_CLASS, "px-7")}
-                      >
-                        {submitting ? (
-                          <>
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Confirming...
-                          </>
-                        ) : (
-                          <>Confirm Booking</>
-                        )}
-                      </Button>
-                    </div>
-                  </div>
+                    }
+                  >
+                    <DetailsStep
+                      date={date}
+                      time={time}
+                      fullName={fullName}
+                      setFullName={setFullName}
+                      countryCode={countryCode}
+                      setCountryCode={setCountryCode}
+                      whatsapp={whatsapp}
+                      setWhatsapp={setWhatsapp}
+                      email={email}
+                      setEmail={setEmail}
+                      notes={notes}
+                      setNotes={setNotes}
+                      submitting={submitting}
+                      onBack={goBack}
+                      onValidSubmit={handleValidSubmit}
+                      fieldClass={FIELD_CLASS}
+                      textareaClass={TEXTAREA_CLASS}
+                      selectTriggerClass={SELECT_TRIGGER_CLASS}
+                      primaryBtnClass={PRIMARY_BUTTON_CLASS}
+                      secondaryBtnClass={SECONDARY_BUTTON_CLASS}
+                    />
+                  </Suspense>
                 )}
 
-                {step === 4 && (
-                  <div className="text-center py-6">
-                    <div className="mx-auto h-16 w-16 rounded-full bg-[#412A86]/10 flex items-center justify-center">
-                      <CheckCircle2 className="h-9 w-9 text-emerald-600" />
-                    </div>
-                    <h3 className="mt-5 font-poppins font-bold text-2xl text-gray-900">
-                      You're booked!
-                    </h3>
-                    <p className="mt-2 text-gray-600">
-                      We'll send a confirmation on WhatsApp shortly.
-                    </p>
-
-                    <div className="mt-6 max-w-sm mx-auto p-5 rounded-2xl bg-gradient-to-br from-violet-50 to-blue-50 border border-white text-left">
-                      <div className="flex items-center gap-2 text-sm text-gray-700">
-                        <CalendarDays className="h-4 w-4 text-[#412A86]" />
-                        {date ? format(date, "EEEE, d MMMM yyyy") : ""}
+                {step === 4 && date && time && (
+                  <Suspense
+                    fallback={
+                      <div className="py-16 flex items-center justify-center text-gray-500">
+                        <Loader2 className="h-5 w-5 animate-spin" />
                       </div>
-                      <div className="mt-2 flex items-center gap-2 text-sm text-gray-700">
-                        <Clock className="h-4 w-4 text-[#412A86]" />
-                        {time} · 30 minutes ({tz})
-                      </div>
-                      <div className="mt-2 flex items-center gap-2 text-sm text-gray-700">
-                        <UserIcon className="h-4 w-4 text-[#412A86]" />
-                        {fullName}
-                      </div>
-                    </div>
-
-                    <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-                      <Button
-                        onClick={handleDownloadICS}
-                        variant="outline"
-                        className={SECONDARY_BUTTON_CLASS}
-                      >
-                        <Download className="h-4 w-4 mr-1.5" /> Add to calendar
-                      </Button>
-                      <Link to="/">
-                        <Button className={PRIMARY_BUTTON_CLASS}>
-                          <Home className="h-4 w-4 mr-1.5" /> Back to home
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
+                    }
+                  >
+                    <ConfirmationStep
+                      date={date}
+                      time={time}
+                      fullName={fullName}
+                      tz={tz}
+                      dateStr={dateStr}
+                      primaryBtnClass={PRIMARY_BUTTON_CLASS}
+                      secondaryBtnClass={SECONDARY_BUTTON_CLASS}
+                    />
+                  </Suspense>
                 )}
               </SoftCard>
             </div>
