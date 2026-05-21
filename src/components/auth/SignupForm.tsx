@@ -260,6 +260,7 @@ const SignupForm = ({ selectedPlanName, planBasePrice, planKey, gstPercent, symb
           termsAccepted: validatedData.termsAccepted,
           planName: selectedPlanName,
           planBasePrice: planBasePrice,
+          billingCycle: billingCycle,
         }),
       });
 
@@ -344,6 +345,7 @@ const SignupForm = ({ selectedPlanName, planBasePrice, planKey, gstPercent, symb
         basePrice={planBasePrice}
         gstPercent={gstPercent}
         symbol={symbol}
+        billingCycle={billingCycle}
         discount={
           couponValidation.status === "valid"
             ? { type: couponValidation.discount_type, value: couponValidation.discount_value }
