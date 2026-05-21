@@ -13,14 +13,20 @@ interface PlanPricingData {
   launch: number;
   growth: number;
   authority: number;
+  launch_monthly: number;
+  growth_monthly: number;
+  authority_monthly: number;
   gst_percent: number;
   currency: string;
 }
 
 const DEFAULTS: PlanPricingData = {
-  launch: 24999,
+  launch: 19999,
   growth: 29999,
-  authority: 34999,
+  authority: 39999,
+  launch_monthly: 2999,
+  growth_monthly: 3999,
+  authority_monthly: 4999,
   gst_percent: 18,
   currency: "INR",
 };
@@ -32,6 +38,9 @@ const PricingTab = () => {
   const [growth, setGrowth] = useState("");
   const [authority, setAuthority] = useState("");
   const [gstPercent, setGstPercent] = useState("");
+  const [launchM, setLaunchM] = useState("");
+  const [growthM, setGrowthM] = useState("");
+  const [authorityM, setAuthorityM] = useState("");
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-plans-pricing"],
@@ -52,6 +61,9 @@ const PricingTab = () => {
       setGrowth(String(data.growth));
       setAuthority(String(data.authority));
       setGstPercent(String(data.gst_percent));
+      setLaunchM(String(data.launch_monthly));
+      setGrowthM(String(data.growth_monthly));
+      setAuthorityM(String(data.authority_monthly));
     }
   }, [data]);
 
@@ -61,6 +73,9 @@ const PricingTab = () => {
         launch: Number(launch),
         growth: Number(growth),
         authority: Number(authority),
+        launch_monthly: Number(launchM),
+        growth_monthly: Number(growthM),
+        authority_monthly: Number(authorityM),
         gst_percent: Number(gstPercent),
         currency: data?.currency ?? "INR",
       };
@@ -82,14 +97,22 @@ const PricingTab = () => {
   const gst = Number(gstPercent) || 0;
 
   const planPreview = [
-    { label: "Launch Plan", base: Number(launch) || 0 },
-    { label: "Growth Plan", base: Number(growth) || 0 },
-    { label: "Authority Plan", base: Number(authority) || 0 },
-  ].map((p) => ({
-    ...p,
-    gstAmount: p.base * (gst / 100),
-    total: p.base * (1 + gst / 100),
-  }));
+    {
+      label: "Launch Plan",
+      annual: Number(launch) || 0,
+      monthly: Number(launchM) || 0,
+    },
+    {
+      label: "Growth Plan",
+      annual: Number(growth) || 0,
+      monthly: Number(growthM) || 0,
+    },
+    {
+      label: "Authority Plan",
+      annual: Number(authority) || 0,
+      monthly: Number(authorityM) || 0,
+    },
+  ];
 
   if (isLoading) return <p className="text-muted-foreground">Loading...</p>;
 
@@ -100,8 +123,9 @@ const PricingTab = () => {
         <CardHeader>
           <CardTitle>Subscription Plan Pricing</CardTitle>
           <CardDescription>
-            Set the base price for each plan. GST is applied on top of the base price and shown to users on checkout.
-            Changes are reflected immediately on the home page pricing section and signup page.
+            Set the base price for each plan across both billing cycles. GST is applied on top of the base price and shown
+            to users on checkout. Changes are reflected immediately on the home page pricing section and signup page.
+            Note: monthly plans are currently billed as single PayU charges (recurring auto-renewal is a separate setup).
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
@@ -121,23 +145,48 @@ const PricingTab = () => {
 
           <Separator />
 
-          {/* Per-plan rows */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {[
-              { label: "Launch Plan", value: launch, setter: setLaunch },
-              { label: "Growth Plan", value: growth, setter: setGrowth },
-              { label: "Authority Plan", value: authority, setter: setAuthority },
-            ].map(({ label, value, setter }) => (
-              <div key={label} className="space-y-2">
-                <Label>{label} — Base Price (₹)</Label>
-                <Input
-                  type="number"
-                  min={0}
-                  value={value}
-                  onChange={(e) => setter(e.target.value)}
-                />
-              </div>
-            ))}
+          {/* Annual prices */}
+          <div className="space-y-3">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Annual base price (₹/year)</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {[
+                { label: "Launch", value: launch, setter: setLaunch },
+                { label: "Growth", value: growth, setter: setGrowth },
+                { label: "Authority", value: authority, setter: setAuthority },
+              ].map(({ label, value, setter }) => (
+                <div key={label} className="space-y-2">
+                  <Label>{label}</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={value}
+                    onChange={(e) => setter(e.target.value)}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Monthly prices */}
+          <div className="space-y-3">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Monthly base price (₹/month)</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {[
+                { label: "Launch", value: launchM, setter: setLaunchM },
+                { label: "Growth", value: growthM, setter: setGrowthM },
+                { label: "Authority", value: authorityM, setter: setAuthorityM },
+              ].map(({ label, value, setter }) => (
+                <div key={label} className="space-y-2">
+                  <Label>{label}</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={value}
+                    onChange={(e) => setter(e.target.value)}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
 
           <Button onClick={() => save.mutate()} disabled={save.isPending} className="mt-2">
@@ -150,20 +199,27 @@ const PricingTab = () => {
       <Card>
         <CardHeader>
           <CardTitle>Price Preview</CardTitle>
-          <CardDescription>What users see on the site (base + GST)</CardDescription>
+          <CardDescription>What users see on the site (base + GST) for each billing cycle</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {planPreview.map(({ label, base, gstAmount, total }) => (
+            {planPreview.map(({ label, annual, monthly }) => (
               <div key={label} className="rounded-xl border border-border bg-muted/40 p-4 space-y-1">
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{label}</p>
-                <p className="text-sm text-muted-foreground">Base: ₹{base.toLocaleString("en-IN")}</p>
-                <p className="text-sm text-muted-foreground">
-                  GST ({gst}%): ₹{gstAmount.toLocaleString("en-IN", { maximumFractionDigits: 2 })}
-                </p>
-                <p className="text-base font-bold text-foreground">
-                  Total: ₹{Math.round(total).toLocaleString("en-IN")}
-                </p>
+                <div className="pt-1">
+                  <p className="text-[11px] font-bold text-muted-foreground/80 uppercase tracking-wider">Monthly</p>
+                  <p className="text-sm text-muted-foreground">Base: ₹{monthly.toLocaleString("en-IN")}</p>
+                  <p className="text-sm font-semibold text-foreground">
+                    Total: ₹{Math.round(monthly * (1 + gst / 100)).toLocaleString("en-IN")}/mo
+                  </p>
+                </div>
+                <div className="pt-2 border-t border-border/60">
+                  <p className="text-[11px] font-bold text-muted-foreground/80 uppercase tracking-wider">Annual</p>
+                  <p className="text-sm text-muted-foreground">Base: ₹{annual.toLocaleString("en-IN")}</p>
+                  <p className="text-sm font-semibold text-foreground">
+                    Total: ₹{Math.round(annual * (1 + gst / 100)).toLocaleString("en-IN")}/yr
+                  </p>
+                </div>
               </div>
             ))}
           </div>

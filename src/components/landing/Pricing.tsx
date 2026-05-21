@@ -11,7 +11,9 @@ import {
 } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useContactSettings } from "@/hooks/useContactSettings";
-import { usePlans } from "@/hooks/usePlans";
+import { usePlans, BillingCycle } from "@/hooks/usePlans";
+import { useState } from "react";
+import BillingCycleToggle from "./BillingCycleToggle";
 
 const coreInfrastructure = [
   "Flight API",
@@ -57,6 +59,7 @@ type FeatureGroup = {
 type PlanCardProps = {
   title: string;
   price: string;
+  cycle: BillingCycle;
   gstPercent: number;
   summary: string[];
   detailGroups: FeatureGroup[];
@@ -115,6 +118,7 @@ const FeatureDisclosure = ({ groups, label }: { groups: FeatureGroup[]; label: s
 const PlanCard = ({
   title,
   price,
+  cycle,
   gstPercent,
   summary,
   detailGroups,
@@ -135,9 +139,19 @@ const PlanCard = ({
         {badge}
       </div>
       <div className="flex items-baseline gap-1 mb-1">
-        <span className={`text-4xl font-bold text-gray-900 ${accentClassName}`}>{price}</span>
+        <span
+          key={`${price}-${cycle}`}
+          className={`text-4xl font-bold text-gray-900 animate-fade-in ${accentClassName}`}
+        >
+          {price}
+        </span>
+        <span className="text-sm font-medium text-gray-500">
+          {cycle === "monthly" ? "/month" : "/year"}
+        </span>
       </div>
-      <p className="text-xs text-gray-500">per year + {gstPercent}% GST</p>
+      <p className="text-xs text-gray-500">
+        {cycle === "monthly" ? "billed monthly" : "billed annually"} + {gstPercent}% GST
+      </p>
     </div>
 
     <div className="border-t border-gray-100 pt-4 flex-1">
@@ -154,10 +168,19 @@ const PlanCard = ({
 const Pricing = () => {
   const { ref, isVisible } = useScrollAnimation();
   const { whatsappUrl } = useContactSettings();
-  const { pricing, gstPercent, symbol } = usePlans();
+  const { pricing, gstPercent, symbol, priceFor, annualSavingsPercent } = usePlans();
+  const [cycle, setCycle] = useState<BillingCycle>("annual");
 
-  const fmt = (base: number) =>
-    `${symbol}${base.toLocaleString("en-IN")}`;
+  const fmt = (base: number) => `${symbol}${base.toLocaleString("en-IN")}`;
+
+  // Use Growth as the representative plan for the toggle's "Save XX%" chip.
+  const headlineSavings = annualSavingsPercent("growth");
+  const savingsLabel = headlineSavings > 0 ? `Save ${headlineSavings}%` : null;
+
+  const launchPrice = priceFor("launch", cycle);
+  const growthPrice = priceFor("growth", cycle);
+  const authorityPrice = priceFor("authority", cycle);
+  const cycleQuery = cycle === "monthly" ? "&cycle=monthly" : "";
 
   return (
     <section id="pricing" className="py-24 bg-[#FAFAFC] relative overflow-hidden w-full" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 1000px' }}>
@@ -180,6 +203,13 @@ const Pricing = () => {
           <p className="text-sm text-gray-500 max-w-xl mx-auto">
             Every plan includes our core travel infrastructure. You simply decide how far you want to scale.
           </p>
+          <div className="mt-8 flex justify-center">
+            <BillingCycleToggle
+              value={cycle}
+              onChange={setCycle}
+              savingsLabel={savingsLabel}
+            />
+          </div>
         </div>
 
         {/* ── 2. Three-Plan Comparison Grid ── */}
@@ -189,7 +219,8 @@ const Pricing = () => {
             {/* Launch Plan */}
             <PlanCard
               title="Launch Plan"
-              price={fmt(pricing.launch)}
+              price={fmt(launchPrice)}
+              cycle={cycle}
               gstPercent={gstPercent}
               summary={[
                 "15 core modules for a complete travel operation",
@@ -202,7 +233,7 @@ const Pricing = () => {
                   items: coreInfrastructure,
                 },
               ]}
-              ctaHref="/signup?plan=launch"
+              ctaHref={`/signup?plan=launch${cycleQuery}`}
               ctaClassName="w-full h-14 rounded-full border-cyan-100 bg-cyan-50 text-cyan-700 hover:bg-cyan-100 hover:border-cyan-200"
               detailsLabel="See the full Launch list"
             />
@@ -217,7 +248,8 @@ const Pricing = () => {
 
               <PlanCard
                 title="Growth Plan"
-                price={fmt(pricing.growth)}
+                price={fmt(growthPrice)}
+                cycle={cycle}
                 gstPercent={gstPercent}
                 summary={[
                   "Everything in Launch, plus automation and distribution",
@@ -235,7 +267,7 @@ const Pricing = () => {
                     emphasis: true,
                   },
                 ]}
-                ctaHref="/signup?plan=growth"
+                ctaHref={`/signup?plan=growth${cycleQuery}`}
                 ctaClassName="w-full h-14 rounded-full bg-[#412A86] hover:bg-[#412A86]/90 text-white shadow-lg"
                 titleClassName="text-[#412A86]"
                 highlight
@@ -246,7 +278,8 @@ const Pricing = () => {
             {/* Authority Plan */}
             <PlanCard
               title="Authority Plan"
-              price={fmt(pricing.authority)}
+              price={fmt(authorityPrice)}
+              cycle={cycle}
               gstPercent={gstPercent}
               summary={[
                 "Everything in Growth with full brand setup",
@@ -269,7 +302,7 @@ const Pricing = () => {
                   emphasis: true,
                 },
               ]}
-              ctaHref="/signup?plan=authority"
+              ctaHref={`/signup?plan=authority${cycleQuery}`}
               ctaClassName="w-full h-14 rounded-full border-cyan-100 bg-cyan-50 text-cyan-700 hover:bg-cyan-100 hover:border-cyan-200"
               titleClassName="text-gray-500"
               badge={
@@ -294,7 +327,7 @@ const Pricing = () => {
                 <h4 className="font-semibold text-gray-900">Why Most Choose Growth Plan</h4>
               </div>
               <p className="text-sm text-gray-500 leading-relaxed">
-                For just {symbol}{(pricing.growth - pricing.launch).toLocaleString("en-IN")} more than Launch, you unlock AI automation, supplier control, agent distribution, and free domain — making it the smart scaling choice.
+                For just {symbol}{Math.max(0, growthPrice - launchPrice).toLocaleString("en-IN")} more than Launch ({cycle === "monthly" ? "per month" : "per year"}), you unlock AI automation, supplier control, agent distribution, and free domain — making it the smart scaling choice.
               </p>
             </div>
 
@@ -306,7 +339,7 @@ const Pricing = () => {
                 <h4 className="font-semibold text-gray-900">Why Authority Plan Wins Long-Term</h4>
               </div>
               <p className="text-sm text-gray-500 leading-relaxed">
-                For another {symbol}{(pricing.authority - pricing.growth).toLocaleString("en-IN")}, you receive complete brand presence — logo, social media setup, and Google visibility structured from day one.
+                For another {symbol}{Math.max(0, authorityPrice - growthPrice).toLocaleString("en-IN")} ({cycle === "monthly" ? "per month" : "per year"}), you receive complete brand presence — logo, social media setup, and Google visibility structured from day one.
               </p>
             </div>
           </div>

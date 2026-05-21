@@ -3,15 +3,16 @@ import { ArrowLeft, Check } from "lucide-react";
 import SignupForm from "@/components/auth/SignupForm";
 import AuroraLogo from "@/components/AuroraLogo";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import { usePlans, PlanKey } from "@/hooks/usePlans";
+import { usePlans, PlanKey, BillingCycle } from "@/hooks/usePlans";
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import BillingCycleToggle from "@/components/landing/BillingCycleToggle";
 
 const Signup = () => {
   const { ref: formRef, isVisible: formVisible } = useScrollAnimation();
   const { ref: plansRef, isVisible: plansVisible } = useScrollAnimation();
-  const { plans, gstPercent, symbol, isLoading } = usePlans();
+  const { plans, gstPercent, symbol, isLoading, priceFor, annualSavingsPercent } = usePlans();
   const [searchParams] = useSearchParams();
 
   // Pre-select plan from ?plan= URL param, default growth
@@ -22,12 +23,20 @@ const Signup = () => {
       : "growth";
   const [selectedPlanKey, setSelectedPlanKey] = useState<PlanKey>(initialKey);
 
+  const paramCycle = searchParams.get("cycle");
+  const initialCycle: BillingCycle = paramCycle === "monthly" ? "monthly" : "annual";
+  const [cycle, setCycle] = useState<BillingCycle>(initialCycle);
+
   // Scroll to top when component mounts
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
   }, []);
 
   const selectedPlan = plans.find((p) => p.key === selectedPlanKey) ?? plans[1];
+  const selectedPrice = priceFor(selectedPlan.key, cycle);
+  const cycleLabel = cycle === "monthly" ? "month" : "year";
+  const growthSavings = annualSavingsPercent("growth");
+  const savingsLabel = growthSavings > 0 ? `Save ${growthSavings}%` : null;
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-x-hidden bg-white">
@@ -63,14 +72,15 @@ const Signup = () => {
                 <p className="text-gray-500 text-sm">
                   Subscribing to{" "}
                   <span className="font-semibold text-[#412A86]">{selectedPlan.name}</span>
-                  {" "}— {symbol}{selectedPlan.basePrice.toLocaleString("en-IN")} + {gstPercent}% GST/year
+                  {" "}— {symbol}{selectedPrice.toLocaleString("en-IN")} + {gstPercent}% GST/{cycleLabel}
                 </p>
               </div>
 
               <SignupForm
                 selectedPlanName={selectedPlan.name}
-                planBasePrice={selectedPlan.basePrice}
+                planBasePrice={selectedPrice}
                 planKey={selectedPlan.key}
+                billingCycle={cycle}
                 symbol={symbol}
                 gstPercent={gstPercent}
               />
@@ -91,6 +101,14 @@ const Signup = () => {
                 </p>
               </div>
 
+              <BillingCycleToggle
+                value={cycle}
+                onChange={setCycle}
+                savingsLabel={savingsLabel}
+                size="sm"
+                className="mb-1"
+              />
+
               {isLoading ? (
                 <div className="space-y-3">
                   {[1, 2, 3].map((i) => (
@@ -100,6 +118,7 @@ const Signup = () => {
               ) : (
                 plans.map((plan) => {
                   const isSelected = selectedPlanKey === plan.key;
+                  const planPrice = priceFor(plan.key, cycle);
                   return (
                     <button
                       key={plan.key}
@@ -137,9 +156,9 @@ const Signup = () => {
 
                           <div className="flex items-baseline gap-1 mb-3">
                             <span className="font-poppins text-2xl font-bold text-gray-900">
-                              {symbol}{plan.basePrice.toLocaleString("en-IN")}
+                              {symbol}{planPrice.toLocaleString("en-IN")}
                             </span>
-                            <span className="text-xs text-gray-500">/ year + {gstPercent}% GST</span>
+                            <span className="text-xs text-gray-500">/ {cycleLabel} + {gstPercent}% GST</span>
                           </div>
 
                           {plan.extras.length > 0 && (
