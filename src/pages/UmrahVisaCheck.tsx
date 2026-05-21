@@ -11,6 +11,7 @@ import VisaStepIndicator from "@/components/visa/VisaStepIndicator";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 import SEOHead from "@/components/seo/SEOHead";
+import { serviceSchema, breadcrumbSchema, SITE_URL } from "@/lib/seo-schemas";
 
 /** Dev-only optional prefill via .env.development.local (see .env.example). */
 function readVisaTestPrefillFromEnv(): Partial<VisaDetailsValues> {
