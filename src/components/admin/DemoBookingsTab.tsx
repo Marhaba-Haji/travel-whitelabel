@@ -452,7 +452,7 @@ const DemoBookingsTab = () => {
                       setCalendarView("day");
                     }}
                   >
-                    <span className={`text-sm font-semibold ${isCurrentMonth ? "text-gray-900" : "text-gray-400"}`}>
+                    <span className={`text-sm font-semibold ${isCurrentMonth ? "text-gray-900" : "text-gray-500"}`}>
                       {format(date, "d")}
                     </span>
                     {count > 0 && (

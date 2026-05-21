@@ -189,7 +189,7 @@ const Blog = () => {
           {/* Search */}
           <div className="max-w-xl mx-auto mb-8">
             <form onSubmit={handleSearch} className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
               <Input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -325,7 +325,7 @@ const Blog = () => {
                             ))}
                           </div>
                         )}
-                        <div className="flex items-center justify-between text-xs text-gray-400 pt-2">
+                        <div className="flex items-center justify-between text-xs text-gray-500 pt-2">
                           <div className="flex items-center gap-3">
                             <span>{post.author_name || "Marhaba DMC"}</span>
                             <span className="flex items-center gap-1">

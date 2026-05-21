@@ -35,9 +35,9 @@ const enquirySchema = z.object({
 });
 
 const FIELD =
-  "mt-1.5 h-12 rounded-2xl border-gray-200 bg-gray-50/50 text-gray-900 placeholder:text-gray-400 shadow-sm focus-visible:ring-2 focus-visible:ring-[#412A86]/20 focus-visible:ring-offset-2 focus-visible:bg-white transition-colors";
+  "mt-1.5 h-12 rounded-2xl border-gray-200 bg-gray-50/50 text-gray-900 placeholder:text-gray-500 shadow-sm focus-visible:ring-2 focus-visible:ring-[#412A86]/20 focus-visible:ring-offset-2 focus-visible:bg-white transition-colors";
 const TEXTAREA_CLS =
-  "mt-1.5 min-h-[130px] rounded-2xl border-gray-200 bg-gray-50/50 text-gray-900 placeholder:text-gray-400 shadow-sm focus-visible:ring-2 focus-visible:ring-[#412A86]/20 focus-visible:ring-offset-2 focus-visible:bg-white transition-colors";
+  "mt-1.5 min-h-[130px] rounded-2xl border-gray-200 bg-gray-50/50 text-gray-900 placeholder:text-gray-500 shadow-sm focus-visible:ring-2 focus-visible:ring-[#412A86]/20 focus-visible:ring-offset-2 focus-visible:bg-white transition-colors";
 const SEL_TRIGGER =
   "h-12 rounded-2xl border-gray-200 bg-gray-50/50 text-gray-900 [&>span]:text-gray-900 shadow-sm focus:ring-2 focus:ring-[#412A86]/20 focus:ring-offset-2";
 
@@ -184,7 +184,7 @@ const Contact = () => {
                       <card.icon className={cn("h-6 w-6", color.icon)} />
                     </div>
                     <h3 className="font-poppins font-bold text-gray-900 text-lg mb-1">{card.label}</h3>
-                    <p className="text-xs text-gray-400 mb-3">{card.desc}</p>
+                    <p className="text-xs text-gray-500 mb-3">{card.desc}</p>
                     {card.href ? (
                       <a
                         href={card.href}
@@ -263,7 +263,7 @@ const Contact = () => {
                       <div>
                         <Label htmlFor="contact_message" className="text-sm font-semibold text-gray-700">Message *</Label>
                         <Textarea id="contact_message" value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Tell us more about what you need…" className={TEXTAREA_CLS} maxLength={2000} />
-                        <p className="mt-1.5 text-xs text-gray-400 text-right">{message.length}/2000</p>
+                        <p className="mt-1.5 text-xs text-gray-500 text-right">{message.length}/2000</p>
                       </div>
 
                       <Button
@@ -317,10 +317,10 @@ const Contact = () => {
                     ].map((row) => (
                       <div key={row.day} className="flex items-center justify-between py-2.5 border-b border-gray-50 last:border-0">
                         <span className="text-sm text-gray-600">{row.day}</span>
-                        <span className={cn("text-sm font-semibold", row.active ? "text-gray-900" : "text-gray-400")}>{row.time}</span>
+                        <span className={cn("text-sm font-semibold", row.active ? "text-gray-900" : "text-gray-500")}>{row.time}</span>
                       </div>
                     ))}
-                    <div className="flex items-center gap-2 text-xs text-gray-400 pt-1">
+                    <div className="flex items-center gap-2 text-xs text-gray-500 pt-1">
                       <Globe className="h-3.5 w-3.5" /> IST (UTC +5:30)
                     </div>
                   </div>

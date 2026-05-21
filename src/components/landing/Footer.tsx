@@ -66,7 +66,7 @@ const Footer = () => {
           <div>
             <h4 className="font-bold text-gray-900 text-lg mb-6">Subscribe For Newsletter</h4>
             <form onSubmit={handleNewsletterSubmit} className="relative flex items-center w-full max-w-sm mb-3">
-              <div className="absolute left-4 text-gray-400">
+              <div className="absolute left-4 text-gray-500">
                 <MailOpen className="w-4 h-4" />
               </div>
               <input
@@ -84,7 +84,7 @@ const Footer = () => {
                 Subscribe
               </button>
             </form>
-            <p className="text-xs text-gray-400">No ads. No trails. No commitments</p>
+            <p className="text-xs text-gray-500">No ads. No trails. No commitments</p>
           </div>
         </div>
 
