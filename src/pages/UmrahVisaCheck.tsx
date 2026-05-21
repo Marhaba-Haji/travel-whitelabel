@@ -187,6 +187,30 @@ export default function UmrahVisaCheck() {
         description="Check your Saudi Umrah visa status instantly using official MOFA data. Upload your passport, verify, and get real-time results. Free and secure."
         path="/umrah-visa-check"
         keywords={["Umrah visa check", "MOFA visa status", "Saudi visa verification", "Umrah visa lookup"]}
+        jsonLd={[
+          {
+            "@context": "https://schema.org",
+            "@type": "HowTo",
+            name: "How to check your Umrah visa status",
+            description:
+              "Verify your Saudi Umrah visa using official MOFA data in three steps.",
+            totalTime: "PT2M",
+            step: [
+              { "@type": "HowToStep", position: 1, name: "Upload passport", text: "Upload a clear scan of your passport bio page." },
+              { "@type": "HowToStep", position: 2, name: "Solve captcha", text: "Confirm the MOFA captcha to authorize the lookup." },
+              { "@type": "HowToStep", position: 3, name: "View status", text: "Receive your live Umrah visa status from MOFA." },
+            ],
+          },
+          serviceSchema(
+            "Umrah Visa Status Check",
+            "Free Saudi Umrah visa verification using official MOFA data with passport OCR and captcha automation.",
+            `${SITE_URL}/umrah-visa-check`,
+          ),
+          breadcrumbSchema([
+            { name: "Home", url: SITE_URL },
+            { name: "Umrah Visa Check", url: `${SITE_URL}/umrah-visa-check` },
+          ]),
+        ]}
       />
       <div className="absolute top-20 right-0 w-[500px] h-[500px] bg-[#2D9BFC]/5 rounded-full blur-3xl pointer-events-none" />
       <Header />
