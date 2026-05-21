@@ -77,7 +77,10 @@ Deno.serve(async (req) => {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
     const body = await req.json();
-    const { fullName, email, phone, city, password, termsAccepted, couponCode, planName, planBasePrice } = body;
+    const { fullName, email, phone, city, password, termsAccepted, couponCode, planName, planBasePrice, billingCycle } = body;
+    const cycle: "monthly" | "annual" = billingCycle === "monthly" ? "monthly" : "annual";
+    const cycleLabel = cycle === "monthly" ? "Monthly" : "Annual";
+    const planLabel = planName ? `${String(planName).trim().slice(0, 80)} — ${cycleLabel}` : `Subscription — ${cycleLabel}`;
 
     if (!email || !fullName || !phone) {
       return new Response(
@@ -97,7 +100,7 @@ Deno.serve(async (req) => {
         city: city ? String(city).trim().slice(0, 100) : null,
         password_hash: passwordHash,
         terms_accepted: Boolean(termsAccepted),
-        plan_name: planName ? String(planName).trim().slice(0, 100) : null,
+        plan_name: planLabel.slice(0, 100),
       })
       .select("id")
       .single();
@@ -186,8 +189,8 @@ Deno.serve(async (req) => {
     const amount = Math.max(0.01, total).toFixed(2);
     const txnid = `TXN${Date.now()}${Math.random().toString(36).slice(2, 8)}`;
     const productinfo = planName
-      ? `MarhabaDMC ${planName} - Annual Subscription`
-      : "MarhabaDMC Travel Agency Platform - Annual Subscription";
+      ? `MarhabaDMC ${planName} - ${cycleLabel} Subscription`
+      : `MarhabaDMC Travel Agency Platform - ${cycleLabel} Subscription`;
     const firstname = (fullName || "").split(" ")[0] || fullName;
 
     const surl = `${EDGE_BASE}/payu-callback`;
