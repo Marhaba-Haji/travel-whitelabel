@@ -580,7 +580,7 @@ export default function NyraWidget() {
                     <div className="flex flex-col items-center justify-center h-full text-center px-4">
                       <MessageSquare size={32} className="text-primary/40 mb-3" />
                       <p className="text-sm text-muted-foreground">Type a message to start chatting with Nyra</p>
-                      <p className="text-xs text-muted-foreground/60 mt-1">Ask about flights, hotels, packages, or visas</p>
+                      <p className="text-xs text-muted-foreground mt-1">Ask about flights, hotels, packages, or visas</p>
                     </div>
                   )}
                   {chatMessages.map((msg) => (

@@ -303,7 +303,7 @@ const Blog = () => {
                         </div>
                       ) : (
                         <div className="aspect-[16/10] bg-[#FAFAFC] flex items-center justify-center">
-                          <BookOpen className="h-12 w-12 text-gray-300" />
+                          <BookOpen className="h-12 w-12 text-muted-foreground" />
                         </div>
                       )}
                       <div className="p-6 space-y-3">

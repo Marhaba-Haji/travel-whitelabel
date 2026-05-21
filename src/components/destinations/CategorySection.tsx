@@ -39,7 +39,7 @@ export const CategorySection = memo(function CategorySection({
             <h3 className="text-2xl font-bold">{category.name}</h3>
           </div>
         </div>
-        <p className="text-gray-600 dark:text-gray-400 text-sm max-w-2xl">
+        <p className="text-muted-foreground text-sm max-w-2xl">
           {category.description}
         </p>
       </div>
