@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Helmet } from "react-helmet-async";
 import { z } from "zod";
 import {
   MapPin, Mail, Phone, MessageCircle, Send, Clock, Globe,
@@ -23,6 +22,8 @@ import { useSocialSettings } from "@/hooks/useSocialSettings";
 import { supabase } from "@/integrations/supabase/client";
 import { DIAL_CODES } from "@/lib/dial-codes";
 import { Link } from "react-router-dom";
+import SEOHead from "@/components/seo/SEOHead";
+import { breadcrumbSchema, SITE_URL } from "@/lib/seo-schemas";
 
 const enquirySchema = z.object({
   full_name: z.string().trim().min(2, "Please enter your full name").max(100),
@@ -98,11 +99,15 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Helmet>
-        <title>Contact Us | Marhaba DMC</title>
-        <meta name="description" content="Get in touch with Marhaba DMC. Call, email, WhatsApp, or visit our office. We're here to help you start and scale your halal travel business." />
-        <link rel="canonical" href="https://marhabadmc.com/contact" />
-      </Helmet>
+      <SEOHead
+        title="Contact Us"
+        description="Get in touch with Marhaba DMC. Call, email, WhatsApp, or visit our office. We're here to help you start and scale your halal travel business."
+        path="/contact"
+        jsonLd={breadcrumbSchema([
+          { name: "Home", url: SITE_URL },
+          { name: "Contact", url: `${SITE_URL}/contact` },
+        ])}
+      />
 
       <Header />
 
