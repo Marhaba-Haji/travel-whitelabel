@@ -12,6 +12,7 @@ interface OrderSummaryProps {
   basePrice: number;
   gstPercent: number;
   symbol: string;
+  billingCycle?: "monthly" | "annual";
   discount?: { type: string; value: number } | null;
   onConfirm: () => void;
   onBack: () => void;
@@ -28,6 +29,7 @@ const OrderSummary = ({
   basePrice,
   gstPercent,
   symbol,
+  billingCycle = "annual",
   discount,
   onConfirm,
   onBack,
@@ -73,7 +75,12 @@ const OrderSummary = ({
           <Package className="h-5 w-5 text-primary flex-shrink-0" />
           <div>
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Selected Plan</p>
-            <p className="font-semibold text-foreground">{selectedPlanName}</p>
+            <p className="font-semibold text-foreground">
+              {selectedPlanName}
+              <span className="ml-2 text-xs font-medium text-primary">
+                · {billingCycle === "monthly" ? "Monthly" : "Annual"}
+              </span>
+            </p>
           </div>
         </div>
       </div>
@@ -141,7 +148,7 @@ const OrderSummary = ({
       </div>
 
       <div className="text-xs text-muted-foreground text-center">
-        MarhabaDMC — Annual Subscription · {selectedPlanName}
+        MarhabaDMC — {billingCycle === "monthly" ? "Monthly" : "Annual"} Subscription · {selectedPlanName}
       </div>
 
       <Button
