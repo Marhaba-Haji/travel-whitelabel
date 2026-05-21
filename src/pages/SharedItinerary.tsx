@@ -124,6 +124,7 @@ export default function SharedItinerary() {
         description={`${itinerary.title || 'Travel itinerary'}${itinerary.destination ? ` to ${itinerary.destination}` : ''}${itinerary.start_date ? `, starting ${new Date(itinerary.start_date).toDateString()}` : ''}. View the full day-by-day plan shared via marhabaDMC.`}
         path={`/itinerary/${shareId}`}
         type="article"
+        noIndex
       />
       {/* Header */}
       <motion.header
