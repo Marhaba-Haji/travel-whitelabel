@@ -83,7 +83,6 @@ const Hero = () => {
                         alt={d.alt}
                         width={44}
                         height={44}
-                        loading="lazy"
                         decoding="async"
                         className="w-9 h-9 object-contain"
                       />
