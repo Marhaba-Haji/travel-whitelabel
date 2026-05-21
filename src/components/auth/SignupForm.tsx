@@ -75,6 +75,7 @@ interface SignupFormProps {
   planKey: string;
   gstPercent: number;
   symbol?: string;
+  billingCycle?: "monthly" | "annual";
 }
 
 type CouponValidation =
@@ -83,7 +84,7 @@ type CouponValidation =
   | { status: "valid"; discount_type: string; discount_value: number }
   | { status: "invalid"; error: string };
 
-const SignupForm = ({ selectedPlanName, planBasePrice, planKey, gstPercent, symbol = "₹" }: SignupFormProps) => {
+const SignupForm = ({ selectedPlanName, planBasePrice, planKey, gstPercent, symbol = "₹", billingCycle = "annual" }: SignupFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
