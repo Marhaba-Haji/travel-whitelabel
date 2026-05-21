@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Lock, Eye, EyeOff, ArrowLeft } from "lucide-react";
+import SEOHead from "@/components/seo/SEOHead";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -35,6 +36,12 @@ const AdminLogin = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted p-4">
+      <SEOHead
+        title="Admin Login"
+        description="Restricted admin portal for marhabaDMC."
+        path="/admin/login"
+        noIndex
+      />
       <div className="w-full max-w-md space-y-4">
         <Link
           to="/"

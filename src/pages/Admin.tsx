@@ -22,6 +22,7 @@ import HeroContentTab from "@/components/admin/HeroContentTab";
 import HeroImagesTab from "@/components/admin/HeroImagesTab";
 import HomeFaqsTab from "@/components/admin/HomeFaqsTab";
 import DemoBookingsTab from "@/components/admin/DemoBookingsTab";
+import SEOHead from "@/components/seo/SEOHead";
 
 const tabComponents: Record<string, React.FC> = {
   overview: OverviewTab,
@@ -66,6 +67,12 @@ const Admin = () => {
 
   return (
     <AdminLayout activeTab={activeTab} onTabChange={setActiveTab}>
+      <SEOHead
+        title="Admin Dashboard"
+        description="marhabaDMC admin dashboard (restricted)."
+        path="/admin"
+        noIndex
+      />
       <TabComponent />
     </AdminLayout>
   );

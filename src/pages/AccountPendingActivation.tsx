@@ -3,6 +3,7 @@ import { ArrowRight, Sparkles, Clock, Shield, Headphones, Leaf } from "lucide-re
 import LogoAnimated from "@/components/landing/LogoAnimated";
 import { useEffect } from "react";
 import { useContactSettings } from "@/hooks/useContactSettings";
+import SEOHead from "@/components/seo/SEOHead";
 
 const AccountPendingActivation = () => {
   const { email } = useContactSettings();
@@ -28,6 +29,12 @@ const AccountPendingActivation = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-x-hidden bg-background">
+      <SEOHead
+        title="Account Pending Activation"
+        description="Your marhabaDMC account is being verified. Our Partner Success team will reach out shortly."
+        path="/account-pending"
+        noIndex
+      />
       {/* Refined ambient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-accent/30 via-background to-background" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/[0.07] via-transparent to-transparent" />

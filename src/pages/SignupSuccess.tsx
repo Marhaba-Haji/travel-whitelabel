@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { CheckCircle2, ArrowRight, Mail } from "lucide-react";
 import LogoAnimated from "@/components/landing/LogoAnimated";
 import { useEffect, useState } from "react";
+import SEOHead from "@/components/seo/SEOHead";
 
 const SignupSuccess = () => {
   const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -22,6 +23,12 @@ const SignupSuccess = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-x-hidden bg-background">
+      <SEOHead
+        title="Signup Successful"
+        description="Your marhabaDMC signup is complete. Check your email for next steps."
+        path="/signup-success"
+        noIndex
+      />
       {/* Animated Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-accent via-background to-background" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />

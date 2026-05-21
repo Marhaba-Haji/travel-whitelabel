@@ -6,6 +6,7 @@ import { CalendarDays, MapPin, Users, Plane, BedDouble, FileCheck, Car, ArrowRig
 import { generateItineraryPDF } from '@/lib/itinerary-pdf';
 import type { ItemType } from '@/types/itinerary';
 import PageLoader from '@/components/PageLoader';
+import SEOHead from '@/components/seo/SEOHead';
 
 const ICONS: Record<ItemType, React.ElementType> = {
   flight: Plane, hotel: BedDouble, visa: FileCheck, activity: MapPin,
@@ -118,6 +119,12 @@ export default function SharedItinerary() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title={`${itinerary.title || 'Travel Itinerary'}${itinerary.destination ? ` — ${itinerary.destination}` : ''}`}
+        description={`${itinerary.title || 'Travel itinerary'}${itinerary.destination ? ` to ${itinerary.destination}` : ''}${itinerary.start_date ? `, starting ${new Date(itinerary.start_date).toDateString()}` : ''}. View the full day-by-day plan shared via marhabaDMC.`}
+        path={`/itinerary/${shareId}`}
+        type="article"
+      />
       {/* Header */}
       <motion.header
         initial={{ opacity: 0, y: -20 }}
