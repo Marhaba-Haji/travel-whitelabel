@@ -183,7 +183,7 @@ export default function UmrahVisaCheck() {
   return (
     <div className="min-h-screen bg-white relative overflow-hidden" data-visa-page>
       <SEOHead
-        title="Umrah Visa Status Check — Free MOFA Verification"
+        title="Umrah Visa Status Checker"
         description="Check your Saudi Umrah visa status instantly using official MOFA data. Upload your passport, verify, and get real-time results. Free and secure."
         path="/umrah-visa-check"
         keywords={["Umrah visa check", "MOFA visa status", "Saudi visa verification", "Umrah visa lookup"]}
