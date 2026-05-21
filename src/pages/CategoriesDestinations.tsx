@@ -23,6 +23,7 @@ import {
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Flag from "react-world-flags";
+import SEOHead from "@/components/seo/SEOHead";
 
 interface Destination {
   name: string;
@@ -179,6 +180,12 @@ const CategoriesDestinations = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      <SEOHead
+        title="Travel Categories & Destinations — Halal-Friendly Worldwide"
+        description="Explore curated halal-friendly destinations and travel categories — leisure, religious, adventure, and luxury — across 60+ countries with marhabaDMC."
+        path="/categories-destinations"
+        keywords={["halal travel destinations", "travel categories", "halal tourism", "religious travel", "leisure destinations"]}
+      />
       <Header />
       <main>
         {/* Enhanced Hero/Intro Section */}

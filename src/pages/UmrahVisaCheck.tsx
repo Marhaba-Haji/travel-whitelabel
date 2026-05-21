@@ -10,6 +10,7 @@ import VisaResultsStep, { type VisaResult } from "@/components/visa/VisaResultsS
 import VisaStepIndicator from "@/components/visa/VisaStepIndicator";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
+import SEOHead from "@/components/seo/SEOHead";
 
 /** Dev-only optional prefill via .env.development.local (see .env.example). */
 function readVisaTestPrefillFromEnv(): Partial<VisaDetailsValues> {
@@ -180,6 +181,12 @@ export default function UmrahVisaCheck() {
 
   return (
     <div className="min-h-screen bg-white relative overflow-hidden" data-visa-page>
+      <SEOHead
+        title="Umrah Visa Status Check — Free MOFA Verification"
+        description="Check your Saudi Umrah visa status instantly using official MOFA data. Upload your passport, verify, and get real-time results. Free and secure."
+        path="/umrah-visa-check"
+        keywords={["Umrah visa check", "MOFA visa status", "Saudi visa verification", "Umrah visa lookup"]}
+      />
       <div className="absolute top-20 right-0 w-[500px] h-[500px] bg-[#2D9BFC]/5 rounded-full blur-3xl pointer-events-none" />
       <Header />
       <main className={`container mx-auto px-4 sm:px-6 pt-[4.5rem] lg:pt-20 pb-5 sm:pb-10 md:pb-12 relative z-10 ${step === 4 ? "max-w-4xl" : "max-w-xl"}`}>
