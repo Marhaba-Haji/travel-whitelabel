@@ -1,0 +1,23 @@
+# Marhaba DMC
+
+> White-label travel portal for travel agents and entrepreneurs. Halal-friendly destinations, Hajj/Umrah modules, Flight/Hotel/Visa APIs, and AI sales tools. Launch your branded travel business in 24 hours.
+
+Marhaba DMC equips travel agents and entrepreneurs with a fully branded booking portal, content inventory, training, and AI-powered sales assistants. Plans are available as monthly or annual subscriptions across Launch, Growth, and Authority tiers.
+
+## Pages
+
+- [Home](/): Product overview, pricing, and how the white-label portal works.
+- [About](/about): Company story, team, philosophy, and global presence.
+- [Pricing](/#pricing): Launch, Growth, and Authority plans with monthly and annual billing.
+- [Book a Demo](/book-demo): Schedule a live walkthrough with the team.
+- [Sign Up](/signup): Subscribe to a plan and create a portal.
+- [Contact](/contact): Sales and support contact details.
+- [Categories & Destinations](/categories-destinations): Curated destinations and halal-friendly travel categories.
+- [Umrah Visa Check](/umrah-visa-check): Free Saudi Umrah visa status checker.
+- [Blog](/blog): Articles on travel business, halal tourism, Hajj/Umrah, and industry insights.
+
+## Optional
+
+- [Privacy Policy](/privacy-policy)
+- [Terms of Service](/terms-of-service)
+- [Refund Policy](/refund-policy)
