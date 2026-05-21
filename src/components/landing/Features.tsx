@@ -163,7 +163,7 @@ const Features = () => {
                 <div className={cn("pointer-events-none absolute inset-x-0 top-0 h-1 bg-[#412A86]/10 transition-opacity duration-300 group-hover:opacity-100", index % 2 === 0 ? "opacity-60" : "opacity-40")} />
 
                 <div className="relative z-10 mb-6 flex items-start justify-between gap-4">
-                  <span className="inline-flex items-center rounded-full bg-white/90 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-gray-400 shadow-sm ring-1 ring-black/5 transition-transform duration-300 group-hover:translate-x-1">
+                  <span className="inline-flex items-center rounded-full bg-white/90 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-gray-500 shadow-sm ring-1 ring-black/5 transition-transform duration-300 group-hover:translate-x-1">
                     {feature.kicker}
                   </span>
 
@@ -192,7 +192,7 @@ const Features = () => {
                     {feature.description}
                   </p>
 
-                  <div className="mt-6 flex items-center gap-2 text-xs font-semibold text-gray-400">
+                  <div className="mt-6 flex items-center gap-2 text-xs font-semibold text-gray-500">
                     <span className="h-1.5 w-1.5 rounded-full bg-[#412A86]/60 transition-transform duration-300 group-hover:scale-125" />
                     <span>Designed for fast deployment and clear operations</span>
                   </div>

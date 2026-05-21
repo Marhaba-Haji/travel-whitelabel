@@ -49,10 +49,10 @@ const COVERED = [
 type Step = 1 | 2 | 3 | 4;
 
 const FIELD_CLASS =
-  "mt-1.5 h-11 rounded-3xl border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 shadow-sm focus-visible:ring-2 focus-visible:ring-[#412A86]/20 focus-visible:ring-offset-2";
+  "mt-1.5 h-11 rounded-3xl border-gray-200 bg-white text-gray-900 placeholder:text-gray-500 shadow-sm focus-visible:ring-2 focus-visible:ring-[#412A86]/20 focus-visible:ring-offset-2";
 
 const TEXTAREA_CLASS =
-  "mt-1.5 min-h-[90px] rounded-3xl border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 shadow-sm focus-visible:ring-2 focus-visible:ring-[#412A86]/20 focus-visible:ring-offset-2";
+  "mt-1.5 min-h-[90px] rounded-3xl border-gray-200 bg-white text-gray-900 placeholder:text-gray-500 shadow-sm focus-visible:ring-2 focus-visible:ring-[#412A86]/20 focus-visible:ring-offset-2";
 
 const SELECT_TRIGGER_CLASS =
   "h-11 rounded-3xl border-gray-200 bg-white text-gray-900 [&>span]:text-gray-900 shadow-sm focus:ring-2 focus:ring-[#412A86]/20 focus:ring-offset-2";
@@ -437,7 +437,7 @@ const BookDemo = () => {
                                 className={cn(
                                   "py-2.5 rounded-full text-sm font-semibold border transition-all",
                                   taken &&
-                                    "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed line-through",
+                                    "bg-gray-100 text-gray-500 border-gray-200 cursor-not-allowed line-through",
                                   !taken && !selected &&
                                     "bg-white border-gray-200 text-gray-700 hover:border-[#412A86] hover:text-[#412A86]",
                                   selected &&
