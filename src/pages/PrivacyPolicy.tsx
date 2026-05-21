@@ -1,4 +1,5 @@
 import Header from "@/components/landing/Header";
+import SEOHead from "@/components/seo/SEOHead";
 import Footer from "@/components/landing/Footer";
 import { useContactSettings } from "@/hooks/useContactSettings";
 
@@ -7,6 +8,11 @@ const PrivacyPolicy = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Privacy Policy"
+        description="How Marhaba DMC collects, uses, and safeguards personal information across our white-label travel portal and related services."
+        path="/privacy-policy"
+      />
       <Header />
       <main className="pt-16">
         <div className="container mx-auto px-4 py-16 max-w-4xl">
