@@ -125,7 +125,7 @@ const Contact = () => {
           <div className="container mx-auto px-4 relative max-w-7xl">
             <div className="text-center max-w-3xl mx-auto">
               <EyebrowChip color="indigo" className="mx-auto">
-                <Sparkles className="h-3.5 w-3.5" /> Get In Touch
+                Get In Touch
               </EyebrowChip>
 
               <h1 className="mt-6 font-poppins font-black text-4xl sm:text-5xl md:text-6xl tracking-tight text-gray-900 leading-[1.08]">

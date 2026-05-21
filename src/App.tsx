@@ -23,7 +23,6 @@ const ScrollToTop = () => {
   return null;
 };
 
-const NyraWidget = lazy(() => import("@/components/NyraWidget"));
 const LeadMagnetTrigger = lazy(() => import("@/components/lead/LeadMagnetTrigger"));
 const LiveActivity = lazy(() => import("@/components/lead/LiveActivity"));
 
@@ -70,11 +69,6 @@ const App = () => (
           <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <SessionTrackingMount />
             <ScrollToTop />
-            <DeferredMount delay={1500}>
-              <Suspense fallback={null}>
-                <NyraWidget />
-              </Suspense>
-            </DeferredMount>
             <DeferredMount delay={3000}>
               <Suspense fallback={null}>
                 <LeadMagnetTrigger />

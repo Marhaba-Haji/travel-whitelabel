@@ -212,7 +212,7 @@ const BookDemo = () => {
           <div className={cn(SECTION_CONTAINER, "max-w-7xl relative")}>
             <div className="text-center max-w-3xl mx-auto">
               <EyebrowChip color="indigo" className="mx-auto">
-                <Sparkles className="h-3.5 w-3.5" /> Live Demo
+                Live Demo
               </EyebrowChip>
               <h1 className="mt-5 font-poppins font-black text-4xl sm:text-5xl md:text-6xl tracking-tight text-gray-900 leading-[1.05]">
                 See Marhaba DMC <span className="text-[#B968C7]">in action</span>
