@@ -285,7 +285,7 @@ export default function SharedItinerary() {
           </motion.div>
         )}
 
-        <p className="text-center text-[10px] text-muted-foreground/50 pb-4">
+        <p className="text-center text-[10px] text-muted-foreground pb-4">
           Powered by Marhaba DMC · Prices are estimates and subject to change
         </p>
       </main>
