@@ -3,18 +3,26 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const PLANS_QUERY_KEY = ["plans_pricing"];
 
+export type BillingCycle = "monthly" | "annual";
+
 export interface PlanPricingData {
   launch: number;
   growth: number;
   authority: number;
+  launch_monthly: number;
+  growth_monthly: number;
+  authority_monthly: number;
   gst_percent: number;
   currency: string;
 }
 
 const DEFAULTS: PlanPricingData = {
-  launch: 24999,
+  launch: 19999,
   growth: 29999,
-  authority: 34999,
+  authority: 39999,
+  launch_monthly: 2999,
+  growth_monthly: 3999,
+  authority_monthly: 4999,
   gst_percent: 18,
   currency: "INR",
 };
@@ -41,6 +49,24 @@ export const usePlans = () => {
   const formatted = (base: number) =>
     `${symbol}${priceWithGst(base).toLocaleString("en-IN")}`;
 
+  const priceFor = (key: PlanKey, cycle: BillingCycle): number => {
+    if (cycle === "monthly") {
+      if (key === "launch") return pricing.launch_monthly;
+      if (key === "growth") return pricing.growth_monthly;
+      return pricing.authority_monthly;
+    }
+    if (key === "launch") return pricing.launch;
+    if (key === "growth") return pricing.growth;
+    return pricing.authority;
+  };
+
+  const annualSavingsPercent = (key: PlanKey): number => {
+    const m = priceFor(key, "monthly") * 12;
+    const a = priceFor(key, "annual");
+    if (!m || !a || a >= m) return 0;
+    return Math.round(((m - a) / m) * 100);
+  };
+
   return {
     pricing,
     gstPercent: gst_percent,
@@ -50,11 +76,14 @@ export const usePlans = () => {
     error,
     priceWithGst,
     formatted,
+    priceFor,
+    annualSavingsPercent,
     plans: [
       {
         key: "launch" as const,
         name: "Launch Plan",
         basePrice: pricing.launch,
+        monthlyPrice: pricing.launch_monthly,
         badge: null as string | null,
         highlight: false,
         extras: [] as string[],
@@ -63,6 +92,7 @@ export const usePlans = () => {
         key: "growth" as const,
         name: "Growth Plan",
         basePrice: pricing.growth,
+        monthlyPrice: pricing.growth_monthly,
         badge: "Most Popular",
         highlight: true,
         extras: [
@@ -76,6 +106,7 @@ export const usePlans = () => {
         key: "authority" as const,
         name: "Authority Plan",
         basePrice: pricing.authority,
+        monthlyPrice: pricing.authority_monthly,
         badge: "Complete Brand Setup",
         highlight: false,
         extras: [
