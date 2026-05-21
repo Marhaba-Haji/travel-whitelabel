@@ -179,6 +179,29 @@ const CategoriesDestinations = () => {
   const totalDestinations = allDestinations.size;
   const totalCountries = allDestinations.size;
 
+  const destinationsItemList = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "Travel Categories & Destinations",
+    url: `${SITE_URL}/categories-destinations`,
+    description:
+      "Curated halal-friendly destinations and travel categories across 60+ countries.",
+    mainEntity: {
+      "@type": "ItemList",
+      numberOfItems: Array.from(allDestinations).length,
+      itemListElement: Array.from(allDestinations).map((name, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        name,
+      })),
+    },
+  };
+
+  const destinationsBreadcrumb = breadcrumbSchema([
+    { name: "Home", url: SITE_URL },
+    { name: "Categories & Destinations", url: `${SITE_URL}/categories-destinations` },
+  ]);
+
   return (
     <div className="min-h-screen bg-white">
       <SEOHead
@@ -186,6 +209,7 @@ const CategoriesDestinations = () => {
         description="Explore curated halal-friendly destinations and travel categories — leisure, religious, adventure, and luxury — across 60+ countries with marhabaDMC."
         path="/categories-destinations"
         keywords={["halal travel destinations", "travel categories", "halal tourism", "religious travel", "leisure destinations"]}
+        jsonLd={[destinationsItemList, destinationsBreadcrumb]}
       />
       <Header />
       <main>
