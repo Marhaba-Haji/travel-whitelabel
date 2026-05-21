@@ -1,84 +1,70 @@
-# Demo Bookings: Overview Stats + Google Meet Auto-Provisioning + Notifications
+## Goal
 
-## 1. Admin Overview — Demo Bookings summary
+Introduce a Monthly billing option alongside the existing Annual plans, re-price everything, and wire the new pricing through every surface — pricing section, signup, order summary, payment, and the admin Pricing tab — without breaking the design system.
 
-Add Demo Bookings cards to `src/components/admin/OverviewTab.tsx`:
-- **Total demo bookings**
-- **Upcoming** (booking_date >= today, status != cancelled)
-- **Completed**
-- **Cancelled**
+## New Pricing
 
-Single query against `demo_bookings`, computed client-side. Uses existing `CalendarCheck` icon style.
+| Plan      | Monthly   | Annual (new) | Annual (old) |
+|-----------|-----------|--------------|--------------|
+| Launch    | ₹2,999/mo | ₹19,999/yr   | ₹24,999      |
+| Growth    | ₹3,999/mo | ₹29,999/yr   | ₹29,999      |
+| Authority | ₹4,999/mo | ₹39,999/yr   | ₹34,999      |
 
-## 2. Google Calendar + Meet integration
+GST (18%) continues to apply on top of base price.
 
-**Connector:** Use the Lovable `google_calendar` connector (gateway-based). This connects **your** Google account (harab.business@gmail.com) — not the customer's. Events are created on your calendar with the customer added as an attendee, which:
-- Auto-generates a Google Meet link (via `conferenceData.createRequest`)
-- Sends the calendar invite to the customer through Google
-- Puts the event on your Google Calendar automatically (this is the "sync")
+## UX Approach
 
-You'll need to click a Connect button when prompted to authorize Google Calendar.
+- A single segmented **Monthly / Annual** toggle at the top of the pricing grid (and a smaller version at the top of the Signup plan selector). Annual is the default and shows a "Save ~XX%" chip computed automatically from the two prices.
+- Plan cards smoothly swap price + suffix (`/month` vs `/year`) on toggle. Layout, typography, colors, spacing stay identical — only the price node animates (subtle fade).
+- Signup carries the chosen cycle via `?plan=growth&cycle=monthly` URL param, and the OrderSummary, registration row, and PayU payload all reflect the cycle + amount.
+- Admin **Pricing tab** gets a second column of inputs (Monthly base) next to the existing Annual base, plus an updated live preview showing both.
 
-### New Edge Function: `demo-booking-confirm`
-Triggered after a booking is inserted. Steps:
-1. Fetch booking row by id (service role).
-2. Build start/end datetimes from `booking_date + booking_time + timezone` (30 min slots).
-3. POST to `https://connector-gateway.lovable.dev/google_calendar/calendar/v3/calendars/primary/events?conferenceDataVersion=1&sendUpdates=all` with:
-   - summary: "Marhaba DMC Demo — {full_name}"
-   - description: notes + contact details
-   - start/end with timezone
-   - attendees: `[{ email: customer.email }, { email: "harab.business@gmail.com" }]`
-   - `conferenceData.createRequest` with random `requestId` → returns `hangoutLink`
-4. Persist `google_event_id` and `meet_link` back to `demo_bookings`.
-5. Trigger transactional email (template `demo-booking-confirmation`) to customer **and** to `harab.business@gmail.com`.
-6. Trigger WhatsApp (existing `send-whatsapp` function) to customer **and** to admin (+919008447887).
+## Plan
 
-### DB migration
-Add columns to `demo_bookings`:
-- `google_event_id text`
-- `meet_link text`
-- `notifications_sent_at timestamptz`
+### 1. Data layer — `site_settings.plans_pricing`
 
-## 3. Email template
-
-Create React Email template `demo-booking-confirmation.tsx` under `supabase/functions/_shared/transactional-email-templates/`. Includes: greeting, date/time/timezone, Meet link button, reschedule contact info, brand styling matching existing emails. One template, sent to both customer and admin (admin version uses same content + "New booking" preview).
-
-Requires Lovable Email infrastructure (`setup_email_infra` + `scaffold_transactional_email`) if not already in place. I'll detect and run the prerequisite step automatically.
-
-## 4. WhatsApp message
-
-Reuse `supabase/functions/send-whatsapp` (Twilio). New helper builds a plain-text template:
-> "Hi {name}, your Marhaba DMC demo is confirmed for {date} at {time} ({tz}). Join here: {meet_link}"
-
-Sent to `+{country_code}{whatsapp_number}` and to admin number `+919008447887`.
-
-## 5. Trigger wiring
-
-In `BookDemo.tsx` (the public booking page), after the existing `insert` succeeds, call:
-```ts
-supabase.functions.invoke('demo-booking-confirm', { body: { bookingId } })
+Extend the JSON shape (backwards-compatible, defaults fill missing keys):
+```json
+{
+  "launch": 19999, "growth": 29999, "authority": 39999,
+  "launch_monthly": 2999, "growth_monthly": 3999, "authority_monthly": 4999,
+  "gst_percent": 18, "currency": "INR"
+}
 ```
-Fail-soft: booking is still confirmed in UI even if notifications fail (errors logged).
+Update the existing `plans_pricing` row via an insert tool call (data update, no schema migration needed). Defaults in `usePlans.ts` and `PricingTab.tsx` updated to match.
 
-## 6. Admin manual resend
+### 2. `src/hooks/usePlans.ts`
 
-Add a "Resend invite" action in `DemoBookingsTab` row menu that re-invokes `demo-booking-confirm` with `{ bookingId, resend: true }`.
+- Add `BillingCycle = "monthly" | "annual"` type and `monthly` price on each plan in the returned `plans` array.
+- Helpers: `priceFor(planKey, cycle)`, `formatted(planKey, cycle)`, `annualSavingsPercent(planKey)` (computed from monthly*12 vs annual).
 
-## Files
+### 3. Pricing section — `src/components/landing/Pricing.tsx`
 
-**New**
-- `supabase/functions/demo-booking-confirm/index.ts`
-- `supabase/functions/_shared/transactional-email-templates/demo-booking-confirmation.tsx`
-- Migration: add 3 columns to `demo_bookings`
+- Add a `billingCycle` state + segmented toggle (reuse existing rounded-pill styling, `bg-[#FAFAFC]` track, `#412A86` active pill). Annual pill shows the "Save XX%" micro-chip.
+- `PlanCard` receives `cycle` and renders `/month` or `/year` suffix; price swaps with a 150ms fade.
+- CTA link becomes `/signup?plan=<key>&cycle=<cycle>`.
+- "Why Growth / Why Authority" persuasion blocks recompute deltas from the active cycle.
 
-**Edited**
-- `src/components/admin/OverviewTab.tsx` — 4 new cards
-- `src/pages/BookDemo.tsx` — invoke confirm function after insert
-- `src/components/admin/DemoBookingsTab.tsx` — Resend action
-- `_shared/transactional-email-templates/registry.ts` — register new template
-- `supabase/config.toml` — `verify_jwt = false` for new function
+### 4. Signup page + form
 
-## Prerequisites you'll be prompted to approve
-1. Connect **Google Calendar** (one-click OAuth) — uses your account
-2. Set up Lovable Email infrastructure (if not already done) for the demo confirmation email template
-3. Approve the DB migration adding 3 columns
+- `src/pages/Signup.tsx`: read `cycle` from URL params (default `annual`), pass to `SignupForm` + plan selector. Add a small Monthly/Annual segmented toggle above the plan list.
+- `src/components/auth/SignupForm.tsx`: accept `billingCycle` + `planMonthlyPrice`. Use the cycle's base price for `planBasePrice` and pass `billingCycle` + `planName` (e.g. "Growth Plan — Monthly") to the edge function and to `OrderSummary`.
+- `src/components/auth/OrderSummary.tsx`: show "Billing: Monthly" / "Annual" row and adjust the footer copy ("Monthly Subscription" vs "Annual Subscription").
+
+### 5. Admin Pricing tab — `src/components/admin/PricingTab.tsx`
+
+- Add three new inputs for monthly base prices. Save payload includes both yearly and monthly fields. Preview card shows both totals side by side with GST.
+
+### 6. Edge function — `supabase/functions/create-payment/index.ts`
+
+- Accept `billingCycle` in the body, persist it on the `registrations` row (`plan_name` already carries the label, so append "— Monthly"/"— Annual"). No schema change needed; PayU `productInfo` reflects the cycle.
+
+### 7. QA pass
+
+- Toggle on `/#pricing` swaps prices and CTA hrefs.
+- Direct link `/signup?plan=launch&cycle=monthly` pre-selects correctly, OrderSummary shows ₹2,999 + 18% GST, PayU receives the right amount.
+- Admin tab edits live-update the public pricing.
+
+## Out of scope
+
+- Recurring billing automation (PayU mandate/UPI autopay). Monthly plans will still be charged via PayU as a one-time charge with the monthly amount; recurring renewal automation is a separate effort. I will flag this with a small note in the admin tab.
