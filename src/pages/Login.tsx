@@ -4,6 +4,7 @@ import LoginForm from "@/components/auth/LoginForm";
 import AuroraLogo from "@/components/AuroraLogo";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useEffect } from "react";
+import SEOHead from "@/components/seo/SEOHead";
 
 const Login = () => {
   const { ref: formRef, isVisible: formVisible } = useScrollAnimation();
@@ -29,6 +30,12 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-x-hidden bg-white">
+      <SEOHead
+        title="Sign In"
+        description="Sign in to your marhabaDMC partner account to manage bookings, leads, and your white-label travel portal."
+        path="/login"
+        noIndex
+      />
       {/* Soft brand wash */}
       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#2D9BFC]/5 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#412A86]/5 rounded-full blur-3xl pointer-events-none" />

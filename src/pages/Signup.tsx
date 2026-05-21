@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import BillingCycleToggle from "@/components/landing/BillingCycleToggle";
+import SEOHead from "@/components/seo/SEOHead";
 
 const Signup = () => {
   const { ref: formRef, isVisible: formVisible } = useScrollAnimation();
@@ -40,6 +41,12 @@ const Signup = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-x-hidden bg-white">
+      <SEOHead
+        title="Sign Up — Launch Your Travel Business"
+        description="Create your marhabaDMC account and launch your white-label travel portal in 24 hours. Flight, hotel and visa APIs with AI sales tools."
+        path="/signup"
+        noIndex
+      />
       {/* Soft brand wash */}
       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#2D9BFC]/5 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#412A86]/5 rounded-full blur-3xl pointer-events-none" />
