@@ -24,6 +24,7 @@ import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Flag from "react-world-flags";
 import SEOHead from "@/components/seo/SEOHead";
+import { breadcrumbSchema, SITE_URL } from "@/lib/seo-schemas";
 
 interface Destination {
   name: string;
