@@ -10,19 +10,25 @@ function calc(target: number) {
 }
 
 const Block = ({ n, label }: { n: number; label: string }) => (
-  <div className="flex flex-col items-center">
-    <div className="font-mono font-bold text-xl sm:text-2xl tabular-nums leading-none">{String(n).padStart(2, "0")}</div>
-    <div className="text-[10px] uppercase tracking-wider opacity-70 mt-1">{label}</div>
+  <div className="flex flex-col items-center min-w-[44px]">
+    <div className="mc-num font-extrabold text-2xl sm:text-3xl leading-none text-[var(--mc-on-surface)]">
+      {String(n).padStart(2, "0")}
+    </div>
+    <div className="text-[9px] uppercase tracking-[0.18em] text-[var(--mc-on-surface-variant)] mt-1.5">
+      {label}
+    </div>
   </div>
 );
 
 interface Props {
   scheduledAt: string;
   className?: string;
+  /** "light" = compact, glassy. "dark" = solid violet container. */
   variant?: "light" | "dark";
+  compact?: boolean;
 }
 
-const CountdownPill = ({ scheduledAt, className = "", variant = "dark" }: Props) => {
+const CountdownPill = ({ scheduledAt, className = "", variant = "dark", compact = false }: Props) => {
   const target = new Date(scheduledAt).getTime();
   const [t, setT] = useState(() => calc(target));
   useEffect(() => {
@@ -30,18 +36,23 @@ const CountdownPill = ({ scheduledAt, className = "", variant = "dark" }: Props)
     return () => clearInterval(id);
   }, [target]);
 
-  const colors = variant === "dark"
-    ? "bg-[#412A86] text-white"
-    : "bg-white text-[#412A86] border border-[#412A86]/15";
+  const base =
+    variant === "dark"
+      ? "bg-[var(--mc-tertiary-container)]/80 border border-[rgba(208,188,255,0.25)]"
+      : "bg-white/[0.04] border border-[rgba(213,189,240,0.15)]";
 
   return (
-    <div className={`inline-flex items-center gap-4 rounded-2xl px-5 py-3 ${colors} ${className}`}>
+    <div
+      className={`inline-flex items-center gap-3 rounded-2xl px-4 py-2.5 backdrop-blur-md ${base} ${
+        compact ? "scale-90 origin-left" : ""
+      } ${className}`}
+    >
       <Block n={t.d} label="days" />
-      <span className="opacity-50">:</span>
+      <span className="text-[var(--mc-outline)] -mt-3">:</span>
       <Block n={t.h} label="hrs" />
-      <span className="opacity-50">:</span>
+      <span className="text-[var(--mc-outline)] -mt-3">:</span>
       <Block n={t.m} label="min" />
-      <span className="opacity-50">:</span>
+      <span className="text-[var(--mc-outline)] -mt-3">:</span>
       <Block n={t.s} label="sec" />
     </div>
   );

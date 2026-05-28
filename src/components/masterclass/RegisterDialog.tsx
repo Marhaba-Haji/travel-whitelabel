@@ -2,16 +2,19 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Lock, ShieldCheck } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Loader2, Lock, ShieldCheck, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { DIAL_CODES } from "@/lib/dial-codes";
 import { getAttribution, getSessionId } from "@/hooks/useSessionTracking";
+import "@/styles/masterclass.css";
 
 const schema = z.object({
   fullName: z.string().trim().min(2, "Please enter your full name").max(100),
@@ -31,12 +34,32 @@ interface Props {
   title: string;
 }
 
+const Field = ({
+  label,
+  error,
+  children,
+}: {
+  label: string;
+  error?: string;
+  children: React.ReactNode;
+}) => (
+  <div>
+    <label className="mc-label text-[var(--mc-on-surface-variant)] block mb-2">
+      {label}
+    </label>
+    {children}
+    {error && <p className="text-xs text-[var(--mc-error)] mt-1.5">{error}</p>}
+  </div>
+);
+
 const RegisterDialog = ({ open, onOpenChange, priceInr, isFree, title }: Props) => {
   const [loading, setLoading] = useState(false);
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: { fullName: "", email: "", dialCode: "+91", phone: "", countryCode: "IN" },
   });
+  const { register, handleSubmit, formState, watch, setValue } = form;
+  const dialCode = watch("dialCode");
 
   const onSubmit = async (v: FormValues) => {
     setLoading(true);
@@ -59,19 +82,18 @@ const RegisterDialog = ({ open, onOpenChange, priceInr, isFree, title }: Props) 
         return;
       }
 
-      // Build PayU form and submit
-      const form = document.createElement("form");
-      form.method = "POST";
-      form.action = data.action;
+      const payForm = document.createElement("form");
+      payForm.method = "POST";
+      payForm.action = data.action;
       Object.entries(data.params as Record<string, string>).forEach(([k, val]) => {
         const input = document.createElement("input");
         input.type = "hidden";
         input.name = k;
         input.value = val;
-        form.appendChild(input);
+        payForm.appendChild(input);
       });
-      document.body.appendChild(form);
-      form.submit();
+      document.body.appendChild(payForm);
+      payForm.submit();
     } catch (err) {
       console.error("register error", err);
       toast({
@@ -85,73 +107,101 @@ const RegisterDialog = ({ open, onOpenChange, priceInr, isFree, title }: Props) 
 
   return (
     <Dialog open={open} onOpenChange={(v) => !loading && onOpenChange(v)}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="font-display text-2xl">Reserve your seat</DialogTitle>
-          <DialogDescription className="text-foreground/70">
-            {title} · {isFree ? "Free" : `₹${priceInr.toFixed(0)}`}
-          </DialogDescription>
-        </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField name="fullName" control={form.control} render={({ field }) => (
-              <FormItem>
-                <FormLabel>Full name</FormLabel>
-                <FormControl><Input placeholder="Your name" {...field} disabled={loading} /></FormControl>
-                <FormMessage />
-              </FormItem>
-            )} />
-            <FormField name="email" control={form.control} render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl><Input type="email" placeholder="you@example.com" {...field} disabled={loading} /></FormControl>
-                <FormMessage />
-              </FormItem>
-            )} />
-            <div className="grid grid-cols-[120px_1fr] gap-2">
-              <FormField name="dialCode" control={form.control} render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Code</FormLabel>
-                  <Select value={field.value} onValueChange={(val) => {
-                    field.onChange(val);
-                    const found = DIAL_CODES.find((d) => d.dial === val);
-                    if (found) form.setValue("countryCode", found.code);
-                  }} disabled={loading}>
-                    <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
-                    <SelectContent>
-                      {DIAL_CODES.map((d) => (
-                        <SelectItem key={`${d.code}-${d.dial}`} value={d.dial}>
-                          {d.flag} {d.dial}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )} />
-              <FormField name="phone" control={form.control} render={({ field }) => (
-                <FormItem>
-                  <FormLabel>WhatsApp number</FormLabel>
-                  <FormControl><Input type="tel" placeholder="98765 43210" {...field} disabled={loading} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} />
+      <DialogContent className="mc-scope sm:max-w-md border-0 p-0 bg-transparent shadow-none">
+        <div className="mc-glass-strong p-6 md:p-7 relative overflow-hidden">
+          {/* Halo */}
+          <div className="absolute -top-20 -right-20 h-48 w-48 rounded-full bg-[var(--mc-secondary)]/15 blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-20 -left-20 h-48 w-48 rounded-full bg-[var(--mc-tertiary)]/15 blur-3xl pointer-events-none" />
+
+          <DialogHeader className="relative space-y-2 text-left">
+            <span className="mc-chip mc-chip-green w-fit">Reserve your seat</span>
+            <DialogTitle className="mc-h-md text-[var(--mc-on-surface)]">
+              {title}
+            </DialogTitle>
+            <DialogDescription className="text-[var(--mc-on-surface-variant)] text-sm">
+              {isFree
+                ? "Free seat · No card needed"
+                : `Today only · ₹${priceInr.toFixed(0)} · Lifetime access to recording`}
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleSubmit(onSubmit)} className="relative mt-5 space-y-4">
+            <Field label="Full name" error={formState.errors.fullName?.message}>
+              <input
+                className="mc-input"
+                placeholder="Your name"
+                disabled={loading}
+                {...register("fullName")}
+              />
+            </Field>
+
+            <Field label="Email" error={formState.errors.email?.message}>
+              <input
+                type="email"
+                className="mc-input"
+                placeholder="you@example.com"
+                disabled={loading}
+                {...register("email")}
+              />
+            </Field>
+
+            <div className="grid grid-cols-[110px_1fr] gap-2">
+              <Field label="Code">
+                <select
+                  className="mc-input pr-2 appearance-none"
+                  disabled={loading}
+                  value={dialCode}
+                  onChange={(e) => {
+                    setValue("dialCode", e.target.value, { shouldValidate: true });
+                    const found = DIAL_CODES.find((d) => d.dial === e.target.value);
+                    if (found) setValue("countryCode", found.code);
+                  }}
+                >
+                  {DIAL_CODES.map((d) => (
+                    <option
+                      key={`${d.code}-${d.dial}`}
+                      value={d.dial}
+                      className="bg-[var(--mc-surface-c)] text-[var(--mc-on-surface)]"
+                    >
+                      {d.flag} {d.dial}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+              <Field label="WhatsApp number" error={formState.errors.phone?.message}>
+                <input
+                  type="tel"
+                  className="mc-input"
+                  placeholder="98765 43210"
+                  disabled={loading}
+                  {...register("phone")}
+                />
+              </Field>
             </div>
 
-            <Button type="submit" size="lg" disabled={loading}
-              className="w-full h-12 rounded-full text-base font-semibold bg-[#412A86] hover:bg-[#412A86]/90 text-white shadow-lg">
+            <button type="submit" disabled={loading} className="mc-cta mc-cta-primary w-full h-14 text-base">
               {loading ? (
-                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Securing your seat…</>
+                <>
+                  <Loader2 className="mr-1 h-4 w-4 animate-spin" /> Securing your seat…
+                </>
               ) : (
-                <>{isFree ? "Confirm Free Seat" : `Pay ₹${priceInr.toFixed(0)} & Reserve`}</>
+                <>
+                  {isFree ? "Confirm Free Seat" : `Pay ₹${priceInr.toFixed(0)} & Reserve`}
+                  <ArrowRight className="h-4 w-4" />
+                </>
               )}
-            </Button>
-            <div className="flex items-center justify-center gap-4 text-xs text-foreground/60 pt-1">
-              <span className="inline-flex items-center gap-1"><Lock className="h-3 w-3" /> Secure PayU checkout</span>
-              <span className="inline-flex items-center gap-1"><ShieldCheck className="h-3 w-3" /> 24-hour refund</span>
+            </button>
+
+            <div className="flex items-center justify-center gap-4 text-[11px] text-[var(--mc-on-surface-variant)] pt-1">
+              <span className="inline-flex items-center gap-1">
+                <Lock className="h-3 w-3" /> Secure PayU checkout
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <ShieldCheck className="h-3 w-3" /> 24-hour refund
+              </span>
             </div>
           </form>
-        </Form>
+        </div>
       </DialogContent>
     </Dialog>
   );
