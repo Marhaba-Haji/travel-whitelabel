@@ -56,12 +56,8 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     const title = settings?.title || "Masterclass";
-    const basePrice = Number(settings?.price_inr ?? 99);
+    const price = Number(settings?.price_inr ?? 99);
     const isFree = Boolean(settings?.is_free);
-    // 18% GST inclusive of base price
-    const GST_RATE = 0.18;
-    const gstAmount = isFree ? 0 : Math.round(basePrice * GST_RATE);
-    const price = isFree ? 0 : basePrice + gstAmount;
 
     const phoneClean = String(phone).replace(/\D/g, "");
     const dial = (dialCode || "+91").replace(/[^\d+]/g, "");
@@ -110,7 +106,7 @@ Deno.serve(async (req) => {
 
     const amount = price.toFixed(2);
     const txnid = `WEB${Date.now()}${Math.random().toString(36).slice(2, 8)}`;
-    const productinfo = `Masterclass: ${title} (incl. 18% GST)`.slice(0, 100);
+    const productinfo = `Masterclass: ${title}`.slice(0, 100);
     const firstname = String(fullName).split(" ")[0] || fullName;
     const surl = `${EDGE_BASE}/payu-callback`;
     const furl = `${EDGE_BASE}/payu-callback`;
