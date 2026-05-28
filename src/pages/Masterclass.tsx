@@ -1,7 +1,8 @@
 import { useMemo, useState, lazy, Suspense } from "react";
 import {
   Compass, Layers, Plug, Cpu, TrendingUp, IndianRupee, Map as MapIcon,
-  Award, CheckCircle2, Sparkles, Clock, Users, Globe, Gift, ShieldCheck, ChevronDown,
+  Award, CheckCircle2, Sparkles, Clock, Users, Globe, Gift, ShieldCheck,
+  Calendar, Timer, BadgeCheck, Zap, ArrowRight, Star,
 } from "lucide-react";
 import { useWebinarSettings } from "@/hooks/useWebinarSettings";
 import SEOHead from "@/components/seo/SEOHead";
@@ -86,7 +87,14 @@ const Masterclass = () => {
     12,
     s.seats_total - s.seats_reserved_buffer - Math.floor(Math.random() * 50),
   );
+  const seatsPct = Math.max(8, Math.min(92, Math.round((seatsLeft / Math.max(s.seats_total, 1)) * 100)));
   const priceLabel = s.is_free ? "Free" : `₹${Number(s.price_inr).toFixed(0)}`;
+
+  // Total bonus value (sums "₹1,999" style strings)
+  const totalBonusValue = s.bonuses.reduce((sum, b) => {
+    const n = Number(String(b.value || "").replace(/[^0-9]/g, "")) || 0;
+    return sum + n;
+  }, 0);
 
   const CTA = ({ size = "lg", className = "" }: { size?: "lg" | "default"; className?: string }) => (
     <Button
@@ -122,45 +130,80 @@ const Masterclass = () => {
         </div>
       </div>
 
-      {/* HERO */}
+      {/* HERO — premium register-card layout */}
       <section className="relative overflow-hidden bg-gradient-to-br from-[#f7f4ff] via-white to-[#fef0f8]">
-        <div className="absolute -top-32 -right-32 h-96 w-96 rounded-full bg-[#B968C7]/20 blur-3xl" />
-        <div className="absolute -bottom-32 -left-32 h-96 w-96 rounded-full bg-[#412A86]/15 blur-3xl" />
-        <div className="container mx-auto px-4 py-14 md:py-20 relative">
+        <div className="absolute -top-40 -right-40 h-[28rem] w-[28rem] rounded-full bg-[#B968C7]/25 blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 h-[28rem] w-[28rem] rounded-full bg-[#412A86]/15 blur-3xl" />
+        <div className="container mx-auto px-4 pt-12 pb-16 md:pt-16 md:pb-24 relative">
           <div className="max-w-3xl mx-auto text-center">
-            <span className="inline-flex items-center gap-2 rounded-full bg-white border border-[#412A86]/15 px-4 py-1.5 text-xs font-semibold tracking-wider uppercase text-[#412A86] shadow-sm">
-              <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+            <span className="inline-flex items-center gap-2 rounded-full bg-white border border-[#412A86]/15 px-4 py-1.5 text-[11px] font-bold tracking-[0.18em] uppercase text-[#412A86] shadow-sm">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
+              </span>
               {s.eyebrow}
             </span>
-            <h1 className="font-poppins font-bold text-4xl sm:text-5xl md:text-6xl leading-[1.05] mt-6 text-gray-900">
+            <h1 className="font-poppins font-extrabold text-[2.5rem] sm:text-5xl md:text-[4.25rem] leading-[1.02] tracking-tight mt-6 text-gray-900">
               {s.title.split(" ").slice(0, -3).join(" ")}{" "}
-              <span className="text-[#B968C7]">{s.title.split(" ").slice(-3).join(" ")}</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#412A86] to-[#B968C7]">
+                {s.title.split(" ").slice(-3).join(" ")}
+              </span>
             </h1>
             <p className="mt-5 text-lg md:text-xl text-foreground/70 max-w-2xl mx-auto">
               {s.subtitle}
             </p>
 
-            <div className="mt-7 flex flex-wrap items-center justify-center gap-2 text-sm">
-              <span className="rounded-full bg-white border border-gray-200 px-4 py-1.5 font-medium">📅 {whenLabel}</span>
-              <span className="rounded-full bg-white border border-gray-200 px-4 py-1.5 font-medium">⏱ {s.duration_minutes} min</span>
-              <span className="rounded-full bg-white border border-gray-200 px-4 py-1.5 font-medium">🟢 {seatsLeft} seats left</span>
-            </div>
+            {/* Register card */}
+            <div className="mt-10 mx-auto max-w-xl bg-white rounded-[2rem] border border-gray-100 shadow-[0_30px_80px_-30px_rgba(65,42,134,0.35)] p-6 md:p-7 text-left">
+              <div className="grid grid-cols-3 gap-3 pb-5 border-b border-gray-100">
+                <div>
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 flex items-center gap-1"><Calendar className="h-3 w-3" />Date</div>
+                  <div className="font-bold text-gray-900 text-sm mt-1">{whenLabel.split(",")[0]}, {whenLabel.split(",")[1]?.trim().split(" ").slice(0, 2).join(" ")}</div>
+                </div>
+                <div className="border-x border-gray-100 px-3">
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 flex items-center gap-1"><Timer className="h-3 w-3" />Duration</div>
+                  <div className="font-bold text-gray-900 text-sm mt-1">{s.duration_minutes} min</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 flex items-center gap-1 justify-end"><Users className="h-3 w-3" />Seats</div>
+                  <div className="font-bold text-emerald-600 text-sm mt-1">{seatsLeft} left</div>
+                </div>
+              </div>
 
-            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <CTA />
-              <div className="text-sm text-foreground/60">
-                {s.is_free ? "100% free · No card needed" : `Only ${priceLabel} · 24-hour refund`}
+              {/* Seats bar */}
+              <div className="mt-4">
+                <div className="h-1.5 w-full rounded-full bg-gray-100 overflow-hidden">
+                  <div className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-500 transition-all" style={{ width: `${seatsPct}%` }} />
+                </div>
+                <div className="mt-1.5 text-[11px] text-foreground/55 flex justify-between">
+                  <span>Filling fast</span>
+                  <span>{seatsPct}% remaining</span>
+                </div>
+              </div>
+
+              <button onClick={() => setOpen(true)}
+                className="mt-5 w-full h-14 rounded-2xl bg-gradient-to-r from-[#412A86] to-[#5b3aaf] hover:from-[#371f78] hover:to-[#4e2fa0] text-white font-bold text-lg shadow-[0_15px_35px_-10px_rgba(65,42,134,0.55)] hover:-translate-y-0.5 transition-all inline-flex items-center justify-center gap-2">
+                {s.is_free ? "Reserve My Free Seat" : `Register for ${priceLabel} Only`}
+                <ArrowRight className="h-5 w-5" />
+              </button>
+              <p className="mt-3 text-xs text-center text-foreground/55 inline-flex items-center justify-center gap-1.5 w-full">
+                <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+                {s.is_free ? "100% free · No card needed" : "Secure PayU checkout · 24-hour full refund"}
+              </p>
+
+              <div className="mt-6 pt-5 border-t border-gray-100">
+                <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 text-center mb-2">Doors close in</div>
+                <div className="flex justify-center">
+                  <CountdownPill scheduledAt={s.scheduled_at} variant="light" className="!border-0 !shadow-none" />
+                </div>
               </div>
             </div>
 
-            <div className="mt-10">
-              <CountdownPill scheduledAt={s.scheduled_at} variant="light" />
-            </div>
-
-            <div className="mt-10 flex flex-wrap justify-center gap-6 md:gap-10 text-foreground/70">
-              <div className="text-center"><div className="text-2xl font-bold text-[#412A86]">1,000+</div><div className="text-xs uppercase tracking-wide">Agents trained</div></div>
-              <div className="text-center"><div className="text-2xl font-bold text-[#412A86]">14+</div><div className="text-xs uppercase tracking-wide">Countries served</div></div>
-              <div className="text-center"><div className="text-2xl font-bold text-[#412A86]">14 yrs</div><div className="text-xs uppercase tracking-wide">In travel</div></div>
+            {/* Trust strip */}
+            <div className="mt-12 grid grid-cols-3 max-w-2xl mx-auto divide-x divide-gray-200">
+              <div className="px-2"><div className="text-2xl md:text-3xl font-extrabold text-[#412A86]">1,000+</div><div className="text-[10px] md:text-xs uppercase tracking-widest text-foreground/55 mt-1">Agents trained</div></div>
+              <div className="px-2"><div className="text-2xl md:text-3xl font-extrabold text-[#412A86]">14+</div><div className="text-[10px] md:text-xs uppercase tracking-widest text-foreground/55 mt-1">Countries</div></div>
+              <div className="px-2"><div className="text-2xl md:text-3xl font-extrabold text-[#412A86]">14 yrs</div><div className="text-[10px] md:text-xs uppercase tracking-widest text-foreground/55 mt-1">In travel</div></div>
             </div>
           </div>
         </div>
@@ -171,13 +214,14 @@ const Masterclass = () => {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <p className="text-sm font-semibold text-[#B968C7] uppercase tracking-wider">Who this is for</p>
-            <h2 className="font-poppins font-bold text-3xl md:text-4xl mt-2">Is this you?</h2>
+            <h2 className="font-poppins font-bold text-3xl md:text-5xl mt-2 tracking-tight">Is this you?</h2>
           </div>
           <div className="grid md:grid-cols-2 gap-6">
-            <div className="rounded-3xl bg-gradient-to-br from-[#f7f4ff] to-white border border-[#412A86]/10 p-7 md:p-8">
-              <div className="inline-flex items-center gap-2 rounded-full bg-[#412A86] text-white text-xs font-semibold px-3 py-1.5">
+            <div className="rounded-3xl bg-[#faf8ff] border border-[#412A86]/10 p-7 md:p-9">
+              <div className="inline-flex items-center gap-2 rounded-full bg-[#412A86] text-white text-[11px] font-bold tracking-wider uppercase px-3 py-1.5">
                 <Sparkles className="h-3.5 w-3.5" /> Absolutely new to travel
               </div>
+              <h3 className="mt-4 font-bold text-xl text-gray-900">Start from zero — the right way</h3>
               <ul className="mt-5 space-y-3">
                 {s.who_for_beginner.map((b) => (
                   <li key={b} className="flex items-start gap-3 text-foreground/85">
@@ -187,13 +231,15 @@ const Masterclass = () => {
                 ))}
               </ul>
             </div>
-            <div className="rounded-3xl bg-gradient-to-br from-[#fef0f8] to-white border border-[#B968C7]/15 p-7 md:p-8">
-              <div className="inline-flex items-center gap-2 rounded-full bg-[#B968C7] text-white text-xs font-semibold px-3 py-1.5">
+            <div className="rounded-3xl bg-[#412A86] text-white border border-[#412A86] p-7 md:p-9 relative overflow-hidden shadow-[0_30px_60px_-25px_rgba(65,42,134,0.55)]">
+              <div className="absolute -top-12 -right-12 h-48 w-48 rounded-full bg-[#B968C7]/30 blur-3xl" />
+              <div className="relative inline-flex items-center gap-2 rounded-full bg-[#B968C7] text-white text-[11px] font-bold tracking-wider uppercase px-3 py-1.5">
                 <TrendingUp className="h-3.5 w-3.5" /> Already in travel, want to scale
               </div>
-              <ul className="mt-5 space-y-3">
+              <h3 className="relative mt-4 font-bold text-xl">Break the plateau, own the decade</h3>
+              <ul className="relative mt-5 space-y-3">
                 {s.who_for_scaler.map((b) => (
-                  <li key={b} className="flex items-start gap-3 text-foreground/85">
+                  <li key={b} className="flex items-start gap-3 text-white/90">
                     <CheckCircle2 className="h-5 w-5 text-[#B968C7] mt-0.5 shrink-0" />
                     <span>{b}</span>
                   </li>
@@ -209,21 +255,30 @@ const Masterclass = () => {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <p className="text-sm font-semibold text-[#B968C7] uppercase tracking-wider">Curriculum</p>
-            <h2 className="font-poppins font-bold text-3xl md:text-4xl mt-2">What you will learn in 2 hours</h2>
+            <h2 className="font-poppins font-bold text-3xl md:text-5xl mt-2 tracking-tight">What you will learn in 2 hours</h2>
+            <p className="text-foreground/65 mt-3 max-w-xl mx-auto">Seven modules, no fluff. Built from 14 years of real travel-business operations.</p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             {s.learning_points.map((lp, i) => {
               const Icon = ICONS[lp.icon] || Sparkles;
               return (
-                <div key={i} className="rounded-2xl bg-white border border-gray-100 p-6 shadow-[0_4px_20px_-12px_rgba(65,42,134,0.15)] hover:shadow-[0_10px_30px_-10px_rgba(65,42,134,0.25)] hover:-translate-y-0.5 transition-all">
-                  <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-[#412A86] to-[#B968C7] text-white flex items-center justify-center mb-4">
-                    <Icon className="h-5 w-5" />
+                <div key={i} className="group rounded-3xl bg-white border border-gray-100 p-6 md:p-7 shadow-[0_4px_20px_-12px_rgba(65,42,134,0.15)] hover:shadow-[0_20px_40px_-15px_rgba(65,42,134,0.25)] hover:-translate-y-1 hover:border-[#B968C7]/30 transition-all">
+                  <div className="flex items-center justify-between mb-5">
+                    <div className="h-12 w-12 rounded-2xl bg-[#412A86]/5 group-hover:bg-gradient-to-br group-hover:from-[#412A86] group-hover:to-[#B968C7] text-[#412A86] group-hover:text-white flex items-center justify-center transition-all">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <span className="text-[11px] font-bold tracking-widest text-gray-300">MODULE {String(i + 1).padStart(2, "0")}</span>
                   </div>
-                  <h3 className="font-semibold text-lg text-gray-900">{lp.title}</h3>
-                  <p className="mt-2 text-sm text-foreground/70 leading-relaxed">{lp.desc}</p>
+                  <h3 className="font-bold text-lg text-gray-900 leading-snug">{lp.title}</h3>
+                  <p className="mt-2 text-sm text-foreground/65 leading-relaxed">{lp.desc}</p>
                 </div>
               );
             })}
+          </div>
+          <div className="mt-10 text-center">
+            <button onClick={() => setOpen(true)} className="inline-flex items-center gap-2 text-[#412A86] font-semibold hover:gap-3 transition-all">
+              <Zap className="h-4 w-4" /> Get full access for {priceLabel} <ArrowRight className="h-4 w-4" />
+            </button>
           </div>
         </div>
       </Section>
@@ -313,35 +368,63 @@ const Masterclass = () => {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <p className="text-sm font-semibold text-[#B968C7] uppercase tracking-wider">Bonuses</p>
-            <h2 className="font-poppins font-bold text-3xl md:text-4xl mt-2">Everything you get</h2>
-            <p className="text-foreground/65 mt-3">All registrants receive these — yours to keep even if you can't attend live.</p>
+            <h2 className="font-poppins font-bold text-3xl md:text-5xl mt-2 tracking-tight">Everything you get</h2>
+            <p className="text-foreground/65 mt-3">Yours to keep — even if you can't attend live.</p>
           </div>
           <div className="grid md:grid-cols-3 gap-5">
             {s.bonuses.map((b, i) => (
-              <div key={i} className="rounded-3xl bg-gradient-to-br from-[#f7f4ff] to-white border border-[#412A86]/10 p-6 relative overflow-hidden">
-                <Gift className="absolute -top-4 -right-4 h-24 w-24 text-[#B968C7]/10" />
-                <div className="relative">
-                  <span className="text-xs font-semibold rounded-full bg-[#B968C7] text-white px-2.5 py-1">BONUS #{i+1}</span>
-                  <h3 className="font-semibold text-lg mt-3">{b.title}</h3>
-                  <p className="text-sm text-foreground/70 mt-2 leading-relaxed">{b.desc}</p>
+              <div key={i} className="rounded-3xl bg-white border border-gray-100 shadow-[0_10px_30px_-15px_rgba(65,42,134,0.2)] hover:-translate-y-1 hover:shadow-[0_20px_40px_-15px_rgba(65,42,134,0.3)] transition-all overflow-hidden">
+                <div className={`h-28 ${i === 1 ? "bg-gradient-to-br from-[#B968C7] to-[#d48be0]" : "bg-gradient-to-br from-[#412A86] to-[#5b3aaf]"} flex items-center justify-center`}>
+                  <Gift className="h-12 w-12 text-white/30" />
+                </div>
+                <div className="p-6">
+                  <span className="text-[10px] font-bold tracking-widest rounded-full bg-emerald-50 text-emerald-700 px-2.5 py-1 uppercase">Bonus #{i+1}</span>
+                  <h3 className="font-bold text-lg mt-3 text-gray-900">{b.title}</h3>
+                  <p className="text-sm text-foreground/65 mt-2 leading-relaxed">{b.desc}</p>
                   {b.value && (
-                    <div className="mt-4 text-xs text-foreground/50">
-                      Worth <span className="line-through">{b.value}</span> · <span className="text-[#412A86] font-semibold">Free with registration</span>
+                    <div className="mt-5 pt-5 border-t border-gray-100 flex items-center justify-between">
+                      <span className="text-xs text-gray-400 line-through">Worth {b.value}</span>
+                      <span className="text-xs font-bold text-emerald-600 uppercase tracking-wider">Free</span>
                     </div>
                   )}
                 </div>
               </div>
             ))}
           </div>
+
+          {/* Value stack total */}
+          {totalBonusValue > 0 && (
+            <div className="mt-10 max-w-2xl mx-auto rounded-3xl bg-gradient-to-br from-[#412A86] to-[#5b3aaf] text-white p-6 md:p-8 shadow-[0_25px_50px_-20px_rgba(65,42,134,0.55)]">
+              <div className="space-y-2.5 text-sm">
+                {s.bonuses.map((b, i) => (
+                  <div key={i} className="flex items-center justify-between text-white/85">
+                    <span className="flex items-center gap-2"><BadgeCheck className="h-4 w-4 text-[#B968C7]" /> {b.title}</span>
+                    <span className="font-mono text-white/60 line-through">{b.value}</span>
+                  </div>
+                ))}
+                <div className="flex items-center justify-between pt-3 border-t border-white/15 text-base font-semibold">
+                  <span>Total value</span>
+                  <span className="line-through text-white/70">₹{totalBonusValue.toLocaleString("en-IN")}</span>
+                </div>
+                <div className="flex items-center justify-between text-xl font-extrabold">
+                  <span>Today, your seat</span>
+                  <span className="text-[#B968C7]">{priceLabel}</span>
+                </div>
+              </div>
+              <button onClick={() => setOpen(true)} className="mt-6 w-full h-12 rounded-full bg-white text-[#412A86] font-bold hover:bg-white/95 inline-flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5">
+                Claim my seat for {priceLabel} <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
+          )}
         </div>
       </Section>
 
       {/* FAQ */}
       <Section className="bg-[#faf8ff]">
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           <div className="text-center mb-10">
             <p className="text-sm font-semibold text-[#B968C7] uppercase tracking-wider">FAQ</p>
-            <h2 className="font-poppins font-bold text-3xl md:text-4xl mt-2">Questions, answered</h2>
+            <h2 className="font-poppins font-bold text-3xl md:text-5xl mt-2 tracking-tight">Questions, answered</h2>
           </div>
           <Accordion type="single" collapsible className="space-y-3">
             {s.faqs.map((f, i) => (
@@ -356,24 +439,36 @@ const Masterclass = () => {
 
       {/* FINAL CTA */}
       <section className="relative py-20 md:py-28 bg-gradient-to-br from-[#412A86] via-[#5e3eb8] to-[#B968C7] text-white overflow-hidden">
-        <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "radial-gradient(circle at 20% 20%, white 1px, transparent 1px), radial-gradient(circle at 80% 70%, white 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
-        <div className="container mx-auto px-4 relative text-center">
-          <h2 className="font-poppins font-bold text-3xl md:text-5xl max-w-3xl mx-auto leading-tight">
-            Your next 90 days could change everything
-          </h2>
-          <p className="mt-5 text-white/80 max-w-xl mx-auto text-lg">
-            Join {s.host_name} live for 2 hours. Walk away with a plan.
-          </p>
-          <div className="mt-8 flex justify-center"><CountdownPill scheduledAt={s.scheduled_at} variant="light" /></div>
-          <div className="mt-8">
-            <Button onClick={() => setOpen(true)}
-              className="rounded-full h-14 px-10 text-base font-semibold bg-white text-[#412A86] hover:bg-white/95 shadow-2xl hover:-translate-y-0.5 transition-all">
-              {s.is_free ? "Reserve Free Seat" : `Register Now for ${priceLabel}`}
-            </Button>
+        <div className="absolute -top-40 -right-40 h-[28rem] w-[28rem] rounded-full bg-[#B968C7]/40 blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 h-[28rem] w-[28rem] rounded-full bg-[#412A86]/40 blur-3xl" />
+        <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: "radial-gradient(circle at 20% 20%, white 1px, transparent 1px), radial-gradient(circle at 80% 70%, white 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
+        <div className="container mx-auto px-4 relative">
+          <div className="max-w-2xl mx-auto text-center">
+            <span className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur border border-white/20 px-4 py-1.5 text-[11px] font-bold tracking-[0.18em] uppercase">
+              <Star className="h-3 w-3 text-[#B968C7] fill-[#B968C7]" /> Final call
+            </span>
+            <h2 className="font-poppins font-extrabold text-3xl md:text-5xl mt-5 leading-[1.05] tracking-tight">
+              Your next 90 days could <span className="text-[#f0d9ff]">change everything</span>
+            </h2>
+            <p className="mt-5 text-white/80 text-lg">
+              Join {s.host_name} live for 2 hours. Walk away with a blueprint, not a plan.
+            </p>
+
+            <div className="mt-10 rounded-3xl bg-white/10 backdrop-blur-md border border-white/20 p-6 md:p-8 shadow-[0_25px_60px_-20px_rgba(0,0,0,0.4)]">
+              <div className="text-[10px] font-bold uppercase tracking-widest text-white/70 mb-3">Doors close in</div>
+              <div className="flex justify-center">
+                <CountdownPill scheduledAt={s.scheduled_at} variant="dark" className="!bg-white/15 !border !border-white/20" />
+              </div>
+              <button onClick={() => setOpen(true)}
+                className="mt-6 w-full h-14 rounded-2xl bg-white text-[#412A86] font-extrabold text-lg hover:bg-white/95 shadow-2xl hover:-translate-y-0.5 transition-all inline-flex items-center justify-center gap-2">
+                {s.is_free ? "Reserve My Free Seat" : `Register Now for ${priceLabel}`}
+                <ArrowRight className="h-5 w-5" />
+              </button>
+              <p className="mt-3 text-sm text-white/70 inline-flex items-center justify-center gap-2 w-full">
+                <ShieldCheck className="h-4 w-4" /> {s.is_free ? "Free · No card needed" : "Secure PayU · 24-hour refund"}
+              </p>
+            </div>
           </div>
-          <p className="mt-4 text-sm text-white/60 inline-flex items-center gap-2">
-            <ShieldCheck className="h-4 w-4" /> {s.is_free ? "Free · No card needed" : "Secure PayU checkout · 24-hour refund"}
-          </p>
         </div>
       </section>
 
