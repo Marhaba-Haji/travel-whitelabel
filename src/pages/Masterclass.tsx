@@ -234,17 +234,33 @@ const Masterclass = () => {
             </div>
 
             {/* Trust strip */}
-            <div className="mt-14 grid grid-cols-3 max-w-2xl mx-auto divide-x divide-[rgba(213,189,240,0.15)]">
-              {[
-                ["100+", "Agents trained"],
-                ["30+", "Global destinations"],
-                ["15+ yrs", "Of experience"],
-              ].map(([n, l]) => (
-                <div key={l} className="px-2">
-                  <div className="text-2xl md:text-3xl font-extrabold text-[var(--mc-primary)]">{n}</div>
-                  <div className="mc-label text-[var(--mc-on-surface-variant)] mt-2">{l}</div>
-                </div>
-              ))}
+            <div className="mt-16 relative max-w-3xl mx-auto">
+              {/* Subtle backglow */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[var(--mc-primary)]/5 to-transparent blur-2xl pointer-events-none" />
+              
+              <div className="relative flex items-center justify-center gap-3 sm:gap-6 md:gap-12">
+                {[
+                  ["100+", "Agents trained"],
+                  ["30+", "Global destinations"],
+                  ["15+", "Years of experience"],
+                ].map(([n, l], i) => (
+                  <div key={l} className="flex items-center gap-3 sm:gap-6 md:gap-12">
+                    <div className="flex flex-col items-center group cursor-default">
+                      <div className="text-3xl md:text-5xl font-black whitespace-nowrap text-transparent bg-clip-text bg-gradient-to-b from-white to-[var(--mc-primary)] group-hover:scale-110 transition-transform duration-500 drop-shadow-[0_0_15px_rgba(208,188,255,0.2)] group-hover:drop-shadow-[0_0_25px_rgba(208,188,255,0.6)]">
+                        {n}
+                      </div>
+                      <div className="text-center text-[9px] sm:text-[10px] md:text-xs font-bold text-[var(--mc-on-surface-variant)] mt-2 tracking-[0.2em] uppercase group-hover:text-[var(--mc-on-surface)] transition-colors">
+                        {l}
+                      </div>
+                    </div>
+                    
+                    {/* Gradient Divider */}
+                    {i !== 2 && (
+                      <div className="w-px h-12 md:h-16 bg-gradient-to-b from-transparent via-[rgba(213,189,240,0.3)] to-transparent" />
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
