@@ -2,7 +2,7 @@ import { useMemo, useState, lazy, Suspense } from "react";
 import {
   Compass, Layers, Plug, Cpu, TrendingUp, IndianRupee, Map as MapIcon,
   Award, CheckCircle2, Sparkles, Clock, Users, Globe, Gift, ShieldCheck,
-  Calendar, Timer, BadgeCheck, Zap, ArrowRight, Star,
+  Calendar, Timer, BadgeCheck, Zap, ArrowRight, Star, Trophy, Rocket, Briefcase, GraduationCap,
 } from "lucide-react";
 import { useWebinarSettings } from "@/hooks/useWebinarSettings";
 import SEOHead from "@/components/seo/SEOHead";
@@ -89,6 +89,10 @@ const Masterclass = () => {
   );
   const seatsPct = Math.max(8, Math.min(92, Math.round((seatsLeft / Math.max(s.seats_total, 1)) * 100)));
   const priceLabel = s.is_free ? "Free" : `₹${Number(s.price_inr).toFixed(0)}`;
+  const GST_RATE = 0.18;
+  const gstAmount = s.is_free ? 0 : Math.round(Number(s.price_inr) * GST_RATE);
+  const grossPrice = s.is_free ? 0 : Number(s.price_inr) + gstAmount;
+  const grossLabel = s.is_free ? "Free" : `₹${grossPrice}`;
 
   // Total bonus value (sums "₹1,999" style strings)
   const totalBonusValue = s.bonuses.reduce((sum, b) => {
@@ -99,9 +103,9 @@ const Masterclass = () => {
   const CTA = ({ size = "lg", className = "" }: { size?: "lg" | "default"; className?: string }) => (
     <Button
       onClick={() => setOpen(true)}
-      className={`rounded-full font-semibold bg-[#412A86] hover:bg-[#412A86]/90 text-white shadow-[0_10px_30px_-10px_rgba(65,42,134,0.55)] hover:-translate-y-0.5 transition-all ${size === "lg" ? "h-14 px-8 text-base" : "h-12 px-6 text-sm"} ${className}`}
+      className={`rounded-xl font-semibold bg-[#412A86] hover:bg-[#371f78] text-white shadow-sm hover:shadow-md transition-all ${size === "lg" ? "h-14 px-8 text-base" : "h-12 px-6 text-sm"} ${className}`}
     >
-      {s.is_free ? "Reserve Free Seat" : `Register for ${priceLabel}`}
+      {s.is_free ? "Reserve Free Seat" : `Register for ${grossLabel}`}
     </Button>
   );
 
