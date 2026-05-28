@@ -1,4 +1,4 @@
-import { useMemo, useState, lazy, Suspense } from "react";
+import React, { useMemo, useState, lazy, Suspense, Fragment } from "react";
 import {
   Compass, Layers, Plug, Cpu, TrendingUp, IndianRupee, Map as MapIcon,
   Award, CheckCircle2, Sparkles, Clock, Users, Gift, ShieldCheck,
@@ -238,14 +238,14 @@ const Masterclass = () => {
               {/* Subtle backglow */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[var(--mc-primary)]/5 to-transparent blur-2xl pointer-events-none" />
               
-              <div className="relative flex items-center justify-center gap-3 sm:gap-6 md:gap-12">
+              <div className="relative flex items-center justify-between w-full">
                 {[
                   ["100+", "Agents trained"],
                   ["30+", "Global destinations"],
                   ["15+", "Years of experience"],
-                ].map(([n, l], i) => (
-                  <div key={l} className="flex items-center gap-3 sm:gap-6 md:gap-12">
-                    <div className="flex flex-col items-center group cursor-default">
+                ].map(([n, l], i, arr) => (
+                  <React.Fragment key={l}>
+                    <div className="flex-1 flex flex-col items-center group cursor-default px-2">
                       <div className="text-3xl md:text-5xl font-black whitespace-nowrap text-transparent bg-clip-text bg-gradient-to-b from-white to-[var(--mc-primary)] group-hover:scale-110 transition-transform duration-500 drop-shadow-[0_0_15px_rgba(208,188,255,0.2)] group-hover:drop-shadow-[0_0_25px_rgba(208,188,255,0.6)]">
                         {n}
                       </div>
@@ -255,10 +255,10 @@ const Masterclass = () => {
                     </div>
                     
                     {/* Gradient Divider */}
-                    {i !== 2 && (
-                      <div className="w-px h-12 md:h-16 bg-gradient-to-b from-transparent via-[rgba(213,189,240,0.3)] to-transparent" />
+                    {i !== arr.length - 1 && (
+                      <div className="w-px h-12 md:h-16 bg-gradient-to-b from-transparent via-[rgba(213,189,240,0.3)] to-transparent shrink-0" />
                     )}
-                  </div>
+                  </React.Fragment>
                 ))}
               </div>
             </div>
