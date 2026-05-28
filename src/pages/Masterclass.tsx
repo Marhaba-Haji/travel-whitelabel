@@ -656,7 +656,7 @@ const Masterclass = () => {
               </button>
               <p className="mt-3 text-sm text-[var(--mc-on-surface-variant)] inline-flex items-center justify-center gap-2 w-full">
                 <ShieldCheck className="h-4 w-4" />{" "}
-                {s.is_free ? "Free · No card needed" : "Secure PayU · 24-hour refund"}
+                {s.is_free ? "Free · No card needed" : "Secure PayU"}
               </p>
             </div>
           </div>
