@@ -47,7 +47,7 @@ CREATE TABLE public.webinar_settings (
     {"icon":"Cpu","title":"AI + Automation as Your First 5 Employees","desc":"Voice AI for sales, AI itinerary builders, automated visa checks — what to deploy first."},
     {"icon":"TrendingUp","title":"The Scale-Up Playbook for Existing Agents","desc":"How to break the plateau: outbound packages, B2B portals, white-label storefronts."},
     {"icon":"IndianRupee","title":"Pricing, Margins & Cashflow That Actually Work","desc":"Realistic margin benchmarks for FIT, GIT, Hajj/Umrah and corporate — and how to protect them."},
-    {"icon":"Map","title":"Your First 90-Day Action Plan","desc":"Exactly what to do in week 1, month 1 and quarter 1 — measurable milestones."}
+    {"icon":"Map","title":"Your First 30-Day Action Plan","desc":"Exactly what to do in week 1 and month 1 — measurable milestones."}
   ]'::jsonb,
 
   agenda jsonb NOT NULL DEFAULT '[
@@ -56,7 +56,7 @@ CREATE TABLE public.webinar_settings (
     {"time":"0:45 – 1:10","title":"Supplier access + sourcing playbook","desc":"How to get to yes."},
     {"time":"1:10 – 1:30","title":"AI + automation stack demo","desc":"Real tools, real workflows."},
     {"time":"1:30 – 1:50","title":"Scale-up case studies","desc":"From plateau to growth."},
-    {"time":"1:50 – 2:00","title":"Q&A + 90-day action plan","desc":"Open mic and next steps."}
+    {"time":"1:50 – 2:00","title":"Q&A + 30-day action plan","desc":"Open mic and next steps."}
   ]'::jsonb,
 
   bonuses jsonb NOT NULL DEFAULT '[

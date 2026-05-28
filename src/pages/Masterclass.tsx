@@ -222,7 +222,7 @@ const Masterclass = () => {
 
               <p className="relative mt-3 text-xs text-center text-[var(--mc-on-surface-variant)] inline-flex items-center justify-center gap-1.5 w-full">
                 <ShieldCheck className="h-3.5 w-3.5 text-[var(--mc-secondary-bright)]" />
-                {s.is_free ? "100% free · No card needed" : "Secure PayU checkout · 24-hour full refund"}
+                {s.is_free ? "100% free · No card needed" : "Secure PayU checkout"}
               </p>
 
               <div className="relative mt-6 pt-5 border-t border-[rgba(213,189,240,0.12)]">
@@ -635,7 +635,7 @@ const Masterclass = () => {
               <Star className="h-3 w-3" fill="currentColor" /> Final call
             </span>
             <h2 className="mc-h-lg mt-5 text-[var(--mc-on-surface)]">
-              Your next 90 days could{" "}
+              Your next 30 days could{" "}
               <span className="text-[var(--mc-secondary-bright)]">change everything</span>
             </h2>
             <p className="mt-5 text-[var(--mc-on-surface-variant)] mc-body-lg">
