@@ -1,70 +1,151 @@
+
 ## Goal
 
-Introduce a Monthly billing option alongside the existing Annual plans, re-price everything, and wire the new pricing through every surface — pricing section, signup, order summary, payment, and the admin Pricing tab — without breaking the design system.
+A dedicated, high-conversion `/masterclass` landing page modeled after Be10x / Outskill / GrowthSchool style — long, single-column, scroll-driven, sticky CTA, countdown — to collect paid registrations (₹99) for a 2-hour webinar by **Harab Rasheed** on starting or scaling a global tourism business. All webinar details are admin-editable. Reuses the site's existing design tokens (indigo `#412A86`, violet `#B968C7`, Poppins) so it feels native to marhabadmc.com.
 
-## New Pricing
+---
 
-| Plan      | Monthly   | Annual (new) | Annual (old) |
-|-----------|-----------|--------------|--------------|
-| Launch    | ₹2,999/mo | ₹19,999/yr   | ₹24,999      |
-| Growth    | ₹3,999/mo | ₹29,999/yr   | ₹29,999      |
-| Authority | ₹4,999/mo | ₹39,999/yr   | ₹34,999      |
+## Page structure (`/masterclass`)
 
-GST (18%) continues to apply on top of base price.
+Long-form, single-column, mobile-first. Each section spaced like the existing landing pages.
 
-## UX Approach
+```text
+[Sticky top bar]  Next session in 02d : 14h : 22m : 09s   [Register for ₹99]
+─────────────────────────────────────────────────────────
+HERO
+  Eyebrow: LIVE MASTERCLASS · 2 HOURS · ENGLISH + HINDI
+  H1:  Start or Scale a Global Tourism Business
+       in the next 90 days
+  Sub: Step-by-step blueprint from someone who runs an
+       inbound + outbound DMC serving agents in 14+ countries.
+  Date / Time pill · Duration pill · Seats-left pill (dynamic)
+  [Register Now — ₹99]  ← opens inline form / scrolls to form
+  Below CTA: tiny trust row (agents trained · countries · years)
+─────────────────────────────────────────────────────────
+WHO THIS IS FOR (two-column "Is this you?")
+  Column A — "Absolutely new to the industry"
+  Column B — "Already in travel, struggling to scale"
+─────────────────────────────────────────────────────────
+WHAT YOU WILL LEARN  (5–7 outcome bullets, icon + headline + 1 line)
+─────────────────────────────────────────────────────────
+WHY NOW  (industry stat block: India outbound projected $410B by 2030, etc.)
+─────────────────────────────────────────────────────────
+ABOUT YOUR HOST — Harab Rasheed
+  Photo · Name · One-liner positioning
+  Long bio (auto-pulled marketing copy — see below)
+  Credibility chips (Founder MarhabaDMC, 14+ yrs in travel,
+    served 1000+ agents, AI-first DMC, etc.)
+─────────────────────────────────────────────────────────
+AGENDA  (timed breakdown: 0:00–0:20 …, 0:20–0:50 …)
+─────────────────────────────────────────────────────────
+BONUSES  (3 cards: "Starter Toolkit PDF", "Supplier Contact Sheet",
+          "1-on-1 30-min strategy call after webinar")
+─────────────────────────────────────────────────────────
+FAQ  (accordion — 6–8 Qs)
+─────────────────────────────────────────────────────────
+FINAL CTA BAND  (gradient indigo/violet, big register button, countdown repeat)
+─────────────────────────────────────────────────────────
+Footer (reuse existing <Footer />)
 
-- A single segmented **Monthly / Annual** toggle at the top of the pricing grid (and a smaller version at the top of the Signup plan selector). Annual is the default and shows a "Save ~XX%" chip computed automatically from the two prices.
-- Plan cards smoothly swap price + suffix (`/month` vs `/year`) on toggle. Layout, typography, colors, spacing stay identical — only the price node animates (subtle fade).
-- Signup carries the chosen cycle via `?plan=growth&cycle=monthly` URL param, and the OrderSummary, registration row, and PayU payload all reflect the cycle + amount.
-- Admin **Pricing tab** gets a second column of inputs (Monthly base) next to the existing Annual base, plus an updated live preview showing both.
-
-## Plan
-
-### 1. Data layer — `site_settings.plans_pricing`
-
-Extend the JSON shape (backwards-compatible, defaults fill missing keys):
-```json
-{
-  "launch": 19999, "growth": 29999, "authority": 39999,
-  "launch_monthly": 2999, "growth_monthly": 3999, "authority_monthly": 4999,
-  "gst_percent": 18, "currency": "INR"
-}
+[Mobile sticky bottom bar]  ₹99 · Register → (always visible)
 ```
-Update the existing `plans_pricing` row via an insert tool call (data update, no schema migration needed). Defaults in `usePlans.ts` and `PricingTab.tsx` updated to match.
 
-### 2. `src/hooks/usePlans.ts`
+Design language reuses tokens from `src/lib/design-tokens.ts` (`BRAND`, `CARD_BASE`, `PRIMARY_BTN`), Poppins headings, indigo CTA, soft white cards with hairline borders. Countdown component already exists at `src/components/CountdownTimer.tsx`.
 
-- Add `BillingCycle = "monthly" | "annual"` type and `monthly` price on each plan in the returned `plans` array.
-- Helpers: `priceFor(planKey, cycle)`, `formatted(planKey, cycle)`, `annualSavingsPercent(planKey)` (computed from monthly*12 vs annual).
+---
 
-### 3. Pricing section — `src/components/landing/Pricing.tsx`
+## Registration flow
 
-- Add a `billingCycle` state + segmented toggle (reuse existing rounded-pill styling, `bg-[#FAFAFC]` track, `#412A86` active pill). Annual pill shows the "Save XX%" micro-chip.
-- `PlanCard` receives `cycle` and renders `/month` or `/year` suffix; price swaps with a 150ms fade.
-- CTA link becomes `/signup?plan=<key>&cycle=<cycle>`.
-- "Why Growth / Why Authority" persuasion blocks recompute deltas from the active cycle.
+1. User clicks **Register** → in-page modal (`<Dialog>`) with: Full name, Email, Phone (with dial-code picker — reuse `src/lib/dial-codes.ts`), Country (reuse `src/lib/countries.ts`).
+2. On submit:
+   - Insert row into `webinar_registrations` with `status = 'pending'`, attribution UTM (reuse `getAttribution()` / `getSessionId()` from `useSessionTracking`).
+   - Call existing `create-payment` PayU edge function with amount from admin settings, `productinfo = 'Masterclass: <title>'`, success/failure URLs `/masterclass/success?reg=<id>` and `/masterclass/failed?reg=<id>`.
+3. PayU redirects to existing `payu-callback` edge function → we extend it to handle `txn_type=webinar` and update the registration row to `status = 'paid'`, then redirect to `/masterclass/success?reg=<id>`.
+4. On `payment_status = 'paid'`, the success page fires:
+   - `send-transactional-email` (Lovable Email — new template `webinar-confirmation`) with date/time/join link/calendar `.ics` attachment-style link.
+   - `send-whatsapp` (existing function) with a templated confirmation + join link.
+5. Success page shows: "You're in", calendar buttons (Google/Apple/Outlook — reuse `src/lib/ics.ts`), WhatsApp group invite (optional admin field), and a "Add to home screen" prompt.
 
-### 4. Signup page + form
+Idempotency: webhook updates use `txnid` as natural key; emails/WhatsApp guarded by `confirmation_sent_at` column so duplicates can't be sent on PayU retries.
 
-- `src/pages/Signup.tsx`: read `cycle` from URL params (default `annual`), pass to `SignupForm` + plan selector. Add a small Monthly/Annual segmented toggle above the plan list.
-- `src/components/auth/SignupForm.tsx`: accept `billingCycle` + `planMonthlyPrice`. Use the cycle's base price for `planBasePrice` and pass `billingCycle` + `planName` (e.g. "Growth Plan — Monthly") to the edge function and to `OrderSummary`.
-- `src/components/auth/OrderSummary.tsx`: show "Billing: Monthly" / "Annual" row and adjust the footer copy ("Monthly Subscription" vs "Annual Subscription").
+---
 
-### 5. Admin Pricing tab — `src/components/admin/PricingTab.tsx`
+## Admin editability
 
-- Add three new inputs for monthly base prices. Save payload includes both yearly and monthly fields. Preview card shows both totals side by side with GST.
+New tab in `/admin` → **Masterclass** (next to existing Hero Content tab). Edits a single-row settings table `webinar_settings`:
 
-### 6. Edge function — `supabase/functions/create-payment/index.ts`
+- `title`, `subtitle`, `host_name`, `host_bio_markdown`, `host_photo_url`
+- `scheduled_at` (timestamptz), `duration_minutes`, `timezone`
+- `price_inr` (default 99), `currency` (default INR), `is_free` (bool)
+- `seats_total`, `seats_reserved_buffer` (controls "seats left" display)
+- `learning_points` (jsonb array), `agenda` (jsonb array), `bonuses` (jsonb array), `faqs` (jsonb array), `who_for_beginner` (jsonb array of bullets), `who_for_scaler` (jsonb array of bullets)
+- `join_url` (sent on confirmation), `whatsapp_group_url` (optional)
+- `is_published` (bool — toggles `/masterclass` visibility; off shows a "Next session coming soon" placeholder)
 
-- Accept `billingCycle` in the body, persist it on the `registrations` row (`plan_name` already carries the label, so append "— Monthly"/"— Annual"). No schema change needed; PayU `productInfo` reflects the cycle.
+Plus a sub-tab **Registrations** that lists `webinar_registrations` with filters (paid / pending / all), CSV export, and a manual "Resend confirmation" button per row.
 
-### 7. QA pass
+---
 
-- Toggle on `/#pricing` swaps prices and CTA hrefs.
-- Direct link `/signup?plan=launch&cycle=monthly` pre-selects correctly, OrderSummary shows ₹2,999 + 18% GST, PayU receives the right amount.
-- Admin tab edits live-update the public pricing.
+## Email + WhatsApp
 
-## Out of scope
+- Lovable Emails infrastructure: domain `notify.marhabadmc.com` is already configured for the project (existing email-using flows). We will scaffold the transactional email pipeline if not already present, then add a `webinar-confirmation` React Email template branded with indigo / violet / Poppins, including date in IST, join link, add-to-calendar link, host name, and "what to bring".
+- WhatsApp: reuse existing `send-whatsapp` edge function (Twilio) with a short formatted message + join link. Validates E.164 phone before sending.
 
-- Recurring billing automation (PayU mandate/UPI autopay). Monthly plans will still be charged via PayU as a one-time charge with the monthly amount; recurring renewal automation is a separate effort. I will flag this with a small note in the admin tab.
+---
+
+## Files / migrations (technical section)
+
+**New migration**
+- `public.webinar_settings` (single-row enforced via unique partial index `where singleton = true`), fields per above. GRANTs: `anon SELECT`, `authenticated SELECT/INSERT/UPDATE`, `service_role ALL`. RLS: public read when `is_published = true`; superadmin/edit-permission write via `has_admin_edit(auth.uid(), 'masterclass')`.
+- `public.webinar_registrations` (`id`, `full_name`, `email`, `phone_e164`, `country_code`, `dial_code`, `utm` jsonb, `session_id`, `amount_inr`, `txnid`, `payu_mihpayid`, `status` enum `pending|paid|failed|refunded`, `confirmation_email_sent_at`, `confirmation_whatsapp_sent_at`, `created_at`, `updated_at`). GRANTs: `anon INSERT` (anonymous signups), `authenticated SELECT/INSERT`, `service_role ALL`. RLS: anyone can insert their own row; only admins can read; service role writes status updates.
+- New `app_permission_module` value `'masterclass'` (or use existing pattern) for the admin tab gate.
+
+**New routes** (`src/App.tsx`)
+- `/masterclass` → `pages/Masterclass.tsx`
+- `/masterclass/success` → `pages/MasterclassSuccess.tsx`
+- `/masterclass/failed` → `pages/MasterclassFailed.tsx`
+
+**New components** (under `src/components/masterclass/`)
+- `MasterclassHero.tsx`, `WhoThisIsFor.tsx`, `LearningPoints.tsx`, `WhyNow.tsx`, `HostBio.tsx`, `Agenda.tsx`, `Bonuses.tsx`, `MasterclassFAQ.tsx`, `FinalCTA.tsx`, `RegisterDialog.tsx`, `StickyRegisterBar.tsx`, `TopCountdownBar.tsx`.
+
+**New hooks**
+- `useWebinarSettings.ts` (public read), `useManageWebinarSettings.ts` (admin write), `useWebinarRegistrations.ts` (admin list).
+
+**Admin**
+- `src/components/admin/MasterclassTab.tsx` (settings form + registrations subview), added to `src/pages/Admin.tsx` tab list and to `AdminLayout` sidebar.
+
+**Edge functions**
+- Extend `supabase/functions/payu-callback/index.ts` to branch on `txn_type=webinar` (encoded in `udf1`) and update `webinar_registrations` instead of subscriptions, then call `send-transactional-email` + `send-whatsapp`.
+- Extend `supabase/functions/create-payment/index.ts` to accept a `purpose: 'webinar'` payload that pulls amount from `webinar_settings.price_inr` and passes `udf1='webinar'`, `udf2=<registration_id>`.
+- New transactional template `supabase/functions/_shared/transactional-email-templates/webinar-confirmation.tsx` + register in `registry.ts`.
+
+**SEO**
+- `<SEOHead>` on `/masterclass` with India-localized OG, Event JSON-LD (`@type: Event`, `eventStatus`, `eventAttendanceMode: OnlineEventAttendanceMode`, `organizer`, `offers` with INR price and availability, `performer: Harab Rasheed`). Sitemap entry added.
+
+**Sitemap & robots**
+- Add `/masterclass` to `supabase/functions/sitemap/index.ts` static routes.
+
+---
+
+## Host marketing copy (seeded into `webinar_settings.host_bio_markdown`)
+
+Pre-filled, admin-editable, drawn from existing About page + brand memory. Headline: *"Harab Rasheed — Founder, MarhabaDMC."* Bio bullets: 14+ years in inbound/outbound travel; built an AI-first DMC serving agents in 14+ countries; trained 1000+ travel agents; specializes in Hajj/Umrah, halal travel, and B2B portals; product builder behind voice AI, itinerary builder, and visa automation tools used by Indian travel businesses.
+
+---
+
+## Out of scope (will not build now)
+
+- Recurring/weekly session scheduling UI (single upcoming session at a time; admin updates `scheduled_at` for the next one).
+- Free webinar variant — `is_free` toggle is wired, but the free flow skips PayU and is a thin branch in `RegisterDialog`.
+- Affiliate tracking, coupon codes (can add later via existing `coupons` infrastructure).
+- Post-webinar replay gating.
+
+---
+
+## Open questions before build
+
+1. **Email sender**: use Lovable Emails (recommended, already on `notify.marhabadmc.com`) or your existing Resend secret? I will default to Lovable Emails unless you say Resend.
+2. **PayU mode**: keep `PAYU_MODE` as currently set (test vs production)? ₹99 needs production.
+3. **Confirm permission module name**: add `'masterclass'` as a new RBAC module, or fold into an existing one like `'marketing'`?
+
+If those are fine as defaulted (Lovable Emails, current PayU mode, new `'masterclass'` module), I'll proceed exactly as above.
