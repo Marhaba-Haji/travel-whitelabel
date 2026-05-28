@@ -283,7 +283,8 @@ const Masterclass = () => {
 
               {/* Trust badges below card */}
               <div className="mt-4 flex items-center justify-center gap-5 text-[11px] text-foreground/55">
-                <span className="inline-flex items-center gap-1.5"><Lock /> </span>
+                <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5" /> 256-bit SSL</span>
+                <span className="inline-flex items-center gap-1.5"><BadgeCheck className="h-3.5 w-3.5" /> GST invoice</span>
               </div>
             </div>
           </div>
