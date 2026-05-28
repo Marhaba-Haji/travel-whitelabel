@@ -352,6 +352,7 @@ const Blog = () => {
                     disabled={activePage <= 1}
                     onClick={() => goToPage(activePage - 1)}
                     className="rounded-full border-gray-200"
+                    aria-label="Previous page"
                   >
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
@@ -372,6 +373,7 @@ const Blog = () => {
                     disabled={activePage >= totalPages}
                     onClick={() => goToPage(activePage + 1)}
                     className="rounded-full border-gray-200"
+                    aria-label="Next page"
                   >
                     <ChevronRight className="h-4 w-4" />
                   </Button>
