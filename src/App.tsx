@@ -45,6 +45,9 @@ const UmrahVisaCheck = lazy(() => import("./pages/UmrahVisaCheck"));
 const Resource = lazy(() => import("./pages/Resource"));
 const BookDemo = lazy(() => import("./pages/BookDemo"));
 const Contact = lazy(() => import("./pages/Contact"));
+const Masterclass = lazy(() => import("./pages/Masterclass"));
+const MasterclassSuccess = lazy(() => import("./pages/MasterclassSuccess"));
+const MasterclassFailed = lazy(() => import("./pages/MasterclassFailed"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -96,6 +99,9 @@ const App = () => (
                 <Route path="/resource/:slug" element={<Resource />} />
                 <Route path="/book-demo" element={<BookDemo />} />
                 <Route path="/contact" element={<Contact />} />
+                <Route path="/masterclass" element={<Masterclass />} />
+                <Route path="/masterclass/success" element={<MasterclassSuccess />} />
+                <Route path="/masterclass/failed" element={<MasterclassFailed />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

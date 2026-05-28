@@ -24,6 +24,8 @@ Deno.serve(async (req) => {
     const status = data.status || "";
     const isSuccess = status === "success";
     const frontendUrl = data.udf5 || "https://marhabadmc.com";
+    const purpose = data.udf1 || "";
+    const webinarRegId = purpose === "webinar" ? (data.udf2 || "") : "";
 
     if (txnid) {
       const { data: payment } = await supabase
@@ -70,6 +72,35 @@ Deno.serve(async (req) => {
           status: isSuccess ? "success" : (status || "failed"),
         });
       }
+    }
+
+    // Webinar registration handling
+    if (webinarRegId) {
+      const newStatus = isSuccess ? "paid" : "failed";
+      await supabase
+        .from("webinar_registrations")
+        .update({
+          status: newStatus,
+          payu_mihpayid: data.mihpayid || null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", webinarRegId);
+
+      if (isSuccess) {
+        // Fire confirmation (email + WhatsApp) — fire-and-forget
+        const EDGE_BASE = `${SUPABASE_URL}/functions/v1`;
+        fetch(`${EDGE_BASE}/webinar-confirm`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}` },
+          body: JSON.stringify({ registrationId: webinarRegId }),
+        }).catch((e) => console.error("webinar-confirm dispatch failed:", e));
+      }
+
+      const base = frontendUrl.replace(/\/$/, "");
+      const redirectUrl = isSuccess
+        ? `${base}/masterclass/success?reg=${webinarRegId}`
+        : `${base}/masterclass/failed?reg=${webinarRegId}`;
+      return new Response(null, { status: 302, headers: { Location: redirectUrl } });
     }
 
     const redirectUrl = isSuccess

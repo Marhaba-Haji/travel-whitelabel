@@ -1213,6 +1213,162 @@ export type Database = {
         }
         Relationships: []
       }
+      webinar_registrations: {
+        Row: {
+          amount_inr: number
+          city: string | null
+          confirmation_email_sent_at: string | null
+          confirmation_whatsapp_sent_at: string | null
+          country_code: string | null
+          created_at: string
+          currency: string
+          dial_code: string | null
+          email: string
+          full_name: string
+          id: string
+          payu_mihpayid: string | null
+          phone_e164: string
+          session_id: string | null
+          status: string
+          txnid: string | null
+          updated_at: string
+          utm: Json
+        }
+        Insert: {
+          amount_inr?: number
+          city?: string | null
+          confirmation_email_sent_at?: string | null
+          confirmation_whatsapp_sent_at?: string | null
+          country_code?: string | null
+          created_at?: string
+          currency?: string
+          dial_code?: string | null
+          email: string
+          full_name: string
+          id?: string
+          payu_mihpayid?: string | null
+          phone_e164: string
+          session_id?: string | null
+          status?: string
+          txnid?: string | null
+          updated_at?: string
+          utm?: Json
+        }
+        Update: {
+          amount_inr?: number
+          city?: string | null
+          confirmation_email_sent_at?: string | null
+          confirmation_whatsapp_sent_at?: string | null
+          country_code?: string | null
+          created_at?: string
+          currency?: string
+          dial_code?: string | null
+          email?: string
+          full_name?: string
+          id?: string
+          payu_mihpayid?: string | null
+          phone_e164?: string
+          session_id?: string | null
+          status?: string
+          txnid?: string | null
+          updated_at?: string
+          utm?: Json
+        }
+        Relationships: []
+      }
+      webinar_settings: {
+        Row: {
+          agenda: Json
+          bonuses: Json
+          created_at: string
+          currency: string
+          duration_minutes: number
+          eyebrow: string
+          faqs: Json
+          host_bio_markdown: string
+          host_name: string
+          host_photo_url: string | null
+          host_title: string
+          id: string
+          is_free: boolean
+          is_published: boolean
+          join_url: string | null
+          learning_points: Json
+          price_inr: number
+          scheduled_at: string
+          seats_reserved_buffer: number
+          seats_total: number
+          singleton: boolean
+          subtitle: string
+          timezone: string
+          title: string
+          updated_at: string
+          whatsapp_group_url: string | null
+          who_for_beginner: Json
+          who_for_scaler: Json
+        }
+        Insert: {
+          agenda?: Json
+          bonuses?: Json
+          created_at?: string
+          currency?: string
+          duration_minutes?: number
+          eyebrow?: string
+          faqs?: Json
+          host_bio_markdown?: string
+          host_name?: string
+          host_photo_url?: string | null
+          host_title?: string
+          id?: string
+          is_free?: boolean
+          is_published?: boolean
+          join_url?: string | null
+          learning_points?: Json
+          price_inr?: number
+          scheduled_at?: string
+          seats_reserved_buffer?: number
+          seats_total?: number
+          singleton?: boolean
+          subtitle?: string
+          timezone?: string
+          title?: string
+          updated_at?: string
+          whatsapp_group_url?: string | null
+          who_for_beginner?: Json
+          who_for_scaler?: Json
+        }
+        Update: {
+          agenda?: Json
+          bonuses?: Json
+          created_at?: string
+          currency?: string
+          duration_minutes?: number
+          eyebrow?: string
+          faqs?: Json
+          host_bio_markdown?: string
+          host_name?: string
+          host_photo_url?: string | null
+          host_title?: string
+          id?: string
+          is_free?: boolean
+          is_published?: boolean
+          join_url?: string | null
+          learning_points?: Json
+          price_inr?: number
+          scheduled_at?: string
+          seats_reserved_buffer?: number
+          seats_total?: number
+          singleton?: boolean
+          subtitle?: string
+          timezone?: string
+          title?: string
+          updated_at?: string
+          whatsapp_group_url?: string | null
+          who_for_beginner?: Json
+          who_for_scaler?: Json
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
