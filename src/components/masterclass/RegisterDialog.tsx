@@ -33,6 +33,8 @@ interface Props {
 
 const RegisterDialog = ({ open, onOpenChange, priceInr, isFree, title }: Props) => {
   const [loading, setLoading] = useState(false);
+  const gstAmount = isFree ? 0 : Math.round(priceInr * 0.18);
+  const totalPayable = isFree ? 0 : priceInr + gstAmount;
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: { fullName: "", email: "", dialCode: "+91", phone: "", countryCode: "IN" },
@@ -89,7 +91,7 @@ const RegisterDialog = ({ open, onOpenChange, priceInr, isFree, title }: Props) 
         <DialogHeader>
           <DialogTitle className="font-display text-2xl">Reserve your seat</DialogTitle>
           <DialogDescription className="text-foreground/70">
-            {title} · {isFree ? "Free" : `₹${priceInr.toFixed(0)}`}
+            {title} · {isFree ? "Free" : `₹${totalPayable} (incl. 18% GST)`}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -138,12 +140,20 @@ const RegisterDialog = ({ open, onOpenChange, priceInr, isFree, title }: Props) 
               )} />
             </div>
 
+            {!isFree && (
+              <div className="rounded-lg bg-muted/50 border border-border p-3 space-y-1 text-sm">
+                <div className="flex justify-between text-foreground/70"><span>Seat price</span><span>₹{priceInr.toFixed(0)}</span></div>
+                <div className="flex justify-between text-foreground/70"><span>GST (18%)</span><span>₹{gstAmount}</span></div>
+                <div className="flex justify-between pt-1.5 border-t border-border font-bold text-foreground"><span>Total payable</span><span>₹{totalPayable}</span></div>
+              </div>
+            )}
+
             <Button type="submit" size="lg" disabled={loading}
               className="w-full h-12 rounded-full text-base font-semibold bg-[#412A86] hover:bg-[#412A86]/90 text-white shadow-lg">
               {loading ? (
                 <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Securing your seat…</>
               ) : (
-                <>{isFree ? "Confirm Free Seat" : `Pay ₹${priceInr.toFixed(0)} & Reserve`}</>
+                <>{isFree ? "Confirm Free Seat" : `Pay ₹${totalPayable} & Reserve`}</>
               )}
             </Button>
             <div className="flex items-center justify-center gap-4 text-xs text-foreground/60 pt-1">

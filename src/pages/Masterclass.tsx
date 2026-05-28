@@ -2,7 +2,7 @@ import { useMemo, useState, lazy, Suspense } from "react";
 import {
   Compass, Layers, Plug, Cpu, TrendingUp, IndianRupee, Map as MapIcon,
   Award, CheckCircle2, Sparkles, Clock, Users, Globe, Gift, ShieldCheck,
-  Calendar, Timer, BadgeCheck, Zap, ArrowRight, Star,
+  Calendar, Timer, BadgeCheck, Zap, ArrowRight, Star, Trophy, Rocket, Briefcase, GraduationCap,
 } from "lucide-react";
 import { useWebinarSettings } from "@/hooks/useWebinarSettings";
 import SEOHead from "@/components/seo/SEOHead";
@@ -89,6 +89,10 @@ const Masterclass = () => {
   );
   const seatsPct = Math.max(8, Math.min(92, Math.round((seatsLeft / Math.max(s.seats_total, 1)) * 100)));
   const priceLabel = s.is_free ? "Free" : `₹${Number(s.price_inr).toFixed(0)}`;
+  const GST_RATE = 0.18;
+  const gstAmount = s.is_free ? 0 : Math.round(Number(s.price_inr) * GST_RATE);
+  const grossPrice = s.is_free ? 0 : Number(s.price_inr) + gstAmount;
+  const grossLabel = s.is_free ? "Free" : `₹${grossPrice}`;
 
   // Total bonus value (sums "₹1,999" style strings)
   const totalBonusValue = s.bonuses.reduce((sum, b) => {
@@ -99,9 +103,9 @@ const Masterclass = () => {
   const CTA = ({ size = "lg", className = "" }: { size?: "lg" | "default"; className?: string }) => (
     <Button
       onClick={() => setOpen(true)}
-      className={`rounded-full font-semibold bg-[#412A86] hover:bg-[#412A86]/90 text-white shadow-[0_10px_30px_-10px_rgba(65,42,134,0.55)] hover:-translate-y-0.5 transition-all ${size === "lg" ? "h-14 px-8 text-base" : "h-12 px-6 text-sm"} ${className}`}
+      className={`rounded-xl font-semibold bg-[#412A86] hover:bg-[#371f78] text-white shadow-sm hover:shadow-md transition-all ${size === "lg" ? "h-14 px-8 text-base" : "h-12 px-6 text-sm"} ${className}`}
     >
-      {s.is_free ? "Reserve Free Seat" : `Register for ${priceLabel}`}
+      {s.is_free ? "Reserve Free Seat" : `Register for ${grossLabel}`}
     </Button>
   );
 
@@ -124,86 +128,164 @@ const Masterclass = () => {
             <span className="hidden sm:inline opacity-90">Live in</span>
             <CountdownPill scheduledAt={s.scheduled_at} variant="dark" className="!px-2 !py-1 !gap-2 scale-90 origin-left" />
           </div>
-          <button onClick={() => setOpen(true)} className="shrink-0 rounded-full bg-white text-[#412A86] font-semibold px-4 py-1.5 text-sm hover:bg-white/90 transition">
-            {s.is_free ? "Reserve" : `Register ${priceLabel}`}
+          <button onClick={() => setOpen(true)} className="shrink-0 rounded-lg bg-white text-[#412A86] font-semibold px-4 py-1.5 text-sm hover:bg-white/90 transition">
+            {s.is_free ? "Reserve" : `Register ${grossLabel}`}
           </button>
         </div>
       </div>
 
-      {/* HERO — premium register-card layout */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#f7f4ff] via-white to-[#fef0f8]">
-        <div className="absolute -top-40 -right-40 h-[28rem] w-[28rem] rounded-full bg-[#B968C7]/25 blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 h-[28rem] w-[28rem] rounded-full bg-[#412A86]/15 blur-3xl" />
-        <div className="container mx-auto px-4 pt-12 pb-16 md:pt-16 md:pb-24 relative">
-          <div className="max-w-3xl mx-auto text-center">
-            <span className="inline-flex items-center gap-2 rounded-full bg-white border border-[#412A86]/15 px-4 py-1.5 text-[11px] font-bold tracking-[0.18em] uppercase text-[#412A86] shadow-sm">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
+      {/* HERO — sharp, editorial, no heavy gradients */}
+      <section className="relative overflow-hidden bg-white border-b border-gray-100">
+        {/* subtle grid background */}
+        <div
+          aria-hidden
+          className="absolute inset-0 opacity-[0.35] pointer-events-none"
+          style={{
+            backgroundImage:
+              "linear-gradient(to right, rgba(65,42,134,0.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(65,42,134,0.06) 1px, transparent 1px)",
+            backgroundSize: "44px 44px",
+            maskImage: "radial-gradient(ellipse at center, black 40%, transparent 80%)",
+          }}
+        />
+        <div className="container mx-auto px-4 pt-10 pb-16 md:pt-16 md:pb-24 relative">
+          <div className="grid lg:grid-cols-[1.15fr_1fr] gap-10 lg:gap-14 items-start">
+            {/* Left — copy */}
+            <div>
+              <span className="inline-flex items-center gap-2 rounded-md bg-[#412A86]/5 border border-[#412A86]/15 px-3 py-1.5 text-[11px] font-bold tracking-[0.18em] uppercase text-[#412A86]">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
+                </span>
+                {s.eyebrow}
               </span>
-              {s.eyebrow}
-            </span>
-            <h1 className="font-poppins font-extrabold text-[2.5rem] sm:text-5xl md:text-[4.25rem] leading-[1.02] tracking-tight mt-6 text-gray-900">
-              {s.title.split(" ").slice(0, -3).join(" ")}{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#412A86] to-[#B968C7]">
-                {s.title.split(" ").slice(-3).join(" ")}
-              </span>
-            </h1>
-            <p className="mt-5 text-lg md:text-xl text-foreground/70 max-w-2xl mx-auto">
-              {s.subtitle}
-            </p>
 
-            {/* Register card */}
-            <div className="mt-10 mx-auto max-w-xl bg-white rounded-[2rem] border border-gray-100 shadow-[0_30px_80px_-30px_rgba(65,42,134,0.35)] p-6 md:p-7 text-left">
-              <div className="grid grid-cols-3 gap-3 pb-5 border-b border-gray-100">
-                <div>
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 flex items-center gap-1"><Calendar className="h-3 w-3" />Date</div>
-                  <div className="font-bold text-gray-900 text-sm mt-1">{whenLabel.split(",")[0]}, {whenLabel.split(",")[1]?.trim().split(" ").slice(0, 2).join(" ")}</div>
-                </div>
-                <div className="border-x border-gray-100 px-3">
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 flex items-center gap-1"><Timer className="h-3 w-3" />Duration</div>
-                  <div className="font-bold text-gray-900 text-sm mt-1">{s.duration_minutes} min</div>
-                </div>
-                <div className="text-right">
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 flex items-center gap-1 justify-end"><Users className="h-3 w-3" />Seats</div>
-                  <div className="font-bold text-emerald-600 text-sm mt-1">{seatsLeft} left</div>
-                </div>
-              </div>
-
-              {/* Seats bar */}
-              <div className="mt-4">
-                <div className="h-1.5 w-full rounded-full bg-gray-100 overflow-hidden">
-                  <div className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-500 transition-all" style={{ width: `${seatsPct}%` }} />
-                </div>
-                <div className="mt-1.5 text-[11px] text-foreground/55 flex justify-between">
-                  <span>Filling fast</span>
-                  <span>{seatsPct}% remaining</span>
-                </div>
-              </div>
-
-              <button onClick={() => setOpen(true)}
-                className="mt-5 w-full h-14 rounded-2xl bg-gradient-to-r from-[#412A86] to-[#5b3aaf] hover:from-[#371f78] hover:to-[#4e2fa0] text-white font-bold text-lg shadow-[0_15px_35px_-10px_rgba(65,42,134,0.55)] hover:-translate-y-0.5 transition-all inline-flex items-center justify-center gap-2">
-                {s.is_free ? "Reserve My Free Seat" : `Register for ${priceLabel} Only`}
-                <ArrowRight className="h-5 w-5" />
-              </button>
-              <p className="mt-3 text-xs text-center text-foreground/55 inline-flex items-center justify-center gap-1.5 w-full">
-                <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
-                {s.is_free ? "100% free · No card needed" : "Secure PayU checkout · 24-hour full refund"}
+              <h1 className="font-poppins font-extrabold text-[2.25rem] sm:text-5xl md:text-[3.75rem] leading-[1.04] tracking-[-0.02em] mt-5 text-[#0f0a24]">
+                {s.title.split(" ").slice(0, -3).join(" ")}{" "}
+                <span className="relative inline-block">
+                  <span className="relative z-10 text-[#412A86]">
+                    {s.title.split(" ").slice(-3).join(" ")}
+                  </span>
+                  <span className="absolute left-0 right-0 bottom-1 h-3 md:h-4 bg-[#B968C7]/25 -z-0 rounded-sm" />
+                </span>
+              </h1>
+              <p className="mt-5 text-base md:text-lg text-[#0f0a24]/70 max-w-xl leading-relaxed">
+                {s.subtitle}
               </p>
 
-              <div className="mt-6 pt-5 border-t border-gray-100">
-                <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 text-center mb-2">Doors close in</div>
-                <div className="flex justify-center">
-                  <CountdownPill scheduledAt={s.scheduled_at} variant="light" className="!border-0 !shadow-none" />
-                </div>
+              {/* Credential strip with icons */}
+              <div className="mt-7 grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-xl">
+                {[
+                  { Icon: GraduationCap, label: "1,000+ agents trained" },
+                  { Icon: Globe, label: "14+ countries" },
+                  { Icon: Trophy, label: "14 yrs in travel" },
+                  { Icon: Rocket, label: "AI-first DMC" },
+                ].map(({ Icon, label }) => (
+                  <div key={label} className="flex items-center gap-2.5 rounded-lg border border-gray-150 bg-white px-3 py-2.5">
+                    <div className="h-8 w-8 rounded-md bg-[#412A86]/8 flex items-center justify-center shrink-0">
+                      <Icon className="h-4 w-4 text-[#412A86]" strokeWidth={2.25} />
+                    </div>
+                    <span className="text-xs font-semibold text-[#0f0a24] leading-tight">{label}</span>
+                  </div>
+                ))}
               </div>
+
+              {/* Outcomes — sharp bullets */}
+              <ul className="mt-8 space-y-3 max-w-xl">
+                {[
+                  "Pick a profitable niche and price your first package",
+                  "Plug into IATA / NDC / hotel APIs without writing code",
+                  "Run paid acquisition that converts at ₹250 per lead",
+                ].map((line) => (
+                  <li key={line} className="flex items-start gap-3">
+                    <div className="mt-1 h-5 w-5 rounded-md bg-[#412A86] flex items-center justify-center shrink-0">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-white" strokeWidth={2.5} />
+                    </div>
+                    <span className="text-[15px] text-[#0f0a24]/85 leading-snug">{line}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
 
-            {/* Trust strip */}
-            <div className="mt-12 grid grid-cols-3 max-w-2xl mx-auto divide-x divide-gray-200">
-              <div className="px-2"><div className="text-2xl md:text-3xl font-extrabold text-[#412A86]">1,000+</div><div className="text-[10px] md:text-xs uppercase tracking-widest text-foreground/55 mt-1">Agents trained</div></div>
-              <div className="px-2"><div className="text-2xl md:text-3xl font-extrabold text-[#412A86]">14+</div><div className="text-[10px] md:text-xs uppercase tracking-widest text-foreground/55 mt-1">Countries</div></div>
-              <div className="px-2"><div className="text-2xl md:text-3xl font-extrabold text-[#412A86]">14 yrs</div><div className="text-[10px] md:text-xs uppercase tracking-widest text-foreground/55 mt-1">In travel</div></div>
+            {/* Right — register card */}
+            <div className="lg:sticky lg:top-20">
+              <div className="bg-white rounded-2xl border border-gray-200 shadow-[0_8px_30px_-12px_rgba(15,10,36,0.18)] overflow-hidden">
+                {/* Top stripe */}
+                <div className="bg-[#0f0a24] text-white px-5 py-3 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-[#B968C7]" />
+                    <span className="text-[11px] font-bold tracking-[0.18em] uppercase">Live Masterclass</span>
+                  </div>
+                  <CountdownPill scheduledAt={s.scheduled_at} variant="dark" className="!px-2 !py-1 scale-90 origin-right" />
+                </div>
+
+                <div className="p-6">
+                  {/* Date / Duration / Seats grid */}
+                  <div className="grid grid-cols-3 gap-4 pb-5 border-b border-gray-100">
+                    <div className="flex flex-col gap-1">
+                      <Calendar className="h-4 w-4 text-[#412A86]" strokeWidth={2.25} />
+                      <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Date</div>
+                      <div className="font-bold text-[#0f0a24] text-sm leading-tight">
+                        {whenLabel.split(",")[1]?.trim().split(" ").slice(0, 2).join(" ")}
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-1 border-x border-gray-100 px-3">
+                      <Timer className="h-4 w-4 text-[#412A86]" strokeWidth={2.25} />
+                      <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Duration</div>
+                      <div className="font-bold text-[#0f0a24] text-sm leading-tight">{s.duration_minutes} min</div>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <Users className="h-4 w-4 text-emerald-600" strokeWidth={2.25} />
+                      <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Seats</div>
+                      <div className="font-bold text-emerald-600 text-sm leading-tight">{seatsLeft} left</div>
+                    </div>
+                  </div>
+
+                  {/* Seats bar */}
+                  <div className="mt-4">
+                    <div className="h-1.5 w-full rounded-full bg-gray-100 overflow-hidden">
+                      <div className="h-full rounded-full bg-emerald-500 transition-all" style={{ width: `${seatsPct}%` }} />
+                    </div>
+                    <div className="mt-1.5 text-[11px] text-foreground/55 flex justify-between">
+                      <span>Filling fast</span>
+                      <span>{seatsPct}% remaining</span>
+                    </div>
+                  </div>
+
+                  {/* Price breakdown */}
+                  {!s.is_free && (
+                    <div className="mt-5 rounded-lg bg-gray-50 border border-gray-100 p-4 space-y-1.5 text-sm">
+                      <div className="flex justify-between text-[#0f0a24]/70">
+                        <span>Seat price</span>
+                        <span className="font-medium">₹{Number(s.price_inr).toFixed(0)}</span>
+                      </div>
+                      <div className="flex justify-between text-[#0f0a24]/70">
+                        <span>GST (18%)</span>
+                        <span className="font-medium">₹{gstAmount}</span>
+                      </div>
+                      <div className="flex justify-between pt-2 border-t border-gray-200 text-[#0f0a24] font-bold text-base">
+                        <span>Total payable</span>
+                        <span>₹{grossPrice}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  <button onClick={() => setOpen(true)}
+                    className="mt-5 w-full h-13 py-4 rounded-xl bg-[#412A86] hover:bg-[#371f78] text-white font-bold text-base shadow-sm hover:shadow-md transition-all inline-flex items-center justify-center gap-2">
+                    {s.is_free ? "Reserve My Free Seat" : `Register Now · ₹${grossPrice}`}
+                    <ArrowRight className="h-4 w-4" strokeWidth={2.5} />
+                  </button>
+                  <p className="mt-3 text-xs text-center text-foreground/60 inline-flex items-center justify-center gap-1.5 w-full">
+                    <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" strokeWidth={2.25} />
+                    {s.is_free ? "100% free · No card needed" : "Secure PayU checkout · 24-hour refund"}
+                  </p>
+                </div>
+              </div>
+
+              {/* Trust badges below card */}
+              <div className="mt-4 flex items-center justify-center gap-5 text-[11px] text-foreground/55">
+                <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5" /> 256-bit SSL</span>
+                <span className="inline-flex items-center gap-1.5"><BadgeCheck className="h-3.5 w-3.5" /> GST invoice</span>
+              </div>
             </div>
           </div>
         </div>
