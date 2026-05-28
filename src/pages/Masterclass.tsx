@@ -127,7 +127,7 @@ const Masterclass = () => {
 
       {/* Sticky top countdown bar */}
       <div className="sticky top-0 z-40 backdrop-blur-xl bg-[var(--mc-surface)]/85 border-b border-[rgba(213,189,240,0.12)]">
-        <div className="container mx-auto px-4 py-2.5 flex items-center justify-between gap-3 max-w-[1200px]">
+        <div className="container mx-auto px-4 py-2.5 flex items-center justify-center md:justify-between gap-3 max-w-[1200px]">
           <div className="flex items-center gap-2 min-w-0 text-sm">
             <Clock className="h-4 w-4 text-[var(--mc-primary)] shrink-0" />
             <span className="hidden sm:inline text-[var(--mc-on-surface-variant)]">Live in</span>
@@ -135,7 +135,7 @@ const Masterclass = () => {
           </div>
           <button
             onClick={() => setOpen(true)}
-            className="shrink-0 rounded-full bg-[var(--mc-secondary)] text-[var(--mc-on-secondary)] font-bold px-4 py-1.5 text-sm hover:bg-[var(--mc-secondary-bright)] transition"
+            className="hidden md:block shrink-0 rounded-full bg-[var(--mc-secondary)] text-[var(--mc-on-secondary)] font-bold px-4 py-1.5 text-sm hover:bg-[var(--mc-secondary-bright)] transition"
           >
             {s.is_free ? "Reserve" : `Register ${priceLabel}`}
           </button>
@@ -236,9 +236,9 @@ const Masterclass = () => {
             {/* Trust strip */}
             <div className="mt-14 grid grid-cols-3 max-w-2xl mx-auto divide-x divide-[rgba(213,189,240,0.15)]">
               {[
-                ["1,000+", "Agents trained"],
-                ["14+", "Countries"],
-                ["14 yrs", "In travel"],
+                ["100+", "Agents trained"],
+                ["30+", "Global destinations"],
+                ["15+ yrs", "Of experience"],
               ].map(([n, l]) => (
                 <div key={l} className="px-2">
                   <div className="text-2xl md:text-3xl font-extrabold text-[var(--mc-primary)]">{n}</div>
@@ -311,7 +311,7 @@ const Masterclass = () => {
               What you'll learn in 2 hours
             </h2>
             <p className="text-[var(--mc-on-surface-variant)] mt-4 max-w-xl mx-auto">
-              Seven modules, no fluff. Built from 14 years of real travel-business operations.
+              Seven modules, no fluff. Built from 15+ years of real travel-business operations.
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -406,8 +406,8 @@ const Masterclass = () => {
               <div className="mt-6 flex flex-wrap gap-2">
                 {[
                   "Founder, MarhabaDMC",
-                  "14+ yrs in Travel",
-                  "1,000+ Agents Trained",
+                  "15+ yrs of Experience",
+                  "100+ Agents Trained",
                   "AI-First DMC",
                   "Hajj & Umrah Expert",
                 ].map((chip) => (

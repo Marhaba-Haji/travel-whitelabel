@@ -1,0 +1,355 @@
+
+
+<header className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/30 shadow-sm flex justify-between items-center px-mc-gutter h-16 w-full">
+<div className="flex items-center gap-2">
+<span className="material-symbols-outlined text-mc-primary">language</span>
+<span className="font-mc-headline-md-mobile text-mc-headline-md-mobile font-black text-mc-primary">GLOBAL TOURISM MASTERCLASS</span>
+</div>
+<button className="hidden md:flex font-mc-label-bold text-mc-label-bold uppercase tracking-widest text-mc-secondary-fixed font-bold hover:opacity-80 transition-opacity active:scale-95 duration-200" onClick={() => setOpen(true)}>
+            REGISTER
+        </button>
+</header>
+<main className="max-w-mc-container-max mx-auto px-mc-margin-x">
+
+<section className="py-mc-section-gap-mobile flex flex-col items-center text-center relative mt-8">
+<div className="purple-halo top-0 left-1/2 -translate-x-1/2"></div>
+<div className="inline-flex items-center gap-2 bg-mc-surface-container-high px-4 py-2 rounded-full border border-mc-tertiary-container mb-8">
+<div className="w-2 h-2 rounded-full bg-mc-error animate-pulse"></div>
+<span className="font-mc-label-bold text-mc-label-bold text-mc-on-surface-variant uppercase tracking-widest">Seats filling fast</span>
+</div>
+<h1 className="font-mc-headline-xl text-mc-headline-xl text-mc-primary-fixed mb-6 leading-tight max-w-4xl">
+                Start or Scale a <br /><span className="text-mc-secondary-fixed">Global Tourism Business</span>
+</h1>
+<p className="font-mc-body-lg text-mc-body-lg text-mc-on-surface-variant max-w-2xl mb-10">
+                2-Hour Live Masterclass with Harab Rasheed. Learn the exact framework to build a profitable travel agency from scratch or scale your existing operations.
+            </p>
+
+<div className="flex gap-4 mb-10 glass-card p-6 rounded-xl">
+<div className="flex flex-col items-center">
+<span className="font-mc-headline-lg text-mc-headline-lg text-mc-secondary-fixed" id="days">02</span>
+<span className="font-mc-label-bold text-mc-label-bold text-mc-on-surface-variant uppercase">Days</span>
+</div>
+<span className="font-mc-headline-lg text-mc-headline-lg text-mc-on-surface-variant">:</span>
+<div className="flex flex-col items-center">
+<span className="font-mc-headline-lg text-mc-headline-lg text-mc-secondary-fixed" id="hours">14</span>
+<span className="font-mc-label-bold text-mc-label-bold text-mc-on-surface-variant uppercase">Hours</span>
+</div>
+<span className="font-mc-headline-lg text-mc-headline-lg text-mc-on-surface-variant">:</span>
+<div className="flex flex-col items-center">
+<span className="font-mc-headline-lg text-mc-headline-lg text-mc-secondary-fixed" id="minutes">45</span>
+<span className="font-mc-label-bold text-mc-label-bold text-mc-on-surface-variant uppercase">Mins</span>
+</div>
+</div>
+<button className="bg-mc-secondary-fixed text-mc-on-secondary-fixed font-mc-cta text-mc-cta py-4 px-10 rounded-full w-full md:w-auto hover:brightness-110 active:scale-95 transition-all neon-glow mb-8" onClick={() => setOpen(true)}>
+                Register for ₹99
+            </button>
+
+<div className="flex flex-col items-center gap-4 mt-8">
+<p className="font-mc-label-bold text-mc-label-bold text-mc-outline uppercase tracking-wider">Trusted by 1000+ Agents</p>
+<div className="flex -space-x-3">
+<img className="w-10 h-10 rounded-full border-2 border-mc-background object-cover" data-alt="A close-up portrait of a professional woman with a soft smile. She has dark hair tied back and is wearing a sleek dark blazer over a light shirt. The background is slightly blurred with deep purple and cool grey tones, conveying a premium corporate aesthetic. The lighting is soft and studio-quality, highlighting her features." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9EmkJiEISnoKpZ90ntLtqKPHbZZ5qV7D7bTnvqfOEL8k71EbAo76qtKhMDw0mI-baMrWvoVCW7_c3ou7ZYFsSUwA08bX52DL7O3HjYEIpn0dLPf3FzOakDUY3wSErW6ow9__xmAG4U-PUg16ykIA9DRUWc7WHFpBjMmBZ508gf-MIg-QzsSEhkJyFDxXZBdJDa2wziqYzvFPxbAw5DK0MwootJH6PQQkv0UTH6CMsYXUn8VJi-vRov53xyuJHqCIhNu-lKz8" />
+<img className="w-10 h-10 rounded-full border-2 border-mc-background object-cover" data-alt="A portrait of a confident young man looking directly at the camera. He has short hair and a neat beard, wearing a casual yet smart dark grey shirt. The lighting is moody with subtle neon green and deep purple highlights reflecting on his shoulders. The overall style is modern glassmorphic corporate, matching a high-end tech startup vibe." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4cAWRj_dG05jQOpy_18ucHrExQUKZS9iNxNt48pI1LGtLCw4N5zzoKxpnOWOy-wXipd76WF03MxlC1YIAcn-uJhSp9vCgcwdPsPlQcQiCB6GYmiiAfA225r7-3i_d27RiNEFm4ycCe2Gqn6M9zxCGDcmb-eSySsO3ID1jlH0sTz1lEGtHuu-jP9mzzufkJPVy7KekAUEVxilUKMUVJo-Huf3m60DS-kxMGckxojXBCRtU9I_AWgqQ27v9H4-ToZeHdK1TwuM" />
+<img className="w-10 h-10 rounded-full border-2 border-mc-background object-cover" data-alt="A professional headshot of a woman with short dark hair, wearing glasses and a dark turtleneck. She is positioned against a very dark, blurred background with subtle glowing accents. The lighting is sharp, emphasizing a serious but approachable demeanor suitable for a business masterclass context." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBcwY6v68vDee9HN_YCIXbxzeQXUM5ZzfINKKhkb8mR4UDYgDN4vb6x61nBLN_0L3Maps6B20Qt_j1o_LPRUoqjZptk8oZD9G58doDtByAYGK--yjfrGiFpuvfXvHg-F1uM2FvB4yQd54LiKmdNs5zCzb5vZeRDNu62Nu8bVzuMhF8hhkuL7SN_SwpkA3I2V7-ifQNZ7YHhBlcD9kjOQKR2TEwt5aR5s5gxtsgJki8rhbf5kJcjzoqzMeBo_OYHML0wRpOjDqw" />
+<img className="w-10 h-10 rounded-full border-2 border-mc-background object-cover" data-alt="A portrait of a male professional in his 40s with a short beard, wearing a dark suit jacket without a tie. He is looking slightly off-camera with a thoughtful expression. The setting features dramatic lighting with deep shadows and soft purple rim light, aligning with a premium corporate aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBGJVQgKMTY7WJYYIGbh9GRHMw6kwnwwZrNRA-yHA0kvoTHO9N8Hx0CG0vNoAmO0QQp3epMDjRirqWe-lx0XKwaPh1fMyh0i05AcCzqVvT4P_rdlPuvFYnZPvEpzZBxq8FHDQN_BW0B8z4S6bWliLLQ2CJklOpJ45syd4VOSzkk2MsMjwnYRRZCHOKr8bbtrFJHBbFky1GQtlCEcaQKVS4N5Am-3zXPB5g7Yu8-IqQJ-QIOyPKe2zqLVyjGH5tugi4v-P5k91k" />
+<div className="w-10 h-10 rounded-full border-2 border-mc-background bg-mc-surface-container-highest flex items-center justify-center font-mc-label-bold text-mc-label-bold text-mc-primary">
+                        +1K
+                    </div>
+</div>
+</div>
+</section>
+
+<section className="py-mc-section-gap-mobile relative">
+<h2 className="font-mc-headline-lg-mobile md:font-headline-lg text-mc-headline-lg-mobile md:text-headline-lg text-center text-mc-primary-fixed mb-12">Who is this for?</h2>
+<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+<div className="glass-card p-8 rounded-xl relative overflow-hidden group hover:border-tertiary transition-colors">
+<div className="absolute top-0 right-0 p-4 opacity-10 text-9xl font-black text-mc-tertiary-fixed-dim pointer-events-none">01</div>
+<span className="material-symbols-outlined text-4xl text-mc-secondary-fixed mb-4">rocket_launch</span>
+<h3 className="font-mc-headline-md text-mc-headline-md text-mc-primary mb-4">Absolutely New</h3>
+<p className="font-mc-body-md text-mc-body-md text-mc-on-surface-variant">You have zero experience in the travel industry but want to start a profitable business from scratch without heavy initial investment.</p>
+</div>
+
+<div className="glass-card p-8 rounded-xl relative overflow-hidden border-t-2 border-t-mc-secondary-fixed group hover:border-tertiary transition-colors">
+<div className="absolute top-0 right-0 p-4 opacity-10 text-9xl font-black text-mc-tertiary-fixed-dim pointer-events-none">02</div>
+<span className="material-symbols-outlined text-4xl text-mc-secondary-fixed mb-4">trending_up</span>
+<h3 className="font-mc-headline-md text-mc-headline-md text-mc-primary mb-4">Existing Agents</h3>
+<p className="font-mc-body-md text-mc-body-md text-mc-on-surface-variant">You are already running a travel agency but struggling to scale, dealing with low margins, and want to automate your operations for higher growth.</p>
+</div>
+</div>
+</section>
+
+<section className="py-mc-section-gap-mobile relative">
+<div className="purple-halo top-0 right-0"></div>
+<h2 className="font-mc-headline-lg-mobile md:font-headline-lg text-mc-headline-lg-mobile md:text-headline-lg text-center text-mc-primary-fixed mb-4">What you will learn in 2 hours</h2>
+<p className="font-mc-body-lg text-mc-body-lg text-mc-on-surface-variant text-center mb-12">Seven modules, no fluff. Built from 14 years of real travel-business operations.</p>
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+<div className="glass-card bg-surface-container-high/40 backdrop-blur-xl p-8 rounded-2xl flex flex-col gap-6 border border-primary/10 hover:border-secondary-fixed/50 hover:scale-[1.02] transition-all duration-300 group">
+<div className="flex justify-between items-start">
+<div className="bg-secondary-fixed/10 p-3 rounded-xl">
+<span className="material-symbols-outlined text-mc-secondary-fixed text-3xl">public</span>
+</div>
+<span className="font-mc-label-bold text-[10px] text-mc-secondary-fixed bg-secondary-fixed/5 px-2 py-1 rounded border border-secondary-fixed/20 uppercase tracking-tighter">Module 01</span>
+</div>
+<div>
+<h3 className="font-mc-headline-md text-xl text-mc-on-surface mb-3 group-hover:text-secondary-fixed transition-colors">The Global Tourism Opportunity</h3>
+<p className="font-mc-body-md text-mc-on-surface-variant leading-relaxed">Where the money actually flows in inbound, outbound, Hajj/Umrah and corporate travel.</p>
+</div>
+</div>
+
+<div className="glass-card bg-surface-container-high/40 backdrop-blur-xl p-8 rounded-2xl flex flex-col gap-6 border border-primary/10 hover:border-secondary-fixed/50 hover:scale-[1.02] transition-all duration-300 group">
+<div className="flex justify-between items-start">
+<div className="bg-secondary-fixed/10 p-3 rounded-xl">
+<span className="material-symbols-outlined text-mc-secondary-fixed text-3xl">layers</span>
+</div>
+<span className="font-mc-label-bold text-[10px] text-mc-secondary-fixed bg-secondary-fixed/5 px-2 py-1 rounded border border-secondary-fixed/20 uppercase tracking-tighter">Module 02</span>
+</div>
+<div>
+<h3 className="font-mc-headline-md text-xl text-mc-on-surface mb-3 group-hover:text-secondary-fixed transition-colors">The 4-Layer Travel Business Model</h3>
+<p className="font-mc-body-md text-mc-on-surface-variant leading-relaxed">Supplier layer, product layer, distribution layer, brand layer — and how to assemble all four without capital.</p>
+</div>
+</div>
+
+<div className="glass-card bg-surface-container-high/40 backdrop-blur-xl p-8 rounded-2xl flex flex-col gap-6 border border-primary/10 hover:border-secondary-fixed/50 hover:scale-[1.02] transition-all duration-300 group">
+<div className="flex justify-between items-start">
+<div className="bg-secondary-fixed/10 p-3 rounded-xl">
+<span className="material-symbols-outlined text-mc-secondary-fixed text-3xl">handshake</span>
+</div>
+<span className="font-mc-label-bold text-[10px] text-mc-secondary-fixed bg-secondary-fixed/5 px-2 py-1 rounded border border-secondary-fixed/20 uppercase tracking-tighter">Module 03</span>
+</div>
+<div>
+<h3 className="font-mc-headline-md text-xl text-mc-on-surface mb-3 group-hover:text-secondary-fixed transition-colors">How to Get Real Supplier Access on Day One</h3>
+<p className="font-mc-body-md text-mc-on-surface-variant leading-relaxed">Flight, hotel, visa and transfer suppliers that work with new agents, with negotiation scripts.</p>
+</div>
+</div>
+
+<div className="glass-card bg-surface-container-high/40 backdrop-blur-xl p-8 rounded-2xl flex flex-col gap-6 border border-primary/10 hover:border-secondary-fixed/50 hover:scale-[1.02] transition-all duration-300 group">
+<div className="flex justify-between items-start">
+<div className="bg-secondary-fixed/10 p-3 rounded-xl">
+<span className="material-symbols-outlined text-mc-secondary-fixed text-3xl">smart_toy</span>
+</div>
+<span className="font-mc-label-bold text-[10px] text-mc-secondary-fixed bg-secondary-fixed/5 px-2 py-1 rounded border border-secondary-fixed/20 uppercase tracking-tighter">Module 04</span>
+</div>
+<div>
+<h3 className="font-mc-headline-md text-xl text-mc-on-surface mb-3 group-hover:text-secondary-fixed transition-colors">AI + Automation as Your First 5 Employees</h3>
+<p className="font-mc-body-md text-mc-on-surface-variant leading-relaxed">Voice AI for sales, AI itinerary builders, automated visa checks — what to deploy first.</p>
+</div>
+</div>
+
+<div className="glass-card bg-surface-container-high/40 backdrop-blur-xl p-8 rounded-2xl flex flex-col gap-6 border border-primary/10 hover:border-secondary-fixed/50 hover:scale-[1.02] transition-all duration-300 group">
+<div className="flex justify-between items-start">
+<div className="bg-secondary-fixed/10 p-3 rounded-xl">
+<span className="material-symbols-outlined text-mc-secondary-fixed text-3xl">show_chart</span>
+</div>
+<span className="font-mc-label-bold text-[10px] text-mc-secondary-fixed bg-secondary-fixed/5 px-2 py-1 rounded border border-secondary-fixed/20 uppercase tracking-tighter">Module 05</span>
+</div>
+<div>
+<h3 className="font-mc-headline-md text-xl text-mc-on-surface mb-3 group-hover:text-secondary-fixed transition-colors">The Scale-Up Playbook for Existing Agents</h3>
+<p className="font-mc-body-md text-mc-on-surface-variant leading-relaxed">How to break the plateau: outbound packages, B2B portals, white label storefronts.</p>
+</div>
+</div>
+
+<div className="glass-card bg-surface-container-high/40 backdrop-blur-xl p-8 rounded-2xl flex flex-col gap-6 border border-primary/10 hover:border-secondary-fixed/50 hover:scale-[1.02] transition-all duration-300 group">
+<div className="flex justify-between items-start">
+<div className="bg-secondary-fixed/10 p-3 rounded-xl">
+<span className="material-symbols-outlined text-mc-secondary-fixed text-3xl">currency_rupee</span>
+</div>
+<span className="font-mc-label-bold text-[10px] text-mc-secondary-fixed bg-secondary-fixed/5 px-2 py-1 rounded border border-secondary-fixed/20 uppercase tracking-tighter">Module 06</span>
+</div>
+<div>
+<h3 className="font-mc-headline-md text-xl text-mc-on-surface mb-3 group-hover:text-secondary-fixed transition-colors">Pricing, Margins &amp; Cashflow That Actually Work</h3>
+<p className="font-mc-body-md text-mc-on-surface-variant leading-relaxed">Realistic margin benchmarks for FIT, GIT, Hajj/Umrah and corporate — and how to protect them.</p>
+</div>
+</div>
+
+<div className="glass-card bg-surface-container-high/40 backdrop-blur-xl p-8 rounded-2xl flex flex-col gap-6 border border-primary/10 hover:border-secondary-fixed/50 hover:scale-[1.02] transition-all duration-300 group md:col-span-2 lg:col-span-1">
+<div className="flex justify-between items-start">
+<div className="bg-secondary-fixed/10 p-3 rounded-xl">
+<span className="material-symbols-outlined text-mc-secondary-fixed text-3xl">map</span>
+</div>
+<span className="font-mc-label-bold text-[10px] text-mc-secondary-fixed bg-secondary-fixed/5 px-2 py-1 rounded border border-secondary-fixed/20 uppercase tracking-tighter">Module 07</span>
+</div>
+<div>
+<h3 className="font-mc-headline-md text-xl text-mc-on-surface mb-3 group-hover:text-secondary-fixed transition-colors">Your First 90-Day Action Plan</h3>
+<p className="font-mc-body-md text-mc-on-surface-variant leading-relaxed">Exactly what to do in week 1, month 1 and quarter 1 — measurable milestones.</p>
+</div>
+</div>
+</div></section>
+
+<section className="py-mc-section-gap-mobile relative bg-mc-surface-container-lowest -mx-margin-x px-mc-margin-x">
+<div className="max-w-4xl mx-auto text-center">
+<p className="font-mc-label-bold text-mc-label-bold text-mc-primary uppercase tracking-widest mb-4">Why Now</p>
+<h2 className="font-mc-headline-lg-mobile md:font-headline-lg text-mc-headline-lg-mobile md:text-headline-lg text-mc-primary-fixed mb-6">India's travel boom is just getting started</h2>
+<p className="font-mc-body-lg text-mc-body-lg text-mc-on-surface-variant mb-12">Outbound spend is projected to cross <strong>$410 billion by 2030</strong>. Hajj &amp; Umrah pilgrims from India are scheduled to grow to <strong>3.5 lakh+ annually</strong>. The agents who move now own the next decade.</p>
+<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div className="glass-card p-8 rounded-xl border border-primary/20">
+<h3 className="font-mc-headline-xl text-mc-headline-xl text-mc-primary mb-2">$410B</h3>
+<p className="font-mc-body-md text-mc-body-md text-mc-on-surface-variant">India outbound by 2030</p>
+</div>
+<div className="glass-card p-8 rounded-xl border border-primary/20">
+<h3 className="font-mc-headline-xl text-mc-headline-xl text-mc-primary mb-2">+15%</h3>
+<p className="font-mc-body-md text-mc-body-md text-mc-on-surface-variant">YoY growth in international travel</p>
+</div>
+<div className="glass-card p-8 rounded-xl border border-primary/20">
+<h3 className="font-mc-headline-xl text-mc-headline-xl text-mc-primary mb-2">3.5L+</h3>
+<p className="font-mc-body-md text-mc-body-md text-mc-on-surface-variant">Annual Hajj &amp; Umrah pilgrims</p>
+</div>
+</div>
+<div className="mt-16">
+<p className="font-mc-label-bold text-mc-label-bold text-mc-outline uppercase tracking-wider mb-8">Trusted by partners connected with</p>
+<div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-50 grayscale hover:grayscale-0 transition-all duration-300">
+
+<span className="font-mc-headline-md text-mc-headline-md font-bold text-mc-on-surface">Expedia</span>
+<span className="font-mc-headline-md text-mc-headline-md font-bold text-mc-on-surface">Booking.com</span>
+<span className="font-mc-headline-md text-mc-headline-md font-bold text-mc-on-surface">amadeus</span>
+<span className="font-mc-headline-md text-mc-headline-md font-bold text-mc-on-surface">sabre</span>
+</div>
+</div>
+</div>
+</section>
+
+<section className="py-mc-section-gap-mobile">
+<div className="glass-card rounded-2xl p-8 md:p-12 flex flex-col md:flex-row items-center gap-10 relative overflow-hidden">
+<div className="purple-halo top-1/2 left-0 -translate-y-1/2"></div>
+<div className="w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden shrink-0 border-4 border-mc-surface-container-highest relative z-10">
+<img className="w-full h-full object-cover" data-alt="A professional portrait of an Indian male entrepreneur in his mid-30s. He is wearing a sharp dark suit with a subtle sheen, looking confidently at the camera. The background is a sophisticated dark gradient with hints of deep purple and corporate neon green accents. The lighting is dramatic, emphasizing his leadership qualities and authority in the travel industry." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDpvH5dMGdY1dHRwTk6RLP13nsYYADWrpsmDVUqnCvS7EIOIMvIMdMmHvUjKNlFWKF4RHFnteYR3eBzHA46NcS1r7HPRaYn_f_uheAiP96IHEQikO5hJHxVmmHX-vJ9HaDsYW3i4UVj7P6hQImF5z0Iqma3fbRL4FHEdHwBsjxrsG7AJQs7XSz-oSGcl0KX5zr5ZzAet9-k5Msok1UTysGiUHu_d6KqsqvJKOogvKKDLPLyGrAde_hTFykNbpRmA9NrSSKq6bA" />
+</div>
+<div className="flex-1 text-center md:text-left z-10">
+<div className="inline-flex items-center gap-2 bg-tertiary-container/50 px-4 py-2 rounded-full border border-mc-on-tertiary mb-6">
+<span className="material-symbols-outlined text-mc-primary text-sm">verified</span>
+<span className="font-mc-label-bold text-mc-label-bold text-mc-primary uppercase tracking-widest">Meet Your Host</span>
+</div>
+<h2 className="font-mc-headline-lg-mobile md:font-headline-lg text-mc-headline-lg-mobile md:text-headline-lg text-mc-primary-fixed mb-2">Harab Rasheed</h2>
+<p className="font-mc-headline-md text-mc-headline-md text-mc-secondary-fixed mb-6 text-xl">Founder of MarhabaDMC</p>
+<ul className="space-y-4 font-mc-body-md text-mc-body-md text-mc-on-surface-variant">
+<li className="flex items-center gap-3 justify-center md:justify-start">
+<span className="material-symbols-outlined text-mc-secondary-fixed">check_circle</span>
+                            14+ Years of experience in the global travel sector.
+                        </li>
+<li className="flex items-center gap-3 justify-center md:justify-start">
+<span className="material-symbols-outlined text-mc-secondary-fixed">check_circle</span>
+                            Scaled multiple agencies to 7-figure revenues.
+                        </li>
+<li className="flex items-center gap-3 justify-center md:justify-start">
+<span className="material-symbols-outlined text-mc-secondary-fixed">check_circle</span>
+                            Expert in destination management and automation.
+                        </li>
+</ul>
+</div>
+</div>
+</section>
+
+<section className="py-mc-section-gap-mobile relative">
+<div className="max-w-3xl mx-auto"><p className="font-mc-label-bold text-mc-label-bold text-mc-primary uppercase tracking-widest mb-4 text-center">Agenda</p><h2 className="font-mc-headline-lg-mobile md:font-headline-lg text-mc-headline-lg-mobile md:text-headline-lg text-center text-mc-primary-fixed mb-16 md:mb-24">Inside the 2-hour session</h2><div className="relative max-w-5xl mx-auto"><div className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-primary/0 via-primary/50 to-primary/0 hidden md:block"></div><div className="space-y-8 md:space-y-0 relative"><div className="flex flex-col md:flex-row items-center md:justify-end md:w-1/2 md:pr-12 md:relative mb-12 group"><div className="absolute right-[-7px] top-8 w-3.5 h-3.5 rounded-full bg-mc-primary border-4 border-mc-background z-10 hidden md:block group-hover:scale-125 transition-transform shadow-[0_0_10px_rgba(213,189,240,0.5)]"></div><div className="glass-card p-6 rounded-2xl border border-primary/10 hover:border-primary/40 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(157,248,0,0.1)] transition-all duration-300 w-full bg-surface-container-high/20 backdrop-blur-md"><div className="font-mc-label-bold text-mc-secondary-fixed mb-3 text-lg">0:00 - 0:15</div><h3 className="font-mc-headline-md text-xl text-mc-on-surface mb-2 font-bold">The state of the travel industry in 2026</h3><p className="font-mc-body-md text-mc-on-surface-variant">Why timing matters now.</p></div></div><div className="flex flex-col md:flex-row items-center md:justify-start md:w-1/2 md:ml-auto md:pl-12 md:relative mb-12 group"><div className="absolute left-[-7px] top-8 w-3.5 h-3.5 rounded-full bg-mc-primary border-4 border-mc-background z-10 hidden md:block group-hover:scale-125 transition-transform shadow-[0_0_10px_rgba(213,189,240,0.5)]"></div><div className="glass-card p-6 rounded-2xl border border-primary/10 hover:border-primary/40 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(157,248,0,0.1)] transition-all duration-300 w-full bg-surface-container-high/20 backdrop-blur-md"><div className="font-mc-label-bold text-mc-secondary-fixed mb-3 text-lg">0:15 - 0:45</div><h3 className="font-mc-headline-md text-xl text-mc-on-surface mb-2 font-bold">The 4-layer business model walkthrough</h3><p className="font-mc-body-md text-mc-on-surface-variant">Live, with examples.</p></div></div><div className="flex flex-col md:flex-row items-center md:justify-end md:w-1/2 md:pr-12 md:relative mb-12 group"><div className="absolute right-[-7px] top-8 w-3.5 h-3.5 rounded-full bg-mc-primary border-4 border-mc-background z-10 hidden md:block group-hover:scale-125 transition-transform shadow-[0_0_10px_rgba(213,189,240,0.5)]"></div><div className="glass-card p-6 rounded-2xl border border-primary/10 hover:border-primary/40 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(157,248,0,0.1)] transition-all duration-300 w-full bg-surface-container-high/20 backdrop-blur-md"><div className="font-mc-label-bold text-mc-secondary-fixed mb-3 text-lg">0:45 - 1:10</div><h3 className="font-mc-headline-md text-xl text-mc-on-surface mb-2 font-bold">Supplier access + sourcing playbook</h3><p className="font-mc-body-md text-mc-on-surface-variant">How to get to yes.</p></div></div><div className="flex flex-col md:flex-row items-center md:justify-start md:w-1/2 md:ml-auto md:pl-12 md:relative mb-12 group"><div className="absolute left-[-7px] top-8 w-3.5 h-3.5 rounded-full bg-mc-primary border-4 border-mc-background z-10 hidden md:block group-hover:scale-125 transition-transform shadow-[0_0_10px_rgba(213,189,240,0.5)]"></div><div className="glass-card p-6 rounded-2xl border border-primary/10 hover:border-primary/40 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(157,248,0,0.1)] transition-all duration-300 w-full bg-surface-container-high/20 backdrop-blur-md"><div className="font-mc-label-bold text-mc-secondary-fixed mb-3 text-lg">1:10 - 1:30</div><h3 className="font-mc-headline-md text-xl text-mc-on-surface mb-2 font-bold">AI + automation stack demo</h3><p className="font-mc-body-md text-mc-on-surface-variant">Real tools, real workflows.</p></div></div><div className="flex flex-col md:flex-row items-center md:justify-end md:w-1/2 md:pr-12 md:relative mb-12 group"><div className="absolute right-[-7px] top-8 w-3.5 h-3.5 rounded-full bg-mc-primary border-4 border-mc-background z-10 hidden md:block group-hover:scale-125 transition-transform shadow-[0_0_10px_rgba(213,189,240,0.5)]"></div><div className="glass-card p-6 rounded-2xl border border-primary/10 hover:border-primary/40 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(157,248,0,0.1)] transition-all duration-300 w-full bg-surface-container-high/20 backdrop-blur-md"><div className="font-mc-label-bold text-mc-secondary-fixed mb-3 text-lg">1:30 - 1:50</div><h3 className="font-mc-headline-md text-xl text-mc-on-surface mb-2 font-bold">Scale-up case studies</h3><p className="font-mc-body-md text-mc-on-surface-variant">From plateau to growth.</p></div></div><div className="flex flex-col md:flex-row items-center md:justify-start md:w-1/2 md:ml-auto md:pl-12 md:relative group"><div className="absolute left-[-7px] top-8 w-3.5 h-3.5 rounded-full bg-mc-primary border-4 border-mc-background z-10 hidden md:block group-hover:scale-125 transition-transform shadow-[0_0_10px_rgba(213,189,240,0.5)]"></div><div className="glass-card p-6 rounded-2xl border border-primary/10 hover:border-primary/40 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(157,248,0,0.1)] transition-all duration-300 w-full bg-surface-container-high/20 backdrop-blur-md"><div className="font-mc-label-bold text-mc-secondary-fixed mb-3 text-lg">1:50 - 2:00</div><h3 className="font-mc-headline-md text-xl text-mc-on-surface mb-2 font-bold">Q&amp;A + 90-day action plan</h3><p className="font-mc-body-md text-mc-on-surface-variant">Open mic and next steps.</p></div></div></div></div></div>
+</section>
+
+<section className="py-mc-section-gap-mobile relative">
+<p className="font-mc-label-bold text-mc-label-bold text-mc-primary uppercase tracking-widest mb-4 text-center">Bonuses</p>
+<h2 className="font-mc-headline-lg-mobile md:font-headline-lg text-mc-headline-lg-mobile md:text-headline-lg text-center text-mc-primary-fixed mb-12">Everything you get</h2>
+<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+
+<div className="glass-card p-6 rounded-xl flex flex-col relative overflow-hidden">
+<div className="bg-mc-primary-container p-6 -mx-6 -mt-6 mb-6 flex justify-center border-b border-primary/20">
+<span className="material-symbols-outlined text-6xl text-mc-primary">redeem</span>
+</div>
+<span className="font-mc-label-bold text-mc-label-bold text-mc-secondary-fixed mb-2 uppercase text-xs">Bonus #1</span>
+<h3 className="font-mc-cta text-mc-cta text-mc-on-surface mb-2">Travel Business Starter Toolkit (PDF)</h3>
+<p className="font-mc-body-md text-mc-body-md text-mc-on-surface-variant mb-6 flex-1">29-page playbook with supplier list, pricing templates, and launch checklist.</p>
+<div className="flex justify-between items-center pt-4 border-t border-outline-variant/30">
+<span className="text-mc-on-surface-variant line-through text-sm">₹1,999</span>
+<span className="font-mc-label-bold text-mc-label-bold text-mc-secondary-fixed uppercase">Free</span>
+</div>
+</div>
+
+<div className="glass-card p-6 rounded-xl flex flex-col relative overflow-hidden">
+<div className="bg-mc-primary-container p-6 -mx-6 -mt-6 mb-6 flex justify-center border-b border-primary/20">
+<span className="material-symbols-outlined text-6xl text-mc-primary">redeem</span>
+</div>
+<span className="font-mc-label-bold text-mc-label-bold text-mc-secondary-fixed mb-2 uppercase text-xs">Bonus #2</span>
+<h3 className="font-mc-cta text-mc-cta text-mc-on-surface mb-2">Supplier Contact Sheet</h3>
+<p className="font-mc-body-md text-mc-body-md text-mc-on-surface-variant mb-6 flex-1">Verified flight, hotel and visa suppliers open to working with new agents.</p>
+<div className="flex justify-between items-center pt-4 border-t border-outline-variant/30">
+<span className="text-mc-on-surface-variant line-through text-sm">₹2,499</span>
+<span className="font-mc-label-bold text-mc-label-bold text-mc-secondary-fixed uppercase">Free</span>
+</div>
+</div>
+
+<div className="glass-card p-6 rounded-xl flex flex-col relative overflow-hidden">
+<div className="bg-mc-primary-container p-6 -mx-6 -mt-6 mb-6 flex justify-center border-b border-primary/20">
+<span className="material-symbols-outlined text-6xl text-mc-primary">redeem</span>
+</div>
+<span className="font-mc-label-bold text-mc-label-bold text-mc-secondary-fixed mb-2 uppercase text-xs">Bonus #3</span>
+<h3 className="font-mc-cta text-mc-cta text-mc-on-surface mb-2">30-min 1-on-1 Strategy Call</h3>
+<p className="font-mc-body-md text-mc-body-md text-mc-on-surface-variant mb-6 flex-1">Post-webinar private call with our team to map your first 90 days.</p>
+<div className="flex justify-between items-center pt-4 border-t border-outline-variant/30">
+<span className="text-mc-on-surface-variant line-through text-sm">₹4,999</span>
+<span className="font-mc-label-bold text-mc-label-bold text-mc-secondary-fixed uppercase">Free</span>
+</div>
+</div>
+</div>
+
+<div className="max-w-2xl mx-auto glass-card p-8 rounded-2xl border-t-4 border-t-mc-primary">
+<div className="space-y-4 mb-6">
+<div className="flex justify-between items-center text-sm">
+<span className="text-mc-on-surface flex items-center gap-2"><span className="material-symbols-outlined text-mc-primary text-sm">check_circle</span> Travel Business Starter Toolkit (PDF)</span>
+<span className="text-mc-on-surface-variant">₹1,999</span>
+</div>
+<div className="flex justify-between items-center text-sm">
+<span className="text-mc-on-surface flex items-center gap-2"><span className="material-symbols-outlined text-mc-primary text-sm">check_circle</span> Supplier Contact Sheet</span>
+<span className="text-mc-on-surface-variant">₹2,499</span>
+</div>
+<div className="flex justify-between items-center text-sm">
+<span className="text-mc-on-surface flex items-center gap-2"><span className="material-symbols-outlined text-mc-primary text-sm">check_circle</span> 30-min 1-on-1 Strategy Call</span>
+<span className="text-mc-on-surface-variant">₹4,999</span>
+</div>
+</div>
+<div className="border-t border-outline-variant/30 pt-6 mb-6 flex justify-between items-center">
+<span className="font-mc-headline-md text-mc-headline-md text-mc-on-surface">Total value</span>
+<span className="font-mc-headline-md text-mc-headline-md text-mc-on-surface-variant line-through">₹9,497</span>
+</div>
+<div className="flex justify-between items-center mb-8">
+<span className="font-mc-headline-md text-mc-headline-md text-mc-secondary-fixed">Today, your seat</span>
+<span className="font-mc-headline-xl text-mc-headline-xl text-mc-secondary-fixed">₹99</span>
+</div>
+<button className="bg-mc-secondary-fixed text-mc-on-secondary-fixed font-mc-cta text-mc-cta py-4 px-10 rounded-full w-full hover:brightness-110 active:scale-95 transition-all neon-glow flex items-center justify-center gap-2" onClick={() => setOpen(true)}>
+    Claim my seat for ₹99 <span className="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</section>
+
+<section className="py-mc-section-gap-mobile relative bg-mc-primary-container -mx-margin-x px-mc-margin-x text-center border-t border-primary/20">
+<div className="purple-halo top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+<div className="max-w-3xl mx-auto relative z-10">
+<p className="font-mc-label-bold text-mc-label-bold text-mc-primary uppercase tracking-widest mb-4">Final Call</p>
+<h2 className="font-mc-headline-xl text-mc-headline-xl text-mc-primary-fixed mb-6">Your next 90 days could change everything</h2>
+<p className="font-mc-body-lg text-mc-body-lg text-mc-on-surface-variant mb-10">Join Harab Rasheed live for 2 hours. Walk away with a blueprint, not a plan.</p>
+<button className="bg-mc-secondary-fixed text-mc-on-secondary-fixed font-mc-cta text-mc-cta py-4 px-12 rounded-full w-full md:w-auto hover:brightness-110 active:scale-95 transition-all neon-glow" onClick={() => setOpen(true)}>
+    Register Now for ₹99 <span className="material-symbols-outlined align-middle ml-2">arrow_forward</span>
+</button>
+<p className="text-sm text-mc-on-surface-variant mt-4 flex items-center justify-center gap-2">
+<span className="material-symbols-outlined text-sm">lock</span> Secure PayU · 24-hour refund
+</p>
+</div>
+</section>
+</main>
+
+<nav className="fixed bottom-0 w-full z-50 rounded-t-xl bg-surface-container-highest/90 backdrop-blur-2xl border-t border-primary/20 shadow-[0_-10px_30px_rgba(0,0,0,0.5)] md:hidden">
+<div className="flex justify-around items-center p-2 gap-2 w-full">
+<button className="flex flex-col items-center justify-center bg-mc-secondary-fixed text-mc-on-secondary-fixed rounded-full py-3 px-8 w-full m-2 shadow-[0_0_20px_rgba(157,248,0,0.3)] active:scale-[0.97] transition-transform font-mc-cta text-mc-cta hover:brightness-110" onClick={() => setOpen(true)}>
+<span className="material-symbols-outlined mb-1" style={{"fontVariationSettings":"'FILL' 1"}}>bolt</span>
+                SECURE MY SEAT
+            </button>
+</div>
+</nav>
+
+<footer className="w-full py-mc-section-gap-mobile bg-mc-surface-container-lowest flex flex-col items-center text-center px-mc-margin-x space-y-mc-stack-lg mb-16 md:mb-0">
+<div className="font-mc-headline-md-mobile text-mc-headline-md-mobile text-mc-primary mb-4">GLOBAL TOURISM ACCELERATOR</div>
+<div className="flex flex-wrap justify-center gap-6 font-mc-body-md text-mc-body-md">
+<a className="text-mc-on-surface-variant hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a className="text-mc-on-surface-variant hover:text-primary transition-colors" href="#">Terms of Service</a>
+<a className="text-mc-on-surface-variant hover:text-primary transition-colors" href="#">Contact Support</a>
+</div>
+<p className="font-mc-body-md text-mc-body-md text-mc-on-surface-variant mt-8">© 2024 GLOBAL TOURISM ACCELERATOR. ALL RIGHTS RESERVED.</p>
+</footer>
+
+

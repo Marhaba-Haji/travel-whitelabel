@@ -7,8 +7,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, Save, Download } from "lucide-react";
+import { Loader2, Save, Download, Plus, Trash2, ChevronUp, ChevronDown } from "lucide-react";
 
 const fetchSettings = async () => {
   const { data, error } = await supabase.from("webinar_settings" as any).select("*").limit(1).maybeSingle();
@@ -29,15 +30,91 @@ const Field = ({ label, children }: { label: string; children: React.ReactNode }
   </div>
 );
 
-const JsonField = ({ label, value, onChange, rows = 8 }: { label: string; value: any; onChange: (v: any) => void; rows?: number }) => {
-  const [text, setText] = useState(() => JSON.stringify(value ?? [], null, 2));
-  useEffect(() => { setText(JSON.stringify(value ?? [], null, 2)); }, [value]);
+const StringArrayField = ({ label, description, value = [], onChange }: { label: string; description?: string; value: string[]; onChange: (v: string[]) => void }) => {
   return (
-    <Field label={label}>
-      <Textarea rows={rows} value={text} onChange={(e) => setText(e.target.value)}
-        onBlur={() => { try { onChange(JSON.parse(text)); } catch { toast({ title: "Invalid JSON", variant: "destructive" }); } }}
-        className="font-mono text-xs" />
-    </Field>
+    <div className="space-y-3 border p-4 rounded-lg bg-slate-50/50 dark:bg-slate-900/50">
+      <div>
+        <Label className="text-sm font-semibold">{label}</Label>
+        {description && <p className="text-xs text-muted-foreground">{description}</p>}
+      </div>
+      <div className="space-y-2">
+        {value.map((item, idx) => (
+          <div key={idx} className="flex gap-2 items-start">
+            <Textarea
+              className="min-h-[40px] h-[40px] py-2"
+              value={item}
+              onChange={(e) => {
+                const nv = [...value];
+                nv[idx] = e.target.value;
+                onChange(nv);
+              }}
+            />
+            <Button type="button" variant="ghost" size="icon" className="shrink-0" onClick={() => onChange(value.filter((_, i) => i !== idx))}>
+              <Trash2 className="h-4 w-4 text-red-500" />
+            </Button>
+          </div>
+        ))}
+      </div>
+      <Button type="button" variant="outline" size="sm" className="w-full" onClick={() => onChange([...value, ""])}>
+        <Plus className="h-4 w-4 mr-2" /> Add Item
+      </Button>
+    </div>
+  );
+};
+
+const ObjectArrayField = ({ label, description, value = [], onChange, fields }: { label: string; description?: string; value: any[]; onChange: (v: any[]) => void; fields: { key: string; label: string; type: "text" | "textarea" }[] }) => {
+  const moveItem = (idx: number, dir: number) => {
+    if (idx + dir < 0 || idx + dir >= value.length) return;
+    const nv = [...value];
+    const temp = nv[idx];
+    nv[idx] = nv[idx + dir];
+    nv[idx + dir] = temp;
+    onChange(nv);
+  };
+
+  return (
+    <div className="space-y-4 border p-4 rounded-lg bg-slate-50/50 dark:bg-slate-900/50">
+      <div>
+        <Label className="text-sm font-semibold">{label}</Label>
+        {description && <p className="text-xs text-muted-foreground">{description}</p>}
+      </div>
+      <div className="space-y-4">
+        {value.map((item, idx) => (
+          <div key={idx} className="flex gap-3 bg-background p-4 border rounded-md relative group">
+            <div className="flex flex-col gap-1 items-center justify-center shrink-0">
+               <Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => moveItem(idx, -1)} disabled={idx === 0}><ChevronUp className="h-4 w-4" /></Button>
+               <Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => moveItem(idx, 1)} disabled={idx === value.length - 1}><ChevronDown className="h-4 w-4" /></Button>
+            </div>
+            <div className="flex-1 grid gap-4">
+              {fields.map((f) => (
+                <div key={f.key} className="space-y-1.5">
+                  <Label className="text-xs uppercase tracking-wide text-muted-foreground">{f.label}</Label>
+                  {f.type === "textarea" ? (
+                    <Textarea value={item[f.key] || ""} onChange={(e) => {
+                      const nv = [...value];
+                      nv[idx] = { ...nv[idx], [f.key]: e.target.value };
+                      onChange(nv);
+                    }} />
+                  ) : (
+                    <Input value={item[f.key] || ""} onChange={(e) => {
+                      const nv = [...value];
+                      nv[idx] = { ...nv[idx], [f.key]: e.target.value };
+                      onChange(nv);
+                    }} />
+                  )}
+                </div>
+              ))}
+            </div>
+            <Button type="button" variant="ghost" size="icon" className="shrink-0 absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => onChange(value.filter((_, i) => i !== idx))}>
+              <Trash2 className="h-4 w-4 text-red-500" />
+            </Button>
+          </div>
+        ))}
+      </div>
+      <Button type="button" variant="outline" size="sm" className="w-full bg-background" onClick={() => onChange([...value, {}])}>
+        <Plus className="h-4 w-4 mr-2" /> Add {label}
+      </Button>
+    </div>
   );
 };
 
@@ -58,7 +135,7 @@ const SettingsForm = () => {
     const { error } = await supabase.from("webinar_settings" as any).update(payload).eq("id", id);
     setSaving(false);
     if (error) return toast({ title: "Save failed", description: error.message, variant: "destructive" });
-    toast({ title: "Saved" });
+    toast({ title: "Saved successfully" });
     qc.invalidateQueries({ queryKey: ["admin_webinar_settings"] });
     qc.invalidateQueries({ queryKey: ["webinar_settings"] });
   };
@@ -66,54 +143,127 @@ const SettingsForm = () => {
   const dt = form.scheduled_at ? new Date(form.scheduled_at).toISOString().slice(0, 16) : "";
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between sticky top-0 bg-background z-10 py-2">
+    <div className="space-y-6 pb-20">
+      <div className="flex items-center justify-between sticky top-0 bg-background/95 backdrop-blur z-20 py-4 border-b">
         <div className="flex items-center gap-3">
           <Switch checked={form.is_published} onCheckedChange={(v) => update("is_published", v)} />
-          <span className="text-sm">{form.is_published ? "Published" : "Hidden"}</span>
+          <span className="font-medium text-sm">{form.is_published ? "Published" : "Hidden"}</span>
         </div>
-        <Button onClick={save} disabled={saving}>
+        <Button onClick={save} disabled={saving} size="sm">
           {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />} Save Changes
         </Button>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-4">
-        <Field label="Title"><Input value={form.title} onChange={(e) => update("title", e.target.value)} /></Field>
-        <Field label="Eyebrow"><Input value={form.eyebrow} onChange={(e) => update("eyebrow", e.target.value)} /></Field>
-      </div>
-      <Field label="Subtitle"><Textarea rows={2} value={form.subtitle} onChange={(e) => update("subtitle", e.target.value)} /></Field>
+      <div className="grid lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+          <Card>
+            <CardHeader><CardTitle>General Details</CardTitle></CardHeader>
+            <CardContent className="space-y-4">
+              <Field label="Title"><Input value={form.title} onChange={(e) => update("title", e.target.value)} /></Field>
+              <Field label="Eyebrow"><Input value={form.eyebrow} onChange={(e) => update("eyebrow", e.target.value)} /></Field>
+              <Field label="Subtitle"><Textarea rows={3} value={form.subtitle} onChange={(e) => update("subtitle", e.target.value)} /></Field>
+            </CardContent>
+          </Card>
 
-      <div className="grid md:grid-cols-3 gap-4">
-        <Field label="Scheduled at (local)"><Input type="datetime-local" value={dt} onChange={(e) => update("scheduled_at", new Date(e.target.value).toISOString())} /></Field>
-        <Field label="Duration (min)"><Input type="number" value={form.duration_minutes} onChange={(e) => update("duration_minutes", Number(e.target.value))} /></Field>
-        <Field label="Timezone"><Input value={form.timezone} onChange={(e) => update("timezone", e.target.value)} /></Field>
-      </div>
+          <Card>
+             <CardHeader><CardTitle>Content & Agenda</CardTitle></CardHeader>
+             <CardContent className="space-y-8">
+               <ObjectArrayField
+                 label="Learning Points"
+                 value={form.learning_points}
+                 onChange={(v) => update("learning_points", v)}
+                 fields={[
+                   { key: "title", label: "Title", type: "text" },
+                   { key: "icon", label: "Icon name (Lucide)", type: "text" },
+                   { key: "desc", label: "Description", type: "textarea" },
+                 ]}
+               />
+               <ObjectArrayField
+                 label="Agenda"
+                 value={form.agenda}
+                 onChange={(v) => update("agenda", v)}
+                 fields={[
+                   { key: "time", label: "Time/Duration", type: "text" },
+                   { key: "title", label: "Title", type: "text" },
+                   { key: "desc", label: "Description", type: "textarea" },
+                 ]}
+               />
+               <ObjectArrayField
+                 label="Bonuses"
+                 value={form.bonuses}
+                 onChange={(v) => update("bonuses", v)}
+                 fields={[
+                   { key: "title", label: "Title", type: "text" },
+                   { key: "value", label: "Value (e.g. ₹1,999)", type: "text" },
+                   { key: "desc", label: "Description", type: "textarea" },
+                 ]}
+               />
+               <ObjectArrayField
+                 label="FAQs"
+                 value={form.faqs}
+                 onChange={(v) => update("faqs", v)}
+                 fields={[
+                   { key: "q", label: "Question", type: "text" },
+                   { key: "a", label: "Answer", type: "textarea" },
+                 ]}
+               />
+             </CardContent>
+          </Card>
+        </div>
 
-      <div className="grid md:grid-cols-4 gap-4">
-        <Field label="Price (INR)"><Input type="number" value={form.price_inr} onChange={(e) => update("price_inr", Number(e.target.value))} /></Field>
-        <Field label="Currency"><Input value={form.currency} onChange={(e) => update("currency", e.target.value)} /></Field>
-        <div className="flex items-center gap-2 pt-6"><Switch checked={form.is_free} onCheckedChange={(v) => update("is_free", v)} /><span className="text-sm">Free webinar</span></div>
-        <Field label="Seats total"><Input type="number" value={form.seats_total} onChange={(e) => update("seats_total", Number(e.target.value))} /></Field>
-      </div>
+        <div className="space-y-6">
+          <Card>
+            <CardHeader><CardTitle>Scheduling & Pricing</CardTitle></CardHeader>
+            <CardContent className="space-y-4">
+              <Field label="Scheduled at (local)"><Input type="datetime-local" value={dt} onChange={(e) => update("scheduled_at", new Date(e.target.value).toISOString())} /></Field>
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="Duration (min)"><Input type="number" value={form.duration_minutes} onChange={(e) => update("duration_minutes", Number(e.target.value))} /></Field>
+                <Field label="Seats total"><Input type="number" value={form.seats_total} onChange={(e) => update("seats_total", Number(e.target.value))} /></Field>
+              </div>
+              <Field label="Timezone"><Input value={form.timezone} onChange={(e) => update("timezone", e.target.value)} /></Field>
+              
+              <div className="pt-4 border-t space-y-4 mt-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">Free webinar</span>
+                  <Switch checked={form.is_free} onCheckedChange={(v) => update("is_free", v)} />
+                </div>
+                {!form.is_free && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <Field label="Price (INR)"><Input type="number" value={form.price_inr} onChange={(e) => update("price_inr", Number(e.target.value))} /></Field>
+                    <Field label="Currency"><Input value={form.currency} onChange={(e) => update("currency", e.target.value)} /></Field>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
 
-      <div className="grid md:grid-cols-2 gap-4">
-        <Field label="Host name"><Input value={form.host_name} onChange={(e) => update("host_name", e.target.value)} /></Field>
-        <Field label="Host title"><Input value={form.host_title} onChange={(e) => update("host_title", e.target.value)} /></Field>
-      </div>
-      <Field label="Host photo URL"><Input value={form.host_photo_url || ""} onChange={(e) => update("host_photo_url", e.target.value)} /></Field>
-      <Field label="Host bio"><Textarea rows={6} value={form.host_bio_markdown} onChange={(e) => update("host_bio_markdown", e.target.value)} /></Field>
+          <Card>
+            <CardHeader><CardTitle>Host Details</CardTitle></CardHeader>
+            <CardContent className="space-y-4">
+              <Field label="Host name"><Input value={form.host_name} onChange={(e) => update("host_name", e.target.value)} /></Field>
+              <Field label="Host title"><Input value={form.host_title} onChange={(e) => update("host_title", e.target.value)} /></Field>
+              <Field label="Host photo URL"><Input value={form.host_photo_url || ""} onChange={(e) => update("host_photo_url", e.target.value)} /></Field>
+              <Field label="Host bio"><Textarea rows={4} value={form.host_bio_markdown} onChange={(e) => update("host_bio_markdown", e.target.value)} /></Field>
+            </CardContent>
+          </Card>
 
-      <div className="grid md:grid-cols-2 gap-4">
-        <Field label="Join URL (sent in confirmation)"><Input value={form.join_url || ""} onChange={(e) => update("join_url", e.target.value)} /></Field>
-        <Field label="WhatsApp group URL"><Input value={form.whatsapp_group_url || ""} onChange={(e) => update("whatsapp_group_url", e.target.value)} /></Field>
-      </div>
+          <Card>
+            <CardHeader><CardTitle>Links</CardTitle></CardHeader>
+            <CardContent className="space-y-4">
+              <Field label="Join URL"><Input value={form.join_url || ""} onChange={(e) => update("join_url", e.target.value)} /></Field>
+              <Field label="WhatsApp group"><Input value={form.whatsapp_group_url || ""} onChange={(e) => update("whatsapp_group_url", e.target.value)} /></Field>
+            </CardContent>
+          </Card>
 
-      <JsonField label="Who for — Beginner (string array)" value={form.who_for_beginner} onChange={(v) => update("who_for_beginner", v)} />
-      <JsonField label="Who for — Scaler (string array)" value={form.who_for_scaler} onChange={(v) => update("who_for_scaler", v)} />
-      <JsonField label="Learning points [{icon,title,desc}]" value={form.learning_points} onChange={(v) => update("learning_points", v)} rows={12} />
-      <JsonField label="Agenda [{time,title,desc}]" value={form.agenda} onChange={(v) => update("agenda", v)} rows={10} />
-      <JsonField label="Bonuses [{title,desc,value}]" value={form.bonuses} onChange={(v) => update("bonuses", v)} rows={8} />
-      <JsonField label="FAQs [{q,a}]" value={form.faqs} onChange={(v) => update("faqs", v)} rows={10} />
+          <Card>
+            <CardHeader><CardTitle>Target Audience</CardTitle></CardHeader>
+            <CardContent className="space-y-6">
+              <StringArrayField label="Who for — Beginner" value={form.who_for_beginner} onChange={(v) => update("who_for_beginner", v)} />
+              <StringArrayField label="Who for — Scaler" value={form.who_for_scaler} onChange={(v) => update("who_for_scaler", v)} />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 };
@@ -148,20 +298,24 @@ const RegistrationsList = () => {
         </div>
         <Button variant="outline" size="sm" onClick={exportCsv}><Download className="h-4 w-4 mr-1" /> CSV</Button>
       </div>
-      <div className="border rounded-lg overflow-x-auto">
+      <div className="border rounded-lg overflow-x-auto bg-card">
         <table className="w-full text-sm">
-          <thead className="bg-muted/50 text-xs uppercase tracking-wide">
+          <thead className="bg-muted/50 text-xs uppercase tracking-wide border-b">
             <tr><th className="text-left p-3">Date</th><th className="text-left p-3">Name</th><th className="text-left p-3">Email</th><th className="text-left p-3">Phone</th><th className="text-left p-3">Amount</th><th className="text-left p-3">Status</th></tr>
           </thead>
           <tbody>
             {rows.map((r) => (
-              <tr key={r.id} className="border-t">
+              <tr key={r.id} className="border-b last:border-0">
                 <td className="p-3 whitespace-nowrap text-xs text-muted-foreground">{new Date(r.created_at).toLocaleString("en-IN")}</td>
-                <td className="p-3">{r.full_name}</td>
-                <td className="p-3">{r.email}</td>
-                <td className="p-3">{r.phone_e164}</td>
+                <td className="p-3 font-medium">{r.full_name}</td>
+                <td className="p-3 text-muted-foreground">{r.email}</td>
+                <td className="p-3 text-muted-foreground">{r.phone_e164}</td>
                 <td className="p-3">₹{Number(r.amount_inr).toFixed(0)}</td>
-                <td className="p-3"><span className={`text-xs px-2 py-0.5 rounded-full ${r.status === "paid" ? "bg-green-100 text-green-700" : r.status === "pending" ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700"}`}>{r.status}</span></td>
+                <td className="p-3">
+                  <span className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${r.status === "paid" ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : r.status === "pending" ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"}`}>
+                    {r.status}
+                  </span>
+                </td>
               </tr>
             ))}
             {rows.length === 0 && <tr><td colSpan={6} className="p-12 text-center text-muted-foreground">No registrations yet.</td></tr>}
@@ -173,13 +327,13 @@ const RegistrationsList = () => {
 };
 
 const MasterclassTab = () => (
-  <Tabs defaultValue="settings" className="space-y-4">
+  <Tabs defaultValue="settings" className="space-y-6">
     <TabsList>
       <TabsTrigger value="settings">Settings</TabsTrigger>
       <TabsTrigger value="registrations">Registrations</TabsTrigger>
     </TabsList>
-    <TabsContent value="settings"><SettingsForm /></TabsContent>
-    <TabsContent value="registrations"><RegistrationsList /></TabsContent>
+    <TabsContent value="settings" className="m-0"><SettingsForm /></TabsContent>
+    <TabsContent value="registrations" className="m-0"><RegistrationsList /></TabsContent>
   </Tabs>
 );
 

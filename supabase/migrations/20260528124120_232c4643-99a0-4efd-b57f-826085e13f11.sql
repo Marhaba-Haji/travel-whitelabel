@@ -67,7 +67,7 @@ CREATE TABLE public.webinar_settings (
 
   faqs jsonb NOT NULL DEFAULT '[
     {"q":"Is this webinar for beginners or experienced agents?","a":"Both. The first half is structured for absolute beginners; the second half goes deep on scaling for existing operators."},
-    {"q":"Will the session be recorded?","a":"A recording is shared with all paid registrants within 24 hours."},
+    {"q":"Will the session be recorded?","a":"No, the session recording is not provided. It is only available as a live class."},
     {"q":"What language will it be conducted in?","a":"Primarily English, with Hindi explanations where needed."},
     {"q":"Do I need any prior tools or software?","a":"No. Just a laptop or phone, a notebook, and a stable internet connection."},
     {"q":"Is the ₹99 fee refundable?","a":"Yes, full refund if requested within 24 hours after the live session if you feel it did not deliver value."},

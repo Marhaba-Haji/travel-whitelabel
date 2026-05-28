@@ -121,7 +121,7 @@ const RegisterDialog = ({ open, onOpenChange, priceInr, isFree, title }: Props) 
             <DialogDescription className="text-[var(--mc-on-surface-variant)] text-sm">
               {isFree
                 ? "Free seat · No card needed"
-                : `Today only · ₹${priceInr.toFixed(0)} · Lifetime access to recording`}
+                : `Today only · ₹${priceInr.toFixed(0)} · Live class only`}
             </DialogDescription>
           </DialogHeader>
 

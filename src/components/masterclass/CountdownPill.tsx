@@ -44,7 +44,7 @@ const CountdownPill = ({ scheduledAt, className = "", variant = "dark", compact 
   return (
     <div
       className={`inline-flex items-center gap-3 rounded-2xl px-4 py-2.5 backdrop-blur-md ${base} ${
-        compact ? "scale-90 origin-left" : ""
+        compact ? "scale-90 origin-center md:origin-left" : ""
       } ${className}`}
     >
       <Block n={t.d} label="days" />
