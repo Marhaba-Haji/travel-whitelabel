@@ -235,6 +235,7 @@ export default function UmrahVisaCheck() {
           />
         </div>
 
+        <h2 className="sr-only">Visa Check Step {step} of 4</h2>
         <Card className="rounded-3xl bg-white border border-gray-100 shadow-soft">
           <CardHeader className="p-6 pb-0">
             <CardTitle className="font-poppins text-lg font-bold text-gray-900">{STEPS[step - 1]?.label ?? "Step"}</CardTitle>
