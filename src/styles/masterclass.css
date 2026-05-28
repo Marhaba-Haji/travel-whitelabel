@@ -1,0 +1,123 @@
+/* Ultra-Growth Travel Masterclass design system.
+   Scoped to elements under `.mc-scope` so it never leaks to other pages. */
+
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+
+.mc-scope {
+  --mc-surface: #121414;
+  --mc-surface-low: #1a1c1c;
+  --mc-surface-c: #1e2020;
+  --mc-surface-high: #282a2b;
+  --mc-on-surface: #e2e2e2;
+  --mc-on-surface-variant: #ccc4ce;
+  --mc-outline: #958e98;
+  --mc-outline-variant: #4a454d;
+  --mc-primary: #d5bdf0;
+  --mc-on-primary: #3a2851;
+  --mc-tertiary: #d0bcff;
+  --mc-tertiary-container: #0e0030;
+  --mc-secondary: #9df800;
+  --mc-secondary-bright: #b6ff3a;
+  --mc-on-secondary: #102000;
+  --mc-error: #ffb4ab;
+  background-color: var(--mc-surface);
+  color: var(--mc-on-surface);
+  font-family: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.mc-h-xl { font-weight: 800; font-size: clamp(2.25rem, 5.5vw, 4rem); line-height: 1.05; letter-spacing: -0.02em; }
+.mc-h-lg { font-weight: 700; font-size: clamp(2rem, 4vw, 3rem); line-height: 1.1; letter-spacing: -0.01em; }
+.mc-h-md { font-weight: 700; font-size: clamp(1.5rem, 2.5vw, 2rem); line-height: 1.2; letter-spacing: -0.01em; }
+.mc-body-lg { font-size: 1.125rem; line-height: 1.55; }
+.mc-label { font-size: 0.72rem; font-weight: 700; line-height: 1; letter-spacing: 0.18em; text-transform: uppercase; }
+
+.mc-glass {
+  background: linear-gradient(180deg, rgba(213, 189, 240, 0.06), rgba(213, 189, 240, 0.02));
+  border: 1px solid rgba(213, 189, 240, 0.14);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-radius: 1.25rem;
+}
+.mc-glass-strong {
+  background: linear-gradient(180deg, rgba(213, 189, 240, 0.10), rgba(208, 188, 255, 0.04));
+  border: 1px solid rgba(213, 189, 240, 0.22);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border-radius: 1.5rem;
+}
+
+.mc-cta {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  font-family: inherit; font-weight: 700;
+  padding: 0.95rem 1.75rem; border-radius: 9999px;
+  transition: transform 220ms ease, box-shadow 220ms ease, background-color 220ms ease;
+  cursor: pointer; user-select: none; border: 0;
+}
+.mc-cta-primary {
+  background: var(--mc-secondary);
+  color: var(--mc-on-secondary);
+  box-shadow: 0 12px 28px -8px rgba(157, 248, 0, 0.45);
+}
+.mc-cta-primary:hover {
+  background: var(--mc-secondary-bright);
+  transform: translateY(-2px);
+  box-shadow: 0 18px 40px -10px rgba(157, 248, 0, 0.6), 0 0 0 6px rgba(157, 248, 0, 0.12);
+}
+.mc-cta-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.mc-cta-secondary {
+  background: rgba(213, 189, 240, 0.08);
+  color: var(--mc-on-surface);
+  border: 1px solid rgba(213, 189, 240, 0.35);
+}
+.mc-cta-secondary:hover { background: rgba(213, 189, 240, 0.14); border-color: rgba(213, 189, 240, 0.6); }
+
+.mc-input {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(213, 189, 240, 0.22);
+  color: var(--mc-on-surface);
+  border-radius: 0.6rem;
+  height: 2.75rem; padding: 0 0.875rem;
+  font-family: inherit; width: 100%;
+  transition: border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+}
+.mc-input::placeholder { color: rgba(204, 196, 206, 0.45); }
+.mc-input:focus {
+  outline: none;
+  border-color: var(--mc-primary);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 0 3px rgba(213, 189, 240, 0.18);
+}
+
+.mc-chip {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.4rem 0.85rem; border-radius: 9999px;
+  background: rgba(213, 189, 240, 0.10);
+  border: 1px solid rgba(213, 189, 240, 0.25);
+  color: var(--mc-primary);
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;
+}
+.mc-chip-green {
+  background: rgba(157, 248, 0, 0.10);
+  border-color: rgba(157, 248, 0, 0.35);
+  color: var(--mc-secondary-bright);
+}
+
+.mc-bg-radial {
+  background:
+    radial-gradient(70% 60% at 50% 0%, rgba(208, 188, 255, 0.18) 0%, rgba(18, 20, 20, 0) 60%),
+    radial-gradient(50% 40% at 85% 30%, rgba(157, 248, 0, 0.08) 0%, rgba(18, 20, 20, 0) 70%),
+    var(--mc-surface);
+}
+.mc-bg-violet {
+  background:
+    radial-gradient(80% 60% at 50% 100%, rgba(208, 188, 255, 0.18) 0%, rgba(18, 20, 20, 0) 70%),
+    var(--mc-surface);
+}
+
+.mc-num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+
+.mc-scope ::-webkit-scrollbar { width: 10px; height: 10px; }
+.mc-scope ::-webkit-scrollbar-thumb { background: rgba(213, 189, 240, 0.18); border-radius: 9999px; }
+.mc-scope ::-webkit-scrollbar-track { background: transparent; }

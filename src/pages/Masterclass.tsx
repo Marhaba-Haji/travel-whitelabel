@@ -1,34 +1,38 @@
 import { useMemo, useState, lazy, Suspense } from "react";
 import {
   Compass, Layers, Plug, Cpu, TrendingUp, IndianRupee, Map as MapIcon,
-  Award, CheckCircle2, Sparkles, Clock, Users, Globe, Gift, ShieldCheck,
+  Award, CheckCircle2, Sparkles, Clock, Users, Gift, ShieldCheck,
   Calendar, Timer, BadgeCheck, Zap, ArrowRight, Star,
 } from "lucide-react";
 import { useWebinarSettings } from "@/hooks/useWebinarSettings";
 import SEOHead from "@/components/seo/SEOHead";
 import CountdownPill from "@/components/masterclass/CountdownPill";
 import RegisterDialog from "@/components/masterclass/RegisterDialog";
-import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { SITE_URL } from "@/lib/seo-schemas";
+import "@/styles/masterclass.css";
 
 const Footer = lazy(() => import("@/components/landing/Footer"));
 
-const ICONS: Record<string, any> = { Compass, Layers, Plug, Cpu, TrendingUp, IndianRupee, Map: MapIcon, Award, Sparkles, Users };
+const ICONS: Record<string, any> = {
+  Compass, Layers, Plug, Cpu, TrendingUp, IndianRupee, Map: MapIcon, Award, Sparkles, Users,
+};
 
 function formatIST(iso: string) {
   try {
-    return new Date(iso).toLocaleString("en-IN", {
-      timeZone: "Asia/Kolkata",
-      weekday: "short", day: "numeric", month: "short",
-      hour: "numeric", minute: "2-digit", hour12: true,
-    }) + " IST";
+    return (
+      new Date(iso).toLocaleString("en-IN", {
+        timeZone: "Asia/Kolkata",
+        weekday: "short", day: "numeric", month: "short",
+        hour: "numeric", minute: "2-digit", hour12: true,
+      }) + " IST"
+    );
   } catch { return iso; }
 }
 
 const Section = ({ id, className = "", children }: { id?: string; className?: string; children: React.ReactNode }) => (
-  <section id={id} className={`py-16 md:py-24 ${className}`}>
-    <div className="container mx-auto px-4">{children}</div>
+  <section id={id} className={`py-20 md:py-28 ${className}`}>
+    <div className="container mx-auto px-5 md:px-8 max-w-[1200px]">{children}</div>
   </section>
 );
 
@@ -64,19 +68,21 @@ const Masterclass = () => {
 
   if (isLoading || !s) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="h-8 w-8 rounded-full border-2 border-[#412A86] border-t-transparent animate-spin" />
+      <div className="mc-scope min-h-screen flex items-center justify-center">
+        <div className="h-8 w-8 rounded-full border-2 border-[var(--mc-primary)] border-t-transparent animate-spin" />
       </div>
     );
   }
 
   if (!s.is_published) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f7f4ff] to-white px-4">
+      <div className="mc-scope min-h-screen mc-bg-radial flex items-center justify-center px-4">
         <div className="text-center max-w-md">
-          <Sparkles className="h-10 w-10 text-[#B968C7] mx-auto mb-4" />
-          <h1 className="font-display text-3xl font-bold mb-2">Next session coming soon</h1>
-          <p className="text-foreground/70">Check back shortly — we're scheduling the next live masterclass.</p>
+          <Sparkles className="h-10 w-10 text-[var(--mc-primary)] mx-auto mb-4" />
+          <h1 className="mc-h-md text-[var(--mc-on-surface)]">Next session coming soon</h1>
+          <p className="text-[var(--mc-on-surface-variant)] mt-3">
+            Check back shortly — we're scheduling the next live masterclass.
+          </p>
         </div>
       </div>
     );
@@ -90,251 +96,327 @@ const Masterclass = () => {
   const seatsPct = Math.max(8, Math.min(92, Math.round((seatsLeft / Math.max(s.seats_total, 1)) * 100)));
   const priceLabel = s.is_free ? "Free" : `₹${Number(s.price_inr).toFixed(0)}`;
 
-  // Total bonus value (sums "₹1,999" style strings)
   const totalBonusValue = s.bonuses.reduce((sum, b) => {
     const n = Number(String(b.value || "").replace(/[^0-9]/g, "")) || 0;
     return sum + n;
   }, 0);
 
-  const CTA = ({ size = "lg", className = "" }: { size?: "lg" | "default"; className?: string }) => (
-    <Button
-      onClick={() => setOpen(true)}
-      className={`rounded-full font-semibold bg-[#412A86] hover:bg-[#412A86]/90 text-white shadow-[0_10px_30px_-10px_rgba(65,42,134,0.55)] hover:-translate-y-0.5 transition-all ${size === "lg" ? "h-14 px-8 text-base" : "h-12 px-6 text-sm"} ${className}`}
-    >
-      {s.is_free ? "Reserve Free Seat" : `Register for ${priceLabel}`}
-    </Button>
+  const PrimaryCTA = ({ className = "", label }: { className?: string; label?: string }) => (
+    <button onClick={() => setOpen(true)} className={`mc-cta mc-cta-primary ${className}`}>
+      {label || (s.is_free ? "Reserve My Free Seat" : `Register for ${priceLabel}`)}
+      <ArrowRight className="h-4 w-4" />
+    </button>
   );
 
   return (
-    <div className="min-h-screen bg-white text-foreground">
+    <div className="mc-scope min-h-screen">
       <SEOHead
         title={`${s.title} — Live Masterclass with ${s.host_name}`}
         description={s.subtitle}
         path="/masterclass"
         type="website"
         jsonLd={eventJsonLd as any}
-        keywords={["travel business masterclass", "start travel agency india", "scale travel business", "tourism webinar", s.host_name]}
+        keywords={[
+          "travel business masterclass",
+          "start travel agency india",
+          "scale travel business",
+          "tourism webinar",
+          s.host_name,
+        ]}
       />
 
       {/* Sticky top countdown bar */}
-      <div className="sticky top-0 z-40 bg-[#412A86] text-white">
-        <div className="container mx-auto px-4 py-2 flex items-center justify-between gap-3 text-sm">
-          <div className="flex items-center gap-2 min-w-0">
-            <Clock className="h-4 w-4 shrink-0" />
-            <span className="hidden sm:inline opacity-90">Live in</span>
-            <CountdownPill scheduledAt={s.scheduled_at} variant="dark" className="!px-2 !py-1 !gap-2 scale-90 origin-left" />
+      <div className="sticky top-0 z-40 backdrop-blur-xl bg-[var(--mc-surface)]/85 border-b border-[rgba(213,189,240,0.12)]">
+        <div className="container mx-auto px-4 py-2.5 flex items-center justify-between gap-3 max-w-[1200px]">
+          <div className="flex items-center gap-2 min-w-0 text-sm">
+            <Clock className="h-4 w-4 text-[var(--mc-primary)] shrink-0" />
+            <span className="hidden sm:inline text-[var(--mc-on-surface-variant)]">Live in</span>
+            <CountdownPill scheduledAt={s.scheduled_at} variant="light" compact className="!py-1 !px-2" />
           </div>
-          <button onClick={() => setOpen(true)} className="shrink-0 rounded-full bg-white text-[#412A86] font-semibold px-4 py-1.5 text-sm hover:bg-white/90 transition">
+          <button
+            onClick={() => setOpen(true)}
+            className="shrink-0 rounded-full bg-[var(--mc-secondary)] text-[var(--mc-on-secondary)] font-bold px-4 py-1.5 text-sm hover:bg-[var(--mc-secondary-bright)] transition"
+          >
             {s.is_free ? "Reserve" : `Register ${priceLabel}`}
           </button>
         </div>
       </div>
 
-      {/* HERO — premium register-card layout */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#f7f4ff] via-white to-[#fef0f8]">
-        <div className="absolute -top-40 -right-40 h-[28rem] w-[28rem] rounded-full bg-[#B968C7]/25 blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 h-[28rem] w-[28rem] rounded-full bg-[#412A86]/15 blur-3xl" />
-        <div className="container mx-auto px-4 pt-12 pb-16 md:pt-16 md:pb-24 relative">
+      {/* HERO */}
+      <section className="relative overflow-hidden mc-bg-radial">
+        <div className="absolute -top-40 -right-40 h-[32rem] w-[32rem] rounded-full bg-[var(--mc-tertiary)]/15 blur-[120px]" />
+        <div className="absolute -bottom-40 -left-40 h-[32rem] w-[32rem] rounded-full bg-[var(--mc-secondary)]/10 blur-[120px]" />
+        <div className="container mx-auto px-5 md:px-8 pt-16 pb-20 md:pt-24 md:pb-28 relative max-w-[1200px]">
           <div className="max-w-3xl mx-auto text-center">
-            <span className="inline-flex items-center gap-2 rounded-full bg-white border border-[#412A86]/15 px-4 py-1.5 text-[11px] font-bold tracking-[0.18em] uppercase text-[#412A86] shadow-sm">
+            <span className="mc-chip">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--mc-secondary)] opacity-70" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--mc-secondary)]" />
               </span>
               {s.eyebrow}
             </span>
-            <h1 className="font-poppins font-extrabold text-[2.5rem] sm:text-5xl md:text-[4.25rem] leading-[1.02] tracking-tight mt-6 text-gray-900">
+
+            <h1 className="mc-h-xl mt-6 text-[var(--mc-on-surface)]">
               {s.title.split(" ").slice(0, -3).join(" ")}{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#412A86] to-[#B968C7]">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--mc-primary)] via-[var(--mc-tertiary)] to-[var(--mc-secondary)]">
                 {s.title.split(" ").slice(-3).join(" ")}
               </span>
             </h1>
-            <p className="mt-5 text-lg md:text-xl text-foreground/70 max-w-2xl mx-auto">
+
+            <p className="mt-6 mc-body-lg text-[var(--mc-on-surface-variant)] max-w-2xl mx-auto">
               {s.subtitle}
             </p>
 
             {/* Register card */}
-            <div className="mt-10 mx-auto max-w-xl bg-white rounded-[2rem] border border-gray-100 shadow-[0_30px_80px_-30px_rgba(65,42,134,0.35)] p-6 md:p-7 text-left">
-              <div className="grid grid-cols-3 gap-3 pb-5 border-b border-gray-100">
+            <div className="mt-12 mx-auto max-w-xl mc-glass-strong p-6 md:p-7 text-left relative overflow-hidden">
+              <div className="absolute -top-24 -right-24 h-48 w-48 rounded-full bg-[var(--mc-tertiary)]/25 blur-3xl pointer-events-none" />
+
+              <div className="relative grid grid-cols-3 gap-3 pb-5 border-b border-[rgba(213,189,240,0.12)]">
                 <div>
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 flex items-center gap-1"><Calendar className="h-3 w-3" />Date</div>
-                  <div className="font-bold text-gray-900 text-sm mt-1">{whenLabel.split(",")[0]}, {whenLabel.split(",")[1]?.trim().split(" ").slice(0, 2).join(" ")}</div>
+                  <div className="mc-label text-[var(--mc-on-surface-variant)] flex items-center gap-1">
+                    <Calendar className="h-3 w-3" />Date
+                  </div>
+                  <div className="font-bold text-[var(--mc-on-surface)] text-sm mt-2">
+                    {whenLabel.split(",")[0]},{" "}
+                    {whenLabel.split(",")[1]?.trim().split(" ").slice(0, 2).join(" ")}
+                  </div>
                 </div>
-                <div className="border-x border-gray-100 px-3">
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 flex items-center gap-1"><Timer className="h-3 w-3" />Duration</div>
-                  <div className="font-bold text-gray-900 text-sm mt-1">{s.duration_minutes} min</div>
+                <div className="border-x border-[rgba(213,189,240,0.12)] px-3">
+                  <div className="mc-label text-[var(--mc-on-surface-variant)] flex items-center gap-1">
+                    <Timer className="h-3 w-3" />Duration
+                  </div>
+                  <div className="font-bold text-[var(--mc-on-surface)] text-sm mt-2">
+                    {s.duration_minutes} min
+                  </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 flex items-center gap-1 justify-end"><Users className="h-3 w-3" />Seats</div>
-                  <div className="font-bold text-emerald-600 text-sm mt-1">{seatsLeft} left</div>
+                  <div className="mc-label text-[var(--mc-on-surface-variant)] flex items-center gap-1 justify-end">
+                    <Users className="h-3 w-3" />Seats
+                  </div>
+                  <div className="font-bold text-[var(--mc-secondary-bright)] text-sm mt-2">
+                    {seatsLeft} left
+                  </div>
                 </div>
               </div>
 
-              {/* Seats bar */}
-              <div className="mt-4">
-                <div className="h-1.5 w-full rounded-full bg-gray-100 overflow-hidden">
-                  <div className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-500 transition-all" style={{ width: `${seatsPct}%` }} />
+              <div className="relative mt-4">
+                <div className="h-1.5 w-full rounded-full bg-white/[0.06] overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-[var(--mc-secondary)] to-[var(--mc-secondary-bright)] shadow-[0_0_12px_rgba(157,248,0,0.6)] transition-all"
+                    style={{ width: `${seatsPct}%` }}
+                  />
                 </div>
-                <div className="mt-1.5 text-[11px] text-foreground/55 flex justify-between">
+                <div className="mt-2 text-[11px] text-[var(--mc-on-surface-variant)] flex justify-between">
                   <span>Filling fast</span>
                   <span>{seatsPct}% remaining</span>
                 </div>
               </div>
 
-              <button onClick={() => setOpen(true)}
-                className="mt-5 w-full h-14 rounded-2xl bg-gradient-to-r from-[#412A86] to-[#5b3aaf] hover:from-[#371f78] hover:to-[#4e2fa0] text-white font-bold text-lg shadow-[0_15px_35px_-10px_rgba(65,42,134,0.55)] hover:-translate-y-0.5 transition-all inline-flex items-center justify-center gap-2">
+              <button
+                onClick={() => setOpen(true)}
+                className="mc-cta mc-cta-primary relative mt-5 w-full h-14 text-base"
+              >
                 {s.is_free ? "Reserve My Free Seat" : `Register for ${priceLabel} Only`}
                 <ArrowRight className="h-5 w-5" />
               </button>
-              <p className="mt-3 text-xs text-center text-foreground/55 inline-flex items-center justify-center gap-1.5 w-full">
-                <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+
+              <p className="relative mt-3 text-xs text-center text-[var(--mc-on-surface-variant)] inline-flex items-center justify-center gap-1.5 w-full">
+                <ShieldCheck className="h-3.5 w-3.5 text-[var(--mc-secondary-bright)]" />
                 {s.is_free ? "100% free · No card needed" : "Secure PayU checkout · 24-hour full refund"}
               </p>
 
-              <div className="mt-6 pt-5 border-t border-gray-100">
-                <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 text-center mb-2">Doors close in</div>
+              <div className="relative mt-6 pt-5 border-t border-[rgba(213,189,240,0.12)]">
+                <div className="mc-label text-[var(--mc-on-surface-variant)] text-center mb-3">Doors close in</div>
                 <div className="flex justify-center">
-                  <CountdownPill scheduledAt={s.scheduled_at} variant="light" className="!border-0 !shadow-none" />
+                  <CountdownPill scheduledAt={s.scheduled_at} variant="dark" />
                 </div>
               </div>
             </div>
 
             {/* Trust strip */}
-            <div className="mt-12 grid grid-cols-3 max-w-2xl mx-auto divide-x divide-gray-200">
-              <div className="px-2"><div className="text-2xl md:text-3xl font-extrabold text-[#412A86]">1,000+</div><div className="text-[10px] md:text-xs uppercase tracking-widest text-foreground/55 mt-1">Agents trained</div></div>
-              <div className="px-2"><div className="text-2xl md:text-3xl font-extrabold text-[#412A86]">14+</div><div className="text-[10px] md:text-xs uppercase tracking-widest text-foreground/55 mt-1">Countries</div></div>
-              <div className="px-2"><div className="text-2xl md:text-3xl font-extrabold text-[#412A86]">14 yrs</div><div className="text-[10px] md:text-xs uppercase tracking-widest text-foreground/55 mt-1">In travel</div></div>
+            <div className="mt-14 grid grid-cols-3 max-w-2xl mx-auto divide-x divide-[rgba(213,189,240,0.15)]">
+              {[
+                ["1,000+", "Agents trained"],
+                ["14+", "Countries"],
+                ["14 yrs", "In travel"],
+              ].map(([n, l]) => (
+                <div key={l} className="px-2">
+                  <div className="text-2xl md:text-3xl font-extrabold text-[var(--mc-primary)]">{n}</div>
+                  <div className="mc-label text-[var(--mc-on-surface-variant)] mt-2">{l}</div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
       {/* WHO IS THIS FOR */}
-      <Section className="bg-white">
+      <Section>
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
-            <p className="text-sm font-semibold text-[#B968C7] uppercase tracking-wider">Who this is for</p>
-            <h2 className="font-poppins font-bold text-3xl md:text-5xl mt-2 tracking-tight">Is this you?</h2>
+            <span className="mc-chip">Who this is for</span>
+            <h2 className="mc-h-lg mt-4 text-[var(--mc-on-surface)]">Is this you?</h2>
           </div>
           <div className="grid md:grid-cols-2 gap-6">
-            <div className="rounded-3xl bg-[#faf8ff] border border-[#412A86]/10 p-7 md:p-9">
-              <div className="inline-flex items-center gap-2 rounded-full bg-[#412A86] text-white text-[11px] font-bold tracking-wider uppercase px-3 py-1.5">
-                <Sparkles className="h-3.5 w-3.5" /> Absolutely new to travel
+            {/* Beginner */}
+            <div className="mc-glass p-7 md:p-9 relative overflow-hidden">
+              <div className="absolute -top-12 -right-12 h-40 w-40 rounded-full bg-[var(--mc-tertiary)]/20 blur-3xl" />
+              <div className="relative">
+                <span className="mc-chip">
+                  <Sparkles className="h-3.5 w-3.5" /> Brand new to travel
+                </span>
+                <h3 className="mt-4 font-bold text-xl text-[var(--mc-on-surface)]">
+                  Start from zero — the right way
+                </h3>
+                <ul className="mt-5 space-y-3">
+                  {s.who_for_beginner.map((b) => (
+                    <li key={b} className="flex items-start gap-3 text-[var(--mc-on-surface)]/85">
+                      <CheckCircle2 className="h-5 w-5 text-[var(--mc-primary)] mt-0.5 shrink-0" />
+                      <span>{b}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <h3 className="mt-4 font-bold text-xl text-gray-900">Start from zero — the right way</h3>
-              <ul className="mt-5 space-y-3">
-                {s.who_for_beginner.map((b) => (
-                  <li key={b} className="flex items-start gap-3 text-foreground/85">
-                    <CheckCircle2 className="h-5 w-5 text-[#412A86] mt-0.5 shrink-0" />
-                    <span>{b}</span>
-                  </li>
-                ))}
-              </ul>
             </div>
-            <div className="rounded-3xl bg-[#412A86] text-white border border-[#412A86] p-7 md:p-9 relative overflow-hidden shadow-[0_30px_60px_-25px_rgba(65,42,134,0.55)]">
-              <div className="absolute -top-12 -right-12 h-48 w-48 rounded-full bg-[#B968C7]/30 blur-3xl" />
-              <div className="relative inline-flex items-center gap-2 rounded-full bg-[#B968C7] text-white text-[11px] font-bold tracking-wider uppercase px-3 py-1.5">
-                <TrendingUp className="h-3.5 w-3.5" /> Already in travel, want to scale
+            {/* Scaler */}
+            <div className="mc-glass-strong p-7 md:p-9 relative overflow-hidden">
+              <div className="absolute -top-12 -right-12 h-48 w-48 rounded-full bg-[var(--mc-secondary)]/15 blur-3xl" />
+              <div className="relative">
+                <span className="mc-chip mc-chip-green">
+                  <TrendingUp className="h-3.5 w-3.5" /> Already in travel — want to scale
+                </span>
+                <h3 className="mt-4 font-bold text-xl text-[var(--mc-on-surface)]">
+                  Break the plateau. Own the decade.
+                </h3>
+                <ul className="mt-5 space-y-3">
+                  {s.who_for_scaler.map((b) => (
+                    <li key={b} className="flex items-start gap-3 text-[var(--mc-on-surface)]/90">
+                      <CheckCircle2 className="h-5 w-5 text-[var(--mc-secondary-bright)] mt-0.5 shrink-0" />
+                      <span>{b}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <h3 className="relative mt-4 font-bold text-xl">Break the plateau, own the decade</h3>
-              <ul className="relative mt-5 space-y-3">
-                {s.who_for_scaler.map((b) => (
-                  <li key={b} className="flex items-start gap-3 text-white/90">
-                    <CheckCircle2 className="h-5 w-5 text-[#B968C7] mt-0.5 shrink-0" />
-                    <span>{b}</span>
-                  </li>
-                ))}
-              </ul>
             </div>
           </div>
         </div>
       </Section>
 
       {/* WHAT YOU WILL LEARN */}
-      <Section className="bg-gradient-to-b from-white to-[#faf8ff]">
+      <Section className="mc-bg-violet">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <p className="text-sm font-semibold text-[#B968C7] uppercase tracking-wider">Curriculum</p>
-            <h2 className="font-poppins font-bold text-3xl md:text-5xl mt-2 tracking-tight">What you will learn in 2 hours</h2>
-            <p className="text-foreground/65 mt-3 max-w-xl mx-auto">Seven modules, no fluff. Built from 14 years of real travel-business operations.</p>
+          <div className="text-center mb-14">
+            <span className="mc-chip">Curriculum</span>
+            <h2 className="mc-h-lg mt-4 text-[var(--mc-on-surface)]">
+              What you'll learn in 2 hours
+            </h2>
+            <p className="text-[var(--mc-on-surface-variant)] mt-4 max-w-xl mx-auto">
+              Seven modules, no fluff. Built from 14 years of real travel-business operations.
+            </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             {s.learning_points.map((lp, i) => {
               const Icon = ICONS[lp.icon] || Sparkles;
               return (
-                <div key={i} className="group rounded-3xl bg-white border border-gray-100 p-6 md:p-7 shadow-[0_4px_20px_-12px_rgba(65,42,134,0.15)] hover:shadow-[0_20px_40px_-15px_rgba(65,42,134,0.25)] hover:-translate-y-1 hover:border-[#B968C7]/30 transition-all">
+                <div
+                  key={i}
+                  className="group mc-glass p-6 md:p-7 hover:-translate-y-1 hover:border-[rgba(213,189,240,0.35)] transition-all duration-300"
+                >
                   <div className="flex items-center justify-between mb-5">
-                    <div className="h-12 w-12 rounded-2xl bg-[#412A86]/5 group-hover:bg-gradient-to-br group-hover:from-[#412A86] group-hover:to-[#B968C7] text-[#412A86] group-hover:text-white flex items-center justify-center transition-all">
+                    <div className="h-12 w-12 rounded-2xl bg-[var(--mc-tertiary-container)] border border-[rgba(213,189,240,0.25)] text-[var(--mc-primary)] flex items-center justify-center group-hover:bg-[var(--mc-secondary)] group-hover:text-[var(--mc-on-secondary)] group-hover:border-[var(--mc-secondary)] transition-all">
                       <Icon className="h-5 w-5" />
                     </div>
-                    <span className="text-[11px] font-bold tracking-widest text-gray-300">MODULE {String(i + 1).padStart(2, "0")}</span>
+                    <span className="mc-label text-[var(--mc-outline)]">
+                      MODULE {String(i + 1).padStart(2, "0")}
+                    </span>
                   </div>
-                  <h3 className="font-bold text-lg text-gray-900 leading-snug">{lp.title}</h3>
-                  <p className="mt-2 text-sm text-foreground/65 leading-relaxed">{lp.desc}</p>
+                  <h3 className="font-bold text-lg text-[var(--mc-on-surface)] leading-snug">
+                    {lp.title}
+                  </h3>
+                  <p className="mt-2 text-sm text-[var(--mc-on-surface-variant)] leading-relaxed">
+                    {lp.desc}
+                  </p>
                 </div>
               );
             })}
           </div>
-          <div className="mt-10 text-center">
-            <button onClick={() => setOpen(true)} className="inline-flex items-center gap-2 text-[#412A86] font-semibold hover:gap-3 transition-all">
-              <Zap className="h-4 w-4" /> Get full access for {priceLabel} <ArrowRight className="h-4 w-4" />
-            </button>
+          <div className="mt-12 text-center">
+            <PrimaryCTA label={`Get full access for ${priceLabel}`} />
           </div>
         </div>
       </Section>
 
       {/* WHY NOW */}
-      <Section className="bg-[#0f0a24] text-white">
+      <Section>
         <div className="max-w-5xl mx-auto text-center">
-          <p className="text-sm font-semibold text-[#B968C7] uppercase tracking-wider">Why now</p>
-          <h2 className="font-poppins font-bold text-3xl md:text-5xl mt-3">India's travel boom is just getting started</h2>
-          <p className="mt-5 text-white/70 max-w-2xl mx-auto text-lg">
-            Outbound spend is projected to cross <strong className="text-white">$410 billion by 2030</strong>. Hajj &amp; Umrah pilgrims from India are scheduled to grow to <strong className="text-white">3.5 lakh+ annually</strong>. The agents who move now own the next decade.
+          <span className="mc-chip">Why now</span>
+          <h2 className="mc-h-lg mt-4 text-[var(--mc-on-surface)]">
+            India's travel boom is just getting started
+          </h2>
+          <p className="mt-5 text-[var(--mc-on-surface-variant)] max-w-2xl mx-auto mc-body-lg">
+            Outbound spend is projected to cross{" "}
+            <strong className="text-[var(--mc-secondary-bright)]">$410 billion by 2030</strong>.
+            Hajj &amp; Umrah pilgrims from India are scheduled to grow to{" "}
+            <strong className="text-[var(--mc-secondary-bright)]">3.5 lakh+ annually</strong>. The
+            agents who move now own the next decade.
           </p>
-          <div className="grid sm:grid-cols-3 gap-6 mt-12">
-            <div className="rounded-2xl bg-white/5 border border-white/10 p-6">
-              <div className="text-4xl font-bold text-[#B968C7]">$410B</div>
-              <div className="text-sm text-white/60 mt-1">India outbound by 2030</div>
-            </div>
-            <div className="rounded-2xl bg-white/5 border border-white/10 p-6">
-              <div className="text-4xl font-bold text-[#B968C7]">+15%</div>
-              <div className="text-sm text-white/60 mt-1">YoY growth in international travel</div>
-            </div>
-            <div className="rounded-2xl bg-white/5 border border-white/10 p-6">
-              <div className="text-4xl font-bold text-[#B968C7]">3.5L+</div>
-              <div className="text-sm text-white/60 mt-1">Annual Hajj &amp; Umrah pilgrims</div>
-            </div>
+          <div className="grid sm:grid-cols-3 gap-5 mt-12">
+            {[
+              ["$410B", "India outbound by 2030"],
+              ["+15%", "YoY growth in international travel"],
+              ["3.5L+", "Annual Hajj & Umrah pilgrims"],
+            ].map(([n, l]) => (
+              <div key={l} className="mc-glass p-7">
+                <div className="text-4xl font-extrabold text-[var(--mc-secondary-bright)]">{n}</div>
+                <div className="text-sm text-[var(--mc-on-surface-variant)] mt-2">{l}</div>
+              </div>
+            ))}
           </div>
         </div>
       </Section>
 
       {/* HOST */}
-      <Section className="bg-white">
+      <Section className="mc-bg-violet">
         <div className="max-w-5xl mx-auto">
           <div className="grid md:grid-cols-[280px_1fr] gap-8 md:gap-12 items-start">
             <div className="relative">
-              <div className="aspect-square rounded-3xl bg-gradient-to-br from-[#412A86] to-[#B968C7] p-1 shadow-2xl">
-                <div className="h-full w-full rounded-[20px] bg-gray-100 overflow-hidden flex items-center justify-center">
+              <div className="aspect-square rounded-3xl bg-gradient-to-br from-[var(--mc-tertiary)] via-[var(--mc-primary)] to-[var(--mc-secondary)] p-[2px] shadow-[0_30px_60px_-20px_rgba(208,188,255,0.4)]">
+                <div className="h-full w-full rounded-[22px] bg-[var(--mc-surface-c)] overflow-hidden flex items-center justify-center">
                   {s.host_photo_url ? (
                     <img src={s.host_photo_url} alt={s.host_name} className="h-full w-full object-cover" />
                   ) : (
-                    <div className="text-6xl font-bold text-[#412A86]/30">{s.host_name.split(" ").map(n=>n[0]).slice(0,2).join("")}</div>
+                    <div className="text-6xl font-extrabold text-[var(--mc-primary)]/40">
+                      {s.host_name.split(" ").map((n) => n[0]).slice(0, 2).join("")}
+                    </div>
                   )}
                 </div>
               </div>
-              <div className="absolute -bottom-4 -right-4 bg-white rounded-2xl shadow-xl border border-gray-100 p-3 flex items-center gap-2">
-                <Award className="h-5 w-5 text-[#B968C7]" />
-                <span className="text-xs font-semibold">Your Host</span>
+              <div className="absolute -bottom-4 -right-4 mc-glass-strong px-3.5 py-2 flex items-center gap-2">
+                <Award className="h-4 w-4 text-[var(--mc-secondary-bright)]" />
+                <span className="text-xs font-bold text-[var(--mc-on-surface)]">Your Host</span>
               </div>
             </div>
             <div>
-              <p className="text-sm font-semibold text-[#B968C7] uppercase tracking-wider">Meet your host</p>
-              <h2 className="font-poppins font-bold text-3xl md:text-4xl mt-2">{s.host_name}</h2>
-              <p className="text-foreground/60 mt-1 font-medium">{s.host_title}</p>
-              <p className="mt-5 text-foreground/80 leading-relaxed whitespace-pre-line">{s.host_bio_markdown}</p>
+              <span className="mc-chip">Meet your host</span>
+              <h2 className="mc-h-md mt-4 text-[var(--mc-on-surface)]">{s.host_name}</h2>
+              <p className="text-[var(--mc-on-surface-variant)] mt-1 font-medium">{s.host_title}</p>
+              <p className="mt-5 text-[var(--mc-on-surface)]/85 leading-relaxed whitespace-pre-line">
+                {s.host_bio_markdown}
+              </p>
               <div className="mt-6 flex flex-wrap gap-2">
-                {["Founder, MarhabaDMC", "14+ yrs in Travel", "1,000+ Agents Trained", "AI-First DMC", "Hajj &amp; Umrah Expert"].map((chip) => (
-                  <span key={chip} className="text-xs font-medium rounded-full bg-[#412A86]/10 text-[#412A86] px-3 py-1.5" dangerouslySetInnerHTML={{ __html: chip }} />
+                {[
+                  "Founder, MarhabaDMC",
+                  "14+ yrs in Travel",
+                  "1,000+ Agents Trained",
+                  "AI-First DMC",
+                  "Hajj & Umrah Expert",
+                ].map((chip) => (
+                  <span
+                    key={chip}
+                    className="text-xs font-medium rounded-full bg-[rgba(213,189,240,0.10)] text-[var(--mc-primary)] border border-[rgba(213,189,240,0.25)] px-3 py-1.5"
+                  >
+                    {chip}
+                  </span>
                 ))}
               </div>
             </div>
@@ -343,48 +425,70 @@ const Masterclass = () => {
       </Section>
 
       {/* AGENDA */}
-      <Section className="bg-[#faf8ff]">
+      <Section>
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-12">
-            <p className="text-sm font-semibold text-[#B968C7] uppercase tracking-wider">Agenda</p>
-            <h2 className="font-poppins font-bold text-3xl md:text-4xl mt-2">Inside the 2-hour session</h2>
+            <span className="mc-chip">Agenda</span>
+            <h2 className="mc-h-md mt-4 text-[var(--mc-on-surface)]">Inside the 2-hour session</h2>
           </div>
-          <div className="space-y-3">
-            {s.agenda.map((a, i) => (
-              <div key={i} className="rounded-2xl bg-white border border-gray-100 p-5 flex gap-5 items-start">
-                <div className="font-mono text-sm font-semibold text-[#412A86] rounded-lg bg-[#412A86]/10 px-3 py-1.5 shrink-0">{a.time}</div>
-                <div>
-                  <h3 className="font-semibold text-gray-900">{a.title}</h3>
-                  <p className="text-sm text-foreground/65 mt-1">{a.desc}</p>
+          <div className="relative">
+            <div className="absolute left-[58px] top-2 bottom-2 w-px bg-gradient-to-b from-[var(--mc-tertiary)]/40 via-[var(--mc-tertiary)]/15 to-transparent hidden sm:block" />
+            <div className="space-y-3">
+              {s.agenda.map((a, i) => (
+                <div key={i} className="mc-glass p-5 flex gap-5 items-start relative">
+                  <div className="mc-num text-sm font-bold text-[var(--mc-primary)] rounded-lg bg-[var(--mc-tertiary-container)] border border-[rgba(213,189,240,0.25)] px-3 py-1.5 shrink-0">
+                    {a.time}
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-[var(--mc-on-surface)]">{a.title}</h3>
+                    <p className="text-sm text-[var(--mc-on-surface-variant)] mt-1">{a.desc}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </Section>
 
       {/* BONUSES */}
-      <Section className="bg-white">
+      <Section className="mc-bg-violet">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
-            <p className="text-sm font-semibold text-[#B968C7] uppercase tracking-wider">Bonuses</p>
-            <h2 className="font-poppins font-bold text-3xl md:text-5xl mt-2 tracking-tight">Everything you get</h2>
-            <p className="text-foreground/65 mt-3">Yours to keep — even if you can't attend live.</p>
+            <span className="mc-chip">Bonuses</span>
+            <h2 className="mc-h-lg mt-4 text-[var(--mc-on-surface)]">Everything you get</h2>
+            <p className="text-[var(--mc-on-surface-variant)] mt-4">
+              Yours to keep — even if you can't attend live.
+            </p>
           </div>
           <div className="grid md:grid-cols-3 gap-5">
             {s.bonuses.map((b, i) => (
-              <div key={i} className="rounded-3xl bg-white border border-gray-100 shadow-[0_10px_30px_-15px_rgba(65,42,134,0.2)] hover:-translate-y-1 hover:shadow-[0_20px_40px_-15px_rgba(65,42,134,0.3)] transition-all overflow-hidden">
-                <div className={`h-28 ${i === 1 ? "bg-gradient-to-br from-[#B968C7] to-[#d48be0]" : "bg-gradient-to-br from-[#412A86] to-[#5b3aaf]"} flex items-center justify-center`}>
-                  <Gift className="h-12 w-12 text-white/30" />
+              <div
+                key={i}
+                className="mc-glass overflow-hidden hover:-translate-y-1 transition-transform duration-300"
+              >
+                <div
+                  className={`h-28 ${
+                    i === 1
+                      ? "bg-gradient-to-br from-[var(--mc-secondary)] to-[var(--mc-secondary-bright)]"
+                      : "bg-gradient-to-br from-[var(--mc-tertiary)] to-[var(--mc-primary)]"
+                  } flex items-center justify-center`}
+                >
+                  <Gift className="h-12 w-12 text-black/25" />
                 </div>
                 <div className="p-6">
-                  <span className="text-[10px] font-bold tracking-widest rounded-full bg-emerald-50 text-emerald-700 px-2.5 py-1 uppercase">Bonus #{i+1}</span>
-                  <h3 className="font-bold text-lg mt-3 text-gray-900">{b.title}</h3>
-                  <p className="text-sm text-foreground/65 mt-2 leading-relaxed">{b.desc}</p>
+                  <span className="mc-chip mc-chip-green text-[10px]">Bonus #{i + 1}</span>
+                  <h3 className="font-bold text-lg mt-3 text-[var(--mc-on-surface)]">{b.title}</h3>
+                  <p className="text-sm text-[var(--mc-on-surface-variant)] mt-2 leading-relaxed">
+                    {b.desc}
+                  </p>
                   {b.value && (
-                    <div className="mt-5 pt-5 border-t border-gray-100 flex items-center justify-between">
-                      <span className="text-xs text-gray-400 line-through">Worth {b.value}</span>
-                      <span className="text-xs font-bold text-emerald-600 uppercase tracking-wider">Free</span>
+                    <div className="mt-5 pt-5 border-t border-[rgba(213,189,240,0.12)] flex items-center justify-between">
+                      <span className="text-xs text-[var(--mc-outline)] line-through">
+                        Worth {b.value}
+                      </span>
+                      <span className="text-xs font-bold text-[var(--mc-secondary-bright)] uppercase tracking-wider">
+                        Free
+                      </span>
                     </div>
                   )}
                 </div>
@@ -392,26 +496,35 @@ const Masterclass = () => {
             ))}
           </div>
 
-          {/* Value stack total */}
           {totalBonusValue > 0 && (
-            <div className="mt-10 max-w-2xl mx-auto rounded-3xl bg-gradient-to-br from-[#412A86] to-[#5b3aaf] text-white p-6 md:p-8 shadow-[0_25px_50px_-20px_rgba(65,42,134,0.55)]">
-              <div className="space-y-2.5 text-sm">
+            <div className="mt-12 max-w-2xl mx-auto mc-glass-strong p-6 md:p-8 relative overflow-hidden">
+              <div className="absolute -top-24 -right-24 h-56 w-56 rounded-full bg-[var(--mc-secondary)]/15 blur-3xl pointer-events-none" />
+              <div className="relative space-y-2.5 text-sm">
                 {s.bonuses.map((b, i) => (
-                  <div key={i} className="flex items-center justify-between text-white/85">
-                    <span className="flex items-center gap-2"><BadgeCheck className="h-4 w-4 text-[#B968C7]" /> {b.title}</span>
-                    <span className="font-mono text-white/60 line-through">{b.value}</span>
+                  <div key={i} className="flex items-center justify-between text-[var(--mc-on-surface)]/85">
+                    <span className="flex items-center gap-2">
+                      <BadgeCheck className="h-4 w-4 text-[var(--mc-secondary-bright)]" /> {b.title}
+                    </span>
+                    <span className="mc-num text-[var(--mc-on-surface-variant)] line-through">
+                      {b.value}
+                    </span>
                   </div>
                 ))}
-                <div className="flex items-center justify-between pt-3 border-t border-white/15 text-base font-semibold">
+                <div className="flex items-center justify-between pt-3 border-t border-[rgba(213,189,240,0.15)] text-base font-semibold text-[var(--mc-on-surface)]">
                   <span>Total value</span>
-                  <span className="line-through text-white/70">₹{totalBonusValue.toLocaleString("en-IN")}</span>
+                  <span className="line-through text-[var(--mc-on-surface-variant)]">
+                    ₹{totalBonusValue.toLocaleString("en-IN")}
+                  </span>
                 </div>
-                <div className="flex items-center justify-between text-xl font-extrabold">
+                <div className="flex items-center justify-between text-xl font-extrabold text-[var(--mc-on-surface)]">
                   <span>Today, your seat</span>
-                  <span className="text-[#B968C7]">{priceLabel}</span>
+                  <span className="text-[var(--mc-secondary-bright)]">{priceLabel}</span>
                 </div>
               </div>
-              <button onClick={() => setOpen(true)} className="mt-6 w-full h-12 rounded-full bg-white text-[#412A86] font-bold hover:bg-white/95 inline-flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5">
+              <button
+                onClick={() => setOpen(true)}
+                className="mc-cta mc-cta-primary relative mt-6 w-full h-12"
+              >
                 Claim my seat for {priceLabel} <ArrowRight className="h-4 w-4" />
               </button>
             </div>
@@ -420,17 +533,25 @@ const Masterclass = () => {
       </Section>
 
       {/* FAQ */}
-      <Section className="bg-[#faf8ff]">
+      <Section>
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-10">
-            <p className="text-sm font-semibold text-[#B968C7] uppercase tracking-wider">FAQ</p>
-            <h2 className="font-poppins font-bold text-3xl md:text-5xl mt-2 tracking-tight">Questions, answered</h2>
+            <span className="mc-chip">FAQ</span>
+            <h2 className="mc-h-lg mt-4 text-[var(--mc-on-surface)]">Questions, answered</h2>
           </div>
           <Accordion type="single" collapsible className="space-y-3">
             {s.faqs.map((f, i) => (
-              <AccordionItem key={i} value={`item-${i}`} className="rounded-2xl bg-white border border-gray-100 px-5 data-[state=open]:shadow-md transition-shadow">
-                <AccordionTrigger className="text-left font-semibold hover:no-underline">{f.q}</AccordionTrigger>
-                <AccordionContent className="text-foreground/75 leading-relaxed">{f.a}</AccordionContent>
+              <AccordionItem
+                key={i}
+                value={`item-${i}`}
+                className="mc-glass px-5 border-0"
+              >
+                <AccordionTrigger className="text-left font-bold text-[var(--mc-on-surface)] hover:no-underline">
+                  {f.q}
+                </AccordionTrigger>
+                <AccordionContent className="text-[var(--mc-on-surface-variant)] leading-relaxed">
+                  {f.a}
+                </AccordionContent>
               </AccordionItem>
             ))}
           </Accordion>
@@ -438,51 +559,65 @@ const Masterclass = () => {
       </Section>
 
       {/* FINAL CTA */}
-      <section className="relative py-20 md:py-28 bg-gradient-to-br from-[#412A86] via-[#5e3eb8] to-[#B968C7] text-white overflow-hidden">
-        <div className="absolute -top-40 -right-40 h-[28rem] w-[28rem] rounded-full bg-[#B968C7]/40 blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 h-[28rem] w-[28rem] rounded-full bg-[#412A86]/40 blur-3xl" />
-        <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: "radial-gradient(circle at 20% 20%, white 1px, transparent 1px), radial-gradient(circle at 80% 70%, white 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
-        <div className="container mx-auto px-4 relative">
+      <section className="relative py-24 md:py-32 overflow-hidden mc-bg-radial">
+        <div className="absolute -top-40 -right-40 h-[32rem] w-[32rem] rounded-full bg-[var(--mc-tertiary)]/20 blur-[120px]" />
+        <div className="absolute -bottom-40 -left-40 h-[32rem] w-[32rem] rounded-full bg-[var(--mc-secondary)]/15 blur-[120px]" />
+        <div className="container mx-auto px-5 md:px-8 relative max-w-[1200px]">
           <div className="max-w-2xl mx-auto text-center">
-            <span className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur border border-white/20 px-4 py-1.5 text-[11px] font-bold tracking-[0.18em] uppercase">
-              <Star className="h-3 w-3 text-[#B968C7] fill-[#B968C7]" /> Final call
+            <span className="mc-chip mc-chip-green">
+              <Star className="h-3 w-3" fill="currentColor" /> Final call
             </span>
-            <h2 className="font-poppins font-extrabold text-3xl md:text-5xl mt-5 leading-[1.05] tracking-tight">
-              Your next 90 days could <span className="text-[#f0d9ff]">change everything</span>
+            <h2 className="mc-h-lg mt-5 text-[var(--mc-on-surface)]">
+              Your next 90 days could{" "}
+              <span className="text-[var(--mc-secondary-bright)]">change everything</span>
             </h2>
-            <p className="mt-5 text-white/80 text-lg">
+            <p className="mt-5 text-[var(--mc-on-surface-variant)] mc-body-lg">
               Join {s.host_name} live for 2 hours. Walk away with a blueprint, not a plan.
             </p>
 
-            <div className="mt-10 rounded-3xl bg-white/10 backdrop-blur-md border border-white/20 p-6 md:p-8 shadow-[0_25px_60px_-20px_rgba(0,0,0,0.4)]">
-              <div className="text-[10px] font-bold uppercase tracking-widest text-white/70 mb-3">Doors close in</div>
+            <div className="mt-10 mc-glass-strong p-6 md:p-8">
+              <div className="mc-label text-[var(--mc-on-surface-variant)] mb-3">Doors close in</div>
               <div className="flex justify-center">
-                <CountdownPill scheduledAt={s.scheduled_at} variant="dark" className="!bg-white/15 !border !border-white/20" />
+                <CountdownPill scheduledAt={s.scheduled_at} variant="dark" />
               </div>
-              <button onClick={() => setOpen(true)}
-                className="mt-6 w-full h-14 rounded-2xl bg-white text-[#412A86] font-extrabold text-lg hover:bg-white/95 shadow-2xl hover:-translate-y-0.5 transition-all inline-flex items-center justify-center gap-2">
+              <button
+                onClick={() => setOpen(true)}
+                className="mc-cta mc-cta-primary mt-6 w-full h-14 text-base"
+              >
                 {s.is_free ? "Reserve My Free Seat" : `Register Now for ${priceLabel}`}
                 <ArrowRight className="h-5 w-5" />
               </button>
-              <p className="mt-3 text-sm text-white/70 inline-flex items-center justify-center gap-2 w-full">
-                <ShieldCheck className="h-4 w-4" /> {s.is_free ? "Free · No card needed" : "Secure PayU · 24-hour refund"}
+              <p className="mt-3 text-sm text-[var(--mc-on-surface-variant)] inline-flex items-center justify-center gap-2 w-full">
+                <ShieldCheck className="h-4 w-4" />{" "}
+                {s.is_free ? "Free · No card needed" : "Secure PayU · 24-hour refund"}
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      <Suspense fallback={null}><Footer /></Suspense>
+      <Suspense fallback={null}>
+        <Footer />
+      </Suspense>
 
       {/* Mobile sticky bottom bar */}
-      <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-gray-200 px-4 py-3 shadow-[0_-8px_24px_-12px_rgba(0,0,0,0.15)]">
-        <button onClick={() => setOpen(true)}
-          className="w-full h-12 rounded-full bg-[#412A86] text-white font-semibold shadow-lg flex items-center justify-center gap-2">
+      <div className="md:hidden fixed bottom-0 inset-x-0 z-40 backdrop-blur-xl bg-[var(--mc-surface)]/90 border-t border-[rgba(213,189,240,0.15)] px-4 py-3 shadow-[0_-8px_24px_-12px_rgba(0,0,0,0.5)]">
+        <button
+          onClick={() => setOpen(true)}
+          className="mc-cta mc-cta-primary w-full h-12 text-sm"
+        >
           {s.is_free ? "Reserve Free Seat" : `Register for ${priceLabel}`}
+          <ArrowRight className="h-4 w-4" />
         </button>
       </div>
 
-      <RegisterDialog open={open} onOpenChange={setOpen} priceInr={Number(s.price_inr)} isFree={s.is_free} title={s.title} />
+      <RegisterDialog
+        open={open}
+        onOpenChange={setOpen}
+        priceInr={Number(s.price_inr)}
+        isFree={s.is_free}
+        title={s.title}
+      />
     </div>
   );
 };
