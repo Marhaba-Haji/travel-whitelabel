@@ -257,42 +257,59 @@ const Masterclass = () => {
             <span className="mc-chip">Who this is for</span>
             <h2 className="mc-h-lg mt-4 text-[var(--mc-on-surface)]">Is this you?</h2>
           </div>
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
             {/* Beginner */}
-            <div className="mc-glass p-7 md:p-9 relative overflow-hidden">
-              <div className="absolute -top-12 -right-12 h-40 w-40 rounded-full bg-[var(--mc-tertiary)]/20 blur-3xl" />
+            <div className="group mc-glass p-8 md:p-10 relative overflow-hidden hover:-translate-y-2 hover:border-[rgba(213,189,240,0.35)] hover:shadow-[0_20px_40px_-15px_rgba(208,188,255,0.15)] transition-all duration-500 rounded-[2rem]">
+              <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-[var(--mc-tertiary)]/10 blur-3xl group-hover:bg-[var(--mc-tertiary)]/25 group-hover:scale-110 transition-all duration-700" />
+              <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-[var(--mc-primary)]/5 blur-3xl group-hover:bg-[var(--mc-primary)]/15 group-hover:scale-110 transition-all duration-700" />
+              
               <div className="relative">
-                <span className="mc-chip">
-                  <Sparkles className="h-3.5 w-3.5" /> Brand new to travel
+                <span className="mc-chip bg-[var(--mc-tertiary-container)] border-[var(--mc-tertiary)]/20 text-[var(--mc-primary)]">
+                  <Sparkles className="h-4 w-4" /> Brand new to travel
                 </span>
-                <h3 className="mt-4 font-bold text-xl text-[var(--mc-on-surface)]">
+                
+                <h3 className="mt-6 font-extrabold text-2xl md:text-3xl text-transparent bg-clip-text bg-gradient-to-br from-white to-[var(--mc-tertiary)] leading-tight">
                   Start from zero — the right way
                 </h3>
-                <ul className="mt-5 space-y-3">
+                
+                <div className="w-12 h-1 bg-gradient-to-r from-[var(--mc-primary)] to-transparent rounded-full mt-6 mb-8 opacity-50 group-hover:w-20 transition-all duration-500" />
+
+                <ul className="space-y-4">
                   {s.who_for_beginner.map((b) => (
-                    <li key={b} className="flex items-start gap-3 text-[var(--mc-on-surface)]/85">
-                      <CheckCircle2 className="h-5 w-5 text-[var(--mc-primary)] mt-0.5 shrink-0" />
-                      <span>{b}</span>
+                    <li key={b} className="flex items-start gap-4 text-[var(--mc-on-surface)]/85">
+                      <div className="flex-shrink-0 flex items-center justify-center h-6 w-6 rounded-full bg-[var(--mc-tertiary)]/15 border border-[var(--mc-tertiary)]/30 mt-0.5">
+                        <CheckCircle2 className="h-3.5 w-3.5 text-[var(--mc-primary)]" />
+                      </div>
+                      <span className="leading-relaxed">{b}</span>
                     </li>
                   ))}
                 </ul>
               </div>
             </div>
+
             {/* Scaler */}
-            <div className="mc-glass-strong p-7 md:p-9 relative overflow-hidden">
-              <div className="absolute -top-12 -right-12 h-48 w-48 rounded-full bg-[var(--mc-secondary)]/15 blur-3xl" />
+            <div className="group mc-glass-strong p-8 md:p-10 relative overflow-hidden hover:-translate-y-2 hover:border-[rgba(157,248,0,0.35)] hover:shadow-[0_20px_40px_-15px_rgba(157,248,0,0.15)] transition-all duration-500 rounded-[2rem]">
+              <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-[var(--mc-secondary)]/10 blur-3xl group-hover:bg-[var(--mc-secondary)]/20 group-hover:scale-110 transition-all duration-700" />
+              <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-[var(--mc-secondary-bright)]/5 blur-3xl group-hover:bg-[var(--mc-secondary-bright)]/10 group-hover:scale-110 transition-all duration-700" />
+              
               <div className="relative">
-                <span className="mc-chip mc-chip-green">
-                  <TrendingUp className="h-3.5 w-3.5" /> Already in travel — want to scale
+                <span className="mc-chip mc-chip-green bg-[rgba(157,248,0,0.1)] border-[rgba(157,248,0,0.2)]">
+                  <TrendingUp className="h-4 w-4" /> Already in travel — want to scale
                 </span>
-                <h3 className="mt-4 font-bold text-xl text-[var(--mc-on-surface)]">
+                
+                <h3 className="mt-6 font-extrabold text-2xl md:text-3xl text-transparent bg-clip-text bg-gradient-to-br from-[var(--mc-secondary-bright)] to-white leading-tight">
                   Break the plateau. Own the decade.
                 </h3>
-                <ul className="mt-5 space-y-3">
+                
+                <div className="w-12 h-1 bg-gradient-to-r from-[var(--mc-secondary)] to-transparent rounded-full mt-6 mb-8 opacity-50 group-hover:w-20 transition-all duration-500" />
+
+                <ul className="space-y-4">
                   {s.who_for_scaler.map((b) => (
-                    <li key={b} className="flex items-start gap-3 text-[var(--mc-on-surface)]/90">
-                      <CheckCircle2 className="h-5 w-5 text-[var(--mc-secondary-bright)] mt-0.5 shrink-0" />
-                      <span>{b}</span>
+                    <li key={b} className="flex items-start gap-4 text-[var(--mc-on-surface)]/90">
+                      <div className="flex-shrink-0 flex items-center justify-center h-6 w-6 rounded-full bg-[var(--mc-secondary)]/15 border border-[var(--mc-secondary)]/30 mt-0.5">
+                        <CheckCircle2 className="h-3.5 w-3.5 text-[var(--mc-secondary-bright)]" />
+                      </div>
+                      <span className="leading-relaxed">{b}</span>
                     </li>
                   ))}
                 </ul>
@@ -314,13 +331,13 @@ const Masterclass = () => {
               Seven modules, no fluff. Built from 15+ years of real travel-business operations.
             </p>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="flex overflow-x-auto snap-x snap-mandatory pb-8 -mx-5 px-5 md:mx-0 md:px-0 md:grid md:grid-cols-2 lg:grid-cols-3 gap-5 md:overflow-visible md:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {s.learning_points.map((lp, i) => {
               const Icon = ICONS[lp.icon] || Sparkles;
               return (
                 <div
                   key={i}
-                  className="group mc-glass p-6 md:p-7 hover:-translate-y-1 hover:border-[rgba(213,189,240,0.35)] transition-all duration-300"
+                  className="snap-center shrink-0 w-[85vw] sm:w-[320px] md:w-auto group mc-glass p-6 md:p-7 hover:-translate-y-1 hover:border-[rgba(213,189,240,0.35)] transition-all duration-300"
                 >
                   <div className="flex items-center justify-between mb-5">
                     <div className="h-12 w-12 rounded-2xl bg-[var(--mc-tertiary-container)] border border-[rgba(213,189,240,0.25)] text-[var(--mc-primary)] flex items-center justify-center group-hover:bg-[var(--mc-secondary)] group-hover:text-[var(--mc-on-secondary)] group-hover:border-[var(--mc-secondary)] transition-all">
@@ -378,46 +395,76 @@ const Masterclass = () => {
       {/* HOST */}
       <Section className="mc-bg-violet">
         <div className="max-w-5xl mx-auto">
-          <div className="grid md:grid-cols-[280px_1fr] gap-8 md:gap-12 items-start">
-            <div className="relative">
-              <div className="aspect-square rounded-3xl bg-gradient-to-br from-[var(--mc-tertiary)] via-[var(--mc-primary)] to-[var(--mc-secondary)] p-[2px] shadow-[0_30px_60px_-20px_rgba(208,188,255,0.4)]">
-                <div className="h-full w-full rounded-[22px] bg-[var(--mc-surface-c)] overflow-hidden flex items-center justify-center">
-                  {s.host_photo_url ? (
-                    <img src={s.host_photo_url} alt={s.host_name} className="h-full w-full object-cover" />
-                  ) : (
-                    <div className="text-6xl font-extrabold text-[var(--mc-primary)]/40">
-                      {s.host_name.split(" ").map((n) => n[0]).slice(0, 2).join("")}
-                    </div>
-                  )}
+          <div className="group mc-glass p-8 md:p-12 relative overflow-hidden rounded-[2.5rem]">
+            {/* Ambient background glows for the card */}
+            <div className="absolute top-0 right-0 h-[500px] w-[500px] rounded-full bg-[var(--mc-tertiary)]/10 blur-[100px] pointer-events-none group-hover:bg-[var(--mc-tertiary)]/20 transition-all duration-1000" />
+            <div className="absolute bottom-0 left-0 h-[500px] w-[500px] rounded-full bg-[var(--mc-secondary)]/10 blur-[100px] pointer-events-none group-hover:bg-[var(--mc-secondary)]/15 transition-all duration-1000" />
+            
+            <div className="relative grid md:grid-cols-[300px_1fr] gap-10 md:gap-14 items-center">
+              {/* Photo Side */}
+              <div className="relative mx-auto w-full max-w-[300px] md:max-w-none">
+                <div className="aspect-square rounded-[2rem] bg-gradient-to-br from-[var(--mc-tertiary)] via-[var(--mc-primary)] to-[var(--mc-secondary)] p-1 shadow-[0_20px_40px_-15px_rgba(208,188,255,0.3)] group-hover:shadow-[0_20px_50px_-10px_rgba(208,188,255,0.4)] transition-all duration-500 group-hover:-translate-y-2">
+                  <div className="h-full w-full rounded-[1.8rem] bg-[var(--mc-surface-c)] overflow-hidden flex items-center justify-center relative">
+                    {s.host_photo_url ? (
+                      <img src={s.host_photo_url} alt={s.host_name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                    ) : (
+                      <div className="text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-[var(--mc-primary)] to-[var(--mc-tertiary)] opacity-60">
+                        {s.host_name.split(" ").map((n) => n[0]).slice(0, 2).join("")}
+                      </div>
+                    )}
+                    {/* Inner overlay gradient */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+                  </div>
+                </div>
+                
+                {/* Floating Badge */}
+                <div className="absolute -bottom-5 -right-5 md:-right-8 mc-glass-strong px-5 py-3 rounded-2xl flex items-center gap-3 shadow-2xl border border-[rgba(213,189,240,0.3)] group-hover:scale-105 transition-transform duration-500">
+                  <div className="h-10 w-10 rounded-full bg-[var(--mc-secondary)]/20 flex items-center justify-center">
+                    <Award className="h-5 w-5 text-[var(--mc-secondary-bright)]" />
+                  </div>
+                  <div>
+                    <div className="text-[10px] uppercase tracking-wider text-[var(--mc-on-surface-variant)] font-semibold">Your Host</div>
+                    <div className="text-sm font-extrabold text-[var(--mc-on-surface)] leading-tight">Masterclass</div>
+                  </div>
                 </div>
               </div>
-              <div className="absolute -bottom-4 -right-4 mc-glass-strong px-3.5 py-2 flex items-center gap-2">
-                <Award className="h-4 w-4 text-[var(--mc-secondary-bright)]" />
-                <span className="text-xs font-bold text-[var(--mc-on-surface)]">Your Host</span>
-              </div>
-            </div>
-            <div>
-              <span className="mc-chip">Meet your host</span>
-              <h2 className="mc-h-md mt-4 text-[var(--mc-on-surface)]">{s.host_name}</h2>
-              <p className="text-[var(--mc-on-surface-variant)] mt-1 font-medium">{s.host_title}</p>
-              <p className="mt-5 text-[var(--mc-on-surface)]/85 leading-relaxed whitespace-pre-line">
-                {s.host_bio_markdown}
-              </p>
-              <div className="mt-6 flex flex-wrap gap-2">
-                {[
-                  "Founder, MarhabaDMC",
-                  "15+ yrs of Experience",
-                  "100+ Agents Trained",
-                  "AI-First DMC",
-                  "Hajj & Umrah Expert",
-                ].map((chip) => (
-                  <span
-                    key={chip}
-                    className="text-xs font-medium rounded-full bg-[rgba(213,189,240,0.10)] text-[var(--mc-primary)] border border-[rgba(213,189,240,0.25)] px-3 py-1.5"
-                  >
-                    {chip}
-                  </span>
-                ))}
+
+              {/* Content Side */}
+              <div>
+                <span className="mc-chip bg-[var(--mc-tertiary-container)] border-[var(--mc-tertiary)]/20 text-[var(--mc-primary)]">
+                  <Star className="h-3.5 w-3.5" fill="currentColor" /> Meet your host
+                </span>
+                
+                <h2 className="text-3xl md:text-5xl font-extrabold mt-6 text-transparent bg-clip-text bg-gradient-to-br from-white to-[var(--mc-tertiary)] leading-tight">
+                  {s.host_name}
+                </h2>
+                
+                <p className="text-lg md:text-xl text-[var(--mc-secondary-bright)] mt-2 font-bold tracking-tight">
+                  {s.host_title}
+                </p>
+                
+                <div className="w-16 h-1 bg-gradient-to-r from-[var(--mc-primary)] to-transparent rounded-full mt-6 mb-6 opacity-60 group-hover:w-24 transition-all duration-500" />
+                
+                <p className="text-[var(--mc-on-surface)]/85 leading-relaxed md:text-lg whitespace-pre-line font-medium">
+                  {s.host_bio_markdown}
+                </p>
+                
+                <div className="mt-10 flex flex-wrap gap-2.5">
+                  {[
+                    "Founder, MarhabaDMC",
+                    "15+ yrs of Experience",
+                    "100+ Agents Trained",
+                    "AI-First DMC",
+                    "Hajj & Umrah Expert",
+                  ].map((chip) => (
+                    <span
+                      key={chip}
+                      className="text-xs md:text-sm font-semibold rounded-full bg-white/[0.03] text-[var(--mc-on-surface)] border border-white/[0.08] px-4 py-2 hover:bg-[var(--mc-primary)]/10 hover:border-[var(--mc-primary)]/30 hover:text-[var(--mc-primary)] transition-colors cursor-default"
+                    >
+                      {chip}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -433,9 +480,13 @@ const Masterclass = () => {
           </div>
           <div className="relative">
             <div className="absolute left-[58px] top-2 bottom-2 w-px bg-gradient-to-b from-[var(--mc-tertiary)]/40 via-[var(--mc-tertiary)]/15 to-transparent hidden sm:block" />
-            <div className="space-y-3">
+            <div className="space-y-4 md:space-y-3">
               {s.agenda.map((a, i) => (
-                <div key={i} className="mc-glass p-5 flex gap-5 items-start relative">
+                <div 
+                  key={i} 
+                  className="mc-glass p-5 flex gap-4 sm:gap-5 items-start relative sticky md:static transition-transform duration-300 md:hover:-translate-y-1 shadow-[0_-8px_20px_-8px_rgba(0,0,0,0.8)] md:shadow-none"
+                  style={{ top: `calc(70px + ${i * 8}px)`, zIndex: i }}
+                >
                   <div className="mc-num text-sm font-bold text-[var(--mc-primary)] rounded-lg bg-[var(--mc-tertiary-container)] border border-[rgba(213,189,240,0.25)] px-3 py-1.5 shrink-0">
                     {a.time}
                   </div>
