@@ -61,6 +61,8 @@ const RegisterDialog = ({ open, onOpenChange, priceInr, isFree, title }: Props) 
   const { register, handleSubmit, formState, watch, setValue } = form;
   const dialCode = watch("dialCode");
 
+  const finalPrice = isFree ? 0 : Math.round(priceInr * 1.18);
+
   const onSubmit = async (v: FormValues) => {
     setLoading(true);
     try {
@@ -121,7 +123,7 @@ const RegisterDialog = ({ open, onOpenChange, priceInr, isFree, title }: Props) 
             <DialogDescription className="text-[var(--mc-on-surface-variant)] text-sm">
               {isFree
                 ? "Free seat · No card needed"
-                : `Today only · ₹${priceInr.toFixed(0)} · Live class only`}
+                : `Today only · ₹${finalPrice} (Incl. 18% GST) · Live class only`}
             </DialogDescription>
           </DialogHeader>
 
@@ -186,7 +188,7 @@ const RegisterDialog = ({ open, onOpenChange, priceInr, isFree, title }: Props) 
                 </>
               ) : (
                 <>
-                  {isFree ? "Confirm Free Seat" : `Pay ₹${priceInr.toFixed(0)} & Reserve`}
+                  {isFree ? "Confirm Free Seat" : `Pay ₹${finalPrice} & Reserve`}
                   <ArrowRight className="h-4 w-4" />
                 </>
               )}
@@ -195,9 +197,6 @@ const RegisterDialog = ({ open, onOpenChange, priceInr, isFree, title }: Props) 
             <div className="flex items-center justify-center gap-4 text-[11px] text-[var(--mc-on-surface-variant)] pt-1">
               <span className="inline-flex items-center gap-1">
                 <Lock className="h-3 w-3" /> Secure PayU checkout
-              </span>
-              <span className="inline-flex items-center gap-1">
-                <ShieldCheck className="h-3 w-3" /> 24-hour refund
               </span>
             </div>
           </form>

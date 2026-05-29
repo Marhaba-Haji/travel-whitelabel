@@ -58,6 +58,7 @@ Deno.serve(async (req) => {
     const title = settings?.title || "Masterclass";
     const price = Number(settings?.price_inr ?? 99);
     const isFree = Boolean(settings?.is_free);
+    const finalAmount = isFree ? 0 : Math.round(price * 1.18);
 
     const phoneClean = String(phone).replace(/\D/g, "");
     const dial = (dialCode || "+91").replace(/[^\d+]/g, "");
@@ -75,7 +76,7 @@ Deno.serve(async (req) => {
         city: city ? String(city).trim().slice(0, 100) : null,
         utm: utm || {},
         session_id: sessionId || null,
-        amount_inr: isFree ? 0 : price,
+        amount_inr: finalAmount,
         status: isFree ? "paid" : "pending",
       })
       .select("id")
@@ -104,7 +105,7 @@ Deno.serve(async (req) => {
         { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    const amount = price.toFixed(2);
+    const amount = finalAmount.toFixed(2);
     const txnid = `WEB${Date.now()}${Math.random().toString(36).slice(2, 8)}`;
     const productinfo = `Masterclass: ${title}`.slice(0, 100);
     const firstname = String(fullName).split(" ")[0] || fullName;

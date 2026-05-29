@@ -12,7 +12,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { SITE_URL } from "@/lib/seo-schemas";
 import "@/styles/masterclass.css";
 
-const Footer = lazy(() => import("@/components/landing/Footer"));
+const MasterclassFooter = lazy(() => import("@/components/masterclass/MasterclassFooter"));
 
 const ICONS: Record<string, any> = {
   Compass, Layers, Plug, Cpu, TrendingUp, IndianRupee, Map: MapIcon, Award, Sparkles, Users,
@@ -125,8 +125,8 @@ const Masterclass = () => {
         ]}
       />
 
-      {/* Sticky top countdown bar */}
-      <div className="sticky top-0 z-40 backdrop-blur-xl bg-[var(--mc-surface)]/85 border-b border-[rgba(213,189,240,0.12)]">
+      {/* Fixed top countdown bar */}
+      <div className="fixed top-0 inset-x-0 z-50 backdrop-blur-xl bg-[var(--mc-surface)]/85 border-b border-[rgba(213,189,240,0.12)]">
         <div className="container mx-auto px-4 py-2.5 flex items-center justify-center md:justify-between gap-3 max-w-[1200px]">
           <div className="flex items-center gap-2 min-w-0 text-sm">
             <Clock className="h-4 w-4 text-[var(--mc-primary)] shrink-0" />
@@ -146,7 +146,7 @@ const Masterclass = () => {
       <section className="relative overflow-hidden mc-bg-radial">
         <div className="absolute -top-40 -right-40 h-[32rem] w-[32rem] rounded-full bg-[var(--mc-tertiary)]/15 blur-[120px]" />
         <div className="absolute -bottom-40 -left-40 h-[32rem] w-[32rem] rounded-full bg-[var(--mc-secondary)]/10 blur-[120px]" />
-        <div className="container mx-auto px-5 md:px-8 pt-16 pb-20 md:pt-24 md:pb-28 relative max-w-[1200px]">
+        <div className="container mx-auto px-5 md:px-8 pt-24 pb-20 md:pt-36 md:pb-28 relative max-w-[1200px]">
           <div className="max-w-3xl mx-auto text-center">
             <span className="mc-chip">
               <span className="relative flex h-2 w-2">
@@ -664,7 +664,7 @@ const Masterclass = () => {
       </section>
 
       <Suspense fallback={null}>
-        <Footer />
+        <MasterclassFooter />
       </Suspense>
 
       {/* Mobile sticky bottom bar */}
