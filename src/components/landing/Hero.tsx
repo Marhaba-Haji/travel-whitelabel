@@ -131,7 +131,7 @@ const Hero = () => {
                 style={{ animationDelay: "0.35s" }}
               >
                 <p className="text-[10px] sm:text-[11px] uppercase tracking-[0.12em] text-slate-600 font-semibold mb-1">Earning Potential</p>
-                <p className="text-[#5D50C6] font-bold text-base sm:text-lg leading-tight">₹50,000<span className="text-slate-400 font-medium text-xs sm:text-sm">+/mo</span></p>
+                <p className="text-[#5D50C6] font-bold text-base sm:text-lg leading-tight">₹50,000<span className="text-slate-600 font-medium text-xs sm:text-sm">+/mo</span></p>
               </div>
 
               {/* Floating Card: Customers */}
