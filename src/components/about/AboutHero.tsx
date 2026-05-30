@@ -27,8 +27,8 @@ const AboutHero = () => {
           
           {/* Main Heading */}
           <h1 className="font-poppins text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-            About{" "}
-            <span className="text-[#B968C7]">marhabaDMC</span>
+            About Marhaba DMC —{" "}
+            <span className="text-[#B968C7]">Halal-First B2B Travel Platform</span>
           </h1>
           
           {/* Enhanced Description */}
