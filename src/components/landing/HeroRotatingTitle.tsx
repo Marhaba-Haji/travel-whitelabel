@@ -22,9 +22,9 @@ const HeroRotatingTitleInner = () => {
     if (!heroContent) {
       return (
         <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-[72px] font-bold text-gray-900 mb-6 font-poppins leading-[1.1] tracking-tight">
-          Travel <span style={{ color: "#B968C7" }} className="font-bold">top destination</span>
+          White Label <span style={{ color: "#B968C7" }} className="font-bold">Travel Portal</span>
           <br />
-          of the world
+          for Agents
         </h1>
       );
     }
