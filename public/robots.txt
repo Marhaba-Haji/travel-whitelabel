@@ -29,5 +29,11 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /admin/login
+Disallow: /signup-success
+Disallow: /account-pending
+Disallow: /itinerary/
 
 Sitemap: https://marhabadmc.com/sitemap.xml
