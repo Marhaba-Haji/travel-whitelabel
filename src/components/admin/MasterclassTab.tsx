@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 import { Loader2, Save, Download, Plus, Trash2, ChevronUp, ChevronDown } from "lucide-react";
 
@@ -140,7 +141,13 @@ const SettingsForm = () => {
     qc.invalidateQueries({ queryKey: ["webinar_settings"] });
   };
 
-  const dt = form.scheduled_at ? new Date(form.scheduled_at).toISOString().slice(0, 16) : "";
+  // Format as IST for the datetime-local input
+  let dt = "";
+  if (form.scheduled_at) {
+    const d = new Date(form.scheduled_at);
+    const istDate = new Date(d.getTime() + 5.5 * 60 * 60 * 1000);
+    dt = istDate.toISOString().slice(0, 16);
+  }
 
   return (
     <div className="space-y-6 pb-20">
@@ -215,12 +222,26 @@ const SettingsForm = () => {
           <Card>
             <CardHeader><CardTitle>Scheduling & Pricing</CardTitle></CardHeader>
             <CardContent className="space-y-4">
-              <Field label="Scheduled at (local)"><Input type="datetime-local" value={dt} onChange={(e) => update("scheduled_at", new Date(e.target.value).toISOString())} /></Field>
+              <Field label="Scheduled at (IST)"><Input type="datetime-local" value={dt} onChange={(e) => update("scheduled_at", new Date(e.target.value + "+05:30").toISOString())} /></Field>
               <div className="grid grid-cols-2 gap-4">
                 <Field label="Duration (min)"><Input type="number" value={form.duration_minutes} onChange={(e) => update("duration_minutes", Number(e.target.value))} /></Field>
                 <Field label="Seats total"><Input type="number" value={form.seats_total} onChange={(e) => update("seats_total", Number(e.target.value))} /></Field>
               </div>
-              <Field label="Timezone"><Input value={form.timezone} onChange={(e) => update("timezone", e.target.value)} /></Field>
+              <Field label="Timezone">
+                <Select value={form.timezone || ""} onValueChange={(v) => update("timezone", v)}>
+                  <SelectTrigger className="w-full bg-background">
+                    <SelectValue placeholder="Select timezone" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Asia/Kolkata">Asia/Kolkata (IST)</SelectItem>
+                    <SelectItem value="Asia/Dubai">Asia/Dubai (GST)</SelectItem>
+                    <SelectItem value="Europe/London">Europe/London (GMT/BST)</SelectItem>
+                    <SelectItem value="America/New_York">America/New York (EST/EDT)</SelectItem>
+                    <SelectItem value="America/Los_Angeles">America/Los Angeles (PST/PDT)</SelectItem>
+                    <SelectItem value="UTC">UTC</SelectItem>
+                  </SelectContent>
+                </Select>
+              </Field>
               
               <div className="pt-4 border-t space-y-4 mt-2">
                 <div className="flex items-center justify-between">
