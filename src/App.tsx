@@ -13,6 +13,7 @@ import ProtectedRoute from "./components/admin/ProtectedRoute";
 import PageLoader from "./components/PageLoader";
 import SessionTrackingMount from "./components/SessionTrackingMount";
 import DeferredMount from "./components/DeferredMount";
+import TrackingScriptsInjector from "./components/TrackingScriptsInjector";
 
 const ScrollToTop = () => {
   const { pathname, hash } = useLocation();
@@ -72,6 +73,7 @@ const App = () => (
           <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <SessionTrackingMount />
             <ScrollToTop />
+            <TrackingScriptsInjector />
             <DeferredMount delay={3000}>
               <Suspense fallback={null}>
                 <LeadMagnetTrigger />

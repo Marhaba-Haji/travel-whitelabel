@@ -23,6 +23,7 @@ import HeroImagesTab from "@/components/admin/HeroImagesTab";
 import HomeFaqsTab from "@/components/admin/HomeFaqsTab";
 import DemoBookingsTab from "@/components/admin/DemoBookingsTab";
 import MasterclassTab from "@/components/admin/MasterclassTab";
+import ScriptsTab from "@/components/admin/ScriptsTab";
 import SEOHead from "@/components/seo/SEOHead";
 
 const tabComponents: Record<string, React.FC> = {
@@ -48,6 +49,7 @@ const tabComponents: Record<string, React.FC> = {
   "user-management": UserManagementTab,
   "demo-bookings": DemoBookingsTab,
   masterclass: MasterclassTab,
+  scripts: ScriptsTab,
 };
 
 const Admin = () => {
