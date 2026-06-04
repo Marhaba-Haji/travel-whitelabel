@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, MessageSquare, Mail, Users, CreditCard,
-  DollarSign, Ticket, Settings, LogOut, Menu, X, Mic, Map, Bot, BarChart3, FileText, Globe, UserCog, Network, Type, Image, Star, CircleHelp, CalendarCheck, GraduationCap
+  DollarSign, Ticket, Settings, LogOut, Menu, X, Mic, Map, Bot, BarChart3, FileText, Globe, UserCog, Network, Type, Image, Star, CircleHelp, CalendarCheck, GraduationCap, Code2
 } from "lucide-react";
 
 const allTabs = [
@@ -28,6 +28,7 @@ const allTabs = [
   { id: "partners", label: "Partners", icon: Network },
   { id: "testimonials", label: "Testimonials", icon: Star },
   { id: "faqs", label: "FAQs", icon: CircleHelp },
+  { id: "scripts", label: "Scripts & Tracking", icon: Code2 },
   { id: "settings", label: "Site Settings", icon: Settings },
 ];
 
