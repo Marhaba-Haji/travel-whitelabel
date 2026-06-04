@@ -1,28 +1,6 @@
 <!doctype html>
 <html lang="en" class="dark">
   <head>
-    <!-- GA & FB Pixel: deferred until first user interaction to minimize main-thread work -->
-    <script>
-      (function(){
-        var loaded=false;
-        function loadAnalytics(){
-          if(loaded)return;loaded=true;
-          // Google Analytics
-          window.dataLayer=window.dataLayer||[];
-          function gtag(){dataLayer.push(arguments);}
-          window.gtag=gtag;
-          gtag('js',new Date());gtag('config','G-R9W5JVYZZW');
-          var g=document.createElement('script');g.src='https://www.googletagmanager.com/gtag/js?id=G-R9W5JVYZZW';g.async=true;document.head.appendChild(g);
-          // Meta Pixel
-          !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-          fbq('init','1955006625447985');fbq('track','PageView');
-          ['scroll','click','touchstart'].forEach(function(e){document.removeEventListener(e,loadAnalytics,{capture:true,passive:true})});
-        }
-        // Load on first interaction or after 5s timeout (whichever comes first)
-        ['scroll','click','touchstart'].forEach(function(e){document.addEventListener(e,loadAnalytics,{capture:true,passive:true})});
-        setTimeout(loadAnalytics,5000);
-      })();
-    </script>
     <link rel="icon" type="image/png" href="/favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -97,10 +75,6 @@
 </head>
 
   <body>
-    <!-- Meta Pixel noscript fallback -->
-    <noscript><img height="1" width="1" style="display:none"
-      src="https://www.facebook.com/tr?id=1955006625447985&ev=PageView&noscript=1"
-    /></noscript>
     <!-- Inline critical CSS for instant FCP before main stylesheet loads -->
     <style>
       :root{color-scheme:dark}
