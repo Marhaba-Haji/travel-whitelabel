@@ -1030,6 +1030,48 @@ export type Database = {
         }
         Relationships: []
       }
+      tracking_scripts: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          is_enabled: boolean
+          load_strategy: string
+          name: string
+          notes: string | null
+          placement: string
+          provider: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          load_strategy?: string
+          name: string
+          notes?: string | null
+          placement?: string
+          provider?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          load_strategy?: string
+          name?: string
+          notes?: string | null
+          placement?: string
+          provider?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
