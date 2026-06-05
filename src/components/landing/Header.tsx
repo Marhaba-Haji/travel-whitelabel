@@ -78,7 +78,7 @@ const Header = () => {
           : "bg-transparent"
       }`}
     >
-      <div className="container mx-auto px-4 max-w-7xl">
+      <div className="container mx-auto px-4 max-w-7xl relative">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <div className="flex items-center cursor-pointer" onClick={() => navigate("/")}>
@@ -157,7 +157,7 @@ const Header = () => {
 
         {/* Mobile / Tablet Navigation */}
         {isMenuOpen && (
-          <div className="lg:hidden py-6 border-t border-gray-100 bg-white absolute left-0 right-0 px-4 shadow-xl animate-fade-in">
+          <div className="lg:hidden py-6 border-t border-gray-100 bg-white absolute top-20 left-0 right-0 px-4 shadow-xl animate-fade-in max-h-[calc(100vh-5rem)] overflow-y-auto">
             <nav className="flex flex-col gap-4">
               {navLinks.map((link) =>
                 link.isExternal ? (

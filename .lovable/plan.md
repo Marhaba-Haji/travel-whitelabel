@@ -1,55 +1,41 @@
-## Goal
-Add an admin-managed "Scripts & Tracking" section so superadmins can inject third-party scripts/pixels/tags (Google Analytics, GTM, Meta Pixel, LinkedIn, Hotjar, custom HTML) into the site's `<head>` or `<body>` without code changes.
+## What's actually happening
 
-## Database
-New table `public.tracking_scripts`:
-- `id` uuid PK
-- `name` text (e.g. "Google Analytics 4")
-- `provider` text (free-text label: google, facebook, linkedin, hotjar, custom, etc.)
-- `placement` text — enum-like: `head` | `body_start` | `body_end`
-- `code` text — raw HTML snippet (full `<script>...</script>` or `<noscript><img/></noscript>`)
-- `is_enabled` boolean default true
-- `load_strategy` text — `all_pages` | `exclude_admin` (default `exclude_admin`, so tracking never fires inside /admin)
-- `notes` text nullable
-- `sort_order` int default 0
-- `created_at`, `updated_at` timestamps
+When Facebook Events Manager's "Open Website" / Test Browser opens your link, it launches a **narrower-than-desktop popup window**. Tailwind's `lg` breakpoint (1024px) is not met, so the site correctly switches to its mobile layout (hamburger + mobile nav). That part is not a bug — it's responsive design reacting to the smaller window.
 
-GRANTs: `SELECT` to `anon` + `authenticated` (needed so the public site can read enabled scripts); full CRUD to `authenticated` gated by RLS; `ALL` to `service_role`.
+The real bug is in `src/components/landing/Header.tsx`: when the hamburger is tapped, the dropdown menu container is rendered with:
 
-RLS:
-- Public SELECT: only rows where `is_enabled = true` (used by site loader).
-- INSERT/UPDATE/DELETE: only superadmin OR users with `has_admin_edit(auth.uid(), 'scripts')`.
+```
+className="lg:hidden ... absolute left-0 right-0 px-4 shadow-xl animate-fade-in"
+```
 
-## Admin UI
-New tab `Scripts & Tracking` in `AdminLayout.tsx` (icon: `Code2`), wired into `Admin.tsx` `tabComponents`.
+It has `left-0 right-0` but **no `top` value**, so the browser falls back to "static position" — which, inside a fixed-header / flex row, can land above the viewport or behind the header bar in certain window sizes. That's why:
 
-New `src/components/admin/ScriptsTab.tsx`:
-- List of scripts grouped by placement (Head / Body start / Body end).
-- Add/Edit dialog with fields: name, provider (select with presets + "Custom"), placement, load strategy, code (Textarea, monospace), enabled toggle, notes.
-- Per-row: enable/disable switch, edit, delete, drag-to-reorder (or sort_order arrows).
-- Helper hints per provider (e.g. "Paste the full GA4 snippet from Google Tag Manager").
-- Warning banner: scripts run on the live site — only paste trusted code.
+- Hamburger toggles (state changes) but you see no panel.
+- The instant you resize the window, a reflow happens and the panel appears.
 
-Permissions: visible to superadmin and sub-admins with `scripts` module access (added to the 14-module RBAC list in `AdminLayout.tsx` filter).
+## Fix
 
-## Site-side injection
-New hook `src/hooks/useTrackingScripts.ts` — fetches enabled scripts once, cached via react-query.
+1. **`src/components/landing/Header.tsx` — give the mobile menu an explicit anchor and a safe max-height with scroll**
+   - Add `top-20` (matches the header's `h-20`) so it always docks right under the header.
+   - Add `max-h-[calc(100vh-5rem)] overflow-y-auto` so it never gets clipped in short popup windows.
+   - Same treatment for both desktop-narrow and tablet/mobile path (single panel — only one exists today).
 
-New `src/components/TrackingScriptsInjector.tsx`:
-- Mounted once in `App.tsx` (outside `<Routes>`).
-- Reads current pathname; skips rendering if `load_strategy = exclude_admin` and path starts with `/admin`.
-- Uses `react-helmet-async` for `head` placement (injects raw `<script>`/`<noscript>` via Helmet children parsing).
-- For `body_start` / `body_end`: imperatively appends DOM nodes (parsed from the HTML string) to `document.body` on mount, removes on unmount/change. This is required because React can't render arbitrary `<script>` tags reliably; we parse the snippet into real DOM nodes so inline scripts execute.
+2. **Defensive: positioning context**
+   - Add `relative` to the inner `<div className="container mx-auto px-4 max-w-7xl">` so the absolute menu is anchored to the container rather than the fixed header — eliminating any ambiguity about which ancestor is its positioning parent.
 
-Edge case handled: re-execution on script content change → remove previous nodes (tracked by data attribute `data-tracking-id={row.id}`) before re-injecting.
+3. **No business-logic changes** — purely CSS/positioning. Hamburger state, links, prefetch behavior, scroll-to-section logic all stay identical.
+
+## Sanity checks after the change
+
+- Open the preview, set viewport to ~820 px and ~600 px, click hamburger — the panel should appear flush under the header, full-width, scrollable if items overflow.
+- Re-test from Facebook Events Manager → Open Website → click hamburger. Panel should now appear.
+
+## Out of scope (call out, don't change yet)
+
+- The Meta Pixel / GA scripts (now driven by the new `tracking_scripts` table) are not implicated by this symptom. If after the fix the FB-opened tab still shows other weirdness (white screen, blocked scripts, CSP), we'd investigate the `TrackingScriptsInjector` cleanup logic separately.
 
 ## Files touched
-- New migration: `tracking_scripts` table + GRANTs + RLS + trigger for `updated_at`.
-- New: `src/components/admin/ScriptsTab.tsx`, `src/hooks/useTrackingScripts.ts`, `src/components/TrackingScriptsInjector.tsx`.
-- Edit: `src/components/admin/AdminLayout.tsx` (add tab), `src/pages/Admin.tsx` (register component), `src/App.tsx` (mount injector).
-- Optional: extend sub-user RBAC module list to include `scripts`.
 
-## Security notes
-- Raw HTML injection is intentional (that's the feature) but write access is strictly RLS-gated to superadmin/edit-permission users.
-- `/admin` is excluded by default so tracking pixels don't pollute admin sessions.
-- Saved memory: superadmin restricted to `harab.business@gmail.com` — respected via existing `has_role`/`has_admin_edit`.
+- `src/components/landing/Header.tsx` (one className edit on the mobile menu div + add `relative` to the inner container div)
+
+No DB migrations. No new dependencies. After merging you'll need to republish for the live site (marhabadmc.com) to pick up the fix.
