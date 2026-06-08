@@ -1,20 +1,21 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MessageSquare, Mail, Users, CreditCard, AlertTriangle, Mic, CalendarCheck, CalendarClock, CalendarX } from "lucide-react";
+import { MessageSquare, Mail, Users, CreditCard, AlertTriangle, Mic, CalendarCheck, CalendarClock, CalendarX, GraduationCap, Clock, IndianRupee, XCircle } from "lucide-react";
 
 const OverviewTab = () => {
   const { data: stats, isLoading } = useQuery({
     queryKey: ["admin-overview"],
     queryFn: async () => {
       const today = new Date().toISOString().slice(0, 10);
-      const [enquiries, voiceAiLeads, newsletter, registrations, payments, demos] = await Promise.all([
+      const [enquiries, voiceAiLeads, newsletter, registrations, payments, demos, webinars] = await Promise.all([
         supabase.from("contact_enquiries").select("id", { count: "exact", head: true }),
         supabase.from("voice_ai_leads").select("id", { count: "exact", head: true }),
         supabase.from("newsletter_subscriptions").select("id", { count: "exact", head: true }),
         supabase.from("registrations").select("id", { count: "exact", head: true }),
         supabase.from("payments").select("id, status"),
         supabase.from("demo_bookings").select("id, status, booking_date"),
+        supabase.from("webinar_registrations").select("id, status, amount_inr"),
       ]);
       const paymentRows = payments.data ?? [];
       const successPayments = paymentRows.filter((p) => p.status === "success").length;
@@ -26,6 +27,14 @@ const OverviewTab = () => {
       ).length;
       const completedDemos = demoRows.filter((d: any) => d.status === "completed").length;
       const cancelledDemos = demoRows.filter((d: any) => d.status === "cancelled").length;
+      const webinarRows = webinars.data ?? [];
+      const webinarTotal = webinarRows.length;
+      const webinarPaid = webinarRows.filter((w: any) => w.status === "paid").length;
+      const webinarPending = webinarRows.filter((w: any) => w.status === "pending").length;
+      const webinarFailed = webinarRows.filter((w: any) => w.status === "failed").length;
+      const webinarRevenue = webinarRows
+        .filter((w: any) => w.status === "paid")
+        .reduce((sum: number, w: any) => sum + Number(w.amount_inr ?? 0), 0);
       return {
         enquiries: enquiries.count ?? 0,
         voiceAiLeads: voiceAiLeads.count ?? 0,
@@ -38,6 +47,11 @@ const OverviewTab = () => {
         upcomingDemos,
         completedDemos,
         cancelledDemos,
+        webinarTotal,
+        webinarPaid,
+        webinarPending,
+        webinarFailed,
+        webinarRevenue,
       };
     },
   });
@@ -55,6 +69,11 @@ const OverviewTab = () => {
     { label: "Upcoming Demos", value: stats?.upcomingDemos, icon: CalendarClock, color: "text-primary" },
     { label: "Completed Demos", value: stats?.completedDemos, icon: CalendarCheck, color: "text-primary" },
     { label: "Cancelled Demos", value: stats?.cancelledDemos, icon: CalendarX, color: "text-destructive" },
+    { label: "Masterclass Registrations", value: stats?.webinarTotal, icon: GraduationCap, color: "text-primary" },
+    { label: "Masterclass Paid", value: stats?.webinarPaid, icon: CreditCard, color: "text-primary" },
+    { label: "Masterclass Pending", value: stats?.webinarPending, icon: Clock, color: "text-destructive" },
+    { label: "Masterclass Failed", value: stats?.webinarFailed, icon: XCircle, color: "text-destructive" },
+    { label: "Masterclass Revenue", value: stats?.webinarRevenue, icon: IndianRupee, color: "text-primary", isCurrency: true },
   ];
 
   return (
@@ -66,7 +85,11 @@ const OverviewTab = () => {
             <c.icon className={`h-4 w-4 ${c.color}`} />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{c.value ?? 0}</div>
+            <div className="text-2xl font-bold">
+              {(c as any).isCurrency
+                ? `₹${Number(c.value ?? 0).toLocaleString("en-IN")}`
+                : (c.value ?? 0)}
+            </div>
           </CardContent>
         </Card>
       ))}
