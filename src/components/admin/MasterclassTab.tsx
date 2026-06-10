@@ -10,7 +10,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, Save, Download, Plus, Trash2, ChevronUp, ChevronDown } from "lucide-react";
+import { Loader2, Save, Download, Plus, Trash2, ChevronUp, ChevronDown, FileDown } from "lucide-react";
+import { downloadInvoice } from "@/lib/invoice-pdf";
 
 const fetchSettings = async () => {
   const { data, error } = await supabase.from("webinar_settings" as any).select("*").limit(1).maybeSingle();
@@ -322,7 +323,7 @@ const RegistrationsList = () => {
       <div className="border rounded-lg overflow-x-auto bg-card">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-xs uppercase tracking-wide border-b">
-            <tr><th className="text-left p-3">Date</th><th className="text-left p-3">Name</th><th className="text-left p-3">Email</th><th className="text-left p-3">Phone</th><th className="text-left p-3">Amount</th><th className="text-left p-3">Status</th></tr>
+            <tr><th className="text-left p-3">Date</th><th className="text-left p-3">Name</th><th className="text-left p-3">Email</th><th className="text-left p-3">Phone</th><th className="text-left p-3">Order ID</th><th className="text-left p-3">Amount</th><th className="text-left p-3">Status</th><th className="text-right p-3">Invoice</th></tr>
           </thead>
           <tbody>
             {rows.map((r) => (
@@ -331,15 +332,25 @@ const RegistrationsList = () => {
                 <td className="p-3 font-medium">{r.full_name}</td>
                 <td className="p-3 text-muted-foreground">{r.email}</td>
                 <td className="p-3 text-muted-foreground">{r.phone_e164}</td>
+                <td className="p-3 font-mono text-xs text-muted-foreground">{r.txnid || "—"}</td>
                 <td className="p-3">₹{Number(r.amount_inr).toFixed(0)}</td>
                 <td className="p-3">
                   <span className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${r.status === "paid" ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : r.status === "pending" ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"}`}>
                     {r.status}
                   </span>
                 </td>
+                <td className="p-3 text-right">
+                  {r.txnid ? (
+                    <Button size="sm" variant="outline" onClick={async () => {
+                      try { await downloadInvoice(r.txnid); } catch (e: any) { toast({ title: "Invoice failed", description: e.message, variant: "destructive" }); }
+                    }}>
+                      <FileDown className="h-3.5 w-3.5 mr-1" /> PDF
+                    </Button>
+                  ) : <span className="text-xs text-muted-foreground">—</span>}
+                </td>
               </tr>
             ))}
-            {rows.length === 0 && <tr><td colSpan={6} className="p-12 text-center text-muted-foreground">No registrations yet.</td></tr>}
+            {rows.length === 0 && <tr><td colSpan={8} className="p-12 text-center text-muted-foreground">No registrations yet.</td></tr>}
           </tbody>
         </table>
       </div>
