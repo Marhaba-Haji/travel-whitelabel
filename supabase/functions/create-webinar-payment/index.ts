@@ -90,13 +90,19 @@ Deno.serve(async (req) => {
 
     // Free flow — skip PayU, return success
     if (isFree) {
+      const freeTxnid = `FREE${Date.now()}${Math.random().toString(36).slice(2, 8)}`;
+      await supabase
+        .from("webinar_registrations")
+        .update({ txnid: freeTxnid })
+        .eq("id", reg.id);
+
       // Fire-and-forget confirmation
       fetch(`${EDGE_BASE}/webinar-confirm`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ registrationId: reg.id }),
       }).catch(() => {});
-      return new Response(JSON.stringify({ free: true, registrationId: reg.id }),
+      return new Response(JSON.stringify({ free: true, registrationId: reg.id, order: freeTxnid }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 

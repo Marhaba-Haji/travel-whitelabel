@@ -80,7 +80,7 @@ const RegisterDialog = ({ open, onOpenChange, priceInr, isFree, title }: Props) 
       if (error) throw error;
 
       if (data?.free) {
-        window.location.href = `/masterclass/success?reg=${data.registrationId}`;
+        window.location.href = `/masterclass/success?reg=${data.registrationId}&order=${encodeURIComponent(data.order || "")}`;
         return;
       }
 
