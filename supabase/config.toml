@@ -83,3 +83,6 @@ verify_jwt = false
 
 [functions.demo-booking-confirm]
 verify_jwt = false
+
+[functions.get-invoice]
+verify_jwt = false
