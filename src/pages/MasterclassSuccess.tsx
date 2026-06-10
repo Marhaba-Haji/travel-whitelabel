@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { CheckCircle2, Calendar, MessageCircle, ArrowRight, Copy, Check } from "lucide-react";
+import { CheckCircle2, Calendar, MessageCircle, ArrowRight, Copy, Check, Download, Loader2 } from "lucide-react";
 import { useWebinarSettings } from "@/hooks/useWebinarSettings";
 import SEOHead from "@/components/seo/SEOHead";
+import { downloadInvoice } from "@/lib/invoice-pdf";
+import { toast } from "sonner";
 import "@/styles/masterclass.css";
 
 function buildGoogleCalUrl(title: string, startIso: string, durationMin: number, details: string) {
@@ -22,6 +24,7 @@ const MasterclassSuccess = () => {
   const regId = params.get("reg");
   const orderId = params.get("order");
   const [copied, setCopied] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   const { data: s } = useWebinarSettings();
 
   useEffect(() => {
@@ -43,6 +46,18 @@ const MasterclassSuccess = () => {
       setTimeout(() => setCopied(false), 2000);
     } catch {
       // ignore
+    }
+  };
+
+  const handleDownload = async () => {
+    if (!orderId) return;
+    setDownloading(true);
+    try {
+      await downloadInvoice(orderId);
+    } catch (e) {
+      toast.error((e as Error).message || "Could not generate invoice");
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -85,6 +100,15 @@ const MasterclassSuccess = () => {
             <p className="text-xs text-[var(--mc-on-surface-variant)] mt-2">
               Save this Order ID for your records and any support requests.
             </p>
+            <button
+              type="button"
+              onClick={handleDownload}
+              disabled={downloading}
+              className="mt-3 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-[var(--mc-secondary)] text-[var(--mc-on-secondary)] text-sm font-bold hover:opacity-90 transition-opacity disabled:opacity-60"
+            >
+              {downloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+              {downloading ? "Preparing invoice…" : "Download Invoice (PDF)"}
+            </button>
           </div>
         )}
 
