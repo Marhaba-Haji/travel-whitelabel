@@ -3,6 +3,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { FileDown } from "lucide-react";
+import { downloadInvoice } from "@/lib/invoice-pdf";
+import { toast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { useState } from "react";
 
@@ -53,6 +57,7 @@ const PaymentsTab = () => {
               <TableHead>Status</TableHead>
               <TableHead>Payment Mode</TableHead>
               <TableHead>Date</TableHead>
+              <TableHead className="text-right">Invoice</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -66,10 +71,24 @@ const PaymentsTab = () => {
                 </TableCell>
                 <TableCell>{p.payment_mode ?? "—"}</TableCell>
                 <TableCell className="text-muted-foreground text-sm">{format(new Date(p.created_at), "dd MMM yyyy")}</TableCell>
+                <TableCell className="text-right">
+                  {p.status === "success" ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={async () => {
+                        try { await downloadInvoice(p.txn_id); }
+                        catch (e: any) { toast({ title: "Invoice failed", description: e.message, variant: "destructive" }); }
+                      }}
+                    >
+                      <FileDown className="h-3.5 w-3.5 mr-1" /> PDF
+                    </Button>
+                  ) : <span className="text-xs text-muted-foreground">—</span>}
+                </TableCell>
               </TableRow>
             ))}
             {!filtered?.length && (
-              <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-8">No payments found</TableCell></TableRow>
+              <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-8">No payments found</TableCell></TableRow>
             )}
           </TableBody>
         </Table>
