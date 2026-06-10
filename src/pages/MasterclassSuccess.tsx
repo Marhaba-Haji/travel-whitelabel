@@ -1,6 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { CheckCircle2, Calendar, MessageCircle, ArrowRight } from "lucide-react";
+import { CheckCircle2, Calendar, MessageCircle, ArrowRight, Copy, Check } from "lucide-react";
 import { useWebinarSettings } from "@/hooks/useWebinarSettings";
 import SEOHead from "@/components/seo/SEOHead";
 import "@/styles/masterclass.css";
@@ -20,11 +20,24 @@ function buildGoogleCalUrl(title: string, startIso: string, durationMin: number,
 const MasterclassSuccess = () => {
   const [params] = useSearchParams();
   const regId = params.get("reg");
+  const orderId = params.get("order");
+  const [copied, setCopied] = useState(false);
   const { data: s } = useWebinarSettings();
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  const copyOrder = async () => {
+    if (!orderId) return;
+    try {
+      await navigator.clipboard.writeText(orderId);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // ignore
+    }
+  };
 
   return (
     <div className="mc-scope min-h-screen mc-bg-radial flex items-center justify-center px-4 py-12">
@@ -46,6 +59,27 @@ const MasterclassSuccess = () => {
           {s ? `Your seat for "${s.title}" is confirmed.` : "Your seat is confirmed."} A
           confirmation email and WhatsApp message are on the way.
         </p>
+
+        {orderId && (
+          <div className="mt-6 rounded-2xl bg-white/[0.04] border border-[rgba(213,189,240,0.18)] p-5 text-left">
+            <div className="mc-label text-[var(--mc-on-surface-variant)]">Order ID</div>
+            <div className="mt-1.5 flex items-center justify-between gap-3">
+              <code className="font-mono text-sm font-bold text-[var(--mc-on-surface)] break-all">{orderId}</code>
+              <button
+                type="button"
+                onClick={copyOrder}
+                className="shrink-0 inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md border border-[rgba(213,189,240,0.25)] hover:bg-white/[0.06] transition-colors text-[var(--mc-on-surface)]"
+                aria-label="Copy order ID"
+              >
+                {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                {copied ? "Copied" : "Copy"}
+              </button>
+            </div>
+            <p className="text-xs text-[var(--mc-on-surface-variant)] mt-2">
+              Save this Order ID for your records and any support requests.
+            </p>
+          </div>
+        )}
 
         {s && (
           <div className="mt-6 rounded-2xl bg-white/[0.04] border border-[rgba(213,189,240,0.18)] p-5 text-left">

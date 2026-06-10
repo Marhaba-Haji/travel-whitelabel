@@ -1,11 +1,14 @@
-import { Link } from "react-router-dom";
-import { CheckCircle2, ArrowRight, Mail } from "lucide-react";
+import { Link, useSearchParams } from "react-router-dom";
+import { CheckCircle2, ArrowRight, Mail, Copy, Check } from "lucide-react";
 import LogoAnimated from "@/components/landing/LogoAnimated";
 import { useEffect, useState } from "react";
 import SEOHead from "@/components/seo/SEOHead";
 
 const SignupSuccess = () => {
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [params] = useSearchParams();
+  const orderId = params.get("order");
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
@@ -20,6 +23,17 @@ const SignupSuccess = () => {
       // Ignore parse errors
     }
   }, []);
+
+  const copyOrder = async () => {
+    if (!orderId) return;
+    try {
+      await navigator.clipboard.writeText(orderId);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // ignore
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-x-hidden bg-background">
@@ -62,6 +76,27 @@ const SignupSuccess = () => {
             <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mb-8 p-4 bg-muted/50 rounded-xl">
               <Mail className="h-4 w-4" />
               <span>Check your inbox at <strong className="text-foreground">{userEmail}</strong> for next steps.</span>
+            </div>
+          )}
+
+          {orderId && (
+            <div className="mb-8 p-4 rounded-xl bg-muted/50 text-left">
+              <div className="text-xs uppercase tracking-wide text-muted-foreground mb-1">Order ID</div>
+              <div className="flex items-center justify-between gap-3">
+                <code className="font-mono text-sm font-semibold text-foreground break-all">{orderId}</code>
+                <button
+                  type="button"
+                  onClick={copyOrder}
+                  className="shrink-0 inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md border border-border hover:bg-accent transition-colors"
+                  aria-label="Copy order ID"
+                >
+                  {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                  {copied ? "Copied" : "Copy"}
+                </button>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                Please save this Order ID for your records and any support requests.
+              </p>
             </div>
           )}
 

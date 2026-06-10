@@ -98,14 +98,14 @@ Deno.serve(async (req) => {
 
       const base = frontendUrl.replace(/\/$/, "");
       const redirectUrl = isSuccess
-        ? `${base}/masterclass/success?reg=${webinarRegId}`
-        : `${base}/masterclass/failed?reg=${webinarRegId}`;
+        ? `${base}/masterclass/success?reg=${webinarRegId}&order=${encodeURIComponent(txnid)}`
+        : `${base}/masterclass/failed?reg=${webinarRegId}&order=${encodeURIComponent(txnid)}`;
       return new Response(null, { status: 302, headers: { Location: redirectUrl } });
     }
 
     const redirectUrl = isSuccess
-      ? `${frontendUrl.replace(/\/$/, "")}/signup-success`
-      : `${frontendUrl.replace(/\/$/, "")}/signup?payment=failed`;
+      ? `${frontendUrl.replace(/\/$/, "")}/signup-success?order=${encodeURIComponent(txnid)}`
+      : `${frontendUrl.replace(/\/$/, "")}/signup?payment=failed&order=${encodeURIComponent(txnid)}`;
 
     return new Response(null, {
       status: 302,
