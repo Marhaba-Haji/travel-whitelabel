@@ -22,7 +22,14 @@ const SignupSuccess = () => {
     } catch {
       // Ignore parse errors
     }
-  }, []);
+
+    // Ensure order ID is always visible in the URL
+    if (orderId && !window.location.search.includes("order=")) {
+      const url = new URL(window.location.href);
+      url.searchParams.set("order", orderId);
+      window.history.replaceState({}, "", url);
+    }
+  }, [orderId]);
 
   const copyOrder = async () => {
     if (!orderId) return;
