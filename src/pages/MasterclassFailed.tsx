@@ -1,9 +1,12 @@
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { XCircle, ArrowRight } from "lucide-react";
 import SEOHead from "@/components/seo/SEOHead";
 import "@/styles/masterclass.css";
 
-const MasterclassFailed = () => (
+const MasterclassFailed = () => {
+  const [params] = useSearchParams();
+  const orderId = params.get("order");
+  return (
   <div className="mc-scope min-h-screen mc-bg-radial flex items-center justify-center px-4 py-12">
     <SEOHead
       title="Payment Failed"
@@ -20,11 +23,18 @@ const MasterclassFailed = () => (
       <p className="mt-2 text-[var(--mc-on-surface-variant)]">
         No worries — no charge was made. Give it another try.
       </p>
+      {orderId && (
+        <div className="mt-5 rounded-xl bg-white/[0.04] border border-[rgba(213,189,240,0.18)] p-3 text-left">
+          <div className="mc-label text-[var(--mc-on-surface-variant)] text-[10px]">Order ID (quote in support)</div>
+          <code className="font-mono text-xs font-semibold text-[var(--mc-on-surface)] break-all">{orderId}</code>
+        </div>
+      )}
       <Link to="/masterclass" className="mc-cta mc-cta-primary mt-6 h-12 px-8">
         Try Again <ArrowRight className="h-4 w-4" />
       </Link>
     </div>
   </div>
-);
+  );
+};
 
 export default MasterclassFailed;
