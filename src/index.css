@@ -436,3 +436,84 @@
 [data-admin-page] table td { color: hsl(var(--foreground)); font-weight: 500; }
 [data-admin-page] table th { color: hsl(222 47% 20%); font-weight: 600; }
 [data-admin-page] .text-muted-foreground { color: hsl(215 35% 22%); }
+
+/* Admin headings – ensure page titles are crisp and dark */
+[data-admin-page] h1,
+[data-admin-page] h2,
+[data-admin-page] h3,
+[data-admin-page] h4 {
+  color: hsl(222 47% 8%);
+}
+
+/* Admin forms – make input values & prefilled text clearly readable */
+[data-admin-page] {
+  --input: 214 25% 78%;           /* darker input border so fields stand out */
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 8%;
+}
+
+[data-admin-page] input,
+[data-admin-page] textarea,
+[data-admin-page] select,
+[data-admin-page] [role="combobox"] {
+  color: hsl(222 47% 8%) !important;
+  background-color: hsl(210 30% 98%) !important;
+  border-color: hsl(214 25% 78%) !important;
+}
+
+[data-admin-page] input::placeholder,
+[data-admin-page] textarea::placeholder {
+  color: hsl(215 20% 50%) !important;
+}
+
+[data-admin-page] [role="combobox"] span {
+  color: hsl(222 47% 8%) !important;
+}
+
+/*
+ * Dialog / Sheet portals – Radix renders these on <body> via a portal,
+ * so [data-admin-page] selectors cannot reach them.
+ * Target [role="dialog"] directly.
+ */
+[role="dialog"] {
+  --foreground: 222 47% 8%;
+  --background: 0 0% 100%;
+  --muted-foreground: 215 20% 50%;
+  --input: 214 25% 78%;
+  --popover-foreground: 222 47% 8%;
+}
+
+[role="dialog"] input,
+[role="dialog"] textarea,
+[role="dialog"] select,
+[role="dialog"] [role="combobox"] {
+  color: hsl(222 47% 8%) !important;
+  background-color: hsl(210 30% 98%) !important;
+  border-color: hsl(214 25% 78%) !important;
+}
+
+[role="dialog"] input::placeholder,
+[role="dialog"] textarea::placeholder {
+  color: hsl(215 20% 50%) !important;
+}
+
+/* Combobox selected-value text inside dialogs */
+[role="dialog"] [role="combobox"] span {
+  color: hsl(222 47% 8%) !important;
+}
+
+/* Dialog labels */
+[role="dialog"] label {
+  color: hsl(222 47% 15%);
+  font-weight: 500;
+}
+
+/* Dialog helper / description text */
+[role="dialog"] .text-xs.text-muted-foreground {
+  color: hsl(215 25% 40%);
+}
+
+/* Dialog title */
+[role="dialog"] h2 {
+  color: hsl(222 47% 8%);
+}
