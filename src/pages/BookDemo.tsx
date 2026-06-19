@@ -141,9 +141,14 @@ const BookDemo = () => {
     setSubmitting(true);
     // Warm up the confirmation chunk while we await the insert
     void prefetchConfirmationStep();
-    const { data: inserted, error } = await supabase
+    const newId =
+      typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const { error } = await supabase
       .from("demo_bookings")
       .insert({
+        id: newId,
         full_name: values.full_name,
         country_code: values.country_code,
         whatsapp_number: values.whatsapp_number,
@@ -153,9 +158,7 @@ const BookDemo = () => {
         booking_time: time,
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Kolkata",
         session_id: typeof window !== "undefined" ? sessionStorage.getItem("session_id") : null,
-      })
-      .select("id")
-      .single();
+      });
     setSubmitting(false);
 
     if (error) {
@@ -170,7 +173,8 @@ const BookDemo = () => {
       toast.error(error.message || "Could not save booking. Please try again.");
       return;
     }
-    if (inserted?.id) {
+    {
+      const inserted = { id: newId };
       // Fire-and-forget: schedule Google Meet + send notifications.
       supabase.functions
         .invoke("demo-booking-confirm", { body: { bookingId: inserted.id } })
