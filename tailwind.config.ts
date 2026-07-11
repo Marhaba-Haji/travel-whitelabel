@@ -50,12 +50,6 @@ export default {
           pink: "hsl(var(--aurora-pink))",
           teal: "hsl(var(--aurora-teal))",
         },
-        nyra: {
-          DEFAULT: "hsl(var(--nyra))",
-          foreground: "hsl(var(--nyra-foreground))",
-          accent: "hsl(var(--nyra-accent))",
-          "accent-foreground": "hsl(var(--nyra-accent-foreground))",
-        },
         popover: {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",

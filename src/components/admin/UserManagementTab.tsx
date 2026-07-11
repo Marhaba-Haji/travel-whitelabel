@@ -18,17 +18,13 @@ import { Plus, Pencil, Trash2, ShieldCheck, ShieldOff } from "lucide-react";
 
 const MODULES = [
   { id: "overview", label: "Overview" },
-  { id: "analytics", label: "Analytics" },
   { id: "enquiries", label: "Contact Enquiries" },
-  { id: "voice-ai-leads", label: "Voice AI Leads" },
-  { id: "itineraries", label: "Saved Itineraries" },
   { id: "newsletter", label: "Newsletter" },
   { id: "registrations", label: "Registrations" },
   { id: "payments", label: "Payments" },
   { id: "pricing", label: "Pricing & GST" },
   { id: "coupons", label: "Coupons" },
   { id: "blog", label: "Blog" },
-  { id: "ai-agent", label: "AI Agent Config" },
   { id: "indexing-logs", label: "Indexing Logs" },
   { id: "faqs", label: "FAQs" },
   { id: "settings", label: "Site Settings" },

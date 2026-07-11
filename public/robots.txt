@@ -6,7 +6,6 @@ Disallow: /admin/
 Disallow: /admin/login
 Disallow: /signup-success
 Disallow: /account-pending
-Disallow: /itinerary/
 
 User-agent: Bingbot
 Allow: /
@@ -16,7 +15,6 @@ Disallow: /admin/
 Disallow: /admin/login
 Disallow: /signup-success
 Disallow: /account-pending
-Disallow: /itinerary/
 
 User-agent: Twitterbot
 Allow: /
@@ -25,7 +23,6 @@ Disallow: /admin/
 Disallow: /admin/login
 Disallow: /signup-success
 Disallow: /account-pending
-Disallow: /itinerary/
 
 User-agent: facebookexternalhit
 Allow: /
@@ -34,7 +31,6 @@ Disallow: /admin/
 Disallow: /admin/login
 Disallow: /signup-success
 Disallow: /account-pending
-Disallow: /itinerary/
 
 User-agent: ChatGPT-User
 Allow: /
@@ -43,7 +39,6 @@ Disallow: /admin/
 Disallow: /admin/login
 Disallow: /signup-success
 Disallow: /account-pending
-Disallow: /itinerary/
 
 User-agent: GPTBot
 Allow: /
@@ -52,7 +47,6 @@ Disallow: /admin/
 Disallow: /admin/login
 Disallow: /signup-success
 Disallow: /account-pending
-Disallow: /itinerary/
 
 User-agent: Google-Extended
 Allow: /
@@ -61,7 +55,6 @@ Disallow: /admin/
 Disallow: /admin/login
 Disallow: /signup-success
 Disallow: /account-pending
-Disallow: /itinerary/
 
 User-agent: PerplexityBot
 Allow: /
@@ -70,7 +63,6 @@ Disallow: /admin/
 Disallow: /admin/login
 Disallow: /signup-success
 Disallow: /account-pending
-Disallow: /itinerary/
 
 User-agent: ClaudeBot
 Allow: /
@@ -79,7 +71,6 @@ Disallow: /admin/
 Disallow: /admin/login
 Disallow: /signup-success
 Disallow: /account-pending
-Disallow: /itinerary/
 
 User-agent: *
 Allow: /
@@ -88,7 +79,6 @@ Disallow: /admin/
 Disallow: /admin/login
 Disallow: /signup-success
 Disallow: /account-pending
-Disallow: /itinerary/
 
 Sitemap: https://marhabadmc.com/sitemap.xml
 # Dynamic sitemap including all published blog posts (cross-host reference is

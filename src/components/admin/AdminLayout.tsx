@@ -4,24 +4,20 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, MessageSquare, Mail, Users, CreditCard,
-  DollarSign, Ticket, Settings, LogOut, Menu, X, Mic, Map, Bot, BarChart3, FileText, Globe, UserCog, Network, Type, Image, Star, CircleHelp, CalendarCheck, GraduationCap, Code2
+  DollarSign, Ticket, Settings, LogOut, Menu, X, FileText, Globe, UserCog, Network, Type, Image, Star, CircleHelp, CalendarCheck, GraduationCap, Code2
 } from "lucide-react";
 
 const allTabs = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
-  { id: "analytics", label: "Analytics", icon: BarChart3 },
   { id: "enquiries", label: "Contact Enquiries", icon: MessageSquare },
-  { id: "voice-ai-leads", label: "Voice AI Leads", icon: Mic },
   { id: "demo-bookings", label: "Demo Bookings", icon: CalendarCheck },
   { id: "masterclass", label: "Masterclass", icon: GraduationCap },
-  { id: "itineraries", label: "Saved Itineraries", icon: Map },
   { id: "newsletter", label: "Newsletter", icon: Mail },
   { id: "registrations", label: "Registrations", icon: Users },
   { id: "payments", label: "Payments", icon: CreditCard },
   { id: "pricing", label: "Pricing & GST", icon: DollarSign },
   { id: "coupons", label: "Coupons", icon: Ticket },
   { id: "blog", label: "Blog", icon: FileText },
-  { id: "ai-agent", label: "AI Agent Config", icon: Bot },
   { id: "indexing-logs", label: "Indexing Logs", icon: Globe },
   { id: "hero-content", label: "Hero Section", icon: Type },
   { id: "hero-images", label: "Hero Images", icon: Image },

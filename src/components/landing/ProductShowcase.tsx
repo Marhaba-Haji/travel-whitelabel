@@ -13,7 +13,7 @@ const ProductShowcase = () => {
       title: "Admin Portal",
       icon: Settings,
       tabIcon: Settings,
-      features: ["Real Time booking", "Nyra AI Tracking", "Revenue Analytics", "Credit Report"],
+      features: ["Real Time booking", "AI Tracking", "Revenue Analytics", "Credit Report"],
       insightTitle: "Connect & Streamline",
       insightText: "Manage bookings, suppliers, and operations from one dashboard.",
       analyticsTitle: "Instant Insights",

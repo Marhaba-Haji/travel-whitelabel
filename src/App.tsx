@@ -7,7 +7,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { ItineraryProvider } from "@/contexts/ItineraryContext";
 import Index from "./pages/Index";
 import ProtectedRoute from "./components/admin/ProtectedRoute";
 import PageLoader from "./components/PageLoader";
@@ -39,7 +38,6 @@ const CategoriesDestinations = lazy(() => import("./pages/CategoriesDestinations
 const AdminLogin = lazy(() => import("./pages/AdminLogin"));
 const Admin = lazy(() => import("./pages/Admin"));
 const NotFound = lazy(() => import("./pages/NotFound"));
-const SharedItinerary = lazy(() => import("./pages/SharedItinerary"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const UmrahVisaCheck = lazy(() => import("./pages/UmrahVisaCheck"));
@@ -66,7 +64,6 @@ const App = () => (
   <ThemeProvider attribute="class" defaultTheme="light" enableSystem storageKey="aurora-theme">
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <ItineraryProvider>
           <TooltipProvider>
           <Toaster />
           <Sonner />
@@ -94,7 +91,6 @@ const App = () => (
                 <Route path="/categories-destinations" element={<CategoriesDestinations />} />
                 <Route path="/admin/login" element={<AdminLogin />} />
                 <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
-                <Route path="/itinerary/:shareId" element={<SharedItinerary />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/blog/:slug" element={<BlogPost />} />
                 <Route path="/umrah-visa-check" element={<UmrahVisaCheck />} />
@@ -110,7 +106,6 @@ const App = () => (
             </Suspense>
           </BrowserRouter>
           </TooltipProvider>
-        </ItineraryProvider>
       </AuthProvider>
     </QueryClientProvider>
   </ThemeProvider>

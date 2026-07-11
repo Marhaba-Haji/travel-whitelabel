@@ -31,7 +31,7 @@ All plans are billed annually. No per-user fees. Unlimited agents and customers.
 ## Key Differentiators
 
 - Halal-friendly inventory and Hajj/Umrah module specialisation
-- AI Sales Assistant (Nyra): multilingual voice + chat agent, billed per conversation
+- AI Sales Assistant: multilingual chat agent, billed per conversation
 - Built-in voice-driven AI itinerary builder
 - Integrated Visa lookup and OCR for Saudi Umrah visas
 - Live MOFA scraping for visa status verification

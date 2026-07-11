@@ -4,21 +4,17 @@ import AdminLayout from "@/components/admin/AdminLayout";
 import OverviewTab from "@/components/admin/OverviewTab";
 import SEOHead from "@/components/seo/SEOHead";
 
-// Only the default Overview tab loads eagerly. Every other tab (including the
-// recharts-heavy Analytics tab) is code-split so the admin shell stays small.
+// Only the default Overview tab loads eagerly. Every other tab is
+// code-split so the admin shell stays small.
 const tabComponents: Record<string, ComponentType> = {
   overview: OverviewTab,
-  analytics: lazy(() => import("@/components/admin/AnalyticsTab")),
   enquiries: lazy(() => import("@/components/admin/ContactEnquiriesTab")),
-  "voice-ai-leads": lazy(() => import("@/components/admin/VoiceAILeadsTab")),
-  itineraries: lazy(() => import("@/components/admin/SavedItinerariesTab")),
   newsletter: lazy(() => import("@/components/admin/NewsletterTab")),
   registrations: lazy(() => import("@/components/admin/RegistrationsTab")),
   payments: lazy(() => import("@/components/admin/PaymentsTab")),
   pricing: lazy(() => import("@/components/admin/PricingTab")),
   coupons: lazy(() => import("@/components/admin/CouponsTab")),
   blog: lazy(() => import("@/components/admin/BlogTab")),
-  "ai-agent": lazy(() => import("@/components/admin/AIAgentConfigTab")),
   "indexing-logs": lazy(() => import("@/components/admin/IndexingLogsTab")),
   "hero-content": lazy(() => import("@/components/admin/HeroContentTab")),
   "hero-images": lazy(() => import("@/components/admin/HeroImagesTab")),

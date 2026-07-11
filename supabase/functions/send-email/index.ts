@@ -6,33 +6,11 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-// Anonymous callers (Nyra voice sessions in the browser) are rate limited so
-// this endpoint can't be scripted to send bulk mail from the company domain.
-// Trusted edge functions authenticate with the service role key and bypass it.
-const rateLimitMap = new Map<string, number[]>();
-const RATE_WINDOW_MS = 10 * 60 * 1000;
-const MAX_PER_WINDOW = 3;
-
-setInterval(() => {
-  const now = Date.now();
-  for (const [ip, stamps] of rateLimitMap) {
-    const recent = stamps.filter((t) => now - t < RATE_WINDOW_MS);
-    if (recent.length === 0) rateLimitMap.delete(ip);
-    else rateLimitMap.set(ip, recent);
-  }
-}, 5 * 60 * 1000);
-
-function getClientIP(req: Request): string {
-  return (
-    req.headers.get("cf-connecting-ip") ||
-    req.headers.get("x-real-ip") ||
-    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    "unknown"
-  );
-}
-
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
+// Internal-only: callable exclusively by other edge functions holding the
+// service role key (webinar-confirm, demo-booking-confirm, classify-enquiry,
+// recover-abandoned-signups). Browsers have no business sending email here.
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -40,20 +18,11 @@ Deno.serve(async (req) => {
 
   try {
     const bearer = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
-    const isServiceCall = !!bearer && bearer === Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-
-    if (!isServiceCall) {
-      const ip = getClientIP(req);
-      const now = Date.now();
-      const stamps = (rateLimitMap.get(ip) || []).filter((t) => now - t < RATE_WINDOW_MS);
-      if (stamps.length >= MAX_PER_WINDOW) {
-        return new Response(
-          JSON.stringify({ error: "Too many emails requested. Please try again later." }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      stamps.push(now);
-      rateLimitMap.set(ip, stamps);
+    if (!bearer || bearer !== Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     const { to, subject, body, reply_to } = await req.json();
@@ -72,13 +41,6 @@ Deno.serve(async (req) => {
       );
     }
 
-    if (!isServiceCall && (String(subject).length > 200 || String(body).length > 20000)) {
-      return new Response(
-        JSON.stringify({ error: "Message too long" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
     if (!RESEND_API_KEY) {
       return new Response(
@@ -88,7 +50,7 @@ Deno.serve(async (req) => {
     }
 
     // Fetch sender config from site_settings
-    let fromEmail = "Nyra from Marhaba DMC <onboarding@resend.dev>";
+    let fromEmail = "Marhaba DMC <onboarding@resend.dev>";
     try {
       const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
       const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -96,7 +58,7 @@ Deno.serve(async (req) => {
       const { data: setting } = await sb
         .from("site_settings")
         .select("value")
-        .eq("key", "nyra_config")
+        .eq("key", "email_sender")
         .maybeSingle();
       if (setting?.value?.sender_email) {
         fromEmail = setting.value.sender_email;

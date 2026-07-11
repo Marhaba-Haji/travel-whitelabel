@@ -40,7 +40,7 @@ const ALL_SLOTS = [
 const COVERED = [
   "Walkthrough of all 4 portals (Admin, Supplier, B2B, B2C)",
   "Contracted inventory & live API capabilities",
-  "AI Sales Assistant (Nyra) in action",
+  "AI Sales Assistant in action",
   "White-label setup & branding controls",
   "Pricing, GST and subscription model",
   "Live Q&A with our solutions team",

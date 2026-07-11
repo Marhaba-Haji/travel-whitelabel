@@ -145,7 +145,6 @@ lhci autorun
 
 **Tasks:**
 - [ ] Split admin routes into separate chunk (already using ProtectedRoute)
-- [ ] Lazy-load NyraWidget conditionally
 - [ ] Split Recharts into separate chunk for charts pages
 - [ ] Consider route-based code splitting for blog, resources
 

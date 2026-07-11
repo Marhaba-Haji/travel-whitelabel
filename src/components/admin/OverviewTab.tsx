@@ -1,16 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MessageSquare, Mail, Users, CreditCard, AlertTriangle, Mic, CalendarCheck, CalendarClock, CalendarX, GraduationCap, Clock, IndianRupee, XCircle } from "lucide-react";
+import { MessageSquare, Mail, Users, CreditCard, AlertTriangle, CalendarCheck, CalendarClock, CalendarX, GraduationCap, Clock, IndianRupee, XCircle } from "lucide-react";
 
 const OverviewTab = () => {
   const { data: stats, isLoading } = useQuery({
     queryKey: ["admin-overview"],
     queryFn: async () => {
       const today = new Date().toISOString().slice(0, 10);
-      const [enquiries, voiceAiLeads, newsletter, registrations, payments, demos, webinars] = await Promise.all([
+      const [enquiries, newsletter, registrations, payments, demos, webinars] = await Promise.all([
         supabase.from("contact_enquiries").select("id", { count: "exact", head: true }),
-        supabase.from("voice_ai_leads").select("id", { count: "exact", head: true }),
         supabase.from("newsletter_subscriptions").select("id", { count: "exact", head: true }),
         supabase.from("registrations").select("id", { count: "exact", head: true }),
         supabase.from("payments").select("id, status"),
@@ -37,7 +36,6 @@ const OverviewTab = () => {
         .reduce((sum: number, w: any) => sum + Number(w.amount_inr ?? 0), 0);
       return {
         enquiries: enquiries.count ?? 0,
-        voiceAiLeads: voiceAiLeads.count ?? 0,
         newsletter: newsletter.count ?? 0,
         registrations: registrations.count ?? 0,
         totalPayments: paymentRows.length,
@@ -60,7 +58,6 @@ const OverviewTab = () => {
 
   const cards = [
     { label: "Contact Enquiries", value: stats?.enquiries, icon: MessageSquare, color: "text-primary" },
-    { label: "Voice AI Leads", value: stats?.voiceAiLeads, icon: Mic, color: "text-primary" },
     { label: "Newsletter Signups", value: stats?.newsletter, icon: Mail, color: "text-primary" },
     { label: "Total Registrations", value: stats?.registrations, icon: Users, color: "text-primary" },
     { label: "Successful Payments", value: stats?.successPayments, icon: CreditCard, color: "text-primary" },

@@ -9,37 +9,10 @@ verify_jwt = false
 [functions.payu-callback]
 verify_jwt = false
 
-[functions.gemini-token]
-verify_jwt = false
-
-[functions.voice-ai-lead]
-verify_jwt = false
-
-[functions.voice-ai-lead-update]
-verify_jwt = false
-
-[functions.itinerary-save]
-verify_jwt = false
-
-[functions.voice-ai-session]
-verify_jwt = false
-
 [functions.send-email]
 verify_jwt = false
 
 [functions.send-whatsapp]
-verify_jwt = false
-
-[functions.process-agent-document]
-verify_jwt = false
-
-[functions.nyra-chat]
-verify_jwt = false
-
-[functions.post-call-summary]
-verify_jwt = false
-
-[functions.seed-knowledge]
 verify_jwt = false
 
 [functions.blog-ai]
