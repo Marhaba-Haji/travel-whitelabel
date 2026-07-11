@@ -24,3 +24,10 @@ server/.env
 *.njsproj
 *.sln
 *.sw?
+
+# Build/debug artifacts
+build-output.txt
+server/server-log.txt
+vite.config.ts.timestamp-*
+bun.lock
+bun.lockb

@@ -36,23 +36,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (sessionData?.user) {
       const userId = sessionData.user.id;
 
-      // Run role checks in parallel to cut auth resolution time roughly in half
-      const [saRes, adminRes] = await Promise.all([
-        supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", userId)
-          .eq("role", "superadmin")
-          .maybeSingle(),
-        supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", userId)
-          .eq("role", "admin")
-          .maybeSingle(),
-      ]);
-      const sa = !!saRes.data;
-      const adm = !!adminRes.data;
+      const { data: roles } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .in("role", ["superadmin", "admin"]);
+      const sa = !!roles?.some((r) => r.role === "superadmin");
+      const adm = !!roles?.some((r) => r.role === "admin");
       setIsSuperadmin(sa);
       setIsAdmin(adm);
 
@@ -127,8 +117,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
     window.addEventListener("unhandledrejection", onRejection);
 
+    // onAuthStateChange fires INITIAL_SESSION on subscribe, so it normally
+    // resolves auth on its own; getSession() below is only a fallback for
+    // refresh-token failures and is skipped once the listener has run.
+    let resolvedByListener = false;
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
+        resolvedByListener = true;
         checkRoleAndFinishLoading(session);
       }
     );
@@ -136,13 +131,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     supabase.auth
       .getSession()
       .then(({ data: { session } }) => {
-        checkRoleAndFinishLoading(session);
+        if (!resolvedByListener) checkRoleAndFinishLoading(session);
       })
       .catch((err) => {
         const msg = String(err?.message ?? "");
         if (msg.includes("Invalid Refresh Token") || msg.includes("Refresh Token Not Found")) {
           clearInvalidSession();
-        } else {
+        } else if (!resolvedByListener) {
           checkRoleAndFinishLoading(null);
         }
       });
