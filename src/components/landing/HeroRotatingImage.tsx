@@ -68,12 +68,15 @@ const HeroRotatingImageInner = () => {
 
   if (heroImageLoading && !displayedHeroImage.src) {
     return (
-      <div className="w-[85%] sm:w-full h-[420px] rounded-3xl bg-white/70 animate-pulse shadow-lg sm:shadow-2xl" />
+      <div className="w-[85%] sm:w-full aspect-[5/6] rounded-3xl bg-white/70 animate-pulse shadow-lg sm:shadow-2xl" />
     );
   }
 
+  // The container owns a fixed 5:6 aspect ratio and both images fill it with
+  // object-contain, so rotating between images of different proportions can
+  // never change the hero's height (which shifted every section below it).
   return (
-    <div className="relative w-[85%] sm:w-full z-10">
+    <div className="relative w-[85%] sm:w-full z-10 aspect-[5/6]">
       <img
         key={displayedHeroImage.id}
         src={transformSupabaseImage(displayedHeroImage.src, { width: 900 }) || displayedHeroImage.src}
@@ -83,7 +86,7 @@ const HeroRotatingImageInner = () => {
         width={500}
         height={600}
         {...({ fetchpriority: "high" } as Record<string, string>)}
-        className={`w-full h-auto object-contain relative drop-shadow-lg sm:drop-shadow-2xl transition-all duration-700 ease-out ${
+        className={`absolute inset-0 w-full h-full object-contain drop-shadow-lg sm:drop-shadow-2xl transition-all duration-700 ease-out ${
           isImageTransitioning ? "opacity-0 scale-[0.985]" : "opacity-100 scale-100"
         }`}
       />

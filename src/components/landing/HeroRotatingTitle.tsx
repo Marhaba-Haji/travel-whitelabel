@@ -1,13 +1,23 @@
 import { memo } from "react";
-import { useHeroContent } from "@/hooks/useHeroContent";
+import { useHeroContent, type HeroContent } from "@/hooks/useHeroContent";
+
+const TITLE_CLASS =
+  "text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-[72px] font-bold text-gray-900 mb-6 font-poppins leading-[1.1] tracking-tight";
+const DESC_CLASS =
+  "text-base sm:text-lg md:text-xl text-gray-500 mb-10 font-medium max-w-lg leading-relaxed";
 
 /**
- * Owns the rotating hero title/description/CTA so that the 5s rotation
- * interval re-renders ONLY this small subtree — not the entire Hero
- * (partners scroller, floating cards, decorative SVG, avatars, etc.).
+ * Owns the rotating hero title/description so that the 5s rotation interval
+ * re-renders ONLY this small subtree — not the entire Hero.
+ *
+ * All slides are rendered stacked in the same grid cell, with inactive ones
+ * kept invisible (visibility preserves layout). The container is therefore
+ * always as tall as the TALLEST slide, so rotating between short and long
+ * titles never changes the hero's height — previously every rotation shifted
+ * all sections below the hero up or down.
  */
 const HeroRotatingTitleInner = () => {
-  const { heroContent, loading } = useHeroContent();
+  const { heroContent, heroContents, loading } = useHeroContent();
 
   if (loading) {
     return (
@@ -18,51 +28,61 @@ const HeroRotatingTitleInner = () => {
     );
   }
 
-  const renderTitle = () => {
-    if (!heroContent) {
+  const renderTitleText = (content: HeroContent | null) => {
+    if (!content) {
       return (
-        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-[72px] font-bold text-gray-900 mb-6 font-poppins leading-[1.1] tracking-tight">
+        <>
           White Label <span style={{ color: "#B968C7" }} className="font-bold">Travel Portal</span>
           <br />
           for Agents
-        </h1>
+        </>
       );
     }
-    const { title, subtitle, subtitle_color } = heroContent;
+    const { title, subtitle, subtitle_color } = content;
     const parts = title.split(subtitle);
-    return (
-      <h1
-        key={heroContent.id}
-        className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-[72px] font-bold text-gray-900 mb-6 font-poppins leading-[1.1] tracking-tight"
-      >
-        {parts.map((part, index) => (
-          <span key={index}>
-            {part}
-            {index < parts.length - 1 && (
-              <>
-                <span style={{ color: subtitle_color }} className="font-bold">
-                  {subtitle}
-                </span>
-                <br />
-              </>
-            )}
-          </span>
-        ))}
-      </h1>
-    );
+    return parts.map((part, index) => (
+      <span key={index}>
+        {part}
+        {index < parts.length - 1 && (
+          <>
+            <span style={{ color: subtitle_color }} className="font-bold">
+              {subtitle}
+            </span>
+            <br />
+          </>
+        )}
+      </span>
+    ));
   };
 
+  const renderDescription = (content: HeroContent | null) =>
+    content?.description ||
+    "Where adventure meets comfort. We create unforgettable travel experiences";
+
+  const slides: (HeroContent | null)[] = heroContents.length > 0 ? heroContents : [null];
+  const activeId = heroContent?.id ?? null;
+
   return (
-    <>
-      <div className="animate-fade-in">{renderTitle()}</div>
-      <p
-        key={`${heroContent?.id || "hero"}-desc`}
-        className="text-base sm:text-lg md:text-xl text-gray-500 mb-10 font-medium max-w-lg leading-relaxed animate-fade-in"
-      >
-        {heroContent?.description ||
-          "Where adventure meets comfort. We create unforgettable travel experiences"}
-      </p>
-    </>
+    <div className="grid w-full">
+      {slides.map((content) => {
+        const active = (content?.id ?? null) === activeId;
+        return (
+          <div
+            key={content?.id ?? "hero-fallback"}
+            className={`col-start-1 row-start-1 ${active ? "animate-fade-in" : "invisible"}`}
+            aria-hidden={!active}
+          >
+            {/* Only the visible slide is an h1 so the page keeps a single heading */}
+            {active ? (
+              <h1 className={TITLE_CLASS}>{renderTitleText(content)}</h1>
+            ) : (
+              <div className={TITLE_CLASS}>{renderTitleText(content)}</div>
+            )}
+            <p className={DESC_CLASS}>{renderDescription(content)}</p>
+          </div>
+        );
+      })}
+    </div>
   );
 };
 
