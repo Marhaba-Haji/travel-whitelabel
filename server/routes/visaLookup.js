@@ -6,10 +6,10 @@ import { Router } from "express";
 import multer from "multer";
 import { extractPassportData } from "../lib/passportOcr.js";
 import { fetchCaptcha, submitVisaLookup } from "../lib/mofaScraper.js";
+import { checkRateLimit as sharedCheckRateLimit, getClientIp } from "../lib/rateLimit.js";
 
 const router = Router();
 
-const rateLimitMap = new Map();
 const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
 
 /** Per-endpoint limits — shared bucket was too tight (OCR + many captcha refreshes + lookup). */
@@ -19,29 +19,13 @@ const RATE_BUCKETS = {
   lookup: Number(process.env.VISA_RATE_LIMIT_LOOKUP) || 40,
 };
 
-function getClientIp(req) {
-  return req.ip || req.connection?.remoteAddress || req.headers["x-forwarded-for"]?.split(",")[0] || "unknown";
-}
-
 /**
  * @param {string} ip
  * @param {"passport" | "captcha" | "lookup"} bucket
  */
 function checkRateLimit(ip, bucket) {
   const max = RATE_BUCKETS[bucket] ?? 40;
-  const key = `${ip}:${bucket}`;
-  const now = Date.now();
-  let entry = rateLimitMap.get(key);
-  if (!entry) {
-    entry = { count: 0, resetAt: now + RATE_LIMIT_WINDOW_MS };
-    rateLimitMap.set(key, entry);
-  }
-  if (now > entry.resetAt) {
-    entry.count = 0;
-    entry.resetAt = now + RATE_LIMIT_WINDOW_MS;
-  }
-  entry.count++;
-  return entry.count <= max;
+  return sharedCheckRateLimit(ip, `visa-${bucket}`, max, RATE_LIMIT_WINDOW_MS);
 }
 
 const upload = multer({

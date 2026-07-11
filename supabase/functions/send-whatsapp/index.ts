@@ -4,17 +4,73 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// Anonymous callers (Nyra voice sessions in the browser) are rate limited so
+// this endpoint can't be scripted to send bulk messages from the company
+// number. Trusted edge functions use the service role key and bypass it.
+const rateLimitMap = new Map<string, number[]>();
+const RATE_WINDOW_MS = 10 * 60 * 1000;
+const MAX_PER_WINDOW = 3;
+
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, stamps] of rateLimitMap) {
+    const recent = stamps.filter((t) => now - t < RATE_WINDOW_MS);
+    if (recent.length === 0) rateLimitMap.delete(ip);
+    else rateLimitMap.set(ip, recent);
+  }
+}, 5 * 60 * 1000);
+
+function getClientIP(req: Request): string {
+  return (
+    req.headers.get("cf-connecting-ip") ||
+    req.headers.get("x-real-ip") ||
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    "unknown"
+  );
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    const bearer = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
+    const isServiceCall = !!bearer && bearer === Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+
+    if (!isServiceCall) {
+      const ip = getClientIP(req);
+      const now = Date.now();
+      const stamps = (rateLimitMap.get(ip) || []).filter((t) => now - t < RATE_WINDOW_MS);
+      if (stamps.length >= MAX_PER_WINDOW) {
+        return new Response(
+          JSON.stringify({ error: "Too many messages requested. Please try again later." }),
+          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      stamps.push(now);
+      rateLimitMap.set(ip, stamps);
+    }
+
     const { to, message } = await req.json();
 
     if (!to || !message) {
       return new Response(
         JSON.stringify({ error: "to and message are required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (typeof to !== "string" || !/^\+?\d{8,15}$/.test(to.replace(/[\s-]/g, ""))) {
+      return new Response(
+        JSON.stringify({ error: "Invalid recipient phone number" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (!isServiceCall && String(message).length > 2000) {
+      return new Response(
+        JSON.stringify({ error: "Message too long" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }

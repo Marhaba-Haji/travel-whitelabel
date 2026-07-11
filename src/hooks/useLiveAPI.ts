@@ -193,18 +193,11 @@ export type ItineraryStateGetter = () => {
 
 const AUDIO_BUFFER_INTERVAL_MS = 80; // Accumulate audio chunks for smoother playback
 
-// ── Cached API key ─────────────────────────────────────────────────────────────
-
-let cachedApiKey: string | null = null;
-let cachedApiKeyTimestamp = 0;
-const API_KEY_TTL_MS = 4 * 60 * 1000; // Cache for 4 minutes (rate limit is 1 min)
+// ── Ephemeral token ────────────────────────────────────────────────────────────
+// The edge function mints a single-use ephemeral token per call, so tokens are
+// fetched fresh for every connect and must never be cached or prefetched.
 
 async function getApiKey(): Promise<string> {
-  const now = Date.now();
-  if (cachedApiKey && (now - cachedApiKeyTimestamp) < API_KEY_TTL_MS) {
-    return cachedApiKey;
-  }
-
   const { data: tokenData, error: tokenError } = await supabase.functions.invoke('gemini-token');
   if (tokenError) {
     let errorBody: any = null;
@@ -227,13 +220,8 @@ async function getApiKey(): Promise<string> {
     throw new Error(tokenData?.error || 'Failed to get API key');
   }
 
-  cachedApiKey = tokenData.apiKey;
-  cachedApiKeyTimestamp = now;
-  return cachedApiKey;
+  return tokenData.apiKey;
 }
-
-// Pre-fetch on module load (non-blocking)
-getApiKey().catch(() => {});
 
 // ── Hook ───────────────────────────────────────────────────────────────────────
 
@@ -388,7 +376,7 @@ export function useLiveAPI(
         }
       };
 
-      // Fetch API key (uses cache)
+      // Fetch a fresh single-use ephemeral token for this session
       const apiKey = await getApiKey();
 
       // Dynamic import of Gemini SDK - only loaded when user actually connects

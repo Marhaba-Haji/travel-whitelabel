@@ -99,7 +99,7 @@ Deno.serve(async (req) => {
       // Fire-and-forget confirmation
       fetch(`${EDGE_BASE}/webinar-confirm`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}` },
         body: JSON.stringify({ registrationId: reg.id }),
       }).catch(() => {});
       return new Response(JSON.stringify({ free: true, registrationId: reg.id, order: freeTxnid }),

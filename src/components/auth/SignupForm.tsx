@@ -259,7 +259,7 @@ const SignupForm = ({ selectedPlanName, planBasePrice, planKey, gstPercent, symb
           password: validatedData.password,
           termsAccepted: validatedData.termsAccepted,
           planName: selectedPlanName,
-          planBasePrice: planBasePrice,
+          planKey: planKey,
           billingCycle: billingCycle,
         }),
       });

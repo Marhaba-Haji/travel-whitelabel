@@ -73,7 +73,7 @@ async function sendEmail(to: string, subject: string, body: string) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${Deno.env.get("SUPABASE_ANON_KEY")}`,
+      Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
     },
     body: JSON.stringify({ to, subject, text: body, html: `<pre style="font-family:Inter,sans-serif;white-space:pre-wrap;font-size:15px;line-height:1.55;color:#111">${body}</pre>` }),
   });

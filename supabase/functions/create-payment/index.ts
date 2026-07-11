@@ -7,12 +7,27 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-function sha512(input: string): string {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(input);
-  const hashBuffer = new Uint8Array(64);
-  // Use Web Crypto API
-  return "";
+// udf5 is echoed back by PayU and used as the redirect target in payu-callback,
+// so only known frontend origins may be embedded in it.
+const ALLOWED_FRONTEND_HOSTS = new Set([
+  "marhabadmc.com",
+  "www.marhabadmc.com",
+  "localhost",
+  "127.0.0.1",
+]);
+const DEFAULT_FRONTEND = "https://marhabadmc.com";
+
+function resolveFrontendUrl(req: Request): string {
+  const raw = req.headers.get("origin") || req.headers.get("referer") || "";
+  try {
+    const u = new URL(raw);
+    if ((u.protocol === "https:" || u.protocol === "http:") && ALLOWED_FRONTEND_HOSTS.has(u.hostname)) {
+      return u.origin;
+    }
+  } catch {
+    // fall through to default
+  }
+  return DEFAULT_FRONTEND;
 }
 
 async function generatePayUHash(
@@ -50,6 +65,22 @@ async function hashPassword(password: string): Promise<string> {
   return bcrypt.hashSync(String(password), 10);
 }
 
+type PlanKey = "launch" | "growth" | "authority";
+
+function normalizePlanKey(planKey: unknown, planName: unknown): PlanKey {
+  const candidate = String(planKey || "")
+    .trim()
+    .toLowerCase() ||
+    String(planName || "")
+      .replace(/\s*plan\s*/i, "")
+      .trim()
+      .toLowerCase();
+  if (candidate === "launch" || candidate === "growth" || candidate === "authority") {
+    return candidate;
+  }
+  return "launch";
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -67,9 +98,7 @@ Deno.serve(async (req) => {
         ? "https://secure.payu.in/_payment"
         : "https://test.payu.in/_payment";
 
-    // Frontend URL for redirects - derive from request origin or use a fallback
-    const origin = req.headers.get("origin") || req.headers.get("referer")?.replace(/\/[^/]*$/, "") || "";
-    const FRONTEND_URL = origin || "https://marhabadmc.com";
+    const FRONTEND_URL = resolveFrontendUrl(req);
 
     // Backend URL for PayU callbacks (edge function URL)
     const EDGE_BASE = `${SUPABASE_URL}/functions/v1`;
@@ -77,7 +106,7 @@ Deno.serve(async (req) => {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
     const body = await req.json();
-    const { fullName, email, phone, city, password, termsAccepted, couponCode, planName, planBasePrice, billingCycle } = body;
+    const { fullName, email, phone, city, password, termsAccepted, couponCode, planName, planKey, billingCycle } = body;
     const cycle: "monthly" | "annual" = billingCycle === "monthly" ? "monthly" : "annual";
     const cycleLabel = cycle === "monthly" ? "Monthly" : "Annual";
     const planLabel = planName ? `${String(planName).trim().slice(0, 80)} — ${cycleLabel}` : `Subscription — ${cycleLabel}`;
@@ -89,34 +118,66 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Create registration
+    const trimmedEmail = String(email).trim().slice(0, 255);
     const passwordHash = password ? await hashPassword(String(password)) : null;
-    const { data: reg, error: regErr } = await supabase
+    const registrationFields = {
+      full_name: String(fullName).trim().slice(0, 100),
+      email: trimmedEmail,
+      phone: String(phone).replace(/\D/g, "").slice(-10) || String(phone).trim(),
+      city: city ? String(city).trim().slice(0, 100) : null,
+      password_hash: passwordHash,
+      terms_accepted: Boolean(termsAccepted),
+      plan_name: planLabel.slice(0, 100),
+    };
+
+    // A registration may already exist for this email (pre-payment lead capture
+    // or an earlier failed/abandoned attempt). Reuse it so retries work; only a
+    // completed payment blocks re-registration.
+    let registrationId: string | null = null;
+    const { data: existingReg } = await supabase
       .from("registrations")
-      .insert({
-        full_name: String(fullName).trim().slice(0, 100),
-        email: String(email).trim().slice(0, 255),
-        phone: String(phone).replace(/\D/g, "").slice(-10) || String(phone).trim(),
-        city: city ? String(city).trim().slice(0, 100) : null,
-        password_hash: passwordHash,
-        terms_accepted: Boolean(termsAccepted),
-        plan_name: planLabel.slice(0, 100),
-      })
-      .select("id")
-      .single();
+      .select("id, status")
+      .eq("email", trimmedEmail)
+      .maybeSingle();
 
-    if (regErr) {
-      console.error("Registration insert error:", regErr);
-      const userMessage = regErr.code === "23505"
-        ? "An account with this email already exists."
-        : "Registration failed. Please try again.";
-      return new Response(
-        JSON.stringify({ error: "Registration failed", message: userMessage }),
-        { status: regErr.code === "23505" ? 400 : 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    if (existingReg) {
+      if (existingReg.status === "payment_completed") {
+        return new Response(
+          JSON.stringify({ error: "Registration failed", message: "An account with this email already exists." }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      const { error: updErr } = await supabase
+        .from("registrations")
+        .update({ ...registrationFields, updated_at: new Date().toISOString() })
+        .eq("id", existingReg.id);
+      if (updErr) {
+        console.error("Registration update error:", updErr);
+        return new Response(
+          JSON.stringify({ error: "Registration failed", message: "Registration failed. Please try again." }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      registrationId = existingReg.id;
+    } else {
+      const { data: reg, error: regErr } = await supabase
+        .from("registrations")
+        .insert(registrationFields)
+        .select("id")
+        .single();
+
+      if (regErr) {
+        console.error("Registration insert error:", regErr);
+        const userMessage = regErr.code === "23505"
+          ? "An account with this email already exists."
+          : "Registration failed. Please try again.";
+        return new Response(
+          JSON.stringify({ error: "Registration failed", message: userMessage }),
+          { status: regErr.code === "23505" ? 400 : 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      registrationId = reg?.id ?? null;
     }
-
-    const registrationId = reg?.id;
 
     // If PayU not configured, return error in production
     if (!PAYU_KEY || !PAYU_SALT) {
@@ -127,31 +188,30 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Calculate amount — use plan price if provided, else fall back to site_settings
-    let basePrice: number;
-    let gstPercent: number;
-
-    // Read GST from plans_pricing (the key used by the admin CMS)
+    // Price is resolved server-side from site_settings; any client-sent amount
+    // is ignored so the browser can never choose what it pays.
     const { data: plansPricing } = await supabase
       .from("site_settings")
       .select("value")
       .eq("key", "plans_pricing")
       .single();
     const pv = (plansPricing?.value as Record<string, unknown>) || {};
-    gstPercent = Number(pv.gst_percent) || 18;
+    const gstPercent = Number(pv.gst_percent) || 18;
 
-    if (planBasePrice && typeof planBasePrice === "number" && planBasePrice > 0) {
-      basePrice = planBasePrice;
-    } else {
-      // Fallback: use launch price from plans_pricing or legacy pricing
-      basePrice = Number(pv.launch) || 24999;
-    }
+    const resolvedPlanKey = normalizePlanKey(planKey, planName);
+    const priceField = cycle === "monthly" ? `${resolvedPlanKey}_monthly` : resolvedPlanKey;
+    const fallbackPrices: Record<string, number> = {
+      launch: 19999, growth: 29999, authority: 39999,
+      launch_monthly: 2999, growth_monthly: 3999, authority_monthly: 4999,
+    };
+    const basePrice = Number(pv[priceField]) > 0 ? Number(pv[priceField]) : fallbackPrices[priceField];
 
     let total = basePrice * (1 + gstPercent / 100);
 
     let appliedCouponCode: string | null = null;
 
-    // Apply coupon
+    // Apply coupon discount. NOTE: times_used is only incremented in
+    // payu-callback after the payment is verified successful.
     if (couponCode && String(couponCode).trim()) {
       const code = String(couponCode).trim().toUpperCase();
       const { data: coupon, error: couponErr } = await supabase
@@ -166,10 +226,8 @@ Deno.serve(async (req) => {
         const validUntil = coupon.valid_until ? new Date(coupon.valid_until) : null;
         const underMaxUses = coupon.max_uses == null || coupon.times_used < coupon.max_uses;
 
-        // Derive planKey from planName (e.g. "Growth Plan" -> "growth")
-        const planKey = planName ? String(planName).replace(/\s*plan\s*/i, "").trim().toLowerCase() : null;
         const applicablePlans = (coupon as Record<string, unknown>).applicable_plans as string[] | null;
-        const planAllowed = !applicablePlans || !planKey || applicablePlans.includes(planKey);
+        const planAllowed = !applicablePlans || applicablePlans.includes(resolvedPlanKey);
 
         if ((!validUntil || validUntil >= now) && underMaxUses && planAllowed) {
           if (coupon.discount_type === "percentage") {
@@ -178,10 +236,6 @@ Deno.serve(async (req) => {
             total = Math.max(0, total - Number(coupon.discount_value));
           }
           appliedCouponCode = coupon.code;
-          await supabase
-            .from("coupons")
-            .update({ times_used: coupon.times_used + 1, updated_at: new Date().toISOString() })
-            .eq("id", coupon.id);
         }
       }
     }
@@ -202,7 +256,7 @@ Deno.serve(async (req) => {
       amount,
       productinfo,
       firstname,
-      email: String(email).trim(),
+      email: trimmedEmail,
       phone: (phone || "").replace(/\D/g, "").slice(-10),
       surl,
       furl,
@@ -210,7 +264,7 @@ Deno.serve(async (req) => {
       udf2: fullName || "",
       udf3: registrationId || "",
       udf4: appliedCouponCode || "",
-      udf5: FRONTEND_URL, // store frontend URL for redirect
+      udf5: FRONTEND_URL, // store frontend URL for redirect (whitelisted above)
     };
 
     const hash = await generatePayUHash(params, PAYU_SALT);
