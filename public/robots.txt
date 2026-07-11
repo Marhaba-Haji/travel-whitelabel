@@ -91,3 +91,6 @@ Disallow: /account-pending
 Disallow: /itinerary/
 
 Sitemap: https://marhabadmc.com/sitemap.xml
+# Dynamic sitemap including all published blog posts (cross-host reference is
+# valid for Google/Bing when declared in robots.txt)
+Sitemap: https://kofijegdzeshitunwddn.supabase.co/functions/v1/sitemap

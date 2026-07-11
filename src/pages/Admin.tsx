@@ -1,56 +1,42 @@
-import { useState } from "react";
+import { lazy, Suspense, useState, type ComponentType } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import AdminLayout from "@/components/admin/AdminLayout";
 import OverviewTab from "@/components/admin/OverviewTab";
-import AnalyticsTab from "@/components/admin/AnalyticsTab";
-import ContactEnquiriesTab from "@/components/admin/ContactEnquiriesTab";
-import VoiceAILeadsTab from "@/components/admin/VoiceAILeadsTab";
-import SavedItinerariesTab from "@/components/admin/SavedItinerariesTab";
-import NewsletterTab from "@/components/admin/NewsletterTab";
-import RegistrationsTab from "@/components/admin/RegistrationsTab";
-import PaymentsTab from "@/components/admin/PaymentsTab";
-import PricingTab from "@/components/admin/PricingTab";
-import CouponsTab from "@/components/admin/CouponsTab";
-import AIAgentConfigTab from "@/components/admin/AIAgentConfigTab";
-import SiteSettingsTab from "@/components/admin/SiteSettingsTab";
-import BlogTab from "@/components/admin/BlogTab";
-import IndexingLogsTab from "@/components/admin/IndexingLogsTab";
-import UserManagementTab from "@/components/admin/UserManagementTab";
-import PartnersTab from "@/components/admin/PartnersTab";
-import TestimonialsTab from "@/components/admin/TestimonialsTab";
-import HeroContentTab from "@/components/admin/HeroContentTab";
-import HeroImagesTab from "@/components/admin/HeroImagesTab";
-import HomeFaqsTab from "@/components/admin/HomeFaqsTab";
-import DemoBookingsTab from "@/components/admin/DemoBookingsTab";
-import MasterclassTab from "@/components/admin/MasterclassTab";
-import ScriptsTab from "@/components/admin/ScriptsTab";
 import SEOHead from "@/components/seo/SEOHead";
 
-const tabComponents: Record<string, React.FC> = {
+// Only the default Overview tab loads eagerly. Every other tab (including the
+// recharts-heavy Analytics tab) is code-split so the admin shell stays small.
+const tabComponents: Record<string, ComponentType> = {
   overview: OverviewTab,
-  analytics: AnalyticsTab,
-  enquiries: ContactEnquiriesTab,
-  "voice-ai-leads": VoiceAILeadsTab,
-  itineraries: SavedItinerariesTab,
-  newsletter: NewsletterTab,
-  registrations: RegistrationsTab,
-  payments: PaymentsTab,
-  pricing: PricingTab,
-  coupons: CouponsTab,
-  blog: BlogTab,
-  "ai-agent": AIAgentConfigTab,
-  "indexing-logs": IndexingLogsTab,
-  "hero-content": HeroContentTab,
-  "hero-images": HeroImagesTab,
-  faqs: HomeFaqsTab,
-  settings: SiteSettingsTab,
-  partners: PartnersTab,
-  testimonials: TestimonialsTab,
-  "user-management": UserManagementTab,
-  "demo-bookings": DemoBookingsTab,
-  masterclass: MasterclassTab,
-  scripts: ScriptsTab,
+  analytics: lazy(() => import("@/components/admin/AnalyticsTab")),
+  enquiries: lazy(() => import("@/components/admin/ContactEnquiriesTab")),
+  "voice-ai-leads": lazy(() => import("@/components/admin/VoiceAILeadsTab")),
+  itineraries: lazy(() => import("@/components/admin/SavedItinerariesTab")),
+  newsletter: lazy(() => import("@/components/admin/NewsletterTab")),
+  registrations: lazy(() => import("@/components/admin/RegistrationsTab")),
+  payments: lazy(() => import("@/components/admin/PaymentsTab")),
+  pricing: lazy(() => import("@/components/admin/PricingTab")),
+  coupons: lazy(() => import("@/components/admin/CouponsTab")),
+  blog: lazy(() => import("@/components/admin/BlogTab")),
+  "ai-agent": lazy(() => import("@/components/admin/AIAgentConfigTab")),
+  "indexing-logs": lazy(() => import("@/components/admin/IndexingLogsTab")),
+  "hero-content": lazy(() => import("@/components/admin/HeroContentTab")),
+  "hero-images": lazy(() => import("@/components/admin/HeroImagesTab")),
+  faqs: lazy(() => import("@/components/admin/HomeFaqsTab")),
+  settings: lazy(() => import("@/components/admin/SiteSettingsTab")),
+  partners: lazy(() => import("@/components/admin/PartnersTab")),
+  testimonials: lazy(() => import("@/components/admin/TestimonialsTab")),
+  "user-management": lazy(() => import("@/components/admin/UserManagementTab")),
+  "demo-bookings": lazy(() => import("@/components/admin/DemoBookingsTab")),
+  masterclass: lazy(() => import("@/components/admin/MasterclassTab")),
+  scripts: lazy(() => import("@/components/admin/ScriptsTab")),
 };
+
+const TabFallback = () => (
+  <div className="flex items-center justify-center h-64 text-muted-foreground">
+    Loading…
+  </div>
+);
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -77,7 +63,9 @@ const Admin = () => {
         path="/admin"
         noIndex
       />
-      <TabComponent />
+      <Suspense fallback={<TabFallback />}>
+        <TabComponent />
+      </Suspense>
     </AdminLayout>
   );
 };

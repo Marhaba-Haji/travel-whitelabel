@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-import Flag from "react-world-flags";
+import Flag from "@/components/CountryFlag";
 import SEOHead from "@/components/seo/SEOHead";
 import { breadcrumbSchema, SITE_URL } from "@/lib/seo-schemas";
 

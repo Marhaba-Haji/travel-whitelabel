@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import Flag from "react-world-flags";
+import Flag from "@/components/CountryFlag";
 import { getCountryCode } from "@/lib/destinations-data";
 import { Destination } from "@/lib/destinations-data";
 

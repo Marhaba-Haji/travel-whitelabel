@@ -77,7 +77,7 @@ const Inspiration = () => {
   };
 
   const getAvatarUrl = (post: InspirationPost) => {
-    return "/assets/marhaba-dmc-logo.png";
+    return "/assets/logo.webp";
   };
 
   const getImageUrl = (post: InspirationPost) => {

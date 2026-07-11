@@ -7,7 +7,7 @@ export const SITE_URL = "https://marhabadmc.com";
 export const SITE_NAME = "Marhaba DMC";
 export const ORG_LEGAL_NAME = "marhabaDMC";
 export const DEFAULT_OG_IMAGE =
-  "https://res.cloudinary.com/doxoxzz02/image/upload/v1771003247/Global_Halal_Destination_Management_Company_ydzhvo.jpg";
+  `${SITE_URL}/assets/marhaba-social-share.webp`;
 
 export const SOCIAL_PROFILES = [
   "https://www.linkedin.com/company/marhabadmc",

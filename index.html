@@ -1,42 +1,37 @@
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>marhabaDMC — White Label Travel Portal for Agents</title>
+    <meta name="description" content="White label travel portal for agents and entrepreneurs. Flight, hotel and visa APIs plus AI sales tools. Launch in 24 hours.">
+    <meta name="author" content="marhabaDMC" />
+
     <link rel="icon" type="image/png" href="/favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://kofijegdzeshitunwddn.supabase.co" />
     <link rel="preload" as="image" href="/assets/hero_woman_tickets.webp" fetchpriority="high" />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700;800;900&family=Sora:wght@400;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700;800;900&family=Sora:wght@400;600;700&display=swap"
       rel="stylesheet"
       media="print"
       onload="this.media='all'"
     />
     <noscript>
       <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700;800;900&family=Sora:wght@400;600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700;800;900&family=Sora:wght@400;600;700&display=swap"
         rel="stylesheet"
       />
     </noscript>
     <meta name="facebook-domain-verification" content="c6ucl7sgdghnb3ur86rr954v3a5w8o" />
     <meta name="google-site-verification" content="0yCWhSWgSTmwleVdLVVdSCI3z3ZhxaqwhwK1KvcMAqw" />
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
-    <title>marhabaDMC — White Label Travel Portal for Agents</title>
-    <meta name="description" content="White label travel portal for agents and entrepreneurs. Flight, hotel and visa APIs plus AI sales tools. Launch in 24 hours.">
-    <meta name="author" content="marhabaDMC" />
-    <meta
-      name="keywords"
-      content="travel agents, travel agency business, work from home travel, white label travel portal, travel entrepreneur, travel business startup, B2B travel, travel agent training, halal tourism"
-    />
 
-    
-    
     <meta property="og:type" content="website" />
     <meta property="og:title" content="marhabaDMC — White Label Travel Portal for Agents" />
     <meta property="og:description" content="White label travel portal for agents and entrepreneurs. Flight, hotel and visa APIs plus AI sales tools. Launch in 24 hours." />
-    <meta property="og:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/kaGjaO2cEJTu1icx1bt9c3YRZnz2/social-images/social-1778154524847-marhaba_dmc_social_share.webp">
+    <meta property="og:image" content="https://marhabadmc.com/assets/marhaba-social-share.webp">
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:site_name" content="marhabaDMC" />
@@ -46,7 +41,7 @@
     <meta name="twitter:site" content="@marhabaDMC" />
     <meta name="twitter:title" content="marhabaDMC — White Label Travel Portal for Agents" />
     <meta name="twitter:description" content="White label travel portal for agents and entrepreneurs. Flight, hotel and visa APIs plus AI sales tools. Launch in 24 hours." />
-    <meta name="twitter:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/kaGjaO2cEJTu1icx1bt9c3YRZnz2/social-images/social-1778154524847-marhaba_dmc_social_share.webp">
+    <meta name="twitter:image" content="https://marhabadmc.com/assets/marhaba-social-share.webp">
     <meta name="twitter:image:alt" content="marhabaDMC - White Label Travel Portal for Travel Agents & Entrepreneurs" />
 
     <script type="application/ld+json">
@@ -57,7 +52,7 @@
         "description": "Start your own travel business from home. White label travel portal for agents and entrepreneurs with training and support.",
         "url": "https://marhabadmc.com",
         "logo": "https://marhabadmc.com/assets/marhaba-dmc-logo.png",
-        "image": "https://res.cloudinary.com/doxoxzz02/image/upload/v1771003247/Global_Halal_Destination_Management_Company_ydzhvo.jpg",
+        "image": "https://marhabadmc.com/assets/marhaba-social-share.webp",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "Paramount Avenue, 63/1, 3rd floor, mosque road cross, frazer town",
@@ -72,12 +67,12 @@
 </head>
 
   <body>
-    <!-- Inline critical CSS for instant FCP before main stylesheet loads -->
+    <!-- Inline critical CSS for instant FCP before main stylesheet loads.
+         Must match the default (light) theme to avoid a dark flash. -->
     <style>
-      :root{color-scheme:dark}
-      body{margin:0;font-family:Inter,system-ui,-apple-system,sans-serif;background:#0a0b14;color:#e2e8f0}
+      :root{color-scheme:light}
+      body{margin:0;font-family:Inter,system-ui,-apple-system,sans-serif;background:#fcfbf9;color:#1e293b}
       #root{min-height:100vh}
-      .dark{--background:230 25% 5%;--foreground:210 40% 90%}
     </style>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>

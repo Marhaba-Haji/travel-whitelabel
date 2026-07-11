@@ -8,6 +8,7 @@ interface SEOHeadProps {
   image?: string;
   type?: "website" | "article" | "product";
   noIndex?: boolean;
+  /** @deprecated meta keywords are ignored by search engines; accepted for compatibility, no longer rendered */
   keywords?: string[];
   jsonLd?: Record<string, any> | Record<string, any>[];
   publishedTime?: string;
@@ -25,7 +26,6 @@ const SEOHead = ({
   image = DEFAULT_OG_IMAGE,
   type = "website",
   noIndex = false,
-  keywords,
   jsonLd,
   publishedTime,
   modifiedTime,
@@ -39,9 +39,6 @@ const SEOHead = ({
     <Helmet prioritizeSeoTags>
       <title>{fullTitle}</title>
       <meta name="description" content={description} />
-      {keywords && keywords.length > 0 && (
-        <meta name="keywords" content={keywords.join(", ")} />
-      )}
       <link rel="canonical" href={url} />
       {noIndex && <meta name="robots" content="noindex, nofollow" />}
 
@@ -68,11 +65,6 @@ const SEOHead = ({
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={image} />
-
-      {/* Hreflang */}
-      <link rel="alternate" hrefLang="en" href={url} />
-      <link rel="alternate" hrefLang="en-IN" href={url} />
-      <link rel="alternate" hrefLang="x-default" href={url} />
 
       {/* JSON-LD */}
       {schemas.map((schema, i) => (

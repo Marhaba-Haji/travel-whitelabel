@@ -15,6 +15,7 @@ import {
 } from "@/lib/seo-schemas";
 import { useContactSettings } from "@/hooks/useContactSettings";
 import { useHomeFaqs } from "@/hooks/useHomeFaqs";
+import { usePlans } from "@/hooks/usePlans";
 import { DEFAULT_HOME_FAQS } from "@/lib/home-faqs";
 
 // Above-the-fold: load eagerly
@@ -51,6 +52,7 @@ const Index = () => {
   const location = useLocation();
   const { email, phone, whatsapp, address } = useContactSettings();
   const { faqs: dbFaqs } = useHomeFaqs();
+  const { pricing, priceWithGst } = usePlans();
 
   useEffect(() => {
     if (location.hash) {
@@ -74,10 +76,7 @@ const Index = () => {
   // Warm up the most common next-route chunks during browser idle time
   // so navigation to /about, /blog, /categories-destinations feels instant.
   useEffect(() => {
-    // Note: /categories-destinations is intentionally excluded — its chunk
-    // is very large (bundles country flag SVGs) and prefetching it tanks
-    // homepage TTI on slower devices. It will load on demand on click.
-    prefetchIdleRoutes(["/about", "/blog", "/book-demo", "/contact", "/signup", "/login"]);
+    prefetchIdleRoutes(["/about", "/blog", "/book-demo", "/contact", "/signup", "/login", "/categories-destinations"]);
   }, []);
 
   const homepageFaqs =
@@ -93,9 +92,11 @@ const Index = () => {
     speakableSchema(["h1", "#faq h3", "#faq [data-radix-collection-item]"]),
     serviceSchema("White Label Travel Portal", "Branded travel booking portal with Flight, Hotel, Visa, and Activities APIs.", `${SITE_URL}/#features`),
     serviceSchema("AI Sales Assistant", "Multilingual chatbot and voicebot that converts visitors 24/7."),
-    productOfferSchema("Launch Plan", "Annual white-label travel portal subscription — Launch tier.", "24999"),
-    productOfferSchema("Growth Plan", "Annual white-label travel portal subscription — Growth tier (most popular).", "29999"),
-    productOfferSchema("Authority Plan", "Annual white-label travel portal subscription — Authority tier.", "34999"),
+    // Prices come from the same DB-driven pricing the Pricing section renders,
+    // so the structured data can never drift from what users actually see.
+    productOfferSchema("Launch Plan", "Annual white-label travel portal subscription — Launch tier.", String(priceWithGst(pricing.launch))),
+    productOfferSchema("Growth Plan", "Annual white-label travel portal subscription — Growth tier (most popular).", String(priceWithGst(pricing.growth))),
+    productOfferSchema("Authority Plan", "Annual white-label travel portal subscription — Authority tier.", String(priceWithGst(pricing.authority))),
   ];
 
   return (
