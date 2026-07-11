@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import SEOHead from "@/components/seo/SEOHead";
 import { prefetchIdleRoutes } from "@/lib/route-prefetch";
+import { scrollToHomeSection } from "@/lib/scroll-to-section";
 import {
   organizationSchema,
   websiteSchema,
@@ -54,24 +55,13 @@ const Index = () => {
   const { faqs: dbFaqs } = useHomeFaqs();
   const { pricing, priceWithGst } = usePlans();
 
+  // location.key re-triggers the scroll when the user clicks the same header
+  // link again (hash string alone wouldn't change).
   useEffect(() => {
     if (location.hash) {
-      // Lazy-loaded sections (e.g. #contact in Footer) may not be in the DOM
-      // yet, so we poll briefly until the element appears.
-      let attempts = 0;
-      const maxAttempts = 20;
-      const interval = setInterval(() => {
-        const element = document.querySelector(location.hash);
-        if (element) {
-          clearInterval(interval);
-          element.scrollIntoView({ behavior: "smooth" });
-        } else if (++attempts >= maxAttempts) {
-          clearInterval(interval);
-        }
-      }, 100);
-      return () => clearInterval(interval);
+      scrollToHomeSection(location.hash);
     }
-  }, [location.hash]);
+  }, [location.hash, location.key]);
 
   // Warm up the most common next-route chunks during browser idle time
   // so navigation to /about, /blog, /categories-destinations feels instant.

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import AuroraLogo from "@/components/AuroraLogo";
 import { prefetchRoute } from "@/lib/route-prefetch";
+import { scrollToHomeSection } from "@/lib/scroll-to-section";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -32,31 +33,10 @@ const Header = () => {
 
   const scrollToSection = (href: string) => {
     if (location.pathname !== "/") {
+      // Index's hash effect runs scrollToHomeSection once the page mounts
       navigate(`/${href}`);
     } else {
-      const sectionId = href.replace(/^#/, "");
-      const direct = document.querySelector(href);
-      if (direct) {
-        direct.scrollIntoView({ behavior: "smooth" });
-      } else {
-        // Section is still inside a LazyOnVisible placeholder. Jump to the
-        // placeholder first so the IntersectionObserver mounts it, then
-        // poll for the real element and smooth-scroll to it.
-        const placeholder = document.querySelector(
-          `[data-lazy-section="${sectionId}"]`,
-        );
-        placeholder?.scrollIntoView({ behavior: "instant" as ScrollBehavior });
-        let attempts = 0;
-        const interval = setInterval(() => {
-          const el = document.querySelector(href);
-          if (el) {
-            clearInterval(interval);
-            el.scrollIntoView({ behavior: "smooth" });
-          } else if (++attempts >= 30) {
-            clearInterval(interval);
-          }
-        }, 100);
-      }
+      scrollToHomeSection(href);
     }
     setIsMenuOpen(false);
   };

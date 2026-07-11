@@ -2,6 +2,7 @@ import { MapPin, Clock, Mail, Phone, Instagram, Facebook, Twitter, Linkedin, Mai
 import { useState } from "react";
 import { useSocialSettings } from "@/hooks/useSocialSettings";
 import { useContactSettings } from "@/hooks/useContactSettings";
+import { scrollToHomeSection } from "@/lib/scroll-to-section";
 
 const Footer = () => {
   const [newsletterEmail, setNewsletterEmail] = useState("");
@@ -55,10 +56,10 @@ const Footer = () => {
             <h4 className="font-bold text-gray-900 text-lg mb-6">Quick Links</h4>
             <div className="grid grid-cols-2 gap-y-4 gap-x-8">
               <a href="/about" className="text-gray-500 hover:text-gray-900 transition-colors text-sm">About</a>
-              <a href="#pricing" className="text-gray-500 hover:text-gray-900 transition-colors text-sm">Pricing</a>
+              <a href="#pricing" onClick={(e) => { e.preventDefault(); scrollToHomeSection("pricing"); }} className="text-gray-500 hover:text-gray-900 transition-colors text-sm">Pricing</a>
               <a href="/umrah-visa-check" className="text-gray-500 hover:text-gray-900 transition-colors text-sm">Umrah Visa Check</a>
-              <a href="#faq" className="text-gray-500 hover:text-gray-900 transition-colors text-sm">FAQ</a>
-              <a href="#features" className="text-gray-500 hover:text-gray-900 transition-colors text-sm">Features</a>
+              <a href="#faq" onClick={(e) => { e.preventDefault(); scrollToHomeSection("faq"); }} className="text-gray-500 hover:text-gray-900 transition-colors text-sm">FAQ</a>
+              <a href="#features" onClick={(e) => { e.preventDefault(); scrollToHomeSection("features"); }} className="text-gray-500 hover:text-gray-900 transition-colors text-sm">Features</a>
             </div>
           </div>
 

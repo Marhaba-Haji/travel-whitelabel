@@ -124,6 +124,13 @@
     @apply overflow-x-hidden;
   }
 
+  /* Native hash jumps (e.g. loading /#pricing directly) must not land the
+     section underneath the fixed 80px header */
+  section[id],
+  footer[id] {
+    scroll-margin-top: 96px;
+  }
+
   body {
     @apply bg-background text-foreground font-sans;
   }
