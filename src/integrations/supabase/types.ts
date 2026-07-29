@@ -1264,6 +1264,10 @@ export type Database = {
         Returns: boolean
       }
       increment_blog_views: { Args: { _slug: string }; Returns: undefined }
+      increment_coupon_use: {
+        Args: { coupon_code: string }
+        Returns: undefined
+      }
       increment_lead_magnet_downloads: {
         Args: { _magnet_id: string }
         Returns: undefined
