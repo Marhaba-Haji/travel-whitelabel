@@ -12,8 +12,10 @@ import {
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useContactSettings } from "@/hooks/useContactSettings";
 import { usePlans, BillingCycle } from "@/hooks/usePlans";
+import { PLAN_META, ADDONS, authorityBundleSavings, bundleComparisonTotal } from "@/lib/pricing";
 import { useState } from "react";
 import BillingCycleToggle from "./BillingCycleToggle";
+import BrandSetupPack from "./BrandSetupPack";
 
 const coreInfrastructure = [
   "Flight API",
@@ -58,6 +60,7 @@ type FeatureGroup = {
 
 type PlanCardProps = {
   title: string;
+  subheadline?: string;
   price: string;
   cycle: BillingCycle;
   gstPercent: number;
@@ -70,6 +73,15 @@ type PlanCardProps = {
   highlight?: boolean;
   accentClassName?: string;
   detailsLabel: string;
+  /** Override the /month or /year cycle suffix (e.g. "/year" even when in monthly view for annual-only plans). */
+  cycleSuffixOverride?: string;
+  /** Override the sub-price caption (e.g. "Billed annually + 18% GST"). */
+  captionOverride?: string;
+  /** Optional highlighted mini-block rendered above the CTA (e.g. bundle savings). */
+  valueBadge?: React.ReactNode;
+  /** Called by the CTA instead of navigating (used by "Switch to annual"). */
+  onCta?: () => void;
+  ctaLabel?: string;
 };
 
 const SummaryList = ({ items }: { items: string[] }) => (
@@ -117,6 +129,7 @@ const FeatureDisclosure = ({ groups, label }: { groups: FeatureGroup[]; label: s
 
 const PlanCard = ({
   title,
+  subheadline,
   price,
   cycle,
   gstPercent,
@@ -129,6 +142,11 @@ const PlanCard = ({
   highlight = false,
   accentClassName = "",
   detailsLabel,
+  cycleSuffixOverride,
+  captionOverride,
+  valueBadge,
+  onCta,
+  ctaLabel = "Get Started",
 }: PlanCardProps) => (
   <div
     className={`group relative overflow-hidden rounded-3xl bg-white border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] p-6 md:p-7 flex flex-col h-full transition-all duration-300 motion-safe:hover:-translate-y-1 ${highlight ? "ring-1 ring-[#412A86]/10" : ""}`}
@@ -138,6 +156,9 @@ const PlanCard = ({
         <p className={`text-xs font-bold uppercase tracking-[0.2em] ${titleClassName}`}>{title}</p>
         {badge}
       </div>
+      {subheadline && (
+        <p className="text-xs text-gray-600 mb-3 leading-snug">{subheadline}</p>
+      )}
       <div className="flex items-baseline gap-1 mb-1">
         <span
           key={`${price}-${cycle}`}
@@ -146,29 +167,36 @@ const PlanCard = ({
           {price}
         </span>
         <span className="text-sm font-medium text-gray-500">
-          {cycle === "monthly" ? "/month" : "/year"}
+          {cycleSuffixOverride ?? (cycle === "monthly" ? "/month" : "/year")}
         </span>
       </div>
       <p className="text-xs text-gray-500">
-        {cycle === "monthly" ? "billed monthly" : "billed annually"} + {gstPercent}% GST
+        {captionOverride ?? `${cycle === "monthly" ? "billed monthly" : "billed annually"} + ${gstPercent}% GST`}
       </p>
     </div>
 
     <div className="border-t border-gray-100 pt-4 flex-1">
       <SummaryList items={summary} />
+      {valueBadge}
       <FeatureDisclosure groups={detailGroups} label={detailsLabel} />
     </div>
 
-    <Button variant={highlight ? "default" : "outline"} className={ctaClassName} asChild>
-      <Link to={ctaHref}>Get Started</Link>
-    </Button>
+    {onCta ? (
+      <Button variant={highlight ? "default" : "outline"} className={ctaClassName} onClick={onCta}>
+        {ctaLabel}
+      </Button>
+    ) : (
+      <Button variant={highlight ? "default" : "outline"} className={ctaClassName} asChild>
+        <Link to={ctaHref}>{ctaLabel}</Link>
+      </Button>
+    )}
   </div>
 );
 
 const Pricing = () => {
   const { ref, isVisible } = useScrollAnimation();
   const { whatsappUrl } = useContactSettings();
-  const { pricing, gstPercent, symbol, priceFor, annualSavingsPercent } = usePlans();
+  const { pricing, gstPercent, symbol, priceFor, annualSavingsPercent, isPlanCycleUnavailable } = usePlans();
   const [cycle, setCycle] = useState<BillingCycle>("annual");
 
   const fmt = (base: number) => `${symbol}${base.toLocaleString("en-IN")}`;
@@ -179,7 +207,11 @@ const Pricing = () => {
 
   const launchPrice = priceFor("launch", cycle);
   const growthPrice = priceFor("growth", cycle);
-  const authorityPrice = priceFor("authority", cycle);
+  // Authority is annual-only — even in monthly view we show the annual price.
+  const authorityPrice = priceFor("authority", "annual");
+  const authorityIsMonthlyView = isPlanCycleUnavailable("authority", cycle);
+  const bundleSavings = authorityBundleSavings(pricing);
+  const bundleTotal = bundleComparisonTotal(pricing);
   const cycleQuery = cycle === "monthly" ? "&cycle=monthly" : "";
 
   return (
@@ -219,6 +251,7 @@ const Pricing = () => {
             {/* Launch Plan */}
             <PlanCard
               title="Launch Plan"
+              subheadline={PLAN_META.launch.subheadline}
               price={fmt(launchPrice)}
               cycle={cycle}
               gstPercent={gstPercent}
@@ -248,6 +281,7 @@ const Pricing = () => {
 
               <PlanCard
                 title="Growth Plan"
+                subheadline={PLAN_META.growth.subheadline}
                 price={fmt(growthPrice)}
                 cycle={cycle}
                 gstPercent={gstPercent}
@@ -278,9 +312,14 @@ const Pricing = () => {
             {/* Authority Plan */}
             <PlanCard
               title="Authority Plan"
+              subheadline={PLAN_META.authority.subheadline}
               price={fmt(authorityPrice)}
               cycle={cycle}
               gstPercent={gstPercent}
+              cycleSuffixOverride="/year"
+              captionOverride={authorityIsMonthlyView
+                ? `Annual plan only · billed annually + ${gstPercent}% GST`
+                : `billed annually + ${gstPercent}% GST`}
               summary={[
                 "Everything in Growth with full brand setup",
                 "Google, social, and visual identity support",
@@ -302,17 +341,42 @@ const Pricing = () => {
                   emphasis: true,
                 },
               ]}
-              ctaHref={`/signup?plan=authority${cycleQuery}`}
+              ctaHref={`/signup?plan=authority&cycle=annual`}
               ctaClassName="w-full h-14 rounded-full border-cyan-100 bg-cyan-50 text-cyan-700 hover:bg-cyan-100 hover:border-cyan-200"
               titleClassName="text-gray-500"
               badge={
-                <Badge variant="secondary" className="text-[10px] bg-gray-100 text-gray-600 border-0 rounded-full px-2.5 py-0.5 shadow-none">
-                  Complete Brand Setup
-                </Badge>
+                authorityIsMonthlyView ? (
+                  <Badge variant="secondary" className="text-[10px] bg-amber-50 text-amber-700 border-0 rounded-full px-2.5 py-0.5 shadow-none">
+                    Annual plan only
+                  </Badge>
+                ) : (
+                  <Badge variant="secondary" className="text-[10px] bg-gray-100 text-gray-600 border-0 rounded-full px-2.5 py-0.5 shadow-none">
+                    Complete Brand Setup
+                  </Badge>
+                )
+              }
+              onCta={authorityIsMonthlyView ? () => setCycle("annual") : undefined}
+              ctaLabel={authorityIsMonthlyView ? "Switch to annual" : "Get Started"}
+              valueBadge={
+                !authorityIsMonthlyView && bundleSavings > 0 ? (
+                  <div className="mt-4 rounded-2xl bg-[#412A86]/5 border border-[#412A86]/15 p-3">
+                    <p className="text-xs font-bold text-[#412A86] uppercase tracking-wider mb-1">
+                      Includes Brand Setup Pack (worth {symbol}{ADDONS.brandSetupPack.price.toLocaleString("en-IN")})
+                    </p>
+                    <p className="text-xs text-gray-600 leading-snug">
+                      Growth + Brand Setup Pack bought separately would cost {symbol}{bundleTotal.toLocaleString("en-IN")}. You save {symbol}{bundleSavings.toLocaleString("en-IN")}.
+                    </p>
+                  </div>
+                ) : null
               }
               detailsLabel="See the full Authority scope"
             />
           </div>
+        </div>
+
+        {/* ── 3. Add-ons band ── */}
+        <div className={`opacity-0 ${isVisible ? "animate-fade-in" : ""}`} style={{ animationDelay: "0.25s" }}>
+          <BrandSetupPack />
         </div>
 
         {/* ── 4. Persuasion Blocks ── */}
@@ -339,7 +403,7 @@ const Pricing = () => {
                 <h4 className="font-semibold text-gray-900">Why Authority Plan Wins Long-Term</h4>
               </div>
               <p className="text-sm text-gray-500 leading-relaxed">
-                For another {symbol}{Math.max(0, authorityPrice - growthPrice).toLocaleString("en-IN")} ({cycle === "monthly" ? "per month" : "per year"}), you receive complete brand presence — logo, social media setup, and Google visibility structured from day one.
+                For another {symbol}{Math.max(0, authorityPrice - pricing.growth).toLocaleString("en-IN")}/year over Growth annual, you receive complete brand presence — logo, social media setup, and Google visibility structured from day one. Bought separately as the Brand Setup Pack it would cost {symbol}{ADDONS.brandSetupPack.price.toLocaleString("en-IN")}.
               </p>
             </div>
           </div>

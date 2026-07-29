@@ -81,6 +81,14 @@ function normalizePlanKey(planKey: unknown, planName: unknown): PlanKey {
   return "launch";
 }
 
+// Server-side add-on price allowlist. Source of truth mirrored from
+// src/lib/pricing.ts (ADDONS). Client-supplied prices are ignored so the
+// browser can never choose what it pays.
+const ADDON_PRICES: Record<string, { name: string; price: number }> = {
+  "brand-setup": { name: "Brand Setup Pack", price: 14999 },
+  "social-media-management": { name: "Social Media Management", price: 5000 },
+};
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -106,8 +114,15 @@ Deno.serve(async (req) => {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
     const body = await req.json();
-    const { fullName, email, phone, city, password, termsAccepted, couponCode, planName, planKey, billingCycle } = body;
-    const cycle: "monthly" | "annual" = billingCycle === "monthly" ? "monthly" : "annual";
+    const { fullName, email, phone, city, password, termsAccepted, couponCode, planName, planKey, billingCycle, addOns } = body;
+    const resolvedPlanKeyEarly = normalizePlanKey(planKey, planName);
+    // Authority is annual-only — force annual cycle regardless of client input.
+    const cycle: "monthly" | "annual" =
+      resolvedPlanKeyEarly === "authority"
+        ? "annual"
+        : billingCycle === "monthly"
+        ? "monthly"
+        : "annual";
     const cycleLabel = cycle === "monthly" ? "Monthly" : "Annual";
     const planLabel = planName ? `${String(planName).trim().slice(0, 80)} — ${cycleLabel}` : `Subscription — ${cycleLabel}`;
 
@@ -198,15 +213,30 @@ Deno.serve(async (req) => {
     const pv = (plansPricing?.value as Record<string, unknown>) || {};
     const gstPercent = Number(pv.gst_percent) || 18;
 
-    const resolvedPlanKey = normalizePlanKey(planKey, planName);
+    const resolvedPlanKey = resolvedPlanKeyEarly;
     const priceField = cycle === "monthly" ? `${resolvedPlanKey}_monthly` : resolvedPlanKey;
     const fallbackPrices: Record<string, number> = {
       launch: 19999, growth: 29999, authority: 39999,
-      launch_monthly: 2999, growth_monthly: 3999, authority_monthly: 4999,
+      launch_monthly: 2999, growth_monthly: 3999,
     };
     const basePrice = Number(pv[priceField]) > 0 ? Number(pv[priceField]) : fallbackPrices[priceField];
 
-    let total = basePrice * (1 + gstPercent / 100);
+    // Add-ons: validate every incoming id against the allowlist. Brand Setup
+    // Pack is bundled free with Authority annual, so charge ₹0 there.
+    let addOnsBase = 0;
+    const validatedAddOnLabels: string[] = [];
+    if (Array.isArray(addOns)) {
+      for (const raw of addOns) {
+        const id = String((raw && raw.id) || "").trim();
+        const entry = ADDON_PRICES[id];
+        if (!entry) continue;
+        const isFree = id === "brand-setup" && resolvedPlanKey === "authority" && cycle === "annual";
+        addOnsBase += isFree ? 0 : entry.price;
+        validatedAddOnLabels.push(isFree ? `${entry.name} (free)` : entry.name);
+      }
+    }
+
+    let total = (basePrice + addOnsBase) * (1 + gstPercent / 100);
 
     let appliedCouponCode: string | null = null;
 
@@ -242,9 +272,11 @@ Deno.serve(async (req) => {
 
     const amount = Math.max(0.01, total).toFixed(2);
     const txnid = `TXN${Date.now()}${Math.random().toString(36).slice(2, 8)}`;
-    const productinfo = planName
-      ? `MarhabaDMC ${planName} - ${cycleLabel} Subscription`
-      : `MarhabaDMC Travel Agency Platform - ${cycleLabel} Subscription`;
+    const addOnSuffix = validatedAddOnLabels.length > 0 ? ` + ${validatedAddOnLabels.join(", ")}` : "";
+    const productinfo = (planName
+      ? `MarhabaDMC ${planName} - ${cycleLabel} Subscription${addOnSuffix}`
+      : `MarhabaDMC Travel Agency Platform - ${cycleLabel} Subscription${addOnSuffix}`
+    ).slice(0, 100);
     const firstname = (fullName || "").split(" ")[0] || fullName;
 
     const surl = `${EDGE_BASE}/payu-callback`;

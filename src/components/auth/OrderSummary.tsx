@@ -14,6 +14,7 @@ interface OrderSummaryProps {
   symbol: string;
   billingCycle?: "monthly" | "annual";
   discount?: { type: string; value: number } | null;
+  addOns?: { id: string; name: string; price: number }[];
   onConfirm: () => void;
   onBack: () => void;
   isLoading: boolean;
@@ -31,12 +32,15 @@ const OrderSummary = ({
   symbol,
   billingCycle = "annual",
   discount,
+  addOns = [],
   onConfirm,
   onBack,
   isLoading,
 }: OrderSummaryProps) => {
-  const gstAmount = basePrice * (gstPercent / 100);
-  const subtotal = basePrice + gstAmount;
+  const addOnsBase = addOns.reduce((acc, a) => acc + (a.price || 0), 0);
+  const preTax = basePrice + addOnsBase;
+  const gstAmount = preTax * (gstPercent / 100);
+  const subtotal = preTax + gstAmount;
 
   let discountAmount = 0;
   if (discount) {
@@ -124,6 +128,17 @@ const OrderSummary = ({
             <span className="text-muted-foreground">Base Price ({selectedPlanName})</span>
             <span className="font-medium text-foreground">{formatAmount(basePrice)}</span>
           </div>
+          {addOns.map((a) => (
+            <div key={a.id} className="flex justify-between text-sm">
+              <span className="text-muted-foreground">
+                Add-on ({a.name})
+                {a.price === 0 && (
+                  <span className="ml-1 text-primary text-xs font-semibold">FREE</span>
+                )}
+              </span>
+              <span className="font-medium text-foreground">{formatAmount(a.price)}</span>
+            </div>
+          ))}
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">GST ({gstPercent}%)</span>
             <span className="font-medium text-foreground">{formatAmount(gstAmount)}</span>

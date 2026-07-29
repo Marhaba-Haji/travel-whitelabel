@@ -18,6 +18,7 @@ import { useContactSettings } from "@/hooks/useContactSettings";
 import { useHomeFaqs } from "@/hooks/useHomeFaqs";
 import { usePlans } from "@/hooks/usePlans";
 import { DEFAULT_HOME_FAQS } from "@/lib/home-faqs";
+import { ADDONS } from "@/lib/pricing";
 
 // Above-the-fold: load eagerly
 import Header from "@/components/landing/Header";
@@ -87,6 +88,7 @@ const Index = () => {
     productOfferSchema("Launch Plan", "Annual white-label travel portal subscription — Launch tier.", String(priceWithGst(pricing.launch))),
     productOfferSchema("Growth Plan", "Annual white-label travel portal subscription — Growth tier (most popular).", String(priceWithGst(pricing.growth))),
     productOfferSchema("Authority Plan", "Annual white-label travel portal subscription — Authority tier.", String(priceWithGst(pricing.authority))),
+    productOfferSchema("Brand Setup Pack", "One-time brand setup add-on: logo, Google Business Profile and 5 business social profiles with full credential handover.", String(Math.round(ADDONS.brandSetupPack.price * (1 + pricing.gst_percent / 100)))),
   ];
 
   return (

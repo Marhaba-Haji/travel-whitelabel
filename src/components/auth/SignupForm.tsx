@@ -76,6 +76,7 @@ interface SignupFormProps {
   gstPercent: number;
   symbol?: string;
   billingCycle?: "monthly" | "annual";
+  addOns?: { id: string; name: string; price: number }[];
 }
 
 type CouponValidation =
@@ -84,7 +85,7 @@ type CouponValidation =
   | { status: "valid"; discount_type: string; discount_value: number }
   | { status: "invalid"; error: string };
 
-const SignupForm = ({ selectedPlanName, planBasePrice, planKey, gstPercent, symbol = "₹", billingCycle = "annual" }: SignupFormProps) => {
+const SignupForm = ({ selectedPlanName, planBasePrice, planKey, gstPercent, symbol = "₹", billingCycle = "annual", addOns = [] }: SignupFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -92,7 +93,8 @@ const SignupForm = ({ selectedPlanName, planBasePrice, planKey, gstPercent, symb
   const [showSummary, setShowSummary] = useState(false);
   const [validatedData, setValidatedData] = useState<SignupFormValues | null>(null);
   const [registrationId, setRegistrationId] = useState<string | null>(null);
-  const subtotalForDiscount = planBasePrice * (1 + gstPercent / 100);
+  const addOnsBase = addOns.reduce((acc, a) => acc + (a.price || 0), 0);
+  const subtotalForDiscount = (planBasePrice + addOnsBase) * (1 + gstPercent / 100);
 
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
@@ -261,6 +263,7 @@ const SignupForm = ({ selectedPlanName, planBasePrice, planKey, gstPercent, symb
           planName: selectedPlanName,
           planKey: planKey,
           billingCycle: billingCycle,
+          addOns: addOns.map((a) => ({ id: a.id })),
         }),
       });
 
@@ -346,6 +349,7 @@ const SignupForm = ({ selectedPlanName, planBasePrice, planKey, gstPercent, symb
         gstPercent={gstPercent}
         symbol={symbol}
         billingCycle={billingCycle}
+        addOns={addOns}
         discount={
           couponValidation.status === "valid"
             ? { type: couponValidation.discount_type, value: couponValidation.discount_value }
