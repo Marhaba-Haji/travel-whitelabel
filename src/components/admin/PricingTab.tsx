@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
+import { PLAN_DEFAULTS } from "@/lib/pricing";
 
 interface PlanPricingData {
   launch: number;
@@ -15,21 +16,12 @@ interface PlanPricingData {
   authority: number;
   launch_monthly: number;
   growth_monthly: number;
-  authority_monthly: number;
+  authority_monthly?: number;
   gst_percent: number;
   currency: string;
 }
 
-const DEFAULTS: PlanPricingData = {
-  launch: 19999,
-  growth: 29999,
-  authority: 39999,
-  launch_monthly: 2999,
-  growth_monthly: 3999,
-  authority_monthly: 4999,
-  gst_percent: 18,
-  currency: "INR",
-};
+const DEFAULTS: PlanPricingData = PLAN_DEFAULTS;
 
 const PricingTab = () => {
   const queryClient = useQueryClient();
@@ -40,7 +32,6 @@ const PricingTab = () => {
   const [gstPercent, setGstPercent] = useState("");
   const [launchM, setLaunchM] = useState("");
   const [growthM, setGrowthM] = useState("");
-  const [authorityM, setAuthorityM] = useState("");
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-plans-pricing"],
@@ -63,7 +54,6 @@ const PricingTab = () => {
       setGstPercent(String(data.gst_percent));
       setLaunchM(String(data.launch_monthly));
       setGrowthM(String(data.growth_monthly));
-      setAuthorityM(String(data.authority_monthly));
     }
   }, [data]);
 
@@ -75,7 +65,6 @@ const PricingTab = () => {
         authority: Number(authority),
         launch_monthly: Number(launchM),
         growth_monthly: Number(growthM),
-        authority_monthly: Number(authorityM),
         gst_percent: Number(gstPercent),
         currency: data?.currency ?? "INR",
       };
@@ -110,7 +99,7 @@ const PricingTab = () => {
     {
       label: "Authority Plan",
       annual: Number(authority) || 0,
-      monthly: Number(authorityM) || 0,
+      monthly: null as number | null,
     },
   ];
 
@@ -174,7 +163,6 @@ const PricingTab = () => {
               {[
                 { label: "Launch", value: launchM, setter: setLaunchM },
                 { label: "Growth", value: growthM, setter: setGrowthM },
-                { label: "Authority", value: authorityM, setter: setAuthorityM },
               ].map(({ label, value, setter }) => (
                 <div key={label} className="space-y-2">
                   <Label>{label}</Label>
@@ -186,6 +174,12 @@ const PricingTab = () => {
                   />
                 </div>
               ))}
+              <div className="space-y-2 opacity-70">
+                <Label>Authority</Label>
+                <div className="h-10 rounded-md border border-input bg-muted/40 flex items-center px-3 text-xs text-muted-foreground">
+                  Annual only
+                </div>
+              </div>
             </div>
           </div>
 
@@ -208,10 +202,16 @@ const PricingTab = () => {
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{label}</p>
                 <div className="pt-1">
                   <p className="text-[11px] font-bold text-muted-foreground/80 uppercase tracking-wider">Monthly</p>
-                  <p className="text-sm text-muted-foreground">Base: ₹{monthly.toLocaleString("en-IN")}</p>
-                  <p className="text-sm font-semibold text-foreground">
-                    Total: ₹{Math.round(monthly * (1 + gst / 100)).toLocaleString("en-IN")}/mo
-                  </p>
+                  {monthly === null ? (
+                    <p className="text-sm text-muted-foreground italic">Annual plan only</p>
+                  ) : (
+                    <>
+                      <p className="text-sm text-muted-foreground">Base: ₹{monthly.toLocaleString("en-IN")}</p>
+                      <p className="text-sm font-semibold text-foreground">
+                        Total: ₹{Math.round(monthly * (1 + gst / 100)).toLocaleString("en-IN")}/mo
+                      </p>
+                    </>
+                  )}
                 </div>
                 <div className="pt-2 border-t border-border/60">
                   <p className="text-[11px] font-bold text-muted-foreground/80 uppercase tracking-wider">Annual</p>
