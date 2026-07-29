@@ -9,11 +9,13 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import BillingCycleToggle from "@/components/landing/BillingCycleToggle";
 import SEOHead from "@/components/seo/SEOHead";
+import { ADDONS } from "@/lib/pricing";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const Signup = () => {
   const { ref: formRef, isVisible: formVisible } = useScrollAnimation();
   const { ref: plansRef, isVisible: plansVisible } = useScrollAnimation();
-  const { plans, gstPercent, symbol, isLoading, priceFor, annualSavingsPercent } = usePlans();
+  const { plans, gstPercent, symbol, isLoading, priceFor, annualSavingsPercent, isPlanCycleUnavailable } = usePlans();
   const [searchParams] = useSearchParams();
 
   // Pre-select plan from ?plan= URL param, default growth
@@ -25,19 +27,49 @@ const Signup = () => {
   const [selectedPlanKey, setSelectedPlanKey] = useState<PlanKey>(initialKey);
 
   const paramCycle = searchParams.get("cycle");
-  const initialCycle: BillingCycle = paramCycle === "monthly" ? "monthly" : "annual";
+  // Coerce Authority to annual — Authority is annual-only.
+  const initialCycle: BillingCycle =
+    paramCycle === "monthly" && initialKey !== "authority" ? "monthly" : "annual";
   const [cycle, setCycle] = useState<BillingCycle>(initialCycle);
+
+  // Brand Setup Pack add-on. Pre-checked from ?addon=brand-setup, or forced
+  // on (and locked) when Authority annual is selected (included free there).
+  const paramAddon = searchParams.get("addon");
+  const [brandSetupSelected, setBrandSetupSelected] = useState<boolean>(
+    paramAddon === "brand-setup",
+  );
+  const brandSetupIncludedFree =
+    selectedPlanKey === "authority" && cycle === "annual";
 
   // Scroll to top when component mounts
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
   }, []);
 
+  // Keep the cycle valid whenever the user picks Authority.
+  useEffect(() => {
+    if (selectedPlanKey === "authority" && cycle === "monthly") {
+      setCycle("annual");
+    }
+  }, [selectedPlanKey, cycle]);
+
   const selectedPlan = plans.find((p) => p.key === selectedPlanKey) ?? plans[1];
   const selectedPrice = priceFor(selectedPlan.key, cycle);
   const cycleLabel = cycle === "monthly" ? "month" : "year";
   const growthSavings = annualSavingsPercent("growth");
   const savingsLabel = growthSavings > 0 ? `Save ${growthSavings}%` : null;
+
+  // Add-ons passed to the payment flow. Brand Setup Pack is free with
+  // Authority annual — it appears on the summary as a bonus (₹0 charge).
+  const addOns = brandSetupSelected || brandSetupIncludedFree
+    ? [
+        {
+          id: ADDONS.brandSetupPack.id,
+          name: ADDONS.brandSetupPack.name,
+          price: brandSetupIncludedFree ? 0 : ADDONS.brandSetupPack.price,
+        },
+      ]
+    : [];
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-x-hidden bg-white">
@@ -90,6 +122,7 @@ const Signup = () => {
                 billingCycle={cycle}
                 symbol={symbol}
                 gstPercent={gstPercent}
+                addOns={addOns}
               />
             </div>
           </div>
@@ -125,12 +158,19 @@ const Signup = () => {
               ) : (
                 plans.map((plan) => {
                   const isSelected = selectedPlanKey === plan.key;
-                  const planPrice = priceFor(plan.key, cycle);
+                  const cycleUnavailable = isPlanCycleUnavailable(plan.key, cycle);
+                  // Annual-only plans show their annual price even in monthly view.
+                  const displayCycle: BillingCycle = cycleUnavailable ? "annual" : cycle;
+                  const planPrice = priceFor(plan.key, displayCycle);
+                  const rowCycleLabel = displayCycle === "monthly" ? "month" : "year";
                   return (
                     <button
                       key={plan.key}
                       type="button"
-                      onClick={() => setSelectedPlanKey(plan.key)}
+                      onClick={() => {
+                        setSelectedPlanKey(plan.key);
+                        if (cycleUnavailable) setCycle("annual");
+                      }}
                       className={cn(
                         "w-full text-left rounded-3xl border-2 p-5 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#412A86]",
                         isSelected
@@ -159,13 +199,21 @@ const Signup = () => {
                                 {plan.badge}
                               </Badge>
                             )}
+                            {cycleUnavailable && (
+                              <Badge className="text-[10px] px-2 py-0.5 border-0 bg-amber-50 text-amber-700">
+                                Annual only
+                              </Badge>
+                            )}
                           </div>
+                          {plan.subheadline && (
+                            <p className="text-xs text-gray-500 mb-2 leading-snug">{plan.subheadline}</p>
+                          )}
 
                           <div className="flex items-baseline gap-1 mb-3">
                             <span className="font-poppins text-2xl font-bold text-gray-900">
                               {symbol}{planPrice.toLocaleString("en-IN")}
                             </span>
-                            <span className="text-xs text-gray-500">/ {cycleLabel} + {gstPercent}% GST</span>
+                            <span className="text-xs text-gray-500">/ {rowCycleLabel} + {gstPercent}% GST</span>
                           </div>
 
                           {plan.extras.length > 0 && (
@@ -177,12 +225,6 @@ const Signup = () => {
                                 </li>
                               ))}
                             </ul>
-                          )}
-
-                          {plan.key === "launch" && (
-                            <p className="text-xs text-gray-500">
-                              Core travel infrastructure — all 15 APIs and portals included.
-                            </p>
                           )}
                         </div>
 
@@ -202,6 +244,37 @@ const Signup = () => {
                   );
                 })
               )}
+
+              {/* ── Add-ons ── */}
+              <div className="rounded-2xl border border-[#412A86]/15 bg-gradient-to-br from-[#412A86]/[0.04] to-white p-4">
+                <p className="text-[11px] font-bold text-[#412A86] uppercase tracking-[0.2em] mb-3">Add-ons</p>
+                <label className={cn(
+                  "flex items-start gap-3 cursor-pointer",
+                  brandSetupIncludedFree && "cursor-default",
+                )}>
+                  <Checkbox
+                    checked={brandSetupSelected || brandSetupIncludedFree}
+                    disabled={brandSetupIncludedFree}
+                    onCheckedChange={(v) => setBrandSetupSelected(Boolean(v))}
+                    className="mt-0.5"
+                  />
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
+                      <span className="font-semibold text-sm text-gray-900">
+                        {ADDONS.brandSetupPack.name}
+                      </span>
+                      <span className="text-sm font-bold text-gray-900">
+                        {brandSetupIncludedFree
+                          ? "Included free"
+                          : `${symbol}${ADDONS.brandSetupPack.price.toLocaleString("en-IN")} one-time + ${gstPercent}% GST`}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1 leading-snug">
+                      Logo, Google Business Profile and 5 business social profiles — with full credential handover.
+                    </p>
+                  </div>
+                </label>
+              </div>
 
               {/* Shared infrastructure note */}
               <div className="bg-[#FAFAFC] border border-gray-100 rounded-2xl p-4 mt-2">
