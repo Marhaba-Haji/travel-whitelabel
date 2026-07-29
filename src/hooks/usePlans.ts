@@ -1,31 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { PLAN_DEFAULTS, PLAN_META, AUTHORITY_ANNUAL_ONLY, type PlanPricingData, type PlanKey as _PlanKey } from "@/lib/pricing";
 
 export const PLANS_QUERY_KEY = ["plans_pricing"];
 
 export type BillingCycle = "monthly" | "annual";
 
-export interface PlanPricingData {
-  launch: number;
-  growth: number;
-  authority: number;
-  launch_monthly: number;
-  growth_monthly: number;
-  authority_monthly: number;
-  gst_percent: number;
-  currency: string;
-}
-
-const DEFAULTS: PlanPricingData = {
-  launch: 19999,
-  growth: 29999,
-  authority: 39999,
-  launch_monthly: 2999,
-  growth_monthly: 3999,
-  authority_monthly: 4999,
-  gst_percent: 18,
-  currency: "INR",
-};
+export type { PlanPricingData };
+const DEFAULTS = PLAN_DEFAULTS;
 
 export const usePlans = () => {
   const { data, isLoading, error } = useQuery({
@@ -51,16 +33,25 @@ export const usePlans = () => {
 
   const priceFor = (key: PlanKey, cycle: BillingCycle): number => {
     if (cycle === "monthly") {
+      // Authority is annual-only; never expose a monthly price.
+      if (key === "authority" && AUTHORITY_ANNUAL_ONLY) return pricing.authority;
       if (key === "launch") return pricing.launch_monthly;
       if (key === "growth") return pricing.growth_monthly;
-      return pricing.authority_monthly;
+      return pricing.authority;
     }
     if (key === "launch") return pricing.launch;
     if (key === "growth") return pricing.growth;
     return pricing.authority;
   };
 
+  // Returns true when the requested (plan, cycle) pair is not offered
+  // (currently: Authority + monthly). Components should switch to the
+  // annual price + an "Annual only" state when this is true.
+  const isPlanCycleUnavailable = (key: PlanKey, cycle: BillingCycle): boolean =>
+    AUTHORITY_ANNUAL_ONLY && key === "authority" && cycle === "monthly";
+
   const annualSavingsPercent = (key: PlanKey): number => {
+    if (key === "authority" && AUTHORITY_ANNUAL_ONLY) return 0;
     const m = priceFor(key, "monthly") * 12;
     const a = priceFor(key, "annual");
     if (!m || !a || a >= m) return 0;
@@ -77,24 +68,27 @@ export const usePlans = () => {
     priceWithGst,
     formatted,
     priceFor,
+    isPlanCycleUnavailable,
     annualSavingsPercent,
     plans: [
       {
         key: "launch" as const,
-        name: "Launch Plan",
+        name: PLAN_META.launch.name,
+        subheadline: PLAN_META.launch.subheadline,
         basePrice: pricing.launch,
         monthlyPrice: pricing.launch_monthly,
-        badge: null as string | null,
-        highlight: false,
+        badge: PLAN_META.launch.badge,
+        highlight: PLAN_META.launch.highlight,
         extras: [] as string[],
       },
       {
         key: "growth" as const,
-        name: "Growth Plan",
+        name: PLAN_META.growth.name,
+        subheadline: PLAN_META.growth.subheadline,
         basePrice: pricing.growth,
         monthlyPrice: pricing.growth_monthly,
-        badge: "Most Popular",
-        highlight: true,
+        badge: PLAN_META.growth.badge,
+        highlight: PLAN_META.growth.highlight,
         extras: [
           "AI Sales Enquiry Handling Agent",
           "Supplier Portal",
@@ -104,11 +98,14 @@ export const usePlans = () => {
       },
       {
         key: "authority" as const,
-        name: "Authority Plan",
+        name: PLAN_META.authority.name,
+        subheadline: PLAN_META.authority.subheadline,
         basePrice: pricing.authority,
-        monthlyPrice: pricing.authority_monthly,
-        badge: "Complete Brand Setup",
-        highlight: false,
+        // Authority has no monthly price — annual-only product.
+        monthlyPrice: pricing.authority,
+        badge: PLAN_META.authority.badge,
+        highlight: PLAN_META.authority.highlight,
+        annualOnly: true as const,
         extras: [
           "Everything in Growth",
           "Google & LinkedIn Setup",
@@ -121,4 +118,4 @@ export const usePlans = () => {
   };
 };
 
-export type PlanKey = "launch" | "growth" | "authority";
+export type PlanKey = _PlanKey;
