@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet-async";
+import { trackLead } from "@/lib/meta-pixel";
 import { format } from "date-fns";
 import {
   CalendarDays,

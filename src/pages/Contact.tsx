@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { z } from "zod";
+import { trackLead } from "@/lib/meta-pixel";
 import {
   MapPin, Mail, Phone, MessageCircle, Send, Clock, Globe,
   Sparkles, CheckCircle2, Loader2, ArrowRight,
