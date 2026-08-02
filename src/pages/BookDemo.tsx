@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet-async";
+import { trackLead } from "@/lib/meta-pixel";
 import { format } from "date-fns";
 import {
   CalendarDays,
@@ -181,6 +182,7 @@ const BookDemo = () => {
         .catch((e) => console.error("demo-booking-confirm failed", e));
     }
     toast.success("Demo booked! We'll be in touch on WhatsApp shortly.");
+    trackLead("demo_booking", { content_category: "demo" });
     setStep(4);
   };
 

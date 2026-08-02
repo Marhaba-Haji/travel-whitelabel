@@ -1,5 +1,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { trackLead } from "@/lib/meta-pixel";
 import * as z from "zod";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -205,6 +206,8 @@ const SignupForm = ({ selectedPlanName, planBasePrice, planKey, gstPercent, symb
 
   const onSubmit = async (data: SignupFormValues) => {
     setValidatedData(data);
+    // "Review order" clicked with valid details — this is a lead.
+    trackLead("signup_review_order", { content_category: "signup" });
     // Persist the registration immediately (without the password) so we capture
     // the lead even if the user abandons before payment.
     try {

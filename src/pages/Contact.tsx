@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { z } from "zod";
+import { trackLead } from "@/lib/meta-pixel";
 import {
   MapPin, Mail, Phone, MessageCircle, Send, Clock, Globe,
   Sparkles, CheckCircle2, Loader2, ArrowRight,
@@ -86,6 +87,7 @@ const Contact = () => {
     });
     setSubmitting(false);
     if (error) { toast.error("Could not send your message. Please try again."); return; }
+    trackLead("contact_form", { content_category: "contact" });
     toast.success("Message sent! We'll get back to you shortly.");
     setSubmitted(true);
   };
