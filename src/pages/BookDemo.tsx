@@ -181,6 +181,7 @@ const BookDemo = () => {
         .catch((e) => console.error("demo-booking-confirm failed", e));
     }
     toast.success("Demo booked! We'll be in touch on WhatsApp shortly.");
+    trackLead("demo_booking", { content_category: "demo" });
     setStep(4);
   };
 

@@ -86,6 +86,7 @@ const Contact = () => {
     });
     setSubmitting(false);
     if (error) { toast.error("Could not send your message. Please try again."); return; }
+    trackLead("contact_form", { content_category: "contact" });
     toast.success("Message sent! We'll get back to you shortly.");
     setSubmitted(true);
   };
