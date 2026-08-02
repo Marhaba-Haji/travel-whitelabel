@@ -12,7 +12,11 @@ Goal: fire Meta's `Lead` event when a visitor completes any of the three actions
 
 Instead of pasting a raw `<script>fbq('track','Lead')</script>` tag into the HTML (which would fire on every page load, not on the action), the same call is triggered from the app code at the exact moment each action succeeds. This is the correct way to do it in a React site and gives accurate campaign attribution.
 
-The Meta Pixel base code already loads on the site through the Google Tag Manager container, so the `fbq` function is available globally. A tiny helper will:
+### Base code (from the Meta email)
+
+The email asks for the pixel base code (pixel ID **1349063087083648**) in the `<head>` of every page. That pixel is already loading through the Google Tag Manager container (live requests on the site carry `fb.pixel_id: 1349063087083648`), so the base code must **not** be pasted again — a second `fbq('init')` would double-count PageViews. The one missing piece from the email is the `<noscript>` fallback image, which will be added through the Scripts & Tracking admin section as a `body_start` snippet so non-JS visitors are still counted.
+
+Because the base code is already present, `fbq` is available globally. A tiny helper will fire the event code. It will:
 
 - check that `fbq` exists before calling it (no crash if the pixel is blocked or GTM is still loading),
 - fire `fbq('track', 'Lead', {...})` with a content name so the three sources are distinguishable in Meta (e.g. `contact_form`, `demo_booking`, `signup_review_order`),
@@ -23,7 +27,7 @@ The Meta Pixel base code already loads on the site through the Google Tag Manage
 
 New file: `src/lib/meta-pixel.ts`
 - exports `trackLead(source: string, params?)`
-- guards `typeof window !== "undefined" && typeof window.fbq === "function"`
+- guards `typeof window !== "undefined" && typeof window.fbq === "function"` (reuses the GTM-loaded pixel 1349063087083648, never calls `fbq('init')` again)
 - generates `eventID` via `crypto.randomUUID()`
 - pushes `{ event: "lead", lead_source, event_id }` to `window.dataLayer`
 
@@ -32,8 +36,14 @@ Call sites:
 - `src/pages/BookDemo.tsx` — after the `demo_bookings` insert succeeds and the flow advances to the confirmation step (step 4), fired once.
 - `src/components/auth/SignupForm.tsx` — at the start of a successful `onSubmit` (validation passed, "Review order" clicked).
 
+Admin (no code): add the `<noscript>` pixel fallback from the Meta email as a `body_start` entry in Scripts & Tracking.
+
 No changes to pricing, payment, or database logic. No new dependencies.
+
+## Pixel base code check
+
+Before wiring the events, confirm in the browser that exactly one `fbq` init exists for 1349063087083648 — GTM stays the single source. If a duplicate hardcoded base code turns up, it gets removed.
 
 ## Verification
 
-After the change, use Meta Pixel Helper (or Events Manager → Test Events) and run each of the three flows; each should produce exactly one `Lead` event with the matching `lead_source`.
+After the change, use Meta Pixel Helper (or Events Manager → Test Events) and run each of the three flows; each should produce exactly one `Lead` event on pixel 1349063087083648 with the matching `lead_source`.
