@@ -32,7 +32,7 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center relative overflow-x-hidden bg-white">
       <SEOHead
         title="Sign In"
-        description="Sign in to your marhabaDMC partner account to manage bookings, leads, and your white-label travel portal."
+        description="Sign in to your marhabaDMC partner account to manage bookings, leads, and start your travel business with a white-label portal, flight/hotel/visa APIs, AI sales assistant, training, and ongoing support."
         path="/login"
         noIndex
       />

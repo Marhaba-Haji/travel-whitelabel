@@ -103,7 +103,7 @@ const Contact = () => {
     <div className="min-h-screen bg-background">
       <SEOHead
         title="Contact Us"
-        description="Get in touch with Marhaba DMC. Call, email, WhatsApp, or visit our office. We're here to help you start and scale your halal travel business."
+        description="Get in touch with Marhaba DMC. Call, email, WhatsApp, or visit our office. Start your travel business with a white-label portal, flight/hotel/visa APIs, AI sales assistant, training, and ongoing support."
         path="/contact"
         jsonLd={breadcrumbSchema([
           { name: "Home", url: SITE_URL },

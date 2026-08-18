@@ -74,8 +74,8 @@ const Signup = () => {
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-x-hidden bg-white">
       <SEOHead
-        title="Sign Up — Launch Your Travel Business"
-        description="Create your marhabaDMC account and launch your white-label travel portal in 24 hours. Flight, hotel and visa APIs with AI sales tools."
+        title="Sign Up — Start Your Travel Business in 24 Hours"
+        description="Create your marhabaDMC account and start your travel business with a white-label portal, flight/hotel/visa APIs, AI sales assistant, training, and ongoing support."
         path="/signup"
         noIndex
       />

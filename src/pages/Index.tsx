@@ -94,8 +94,8 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="White Label Travel Portal for Agents"
-        description="Launch your white label travel portal in 24 hours. Flight, hotel and visa APIs, AI sales assistant, and Hajj/Umrah modules for agents."
+        title="Start Your Travel Business in 24 Hours"
+        description="Start your travel business with a white-label portal, flight/hotel/visa APIs, AI sales assistant, training, and ongoing support."
         path="/"
         keywords={["white label travel portal", "B2B travel platform", "travel agent software", "halal tourism", "Umrah portal", "AI travel assistant"]}
         jsonLd={jsonLd}
