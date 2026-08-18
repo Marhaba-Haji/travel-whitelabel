@@ -206,7 +206,7 @@ const CategoriesDestinations = () => {
     <div className="min-h-screen bg-white">
       <SEOHead
         title="Travel Categories & Destinations — Halal-Friendly Worldwide"
-        description="Explore curated halal-friendly destinations and travel categories — leisure, religious, adventure, and luxury — across 60+ countries with marhabaDMC."
+        description="Explore curated halal-friendly destinations and travel categories — leisure, religious, adventure, and luxury — across 60+ countries with marhabaDMC. Start your travel business with a white-label portal, flight/hotel/visa APIs, AI sales assistant, training, and ongoing support."
         path="/categories-destinations"
         keywords={["halal travel destinations", "travel categories", "halal tourism", "religious travel", "leisure destinations"]}
         jsonLd={[destinationsItemList, destinationsBreadcrumb]}

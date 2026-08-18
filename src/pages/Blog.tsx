@@ -158,7 +158,7 @@ const Blog = () => {
     <div className="min-h-screen bg-background">
       <SEOHead
         title="Travel Insights & Trends"
-        description="Expert insights on halal-friendly travel, destination guides, travel technology, and hospitality trends from Marhaba DMC."
+        description="Expert insights on halal-friendly travel, destination guides, travel technology, and hospitality trends from Marhaba DMC. Start your travel business with a white-label portal, flight/hotel/visa APIs, AI sales assistant, training, and ongoing support."
         path="/blog"
         jsonLd={breadcrumbSchema([
           { name: "Home", url: SITE_URL },

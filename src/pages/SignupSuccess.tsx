@@ -61,7 +61,7 @@ const SignupSuccess = () => {
     <div className="min-h-screen flex items-center justify-center relative overflow-x-hidden bg-background">
       <SEOHead
         title="Signup Successful"
-        description="Your marhabaDMC signup is complete. Check your email for next steps."
+        description="Your marhabaDMC signup is complete. Start your travel business with a white-label portal, flight/hotel/visa APIs, AI sales assistant, training, and ongoing support. Check your email for next steps."
         path="/signup-success"
         noIndex
       />

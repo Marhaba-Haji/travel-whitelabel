@@ -10,7 +10,7 @@ const PrivacyPolicy = () => {
     <div className="min-h-screen bg-background">
       <SEOHead
         title="Privacy Policy"
-        description="How Marhaba DMC collects, uses, and safeguards personal information across our white-label travel portal and related services."
+        description="How Marhaba DMC collects, uses, and safeguards personal information across our white-label travel portal and related services. Start your travel business with a white-label portal, flight/hotel/visa APIs, AI sales assistant, training, and ongoing support."
         path="/privacy-policy"
       />
       <Header />

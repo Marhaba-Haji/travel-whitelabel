@@ -31,7 +31,7 @@ const AccountPendingActivation = () => {
     <div className="min-h-screen flex items-center justify-center relative overflow-x-hidden bg-background">
       <SEOHead
         title="Account Pending Activation"
-        description="Your marhabaDMC account is being verified. Our Partner Success team will reach out shortly."
+        description="Your marhabaDMC account is being verified. Start your travel business with a white-label portal, flight/hotel/visa APIs, AI sales assistant, training, and ongoing support. Our Partner Success team will reach out shortly."
         path="/account-pending"
         noIndex
       />

@@ -10,7 +10,7 @@ const TermsOfService = () => {
     <div className="min-h-screen bg-background">
       <SEOHead
         title="Terms of Service"
-        description="The terms governing your use of the Marhaba DMC white-label travel portal, including accounts, subscriptions, acceptable use, and liability."
+        description="The terms governing your use of the Marhaba DMC white-label travel portal, including accounts, subscriptions, acceptable use, and liability. Start your travel business with a white-label portal, flight/hotel/visa APIs, AI sales assistant, training, and ongoing support."
         path="/terms-of-service"
       />
       <Header />
