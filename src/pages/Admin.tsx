@@ -25,6 +25,7 @@ const tabComponents: Record<string, ComponentType> = {
   "user-management": lazy(() => import("@/components/admin/UserManagementTab")),
   "demo-bookings": lazy(() => import("@/components/admin/DemoBookingsTab")),
   masterclass: lazy(() => import("@/components/admin/MasterclassTab")),
+  umrah: lazy(() => import("@/components/admin/UmrahLeadsTab")),
   scripts: lazy(() => import("@/components/admin/ScriptsTab")),
 };
 
