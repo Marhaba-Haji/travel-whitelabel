@@ -197,10 +197,10 @@ const BookDemo = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>Book a Free Demo | Marhaba DMC</title>
+        <title>Book a Free Demo | Marhaba DMC — Start Your Travel Business in 24 Hours</title>
         <meta
           name="description"
-          content="Book a free 30-minute live demo of the Marhaba DMC platform. Pick a date and time that works for you."
+          content="Book a free 30-minute live demo of the Marhaba DMC platform. Start your travel business with a white-label portal, flight/hotel/visa APIs, AI sales assistant, training, and ongoing support."
         />
         <link rel="canonical" href="https://marhabadmc.com/book-demo" />
       </Helmet>

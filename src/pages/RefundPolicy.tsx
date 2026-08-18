@@ -10,7 +10,7 @@ const RefundPolicy = () => {
     <div className="min-h-screen bg-background">
       <SEOHead
         title="Refund Policy"
-        description="Refund terms for Marhaba DMC subscriptions and services, including eligibility, processing timelines, and how to request a refund."
+        description="Refund terms for Marhaba DMC subscriptions and services, including eligibility, processing timelines, and how to request a refund. Start your travel business with a white-label portal, flight/hotel/visa APIs, AI sales assistant, training, and ongoing support."
         path="/refund-policy"
       />
       <Header />

@@ -13,7 +13,7 @@ const NotFound = () => {
     <div className="flex min-h-screen items-center justify-center bg-muted">
       <SEOHead
         title="Page Not Found (404)"
-        description="The page you're looking for doesn't exist. Return to marhabaDMC to explore our white-label travel portal."
+        description="The page you're looking for doesn't exist. Return to marhabaDMC to start your travel business with a white-label portal, flight/hotel/visa APIs, AI sales assistant, training, and ongoing support."
         path="/404"
         noIndex
       />

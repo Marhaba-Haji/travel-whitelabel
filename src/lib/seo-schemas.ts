@@ -32,7 +32,7 @@ export const organizationSchema = (contact?: ContactSchemaData) => ({
   legalName: ORG_LEGAL_NAME,
   alternateName: ORG_LEGAL_NAME,
   description:
-    "White-label travel portal for travel agents and entrepreneurs. Halal-friendly destinations, Hajj/Umrah modules, and AI sales tools.",
+    "Start your travel business with a white-label portal, flight/hotel/visa APIs, AI sales assistant, training, and ongoing support.",
   url: SITE_URL,
   logo: `${SITE_URL}/assets/marhaba-dmc-logo.png`,
   image: DEFAULT_OG_IMAGE,

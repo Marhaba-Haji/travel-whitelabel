@@ -26,8 +26,8 @@ const About = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="About Marhaba DMC — Halal-First B2B Travel Platform"
-        description="Marhaba DMC powers travel agents and entrepreneurs with a white-label portal, halal-friendly inventory, AI sales assistant, and global supplier network."
+        title="About Marhaba DMC — Start Your Travel Business in 24 Hours"
+        description="About Marhaba DMC. Start your travel business with a white-label portal, flight/hotel/visa APIs, AI sales assistant, training, and ongoing support."
         path="/about"
         jsonLd={breadcrumbSchema([
           { name: "Home", url: SITE_URL },
