@@ -1,0 +1,118 @@
+/* Marhaba Haji campaign design system.
+   Scoped to `.mh-scope` so it never leaks into the marhabaDMC B2B site. */
+
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+
+.mh-scope {
+  --mh-ivory: #fbf8f2;
+  --mh-surface: #ffffff;
+  --mh-ink: #10241c;
+  --mh-ink-soft: #4a5c55;
+  --mh-green: #0f5132;
+  --mh-green-deep: #08301e;
+  --mh-green-light: #e6f0ea;
+  --mh-gold: #c9992a;
+  --mh-gold-soft: #f6ecd4;
+  --mh-line: rgba(15, 81, 50, 0.14);
+  --mh-red: #b3261e;
+
+  background: var(--mh-ivory);
+  color: var(--mh-ink);
+  font-family: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.mh-scope h1, .mh-scope h2, .mh-scope h3, .mh-display {
+  font-family: "Fraunces", Georgia, serif;
+  letter-spacing: -0.015em;
+}
+
+.mh-h1 { font-weight: 700; font-size: clamp(2.1rem, 5vw, 3.6rem); line-height: 1.05; }
+.mh-h2 { font-weight: 700; font-size: clamp(1.7rem, 3.4vw, 2.6rem); line-height: 1.12; }
+.mh-h3 { font-weight: 600; font-size: clamp(1.15rem, 2vw, 1.4rem); line-height: 1.25; }
+.mh-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; }
+
+.mh-card {
+  background: var(--mh-surface);
+  border: 1px solid var(--mh-line);
+  border-radius: 1.25rem;
+  box-shadow: 0 1px 2px rgba(8, 48, 30, 0.04), 0 14px 40px -28px rgba(8, 48, 30, 0.45);
+}
+.mh-card-dark {
+  background: linear-gradient(160deg, var(--mh-green) 0%, var(--mh-green-deep) 100%);
+  color: #f4efe2;
+  border: 1px solid rgba(201, 153, 42, 0.35);
+  border-radius: 1.5rem;
+}
+
+.mh-chip {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  padding: 0.35rem 0.8rem; border-radius: 9999px;
+  background: var(--mh-green-light); color: var(--mh-green);
+  border: 1px solid var(--mh-line);
+  font-size: 0.75rem; font-weight: 600;
+}
+.mh-chip-gold {
+  background: var(--mh-gold-soft); color: #7a5c10;
+  border-color: rgba(201, 153, 42, 0.35);
+}
+
+.mh-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  font-weight: 700; font-family: inherit;
+  padding: 0.95rem 1.6rem; border-radius: 9999px; border: 0; cursor: pointer;
+  transition: transform 200ms ease, box-shadow 200ms ease, background-color 200ms ease;
+  text-align: center;
+}
+.mh-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.mh-btn-primary {
+  background: var(--mh-green); color: #fff;
+  box-shadow: 0 14px 30px -12px rgba(15, 81, 50, 0.6);
+}
+.mh-btn-primary:hover { background: var(--mh-green-deep); transform: translateY(-2px); }
+.mh-btn-gold {
+  background: linear-gradient(135deg, #e2b23f, var(--mh-gold));
+  color: #2a1f04;
+  box-shadow: 0 14px 30px -12px rgba(201, 153, 42, 0.65);
+}
+.mh-btn-gold:hover { transform: translateY(-2px); }
+.mh-btn-ghost {
+  background: transparent; color: var(--mh-green);
+  border: 1px solid var(--mh-line);
+}
+.mh-btn-ghost:hover { background: var(--mh-green-light); }
+.mh-btn-wa { background: #1ea952; color: #fff; }
+.mh-btn-wa:hover { background: #178a42; transform: translateY(-2px); }
+
+.mh-input {
+  width: 100%; height: 2.9rem; padding: 0 0.9rem;
+  border-radius: 0.7rem; border: 1px solid var(--mh-line);
+  background: #fff; color: var(--mh-ink); font-family: inherit; font-size: 0.95rem;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+.mh-input:focus {
+  outline: none; border-color: var(--mh-green);
+  box-shadow: 0 0 0 3px rgba(15, 81, 50, 0.14);
+}
+.mh-input::placeholder { color: #9aa8a2; }
+textarea.mh-input { height: auto; padding: 0.7rem 0.9rem; min-height: 5rem; }
+
+.mh-hero-bg {
+  background:
+    radial-gradient(60% 55% at 85% 0%, rgba(201, 153, 42, 0.18) 0%, rgba(251, 248, 242, 0) 65%),
+    radial-gradient(70% 60% at 10% 10%, rgba(15, 81, 50, 0.12) 0%, rgba(251, 248, 242, 0) 60%),
+    var(--mh-ivory);
+}
+.mh-pattern::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background-image:
+    repeating-linear-gradient(45deg, rgba(201, 153, 42, 0.10) 0 2px, transparent 2px 14px);
+}
+.mh-num { font-variant-numeric: tabular-nums; }
+
+@keyframes mh-pulse { 0%,100% { opacity: 1 } 50% { opacity: 0.35 } }
+.mh-live-dot { animation: mh-pulse 1.6s ease-in-out infinite; }

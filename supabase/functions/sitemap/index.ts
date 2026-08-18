@@ -11,6 +11,7 @@ const STATIC_PAGES = [
   { path: "/categories-destinations", priority: "0.7", changefreq: "weekly" },
   { path: "/umrah-visa-check", priority: "0.7", changefreq: "monthly" },
   { path: "/masterclass", priority: "0.9", changefreq: "weekly" },
+  { path: "/bangalore-umrah-package", priority: "0.9", changefreq: "weekly" },
   { path: "/login", priority: "0.4", changefreq: "yearly" },
   { path: "/privacy-policy", priority: "0.3", changefreq: "yearly" },
   { path: "/terms-of-service", priority: "0.3", changefreq: "yearly" },

@@ -1018,6 +1018,78 @@ export type Database = {
         }
         Relationships: []
       }
+      umrah_leads: {
+        Row: {
+          amount_inr: number
+          city: string | null
+          confirmation_sent_at: string | null
+          created_at: string
+          currency: string
+          email: string | null
+          full_name: string
+          id: string
+          landing_page: string | null
+          lead_type: string
+          message: string | null
+          package_slug: string
+          payu_mihpayid: string | null
+          phone_e164: string
+          room_preference: string | null
+          session_id: string | null
+          status: string
+          travellers: number
+          txnid: string | null
+          updated_at: string
+          utm: Json
+        }
+        Insert: {
+          amount_inr?: number
+          city?: string | null
+          confirmation_sent_at?: string | null
+          created_at?: string
+          currency?: string
+          email?: string | null
+          full_name: string
+          id?: string
+          landing_page?: string | null
+          lead_type?: string
+          message?: string | null
+          package_slug?: string
+          payu_mihpayid?: string | null
+          phone_e164: string
+          room_preference?: string | null
+          session_id?: string | null
+          status?: string
+          travellers?: number
+          txnid?: string | null
+          updated_at?: string
+          utm?: Json
+        }
+        Update: {
+          amount_inr?: number
+          city?: string | null
+          confirmation_sent_at?: string | null
+          created_at?: string
+          currency?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+          landing_page?: string | null
+          lead_type?: string
+          message?: string | null
+          package_slug?: string
+          payu_mihpayid?: string | null
+          phone_e164?: string
+          room_preference?: string | null
+          session_id?: string | null
+          status?: string
+          travellers?: number
+          txnid?: string | null
+          updated_at?: string
+          utm?: Json
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string

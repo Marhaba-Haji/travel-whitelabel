@@ -90,6 +90,7 @@ Deno.serve(async (req) => {
     const frontendUrl = safeFrontendUrl(data.udf5 || "");
     const purpose = data.udf1 || "";
     const webinarRegId = purpose === "webinar" ? (data.udf2 || "") : "";
+    const umrahLeadId = purpose === "umrah" ? (data.udf2 || "") : "";
 
     // Fail closed: without a valid PayU signature we record the callback for
     // auditing but never mutate payment/registration state.
@@ -210,6 +211,31 @@ Deno.serve(async (req) => {
       const redirectUrl = isSuccess
         ? `${frontendUrl}/masterclass/success?reg=${webinarRegId}&order=${encodeURIComponent(txnid)}`
         : `${frontendUrl}/masterclass/failed?reg=${webinarRegId}&order=${encodeURIComponent(txnid)}`;
+      return new Response(null, { status: 302, headers: { Location: redirectUrl } });
+    }
+
+    // Umrah booking amount handling
+    if (umrahLeadId) {
+      const { data: existingLead } = await supabase
+        .from("umrah_leads")
+        .select("status")
+        .eq("id", umrahLeadId)
+        .maybeSingle();
+
+      if (existingLead?.status !== "paid") {
+        await supabase
+          .from("umrah_leads")
+          .update({
+            status: isSuccess ? "paid" : "failed",
+            payu_mihpayid: data.mihpayid || null,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", umrahLeadId);
+      }
+
+      const redirectUrl = `${frontendUrl}/bangalore-umrah-package?booking=${
+        isSuccess ? "success" : "failed"
+      }&order=${encodeURIComponent(txnid)}`;
       return new Response(null, { status: 302, headers: { Location: redirectUrl } });
     }
 

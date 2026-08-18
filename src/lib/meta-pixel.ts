@@ -13,7 +13,12 @@ declare global {
   }
 }
 
-export type LeadSource = "contact_form" | "demo_booking" | "signup_review_order";
+export type LeadSource =
+  | "contact_form"
+  | "demo_booking"
+  | "signup_review_order"
+  | "umrah_enquiry"
+  | "umrah_booking";
 
 const newEventId = () => {
   try {
