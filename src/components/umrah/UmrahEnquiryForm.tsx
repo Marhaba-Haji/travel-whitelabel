@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Loader2, Send, CreditCard, CheckCircle2 } from "lucide-react";
+import { Loader2, Send, CreditCard, CheckCircle2, ShieldCheck, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { trackLead } from "@/lib/meta-pixel";
 import { UMRAH, inr } from "@/lib/umrah-package";
@@ -18,7 +18,13 @@ function readUtm() {
   return out;
 }
 
-const UmrahEnquiryForm = ({ compact = false }: { compact?: boolean }) => {
+const UmrahEnquiryForm = ({
+  compact = false,
+  initialRoomPreference = null,
+}: {
+  compact?: boolean;
+  initialRoomPreference?: string | null;
+}) => {
   const [form, setForm] = useState({
     full_name: "",
     phone: "",
@@ -28,9 +34,17 @@ const UmrahEnquiryForm = ({ compact = false }: { compact?: boolean }) => {
     room_preference: "Quad sharing",
     message: "",
   });
+  const [showMore, setShowMore] = useState(false);
   const [sending, setSending] = useState(false);
   const [paying, setPaying] = useState(false);
   const [done, setDone] = useState(false);
+
+  useEffect(() => {
+    if (initialRoomPreference) {
+      setForm((f) => ({ ...f, room_preference: initialRoomPreference }));
+      setShowMore(true);
+    }
+  }, [initialRoomPreference]);
 
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
@@ -151,35 +165,50 @@ const UmrahEnquiryForm = ({ compact = false }: { compact?: boolean }) => {
           <label className="mh-label text-[var(--mh-ink-soft)]" htmlFor="mh-name">Full name</label>
           <input id="mh-name" className="mh-input mt-1.5" value={form.full_name} onChange={set("full_name")} placeholder="As per passport" required />
         </div>
-        <div>
+        <div className="sm:col-span-2">
           <label className="mh-label text-[var(--mh-ink-soft)]" htmlFor="mh-phone">WhatsApp number</label>
           <input id="mh-phone" className="mh-input mt-1.5" value={form.phone} onChange={set("phone")} placeholder="10-digit mobile" inputMode="tel" required />
         </div>
-        <div>
-          <label className="mh-label text-[var(--mh-ink-soft)]" htmlFor="mh-email">Email (optional)</label>
-          <input id="mh-email" type="email" className="mh-input mt-1.5" value={form.email} onChange={set("email")} placeholder="you@email.com" />
-        </div>
-        <div>
-          <label className="mh-label text-[var(--mh-ink-soft)]" htmlFor="mh-city">City</label>
-          <input id="mh-city" className="mh-input mt-1.5" value={form.city} onChange={set("city")} placeholder="Bangalore" />
-        </div>
-        <div>
-          <label className="mh-label text-[var(--mh-ink-soft)]" htmlFor="mh-trav">Travellers</label>
-          <input id="mh-trav" type="number" min={1} max={60} className="mh-input mt-1.5" value={form.travellers} onChange={set("travellers")} />
-        </div>
-        <div className="sm:col-span-2">
-          <label className="mh-label text-[var(--mh-ink-soft)]" htmlFor="mh-room">Room preference</label>
-          <select id="mh-room" className="mh-input mt-1.5" value={form.room_preference} onChange={set("room_preference")}>
-            {ROOMS.map((r) => <option key={r} value={r}>{r}</option>)}
-          </select>
-        </div>
-        {!compact && (
-          <div className="sm:col-span-2">
-            <label className="mh-label text-[var(--mh-ink-soft)]" htmlFor="mh-msg">Anything we should know? (optional)</label>
-            <textarea id="mh-msg" className="mh-input mt-1.5" value={form.message} onChange={set("message")} placeholder="Elderly parents, wheelchair, group of 12…" />
-          </div>
+
+        {showMore && (
+          <>
+            <div>
+              <label className="mh-label text-[var(--mh-ink-soft)]" htmlFor="mh-email">Email (optional)</label>
+              <input id="mh-email" type="email" className="mh-input mt-1.5" value={form.email} onChange={set("email")} placeholder="you@email.com" />
+            </div>
+            <div>
+              <label className="mh-label text-[var(--mh-ink-soft)]" htmlFor="mh-city">City</label>
+              <input id="mh-city" className="mh-input mt-1.5" value={form.city} onChange={set("city")} placeholder="Bangalore" />
+            </div>
+            <div>
+              <label className="mh-label text-[var(--mh-ink-soft)]" htmlFor="mh-trav">Travellers</label>
+              <input id="mh-trav" type="number" min={1} max={60} className="mh-input mt-1.5" value={form.travellers} onChange={set("travellers")} />
+            </div>
+            <div>
+              <label className="mh-label text-[var(--mh-ink-soft)]" htmlFor="mh-room">Room preference</label>
+              <select id="mh-room" className="mh-input mt-1.5" value={form.room_preference} onChange={set("room_preference")}>
+                {ROOMS.map((r) => <option key={r} value={r}>{r}</option>)}
+              </select>
+            </div>
+            {!compact && (
+              <div className="sm:col-span-2">
+                <label className="mh-label text-[var(--mh-ink-soft)]" htmlFor="mh-msg">Anything we should know? (optional)</label>
+                <textarea id="mh-msg" className="mh-input mt-1.5" value={form.message} onChange={set("message")} placeholder="Elderly parents, wheelchair, group of 12…" />
+              </div>
+            )}
+          </>
         )}
       </div>
+
+      {!showMore && (
+        <button
+          type="button"
+          onClick={() => setShowMore(true)}
+          className="flex items-center gap-1 text-xs font-semibold text-[var(--mh-green)] mt-3"
+        >
+          <ChevronDown className="h-3.5 w-3.5" /> Add city, travellers &amp; room preference (optional)
+        </button>
+      )}
 
       <button type="submit" className="mh-btn mh-btn-primary w-full mt-5" disabled={sending}>
         {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
@@ -189,7 +218,10 @@ const UmrahEnquiryForm = ({ compact = false }: { compact?: boolean }) => {
         {paying ? <Loader2 className="h-4 w-4 animate-spin" /> : <CreditCard className="h-4 w-4" />}
         Pay {inr(UMRAH.advanceAmount)} booking amount
       </button>
-      <p className="text-[11px] text-[var(--mh-ink-soft)] text-center mt-3">
+      <p className="flex items-center justify-center gap-1.5 text-[11px] text-[var(--mh-ink-soft)] mt-3">
+        <ShieldCheck className="h-3.5 w-3.5 text-[var(--mh-green)]" /> Secured by PayU · 256-bit SSL encryption
+      </p>
+      <p className="text-[11px] text-[var(--mh-ink-soft)] text-center mt-1.5">
         Group of {UMRAH.groupDiscountMin}+? Mention it in the form — a further special discount applies.
       </p>
     </form>

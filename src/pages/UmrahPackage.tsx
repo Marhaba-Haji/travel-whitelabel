@@ -9,11 +9,78 @@ import UmrahEnquiryForm from "@/components/umrah/UmrahEnquiryForm";
 import { useContactSettings } from "@/hooks/useContactSettings";
 import { UMRAH, inr, savings, totalWithTaxes } from "@/lib/umrah-package";
 import heroImg from "@/assets/umrah-hero-makkah.jpg";
+import logoIcon from "@/assets/marhaba-haji-logo.webp";
+import hotelMakkahImg from "@/assets/hotel-makkah.jpg";
+import hotelMadinahImg from "@/assets/hotel-madinah.jpg";
+import ziyaratMakkahImg from "@/assets/ziyarat-makkah.jpg";
+import ziyaratMadinahImg from "@/assets/ziyarat-madinah.jpg";
+import ziyaratTaifImg from "@/assets/ziyarat-taif.jpg";
+import ziyaratBadrImg from "@/assets/ziyarat-badr.jpg";
+import ziyaratJoranaImg from "@/assets/ziyarat-jorana.jpg";
 import { SITE_URL } from "@/lib/seo-schemas";
 import "@/styles/marhaba-haji.css";
 
 const scrollToBook = () => {
   document.getElementById("book")?.scrollIntoView({ behavior: "smooth", block: "start" });
+};
+
+/**
+ * Lightweight client-side A/B split: assigns a variant once per visitor (persisted in
+ * localStorage) and reports exposure/clicks to window.dataLayer, so GTM/GA4 can pick up
+ * the experiment without further code changes — same pattern as trackLead in lib/meta-pixel.
+ */
+function useExperimentVariant<T extends string>(key: string, variants: readonly T[]): T {
+  const [variant] = useState<T>(() => {
+    if (typeof window === "undefined") return variants[0];
+    const storageKey = `mh_exp_${key}`;
+    try {
+      const stored = window.localStorage.getItem(storageKey);
+      if (stored && (variants as readonly string[]).includes(stored)) return stored as T;
+      const assigned = variants[Math.floor(Math.random() * variants.length)];
+      window.localStorage.setItem(storageKey, assigned);
+      return assigned;
+    } catch {
+      return variants[Math.floor(Math.random() * variants.length)];
+    }
+  });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: "experiment_view", experiment: key, variant });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return variant;
+}
+
+const trackExperimentClick = (key: string, variant: string) => {
+  if (typeof window === "undefined") return;
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({ event: "experiment_click", experiment: key, variant });
+};
+
+const CELEBRITY_VARIANTS = ["mystery", "reveal"] as const;
+
+const ZIYARAT_IMAGES: Record<string, string> = {
+  Makkah: ziyaratMakkahImg,
+  Madinah: ziyaratMadinahImg,
+  Taif: ziyaratTaifImg,
+  Badr: ziyaratBadrImg,
+  Jorana: ziyaratJoranaImg,
+};
+
+/** Wikimedia Commons photos used under CC BY / CC BY-SA require visible credit; Unsplash photos don't. */
+const ZIYARAT_CREDITS: Record<string, string> = {
+  Taif: "Photo: KELANTAN JOTTINGS, CC BY 2.0",
+  Jorana: "Photo: saudipics, CC BY-SA 4.0",
+};
+
+const ROOM_TO_FORM_VALUE: Record<string, string> = {
+  "Quint sharing": "Quint sharing",
+  "Quad sharing": "Quad sharing",
+  "Triple — private room": "Triple (private)",
+  "Double — private room": "Double (private)",
 };
 
 const Section = ({ id, children, className = "" }: { id?: string; children: React.ReactNode; className?: string }) => (
@@ -26,11 +93,19 @@ const Eyebrow = ({ children }: { children: React.ReactNode }) => (
   <p className="mh-label text-[var(--mh-gold)]">{children}</p>
 );
 
+const GOOGLE_REVIEWS = [
+  "You can trust the company give best service..",
+  "Excellent deals were provided and it was absolutely worth the price we paid.",
+  "The variety of options that they offered depending on our budget is commendable.",
+];
+
 const UmrahPackage = () => {
   const { whatsappUrlWithMessage } = useContactSettings();
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [showBar, setShowBar] = useState(false);
   const [booking, setBooking] = useState<{ state: string; order: string } | null>(null);
+  const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
+  const celebrityVariant = useExperimentVariant("celebrity_banner", CELEBRITY_VARIANTS);
 
   useEffect(() => {
     const q = new URLSearchParams(window.location.search);
@@ -119,12 +194,18 @@ const UmrahPackage = () => {
       >
         <div className="bg-[var(--mh-green-deep)] text-[#f6ecd4]">
           <div className="container mx-auto px-4 max-w-6xl py-2.5 flex items-center justify-between gap-3">
-            <div className="hidden sm:flex items-center gap-2 text-sm font-semibold">
-              <span className="h-2 w-2 rounded-full bg-[var(--mh-gold)] mh-live-dot" />
-              Only {UMRAH.seatsLeft} seats left · closes {UMRAH.deadlineLabel}
+            <div className="flex items-center gap-2.5 min-w-0">
+              <img src={logoIcon} alt="" aria-hidden="true" className="h-6 w-6 rounded-md shrink-0" />
+              <span className="mh-num font-extrabold text-[var(--mh-gold)] whitespace-nowrap">{inr(UMRAH.offerPrice)}</span>
+              <div className="hidden sm:flex items-center gap-2 text-sm font-semibold truncate">
+                <span className="h-2 w-2 rounded-full bg-[var(--mh-gold)] mh-live-dot shrink-0" />
+                Only {UMRAH.seatsLeft} seats left · closes {UMRAH.deadlineLabel}
+              </div>
             </div>
-            <UmrahCountdown deadlineISO={UMRAH.deadlineISO} dark className="scale-90 origin-left" />
-            <button className="mh-btn mh-btn-gold !py-2.5 !px-5 text-sm" onClick={scrollToBook}>
+            <div className="hidden sm:block">
+              <UmrahCountdown deadlineISO={UMRAH.deadlineISO} dark className="scale-90 origin-left" />
+            </div>
+            <button className="mh-btn mh-btn-gold !py-2.5 !px-5 text-sm shrink-0" onClick={scrollToBook}>
               Book now
             </button>
           </div>
@@ -132,13 +213,31 @@ const UmrahPackage = () => {
       </div>
 
       {/* HERO */}
-      <header className="mh-hero-bg pt-10 pb-14 sm:pt-16 sm:pb-20">
+      <header className="mh-hero-bg pt-5 pb-10 sm:pt-8 sm:pb-16">
         <div className="container mx-auto px-4 max-w-6xl">
-          <div className="flex items-center gap-2 mb-8">
-            <span className="mh-display text-xl font-bold text-[var(--mh-green)]">Marhaba Haji</span>
-            <span className="text-[11px] text-[var(--mh-ink-soft)] border-l border-[var(--mh-line)] pl-2">
-              by {UMRAH.legalEntity}
-            </span>
+          <div className="flex items-center justify-between gap-3 mb-6 sm:mb-10">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <img
+                src={logoIcon}
+                alt="Marhaba Haji logo"
+                width={40}
+                height={40}
+                className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl shrink-0 shadow-[0_6px_16px_-8px_rgba(8,48,30,0.5)]"
+              />
+              <div className="leading-tight min-w-0">
+                <p className="mh-display text-base sm:text-xl font-bold text-[var(--mh-green)] truncate">Marhaba Haji</p>
+                <p className="hidden sm:block text-[11px] text-[var(--mh-ink-soft)]">by {UMRAH.legalEntity}</p>
+              </div>
+            </div>
+            <a
+              className="mh-btn mh-btn-wa !py-2 !px-3 text-xs sm:!py-2.5 sm:!px-4 sm:text-sm shrink-0"
+              href={waUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <MessageCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              WhatsApp
+            </a>
           </div>
 
           <div className="grid lg:grid-cols-[1.05fr_0.95fr] gap-10 items-start">
@@ -166,7 +265,7 @@ const UmrahPackage = () => {
                   <span className="mh-display text-4xl sm:text-5xl font-bold text-[var(--mh-gold)]">
                     {inr(UMRAH.offerPrice)}
                   </span>
-                  <span className="text-[#f6ecd4]/75 text-sm pb-1">per person</span>
+                  <span className="text-[#f6ecd4]/75 text-sm pb-1">per person · quad sharing</span>
                   <span className="mh-chip mh-chip-gold ml-auto">Save {inr(savings)}</span>
                 </div>
                 <p className="text-[13px] text-[#f6ecd4]/70 mt-3">
@@ -190,19 +289,19 @@ const UmrahPackage = () => {
               </div>
             </div>
 
-            <div className="relative">
+            <div className="relative mt-2 lg:mt-0">
               <img
                 src={heroImg}
                 width={1280}
                 height={1600}
                 alt="Pilgrims performing tawaf around the Kaaba at Masjid al-Haram in Makkah at golden hour"
                 fetchPriority="high"
-                className="rounded-3xl w-full h-[420px] lg:h-[560px] object-cover shadow-[0_30px_70px_-40px_rgba(8,48,30,0.6)]"
+                className="rounded-3xl w-full h-[280px] sm:h-[420px] lg:h-[560px] object-cover shadow-[0_30px_70px_-40px_rgba(8,48,30,0.6)]"
               />
-              <div className="mh-card absolute -bottom-6 left-4 right-4 p-4 flex items-center justify-between gap-3">
+              <div className="mh-card absolute -bottom-5 sm:-bottom-6 left-3 right-3 sm:left-4 sm:right-4 p-3.5 sm:p-4 flex items-center justify-between gap-3">
                 <div>
                   <p className="mh-label text-[var(--mh-ink-soft)]">Bookings close in</p>
-                  <UmrahCountdown deadlineISO={UMRAH.deadlineISO} className="mt-1" />
+                  <UmrahCountdown deadlineISO={UMRAH.deadlineISO} className="mt-1 scale-90 sm:scale-100 origin-left" />
                 </div>
                 <span className="mh-chip mh-chip-gold whitespace-nowrap">{UMRAH.seatsLeft} seats left</span>
               </div>
@@ -211,35 +310,40 @@ const UmrahPackage = () => {
         </div>
       </header>
 
+      {/* TRUST STRIP */}
+      <Section className="!pt-6 !pb-6">
+        <div className="mh-card px-6 py-5 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+          {[
+            { icon: Users, t: "Focused group" },
+            { icon: Building2, t: "Haramain-close hotels" },
+            { icon: Sparkles, t: "Scholar-guided" },
+            { icon: ShieldCheck, t: "Transparent pricing" },
+          ].map((item) => (
+            <div key={item.t} className="flex items-center gap-2 text-sm font-semibold">
+              <item.icon className="h-4 w-4 text-[var(--mh-green)] shrink-0" />
+              {item.t}
+            </div>
+          ))}
+        </div>
+      </Section>
+
       {/* SEATS / URGENCY */}
-      <Section className="!pt-8">
+      <Section className="!pt-2">
         <div className="mh-card p-6 sm:p-8">
-          <div className="grid md:grid-cols-[1.4fr_1fr] gap-8 items-center">
-            <div>
-              <div className="flex items-center justify-between text-sm font-semibold">
-                <span>{UMRAH.seatsTotal - UMRAH.seatsLeft} of {UMRAH.seatsTotal} seats already booked</span>
-                <span className="text-[var(--mh-red)]">Only {UMRAH.seatsLeft} left</span>
-              </div>
-              <div className="h-3 rounded-full bg-[var(--mh-green-light)] mt-3 overflow-hidden">
-                <div
-                  className="h-full rounded-full bg-gradient-to-r from-[var(--mh-green)] to-[var(--mh-gold)]"
-                  style={{ width: `${((UMRAH.seatsTotal - UMRAH.seatsLeft) / UMRAH.seatsTotal) * 100}%` }}
-                />
-              </div>
-              <p className="text-sm text-[var(--mh-ink-soft)] mt-3">
-                Seats are released in the order booking amounts are received. Visa and ticketing close on{" "}
-                {UMRAH.deadlineLabel}.
-              </p>
-            </div>
-            <div className="mh-card !shadow-none border-dashed p-5 text-center bg-[var(--mh-gold-soft)]">
-              <Gift className="h-6 w-6 mx-auto text-[var(--mh-gold)]" />
-              <p className="font-bold mt-2">Travelling with {UMRAH.groupDiscountMin}+ people?</p>
-              <p className="text-sm text-[var(--mh-ink-soft)] mt-1">
-                Families and groups of {UMRAH.groupDiscountMin} or more get a further special discount on top of the
-                offer price.
-              </p>
-            </div>
+          <div className="flex items-center justify-between text-sm font-semibold">
+            <span>{UMRAH.seatsTotal - UMRAH.seatsLeft} of {UMRAH.seatsTotal} seats already booked</span>
+            <span className="text-[var(--mh-red)]">Only {UMRAH.seatsLeft} left</span>
           </div>
+          <div className="h-3 rounded-full bg-[var(--mh-green-light)] mt-3 overflow-hidden">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-[var(--mh-green)] to-[var(--mh-gold)]"
+              style={{ width: `${((UMRAH.seatsTotal - UMRAH.seatsLeft) / UMRAH.seatsTotal) * 100}%` }}
+            />
+          </div>
+          <p className="text-sm text-[var(--mh-ink-soft)] mt-3">
+            Seats are released in the order booking amounts are received. Visa and ticketing close on{" "}
+            {UMRAH.deadlineLabel}.
+          </p>
         </div>
       </Section>
 
@@ -269,6 +373,8 @@ const UmrahPackage = () => {
               days: `${UMRAH.makkahDays} days`,
               hotel: UMRAH.makkahHotel,
               dist: UMRAH.makkahDistance,
+              img: hotelMakkahImg,
+              imgAlt: `${UMRAH.makkahHotel} — hotel exterior and signage in Makkah`,
               points: ["Walk to the Haram for every salah", "Buffet meals in the hotel", "Makkah ziyarat + Jorana Umrah"],
             },
             {
@@ -276,27 +382,39 @@ const UmrahPackage = () => {
               days: `${UMRAH.madinahDays} days`,
               hotel: UMRAH.madinahHotel,
               dist: UMRAH.madinahDistance,
+              img: hotelMadinahImg,
+              imgAlt: `${UMRAH.madinahHotel} — hotel exterior and signage in Madinah`,
               points: ["Inside the Markaziya (central) zone", "Riyadh-ul-Jannah guidance from our team", "Madinah, Uhud and Badr ziyarat"],
             },
           ].map((h) => (
             <div key={h.city} className="mh-card p-6">
-              <div className="flex items-center justify-between">
-                <h3 className="mh-h3">{h.city}</h3>
-                <span className="mh-chip">{h.days}</span>
+              <img
+                src={h.img}
+                alt={h.imgAlt}
+                width={900}
+                height={900}
+                loading="lazy"
+                className="aspect-square w-full rounded-2xl object-cover"
+              />
+              <div className="mt-5">
+                <div className="flex items-center justify-between">
+                  <h3 className="mh-h3">{h.city}</h3>
+                  <span className="mh-chip">{h.days}</span>
+                </div>
+                <p className="flex items-start gap-2 mt-4 font-semibold">
+                  <BedDouble className="h-5 w-5 text-[var(--mh-green)] shrink-0" /> {h.hotel}
+                </p>
+                <p className="flex items-start gap-2 mt-2 text-sm text-[var(--mh-ink-soft)]">
+                  <MapPin className="h-4 w-4 text-[var(--mh-gold)] shrink-0 mt-0.5" /> {h.dist}
+                </p>
+                <ul className="mt-4 space-y-2">
+                  {h.points.map((p) => (
+                    <li key={p} className="flex items-start gap-2 text-sm">
+                      <Check className="h-4 w-4 text-[var(--mh-green)] shrink-0 mt-0.5" /> {p}
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <p className="flex items-start gap-2 mt-4 font-semibold">
-                <BedDouble className="h-5 w-5 text-[var(--mh-green)] shrink-0" /> {h.hotel}
-              </p>
-              <p className="flex items-start gap-2 mt-2 text-sm text-[var(--mh-ink-soft)]">
-                <MapPin className="h-4 w-4 text-[var(--mh-gold)] shrink-0 mt-0.5" /> {h.dist}
-              </p>
-              <ul className="mt-4 space-y-2">
-                {h.points.map((p) => (
-                  <li key={p} className="flex items-start gap-2 text-sm">
-                    <Check className="h-4 w-4 text-[var(--mh-green)] shrink-0 mt-0.5" /> {p}
-                  </li>
-                ))}
-              </ul>
             </div>
           ))}
         </div>
@@ -335,7 +453,13 @@ const UmrahPackage = () => {
               <p className="text-xs text-[var(--mh-ink-soft)] mt-1">
                 {r.price ? "per person + GST & TCS" : "Private room — ask for the rate"}
               </p>
-              <button className="mh-btn mh-btn-ghost w-full mt-4 !py-2.5" onClick={scrollToBook}>
+              <button
+                className="mh-btn mh-btn-ghost w-full mt-4 !py-2.5"
+                onClick={() => {
+                  setSelectedRoom(ROOM_TO_FORM_VALUE[r.type] ?? null);
+                  scrollToBook();
+                }}
+              >
                 Select
               </button>
             </div>
@@ -348,6 +472,35 @@ const UmrahPackage = () => {
         </p>
       </Section>
 
+      {/* TESTIMONIALS */}
+      <Section className="bg-white border-t border-[var(--mh-line)]">
+        <Eyebrow>What pilgrims say</Eyebrow>
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <h2 className="mh-h2 mt-2">Rated 4.6 on Google, from 155 reviews</h2>
+          <a
+            href="https://maps.app.goo.gl/1q77VcdN6BLEdtrR9"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--mh-green)]"
+          >
+            <Star className="h-4 w-4 fill-[var(--mh-gold)] text-[var(--mh-gold)]" /> See all reviews on Google
+          </a>
+        </div>
+        <div className="grid sm:grid-cols-3 gap-4 mt-8">
+          {GOOGLE_REVIEWS.map((quote) => (
+            <div key={quote} className="mh-card p-5">
+              <div className="flex gap-0.5">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star key={i} className="h-3.5 w-3.5 fill-[var(--mh-gold)] text-[var(--mh-gold)]" />
+                ))}
+              </div>
+              <p className="text-sm mt-3">"{quote}"</p>
+              <p className="text-xs text-[var(--mh-ink-soft)] mt-3">Google review</p>
+            </div>
+          ))}
+        </div>
+      </Section>
+
       {/* ZIYARAT */}
       <Section className="bg-white border-y border-[var(--mh-line)]">
         <Eyebrow>Guided ziyarat programme</Eyebrow>
@@ -355,9 +508,20 @@ const UmrahPackage = () => {
         <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4 mt-8">
           {UMRAH.ziyarats.map((z, i) => (
             <div key={z.city} className="mh-card p-5">
-              <span className="mh-display text-3xl font-bold text-[var(--mh-gold)]/60">0{i + 1}</span>
+              <img
+                src={ZIYARAT_IMAGES[z.city]}
+                alt={`${z.city} ziyarat site`}
+                width={900}
+                height={900}
+                loading="lazy"
+                className="aspect-square w-full rounded-2xl object-cover"
+              />
+              <span className="mh-display text-3xl font-bold text-[var(--mh-gold)]/60 mt-4 block">0{i + 1}</span>
               <h3 className="mh-h3 mt-2">{z.city}</h3>
               <p className="text-sm text-[var(--mh-ink-soft)] mt-1.5">{z.detail}</p>
+              {ZIYARAT_CREDITS[z.city] && (
+                <p className="text-[10px] text-[var(--mh-ink-soft)]/70 mt-2">{ZIYARAT_CREDITS[z.city]}</p>
+              )}
             </div>
           ))}
         </div>
@@ -399,20 +563,28 @@ const UmrahPackage = () => {
         </div>
       </Section>
 
-      {/* SECRET GUEST */}
+      {/* SECRET GUEST — A/B test: full mystery vs. partial reveal (mh_exp_celebrity_banner) */}
       <Section>
         <div className="mh-card-dark p-8 sm:p-12 text-center">
           <span className="mh-chip mh-chip-gold">Secret bonus for this group</span>
           <h2 className="mh-h2 mt-5 text-[#f6ecd4]">
-            One well-known guest is travelling with this group
+            {celebrityVariant === "reveal"
+              ? "A well-known Bengaluru voice is travelling with this group"
+              : "One well-known guest is travelling with this group"}
           </h2>
           <p className="text-[#f6ecd4]/75 max-w-2xl mx-auto mt-4">
-            A widely followed Muslim personality from Bangalore — over 1.2 million followers — will perform Umrah
-            along with this jamaat. We are keeping the name a surprise for confirmed pilgrims only. Book your seat and
-            our team will reveal it to you privately.
+            {celebrityVariant === "reveal"
+              ? "A widely followed Bengaluru-based scholar and content creator — over 1.2 million followers — will perform Umrah along with this jamaat. Book your seat and our team will share the full details privately."
+              : "A widely followed Muslim personality from Bangalore — over 1.2 million followers — will perform Umrah along with this jamaat. We are keeping the name a surprise for confirmed pilgrims only. Book your seat and our team will reveal it to you privately."}
           </p>
-          <button className="mh-btn mh-btn-gold mt-7" onClick={scrollToBook}>
-            Book a seat and find out
+          <button
+            className="mh-btn mh-btn-gold mt-7"
+            onClick={() => {
+              trackExperimentClick("celebrity_banner", celebrityVariant);
+              scrollToBook();
+            }}
+          >
+            {celebrityVariant === "reveal" ? "Book a seat to meet them" : "Book a seat and find out"}
           </button>
         </div>
       </Section>
@@ -474,7 +646,21 @@ const UmrahPackage = () => {
             </div>
           </div>
 
-          <UmrahEnquiryForm />
+          <UmrahEnquiryForm initialRoomPreference={selectedRoom} />
+        </div>
+      </Section>
+
+      {/* GROUP DISCOUNT */}
+      <Section className="!pt-0">
+        <div className="mh-card !shadow-none border-dashed p-6 sm:p-7 flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left bg-[var(--mh-gold-soft)]">
+          <Gift className="h-8 w-8 text-[var(--mh-gold)] shrink-0" />
+          <div>
+            <p className="font-bold">Travelling with {UMRAH.groupDiscountMin}+ people?</p>
+            <p className="text-sm text-[var(--mh-ink-soft)] mt-1">
+              Families and groups of {UMRAH.groupDiscountMin} or more get a further special discount on top of the
+              offer price. Send an enquiry above and our Umrah desk will share the group rate.
+            </p>
+          </div>
         </div>
       </Section>
 
