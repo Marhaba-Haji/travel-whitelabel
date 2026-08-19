@@ -88,6 +88,25 @@ const UmrahEnquiryForm = ({
       return toast.error("Could not send your enquiry. Please try WhatsApp instead.");
     }
     trackLead("umrah_enquiry", { package: UMRAH.slug, travellers: form.travellers });
+    supabase.functions
+      .invoke("notify-umrah-lead", {
+        body: {
+          full_name: form.full_name.trim().slice(0, 100),
+          phone_e164: phoneE164(),
+          email: form.email.trim().toLowerCase() || null,
+          city: form.city.trim() || null,
+          travellers: Math.max(1, Math.min(60, parseInt(form.travellers) || 1)),
+          room_preference: form.room_preference,
+          message: form.message.trim().slice(0, 1000) || null,
+          package_slug: UMRAH.slug,
+          lead_type: "enquiry",
+          status: "new",
+          amount_inr: 0,
+          utm: readUtm(),
+          landing_page: typeof window !== "undefined" ? window.location.pathname : null,
+        },
+      })
+      .catch(() => {});
     setDone(true);
     toast.success("Enquiry received. Our Umrah desk will call you shortly.");
   };
