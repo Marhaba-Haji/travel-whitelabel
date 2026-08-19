@@ -107,6 +107,35 @@ Deno.serve(async (req) => {
 
     await supabase.from("umrah_leads").update({ txnid }).eq("id", lead.id);
 
+    // Notify the Umrah desk immediately (non-blocking failure)
+    try {
+      await fetch(`${EDGE_BASE}/notify-umrah-lead`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          full_name: String(fullName).trim(),
+          phone_e164: phoneE164,
+          email: email || null,
+          city: city || null,
+          travellers: pax,
+          room_preference: roomPreference || null,
+          message: message || null,
+          package_slug: PACKAGE_SLUG,
+          lead_type: "booking",
+          status: "pending",
+          amount_inr: amountInr,
+          txnid,
+          utm: utm || {},
+          landing_page: "/bangalore-umrah-package",
+        }),
+      });
+    } catch (e) {
+      console.error("notify-umrah-lead failed:", e);
+    }
+
     return new Response(JSON.stringify({ action: PAYU_ACTION, params, leadId: lead.id, order: txnid }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (err) {
