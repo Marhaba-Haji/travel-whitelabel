@@ -1,20 +1,21 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MessageSquare, Mail, Users, CreditCard, AlertTriangle, CalendarCheck, CalendarClock, CalendarX, GraduationCap, Clock, IndianRupee, XCircle } from "lucide-react";
+import { MessageSquare, Mail, Users, CreditCard, AlertTriangle, CalendarCheck, CalendarClock, CalendarX, GraduationCap, Clock, IndianRupee, XCircle, Plane, UserPlus, Wallet } from "lucide-react";
 
 const OverviewTab = () => {
   const { data: stats, isLoading } = useQuery({
     queryKey: ["admin-overview"],
     queryFn: async () => {
       const today = new Date().toISOString().slice(0, 10);
-      const [enquiries, newsletter, registrations, payments, demos, webinars] = await Promise.all([
+      const [enquiries, newsletter, registrations, payments, demos, webinars, umrah] = await Promise.all([
         supabase.from("contact_enquiries").select("id", { count: "exact", head: true }),
         supabase.from("newsletter_subscriptions").select("id", { count: "exact", head: true }),
         supabase.from("registrations").select("id", { count: "exact", head: true }),
         supabase.from("payments").select("id, status"),
         supabase.from("demo_bookings").select("id, status, booking_date"),
         supabase.from("webinar_registrations").select("id, status, amount_inr"),
+        supabase.from("umrah_leads" as any).select("id, lead_type, status, travellers, amount_inr"),
       ]);
       const paymentRows = payments.data ?? [];
       const successPayments = paymentRows.filter((p) => p.status === "success").length;
@@ -34,7 +35,14 @@ const OverviewTab = () => {
       const webinarRevenue = webinarRows
         .filter((w: any) => w.status === "paid")
         .reduce((sum: number, w: any) => sum + Number(w.amount_inr ?? 0), 0);
+      const umrahRows = (umrah.data ?? []) as any[];
+      const umrahPaid = umrahRows.filter((u) => u.status === "paid");
       return {
+        umrahTotal: umrahRows.length,
+        umrahEnquiries: umrahRows.filter((u) => u.lead_type === "enquiry").length,
+        umrahPaid: umrahPaid.length,
+        umrahPax: umrahRows.reduce((s, u) => s + (Number(u.travellers) || 0), 0),
+        umrahCollected: umrahPaid.reduce((s, u) => s + (Number(u.amount_inr) || 0), 0),
         enquiries: enquiries.count ?? 0,
         newsletter: newsletter.count ?? 0,
         registrations: registrations.count ?? 0,
@@ -57,6 +65,11 @@ const OverviewTab = () => {
   if (isLoading) return <p className="text-muted-foreground">Loading...</p>;
 
   const cards = [
+    { label: "Umrah Leads (Total)", value: stats?.umrahTotal, icon: Plane, color: "text-primary" },
+    { label: "Umrah Enquiries", value: stats?.umrahEnquiries, icon: UserPlus, color: "text-primary" },
+    { label: "Umrah Paid Bookings", value: stats?.umrahPaid, icon: CreditCard, color: "text-primary" },
+    { label: "Umrah Total Pax", value: stats?.umrahPax, icon: Users, color: "text-primary" },
+    { label: "Umrah Collected", value: stats?.umrahCollected, icon: Wallet, color: "text-primary", isCurrency: true },
     { label: "Contact Enquiries", value: stats?.enquiries, icon: MessageSquare, color: "text-primary" },
     { label: "Newsletter Signups", value: stats?.newsletter, icon: Mail, color: "text-primary" },
     { label: "Total Registrations", value: stats?.registrations, icon: Users, color: "text-primary" },
